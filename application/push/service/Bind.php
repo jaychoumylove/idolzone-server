@@ -8,7 +8,7 @@ class Bind
 
     public function __construct()
     {
-        Gateway::$registerAddress = '127.0.0.1:1238';
+        Gateway::$registerAddress = '172.19.102.5:10082';
     }
 
     public function Bind($client_id, $uid)
