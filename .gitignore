@@ -13,3 +13,4 @@ public/uploads/*
 .vscode
 application/push/start_register.php
 thinkphp/*
+application/config.php
