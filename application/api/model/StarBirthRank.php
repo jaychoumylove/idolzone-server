@@ -43,13 +43,15 @@ class StarBirthRank extends Base
     public static function grantBirthAward()
     {
         $starids = Star::where('birthday', date('md'))->column('id');
-        $uids = [];
-        foreach ($starids as $starid) {
-            $uids = array_merge($uids, UserStar::where('star_id', $starid)->order('lastweek_count desc')->limit(100)->column('user_id'));
-        }
-        $userService = new User;
-        foreach ($uids as $uid) {
-            $userService->change($uid, ['flower' => 52000], '生日福利~');
+        if ($starids) {
+            $uids = [];
+            foreach ($starids as $starid) {
+                $uids = array_merge($uids, UserStar::where('star_id', $starid)->order('lastweek_count desc')->limit(100)->column('user_id'));
+            }
+            $userService = new User;
+            foreach ($uids as $uid) {
+                $userService->change($uid, ['flower' => 52000], '生日福利~');
+            }
         }
     }
 }

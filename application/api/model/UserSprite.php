@@ -73,9 +73,15 @@ class UserSprite extends Base
 
         Db::startTrans();
         try {
-            (new User)->change($uid, [
-                'coin' => $data['earn']
-            ]);
+            if ($data['mode'] == 1) {
+                (new User)->change($uid, [
+                    'coin' => $data['earn']
+                ], '离线收益');
+            } else {
+                (new User)->change($uid, [
+                    'coin' => $data['earn']
+                ]);
+            }
 
             self::where('user_id', $uid)->update([
                 'settle_time' => time(),

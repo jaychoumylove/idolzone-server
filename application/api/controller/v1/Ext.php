@@ -197,7 +197,8 @@ class Ext extends Base
         $this->getUser();
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 10);
-        $logList = Rec::getList($this->uid, $page, $size);
+        $filter = $this->req('filter');
+        $logList = Rec::getList($this->uid, $page, $size, $filter);
 
         Common::res(['data' => $logList]);
     }

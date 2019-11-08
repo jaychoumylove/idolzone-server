@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\CfgLottery;
 use app\base\controller\Base;
 use app\api\model\StarRank;
 use think\Db;
@@ -67,6 +68,8 @@ class AutoRun extends Base
             ]);
             // 给今日生日明星粉丝上周贡献前100名52000鲜花
             StarBirthRank::grantBirthAward();
+            // 周末抽奖双倍
+            CfgLottery::doubleAward();
 
             Db::commit();
         } catch (\Exception $e) {

@@ -157,7 +157,8 @@ Route::rule('api/:version/lottery/settle', 'api/v1.Lottery/settle');// 寻宝结
 Route::rule('api/:version/lottery/start', 'api/v1.Lottery/start');// 抽奖
 Route::rule('api/:version/lottery/getBox', 'api/v1.Lottery/getBox');// 抽奖宝箱信息
 Route::rule('api/:version/lottery/getBoxOpen', 'api/v1.Lottery/getBoxOpen');// 抽奖宝箱信息
-Route::rule('api/:version/lottery/dayEarn', 'api/v1.Lottery/dayEarn');// 抽奖获得
+Route::rule('api/:version/lottery/dayEarn', 'api/v1.Lottery/dayEarn');// 抽奖今日获得
+Route::rule('api/:version/lottery/log', 'api/v1.Lottery/log');// 抽奖今日明细
 
 // Article
 Route::rule('api/:version/article', 'api/v1.Article/getArticle');// 获取文章
@@ -168,6 +169,7 @@ Route::rule('api/:version/article/delete', 'api/v1.Article/delete');// 删除文
 Route::rule('api/:version/article/video_exipre', 'api/v1.Article/getVideoExpire');// 获取视频过期
 Route::rule('api/:version/article/notice', 'api/v1.Article/getNotice');// 官方通知
 Route::rule('api/:version/article/noticelist', 'api/v1.Article/getNoticeList');// 官方通知列表
+Route::rule('api/:version/article/refrashVideo', 'api/v1.Article/refrashVideo');// 更新视频地址
 
 //gift
 Route::rule('api/:version/page/gift_package', 'api/v1.Page/giftPackage');// 礼物背包

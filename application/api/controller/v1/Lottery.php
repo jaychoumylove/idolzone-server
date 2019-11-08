@@ -8,6 +8,7 @@ use app\api\model\UserExt;
 use app\api\service\User;
 use app\api\model\Cfg;
 use app\api\model\LotteryBox;
+use app\api\model\Rec;
 use app\api\model\RecLottery;
 use think\Db;
 
@@ -77,7 +78,18 @@ class Lottery extends Base
         $res['coin'] = Rec::where('content', '幸运抽奖')->where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('coin');
         $res['flower'] = Rec::where('content', '幸运抽奖')->where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('flower');
         $res['stone'] = Rec::where('content', '幸运抽奖')->where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('stone');
-
+        $res['times'] = UserExt::where('user_id', $this->uid)->value('lottery_times');
         Common::res(['data' => $res]);
+    }
+
+    public function log()
+    {
+        $this->getUser();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+
+        $logList = Rec::where('user_id', $this->uid)->where('content', '幸运抽奖')->whereTime('create_time', 'd')->order('id desc')->page($page, $size)->select();
+
+        Common::res(['data' => $logList]);
     }
 }

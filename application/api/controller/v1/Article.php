@@ -82,7 +82,7 @@ class Article extends Base
 
     public function getNotice()
     {
-        $id = $this->req('id','integer');
+        $id = $this->req('id', 'integer');
 
         $res = Notice::get($id);
         Common::res(['data' => $res]);
@@ -92,5 +92,19 @@ class Article extends Base
     {
         $res = Notice::where('1=1')->order('is_top desc,create_time desc')->select();
         Common::res(['data' => $res]);
+    }
+
+    public function refrashVideo()
+    {
+        $id = $this->req('id', 'integer');
+
+        $weiboUrl = 'https://m.weibo.cn/detail/' . ArticleModel::where('id', $id)->value('weibo_id');
+
+        $weiboContent = Common::request($weiboUrl);
+        preg_match("/\"stream_url\": \"(.+?)\",/", $weiboContent, $match);
+        $newSrc = $match[1];
+
+        ArticleModel::where('id', $id)->update(['video' => $newSrc]);
+        Common::res(['data' => $newSrc]);
     }
 }

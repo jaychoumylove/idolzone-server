@@ -12,3 +12,4 @@ public/uploads/*
 .settings/*
 .vscode
 application/push/start_register.php
+thinkphp/*
