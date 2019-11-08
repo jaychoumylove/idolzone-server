@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <div class="container">
+        <form action="/api/v1/article/formart" method="post">
+            <div class="form-group">
+                <label for=""></label>
+                <textarea class="form-control" name="text" id="" rows="10">{$text}</textarea>
+            </div>
+
+            <button type="submit" name="" id="" class="btn btn-primary">转换</button>
+            <!-- <button type="button"  name="" id="" class="btn btn-primary">reset</button> -->
+
+            <div> 格式：(注意以英文分号结束)</div>
+
+            <div style="font-weight: 700;">标题 = 我是标题;</div>
+            <div style="font-weight: 700;">内容 = 我是段落1;</div>
+            <div style="font-weight: 700;">内容 = 我是段落2;</div>
+            <div style="font-weight: 700;">图片 = /image/picture.jpg;</div>
+
+
+        </form>
+
+    </div>
+
+
+</body>
+
+</html>

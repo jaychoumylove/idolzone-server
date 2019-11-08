@@ -60,7 +60,7 @@ class User extends Base
         }
         unset($saveData['watermark']);
 
-        UserModel::where(['id' => $this->uid])->update($saveData);
+        UserModel::where('id', $this->uid)->update($saveData);
         Common::res();
     }
 

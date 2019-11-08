@@ -102,9 +102,36 @@ class Article extends Base
 
         $weiboContent = Common::request($weiboUrl);
         preg_match("/\"stream_url\": \"(.+?)\",/", $weiboContent, $match);
+        // 有效的视频地址
         $newSrc = $match[1];
 
         ArticleModel::where('id', $id)->update(['video' => $newSrc]);
         Common::res(['data' => $newSrc]);
+    }
+
+    public function formart()
+    {
+        $text = input('text');
+
+        $result = [];
+        $text = explode(';', $text);
+        foreach ($text as $row) {
+            if (strpos($row, '=') !== false) {
+                $split = explode('=', $row);
+
+                $left = trim($split[0]);
+                $right = trim($split[1]);
+
+                if ($left == '标题') $left = 'title';
+                if ($left == '内容') $left = 'content';
+                if ($left == '图片') $left = 'image';
+
+                $result[] = [
+                    'type' => $left,
+                    'content' => $right,
+                ];
+            }
+        }
+        return view('formart', ['text' => json_encode($result, JSON_UNESCAPED_UNICODE)]);
     }
 }

@@ -170,6 +170,7 @@ Route::rule('api/:version/article/video_exipre', 'api/v1.Article/getVideoExpire'
 Route::rule('api/:version/article/notice', 'api/v1.Article/getNotice');// 官方通知
 Route::rule('api/:version/article/noticelist', 'api/v1.Article/getNoticeList');// 官方通知列表
 Route::rule('api/:version/article/refrashVideo', 'api/v1.Article/refrashVideo');// 更新视频地址
+Route::rule('api/:version/article/formart', 'api/v1.Article/formart');// 文章格式化
 
 //gift
 Route::rule('api/:version/page/gift_package', 'api/v1.Page/giftPackage');// 礼物背包

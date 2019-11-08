@@ -23,12 +23,12 @@ class RecActive extends Base
     }
 
     /**明星的活动进度 */
-    public static function getProgress($starid, $active_id, $target_people)
+    public static function getProgress($starid, $active_id, $min_clocks)
     {
         // 参与人数
         $res['join_people'] = self::where('star_id', $starid)->where('active_id', $active_id)->where('total_clocks', '>', 0)->count('id');
         // 完成人数
-        $res['complete_people'] = self::where('star_id', $starid)->where('active_id', $active_id)->where('total_clocks', '>=', $target_people)->count('id');
+        $res['complete_people'] = self::where('star_id', $starid)->where('active_id', $active_id)->where('total_clocks', '>=', $min_clocks)->count('id');
         return $res;
     }
 

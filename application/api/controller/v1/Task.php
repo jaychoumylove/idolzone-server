@@ -12,6 +12,7 @@ use app\api\model\Cfg;
 use app\api\model\CfgBadge;
 use app\api\model\RecTask;
 use app\api\model\UserStar;
+use app\api\model\UserStar as AppUserStar;
 
 class Task extends Base
 {
@@ -80,6 +81,8 @@ class Task extends Base
 
         $text = str_replace('STARNAME[超话]', $user['user_star']['star']['chaohua'] . '[超话]', $text);
         $text = str_replace('STARNAME', $user['user_star']['star']['name'], $text);
+
+        $text = str_replace('DAYHOT', $user['user_star']['thisday_count'], $text);
 
         $text = str_replace('STARSCORE', $user['user_star']['star']['star_rank']['week_hot'], $text);
         $text = str_replace('STARRANK', $rank, $text);

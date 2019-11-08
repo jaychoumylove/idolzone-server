@@ -21,7 +21,7 @@ class RecPayOrder extends Base
         (new UserService)->change($uid, [
             'flower' => $goodsInfo['flower'] * $goodsInfo['num'],
             'stone' => $goodsInfo['stone'] * $goodsInfo['num'],
-        ], '充值到账，付款人id：' . $pay_uid);
+        ], '充值到账，付款人：' . User::where('id', $pay_uid)->value('nickname'));
 
         if ($goodsInfo['remain'] !== null) {
             // 限量商品减库存

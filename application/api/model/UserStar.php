@@ -169,7 +169,7 @@ class UserStar extends Base
         // 活动说明
         $res['notice'] = json_decode($res['notice'], true);
         // 完成进度
-        $res['progress'] = RecActive::getProgress($starid, $res['id'], $res['target_people']);
+        $res['progress'] = RecActive::getProgress($starid, $res['id'], $res['min_days']);
         // 我的打卡信息
         $res['self'] = RecActive::getOneInfo($uid, $starid, $active_id);
 
