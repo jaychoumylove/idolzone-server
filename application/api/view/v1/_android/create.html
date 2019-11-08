@@ -1,0 +1,67 @@
+{extend name="v1/_android/layout" /}
+
+{block name="content"}
+<form class="form" id="form-create">
+    <div class="form-group">
+        <label for="">明星ID</label>
+        <input type="text" name="starid" id="" class="form-control" placeholder="" aria-describedby="helpId">
+    </div>
+    <div class="form-group">
+        <input class="btn btn-success" type="file" name="file" id="file" />
+    </div>
+    <div class="form-group">
+        <label for="">昵称</label>
+        <input type="text" readonly name="nickname" id="nickname" class="form-control" placeholder=""
+            aria-describedby="helpId">
+    </div>
+    <div class="form-group">
+        <label for="">头像url</label>
+        <input type="text" readonly name="avatar" id="avatar" class="form-control" placeholder=""
+            aria-describedby="helpId">
+    </div>
+
+    <div class="form-group">
+        <button type="button" id="create-btn" class="btn btn-primary">创建</button>
+    </div>
+</form>
+
+<script>
+    $('#file').on('change', e => {
+        let file = $("#file")[0].files[0]
+        let nickname = file.name.split('.')[0]
+
+        // 上传头像
+        var formData = new FormData();
+        formData.append("file", file);
+
+        $.ajax({
+            url: '/api/v1/upload',
+            type: 'post',
+            data: formData,
+            contentType: false,
+            processData: false,
+
+            success: function (result) {
+                $('#nickname').val(nickname)
+                $('#avatar').val(result.data.https_url)
+            }
+        });
+
+    })
+
+    $('#create-btn').on('click', e => {
+        $.ajax({
+            url: '/api/v1/android/create',
+            type: 'post',
+            data: $('#form-create').serialize(),
+
+            success: (res) => {
+                if (res.code == 0) {
+                    $('#form-create')[0].reset()
+                }
+                alert(res.msg)
+            }
+        });
+    })
+</script>
+{/block}

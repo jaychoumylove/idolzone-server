@@ -1,0 +1,60 @@
+{extend name="v1/_android/layout" /}
+
+{block name="content"}
+
+<form action="/api/v1/android/infoView">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">明星ID</span>
+        </div>
+        <input type="text" name="starid" class="form-control" placeholder="">
+        <div class="input-group-append">
+            <button type="submit" id="select-btn" class="btn btn-primary">查询</button>
+        </div>
+    </div>
+</form>
+
+<div class="card text-left">
+  <img class="card-img-top" src="holder.js/100px180/" alt="">
+  <div class="card-body">
+    <h4 class="card-title">机器人本周贡献</h4>
+    <p class="card-text">{$totalSendCount}</p>
+  </div>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>avatarurl</th>
+            <th>nickname</th>
+            <th>thisweek_count</th>
+        </tr>
+    </thead>
+    <tbody>
+        {foreach $list as $vo}
+        <tr>
+            <td>
+                <img width="50px" height="50px" src="<?php echo (str_replace('https','http',$vo['avatarurl'])); ?>"
+                    alt="">
+            </td>
+            <td>{$vo.nickname}</td>
+            <td>{$vo.thisweek_count}</td>
+        </tr>
+        {/foreach}
+
+    </tbody>
+</table>
+
+<ul class="pagination">
+    <li class="page-item {$page==1?'disabled':''}"><a class="page-link" href="/api/v1/android/infoView?starid={$Request.get.starid}&page={$page-1}"><</a>
+    </li>
+    {for start="0" end="ceil($totalCount/10)"}
+    <li class="page-item {$page==$i+1?'active':''}"><a class="page-link" href="/api/v1/android/infoView?starid={$Request.get.starid}&page={$i+1}">{$i+1}</a></li>
+    {/for}
+    <li class="page-item {$page==ceil($totalCount/10)?'disabled':''}"><a class="page-link" href="/api/v1/android/infoView?starid={$Request.get.starid}&page={$page+1}">></a>
+    </li>
+</ul>
+
+<script>
+</script>
+{/block}

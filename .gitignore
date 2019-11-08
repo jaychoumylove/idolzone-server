@@ -1,0 +1,14 @@
+.idea
+composer.lock
+*.log
+application/database.php
+application/muti_database.php
+application/push/start_gateway.php
+application/push/start_gateway2.php
+application/push/start_businessworker.php
+public/favicon.ico
+public/upload/*
+public/uploads/*
+.settings/*
+.vscode
+application/push/start_register.php

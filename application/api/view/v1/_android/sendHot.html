@@ -1,0 +1,40 @@
+{extend name="v1/_android/layout" /}
+
+
+{block name="content"}
+<form id="form-send" class="form">
+
+    <div class="form-group">
+        <label for="">明星ID</label>
+        <input type="text" name="starid" id="" class="form-control" placeholder="" aria-describedby="helpId">
+    </div>
+
+    <div class="form-group">
+        <label for="">选取本周贡献低于此值的机器人</label>
+        <input type="text" name="limit_hot" id="" class="form-control" placeholder="比如不让贡献大于10000的机器人打榜，可以输入10000" aria-describedby="helpId">
+    </div>
+
+    <div class="form-group">
+        <label for="">人气</label>
+        <input type="text" name="hot" id="" class="form-control" placeholder="" aria-describedby="helpId">
+    </div>
+
+    <div class="form-group">
+        <button type="button" id="send-btn" class="btn btn-primary">送出</button>
+    </div>
+</form>
+<script>
+    $('#send-btn').on('click', e => {
+        $.ajax({
+            url: '/api/v1/android/sendHot',
+            type: 'post',
+            data: $('#form-send').serialize(),
+
+            success: (res) => {
+                alert(res.msg)
+            }
+        });
+    })
+</script>
+
+{/block}
