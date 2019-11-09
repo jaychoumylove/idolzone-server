@@ -121,6 +121,7 @@ class UserStar extends Base
                 self::destroy(['user_id' => $uid]);
                 // 记录退圈时间
                 UserExt::where(['user_id' => $uid])->update(['exit_group_time' => time()]);
+                Db::name('pk_user_rank')->where('uid', $uid)->delete();
 
                 Db::commit();
             } catch (\Exception $e) {
