@@ -1,6 +1,9 @@
 <?php
+
 namespace app\api\controller\v1;
 
+use app\api\model\User;
+use app\api\model\UserExt;
 use app\base\service\WxMsg;
 use app\base\controller\Base;
 use think\Log;
@@ -16,37 +19,26 @@ class Notify extends Base
         $wxMsg->checkSignature();
         $msg = $wxMsg->getMsg();
 
+        $content = "欢迎！回复：\n1 充值 \n2 农场补偿";
+
         // {"ToUserName":"gh_7c87eaf27f5a",
         // "FromUserName":"oj77y5LIpHuIWUU2kW8BHVP4goPc","CreateTime":"1558089549",
         // "MsgType":"text","Content":"99","MsgId":"22306477788296821"}
-        Log::record(json_encode($msg));
 
         if ($msg['MsgType'] == 'text') {
-            $media_id = $wxMsg->getMediaId(ROOT_PATH . 'public/uploads/cust-0.jpg');
-
-            if (isset($msg['Content'])) {
-                if ($msg['Content'] == '1') {
-                    // 充值
-                    $media_id = $wxMsg->getMediaId(ROOT_PATH . 'public/uploads/cust-1.jpg');
-                } else if ($msg['Content'] == '2') {
-                    // 打卡
-                    $media_id = $wxMsg->getMediaId(ROOT_PATH . 'public/uploads/cust-2.jpg');
+            if ($msg['Content'] == '农场补偿' || $msg['Content'] == 2) {
+                $user_id = $wxMsg->getUser($msg['FromUserName']);
+                if (gettype($user_id) != 'integer') {
+                    $content = $user_id;
+                } else {
+                    $content = UserExt::redress($user_id);
                 }
-            }
-
-            $ret = (new WxAPI(input('appid')))->sendCustomerMsg(
-                $msg['FromUserName'],
-                'image',
-                [
-                    'media_id' => $media_id
-                ]
-            );
+            } 
         }
 
-        // $wxMsg->autoSend($msg, 'text', [
-        //     'Content' =>
-        //     "欢迎！回复：\n1 签到\n2 补充金豆\n3 人工服务",
-        // ]);
+        $wxMsg->autoSend($msg, 'text', [
+            'Content' => $content
+        ]);
 
         die('success');
     }

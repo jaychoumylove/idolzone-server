@@ -19,8 +19,7 @@ Route::rule('api/:version/auto/w', 'api/v1.AutoRun/weekHandle');// 每周定期�
 Route::rule('api/:version/auto/m', 'api/v1.AutoRun/monthHandle');// 每月定期执行
 
 Route::rule('api/:version/auto/clear', 'api/v1.AutoRun/clearDb');// 清除数据表
-Route::rule('api/:version/auto/pk_settle', 'api/v1.AutoRun/pk_settle'); // pk结算
-
+Route::rule('api/:version/_autorunmy/pk_settle', 'api/v1.AutoRun/pk_settle'); // pk结算
 
 Route::rule('api/:version/auto/sendTmp', 'api/v1.AutoRun/sendTmp');// 打卡消息推送
 
@@ -141,6 +140,8 @@ Route::rule('api/:version/active/userrank', 'api/v1.Ext/userRank');// 用户打�
 
 Route::rule('api/:version/ext/log', 'api/v1.Ext/log');// 用户日志
 
+Route::rule('api/:version/ext/redress', 'api/v1.Ext/redress');// 公众号补偿
+
 // 
 
 Route::rule('api/:version/uploadIndex', 'api/v1.Ext/uploadIndex');// 文件上传
@@ -207,6 +208,4 @@ Route::post('api/:version/rank/pk_user_rank', 'api/v1.Pk/pkUserRank'); // 用户
 Route::post('api/:version/rank/pk_dianzan', 'api/v1.Pk/pkDianzan'); // 点赞用户
 Route::rule('api/:version/rank/pk_settle', 'api/v1.Pk/autoSettle'); // 结算
 Route::post('api/:version/rank/pk_subscribe', 'api/v1.Pk/pkSubscribe'); // 团战订阅
-Route::rule('api/:version/rank/pk_push', 'api/v1.Pk/pkPush'); // 团战订阅推送
-
 Route::rule('api/:version/rank/pk_push', 'api/v1.Pk/pkPush'); // 团战订阅推送

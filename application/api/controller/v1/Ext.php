@@ -16,6 +16,7 @@ use app\api\model\Rec;
 use app\api\model\UserSprite;
 use app\api\model\RecActive;
 use app\api\model\GuideCron;
+use app\api\service\User;
 
 class Ext extends Base
 {
@@ -201,6 +202,27 @@ class Ext extends Base
         $logList = Rec::getList($this->uid, $page, $size, $filter);
 
         Common::res(['data' => $logList]);
+    }
+
+    /**补偿 */
+    public function redress()
+    {
+        $this->getUser();
+
+        // TODO:
+        $endTime = '2019-11-11';
+        if (time() > strtotime($endTime)) Common::res(['data' => ['status' => 1, 'msg' => '补偿已过期']]);
+
+        $msg = '领取成功';
+        // 领取24小时农场收益补偿和30钻石
+        $update['coin'] = 24 * 3600 / 100 * UserSprite::where('user_id', $this->uid)->value('total_speed_coin');
+        $msg .= '，金豆+' . $update['coin'];
+        $update['stone'] = 30;
+        $msg .= '，钻石+' . $update['stone'];
+
+        (new User)->change($this->uid, $update, '农场补偿');
+
+        Common::res(['data' => ['status' => 0, 'msg' => $msg]]);
     }
 
     public function score()

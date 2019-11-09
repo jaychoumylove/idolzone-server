@@ -1,10 +1,13 @@
 <?php
+
 namespace app\base\service;
 
+use app\api\model\User;
 use app\api\model\WxImg;
 
 class WxMsg
 {
+    private $appinfo;
     public function __construct($w = null)
     {
         $this->appinfo = Common::getAppinfo($w);
@@ -97,6 +100,26 @@ class WxMsg
 
         $content = array_merge($content, $msgBody);
         die(Common::toXml($content));
+    }
+
+    /**
+     * 公众号通过unionid机制获取用户id
+     * @param string $openid FromUserName
+     */
+    public function getUser($openid)
+    {
+        $wxApi = new WxAPI($this->appinfo['appid']);
+        $res = $wxApi->getUserInfo($openid);
+        if (isset($res['unionid'])) {
+            $user_id = User::where(['unionid' => $res['unionid']])->value('id');
+            if (!$user_id) {
+                return '请先到同名小程序进行用户授权';
+            } else {
+                return $user_id;
+            }
+        } else {
+            return '未获取到用户信息，缺少unionid';
+        }
     }
 
     /**下载图片 */

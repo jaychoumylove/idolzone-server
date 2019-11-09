@@ -106,4 +106,28 @@ class UserExt extends Base
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
     }
+
+    /**补偿 */
+    public static function redress($uid)
+    {
+        // $date = ['2019-11-09', '2019-11-12'];
+
+        // if (time() < strtotime($date[0])) Common::res(['data' => ['status' => 1, 'msg' => '补偿未到时间']]);
+        // if (time() > strtotime($date[1])) Common::res(['data' => ['status' => 1, 'msg' => '补偿已过期']]);
+        $redressTime = UserExt::where('user_id', $uid)->value('redress_time');
+        if ($redressTime) return '已领取补偿';
+
+        $msg = '领取成功';
+        // 领取24小时农场收益补偿和30钻石
+        $update['coin'] = 24 * 3600 / 100 * UserSprite::where('user_id', $uid)->value('total_speed_coin');
+        $msg .= '，金豆+' . $update['coin'];
+        $update['stone'] = 30;
+        $msg .= '，钻石+' . $update['stone'];
+
+        (new User)->change($uid, $update, '农场补偿');
+
+        UserExt::where('user_id', $uid)->update(['redress_time' => time()]);
+
+        return '领取成功';
+    }
 }

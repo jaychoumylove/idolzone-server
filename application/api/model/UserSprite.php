@@ -111,7 +111,7 @@ class UserSprite extends Base
                 // 技能一挖钻石升级
                 $field = 'skill_one_level';
                 $nextSkill = CfgPetSkillFirst::get(['level' => $userSprite[$field] + 1]);
-                if (!$nextSkill)  Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
+                if (!$nextSkill) Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
                 $need_stone = $nextSkill['stone'];
 
                 break;

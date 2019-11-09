@@ -3,11 +3,12 @@
 namespace app\base\service;
 
 use app\base\model\Appinfo;
+use think\Log;
 
 /**服务端wx接口 */
 class WxAPI
 {
-
+    private $apiHost;
     public function __construct($w = null)
     {
         if (input('platform') == 'MP-QQ') {
@@ -46,6 +47,7 @@ class WxAPI
         $url = str_replace('APPSECRET', $this->appinfo['appsecret'], $url);
 
         $res = $this->request($url);
+        Log::record(json_encode($res), 'error');
         $this->appinfo['access_token'] = $res['access_token'];
         // 将新的token保存到数据库
         Appinfo::where(['id' => $this->appinfo['id']])->update([
@@ -84,17 +86,13 @@ class WxAPI
     }
 
     /**
-     * 公众号授权
-     * 拉取用户信息
-     * @param string $accessToken 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
+     * 公众号获取用户信息
      * @param string $openid 用户的唯一标识
      */
-    public function getUserInfo($accessToken, $openid)
+    public function getUserInfo($openid)
     {
-        $url = 'https://' . $this->apiHost . '/sns/userinfo?access_token=' . $this->appinfo['access_token'] . '&openid=OPENID&lang=zh_CN';
-
-        $url = str_replace('OPENID', $openid, $url);
-
+        $url = 'https://' . $this->apiHost . '/cgi-bin/user/info?access_token=' . $this->appinfo['access_token'] . '&openid=' . $openid . '&lang=zh_CN';
+        // $url = 'https://' . $this->apiHost . '/sns/userinfo?access_token=' . $this->appinfo['access_token'] . '&openid='. $openid .'&lang=zh_CN';
         return $this->request($url);
     }
 
