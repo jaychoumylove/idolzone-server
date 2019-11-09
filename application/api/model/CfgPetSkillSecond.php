@@ -38,8 +38,11 @@ class CfgPetSkillSecond extends Base
             try {
                 // 金豆全投
                 $selfCoin = UserCurrency::where('uid', $uid)->value('coin');
-                $selfStarId = UserStar::getStarId($uid);
-                (new Star)->sendHot($selfStarId, $selfCoin, $uid, 1);
+                if ($selfCoin) {
+                    $selfStarId = UserStar::getStarId($uid);
+                    (new Star)->sendHot($selfStarId, $selfCoin, $uid, 1);
+                }
+
                 // 使用可获得农场100秒产量x技能等级x粉丝等级的金豆。
                 // 每日按照技能等级最多使用十次。
                 $spriteInfo = UserSprite::getInfo($uid);

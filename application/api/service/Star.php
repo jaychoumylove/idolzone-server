@@ -59,6 +59,7 @@ class Star
         }
 
         if (!$starid) Common::res(['code' => 32, 'msg' => '请先加入一个圈子']);
+        if ($hot <= 0) Common::res(['code' => 32, 'msg' => '打榜的数值不正确']);
 
         Db::startTrans();
         try {
