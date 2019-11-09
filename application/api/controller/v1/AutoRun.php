@@ -25,6 +25,7 @@ use app\api\model\RecTask;
 use app\api\model\StarBirthRank;
 use app\api\model\UserExt;
 use app\api\model\UserSprite;
+use app\api\service\User;
 
 class AutoRun extends Base
 {
@@ -255,26 +256,19 @@ class AutoRun extends Base
     public function pk_settle()
     {
         $list = Db::name('pk_settle_i')->limit(3)->select();
-        Db::startTrans();
-        try {
-            foreach ($list as $key => $value) {
-                Db::name('pk_settle_i')->where('id', $value['id'])->delete();
-                $awards = json_decode($value['awards'], true);
-                $uids = json_decode($value['uids'], true);
+        $userService = new User;
+        foreach ($list as $value) {
+            Db::name('pk_settle_i')->where('id', $value['id'])->delete();
+            $awards = json_decode($value['awards'], true);
+            $uids = json_decode($value['uids'], true);
 
-                UserCurrency::where('uid', 'in', $uids)->update([
-                    'coin' => Db::raw('coin+' . $awards['coin']),
-                    'flower' => Db::raw('flower+' . $awards['flower']),
-                    'stone' => Db::raw('stone+' . $awards['stone']),
-                ]);
-
-                // 保存日志TODO:
-
+            foreach ($uids as $uid) {
+                $userService->change($uid, [
+                    'coin' => $awards['coin'],
+                    'flower' =>  $awards['flower'],
+                    'stone' =>  $awards['stone'],
+                ], '团战奖励');
             }
-            Db::commit();
-        } catch (\Exception $e) {
-            Db::rollback();
-            echo $e->getMessage();
         }
     }
 }

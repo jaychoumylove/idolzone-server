@@ -65,6 +65,7 @@ class UserSprite extends Base
             // 离线
             $data['mode'] = 1;
             $data['earn'] = round($duraTime / $spaceTime * $spriteInfo['total_speed_coin'] * $offlineEarnPercent);
+            $data['percent'] = $offlineEarnPercent;
         } else {
             // 在线
             $data['mode'] = 0;
