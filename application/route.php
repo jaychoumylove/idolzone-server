@@ -12,6 +12,8 @@ Route::rule('h5/star', 'api/v1.H5/star');
 // Clearner
 Route::rule('api/:version/clean', 'api/v1.Cleaner/index');
 
+Route::rule('api/:version/createMenu', 'api/v1.Notify/createMenu');
+
 // AutoRun 
 Route::rule('api/:version/auto', 'api/v1.AutoRun/index');// 定时任务
 Route::rule('api/:version/auto/d', 'api/v1.AutoRun/dayHandle');// 每日定期执行
