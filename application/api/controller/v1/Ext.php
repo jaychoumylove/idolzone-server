@@ -209,9 +209,8 @@ class Ext extends Base
     {
         $this->getUser();
 
-        // TODO:
-        $endTime = '2019-11-11';
-        if (time() > strtotime($endTime)) Common::res(['data' => ['status' => 1, 'msg' => '补偿已过期']]);
+        $redressTime = UserExt::where('user_id', $this->uid)->value('redress_time');
+        if ($redressTime) Common::res(['data' => ['status' => 1, 'msg' => '已领取补偿']]);
 
         $msg = '领取成功';
         // 领取24小时农场收益补偿和30钻石
@@ -221,6 +220,7 @@ class Ext extends Base
         $msg .= '，钻石+' . $update['stone'];
 
         (new User)->change($this->uid, $update, '农场补偿');
+        UserExt::where('user_id', $this->uid)->update(['redress_time' => time()]);
 
         Common::res(['data' => ['status' => 0, 'msg' => $msg]]);
     }
