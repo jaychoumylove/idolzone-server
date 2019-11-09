@@ -128,6 +128,6 @@ class UserExt extends Base
 
         UserExt::where('user_id', $uid)->update(['redress_time' => time()]);
 
-        return '领取成功';
+        return $msg;
     }
 }
