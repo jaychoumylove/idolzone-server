@@ -31,7 +31,7 @@ class User
             $res = $wxApi->code2session($code);
         } else if ($platform == 'H5') {
             // 微信授权网页登录
-            $wxApi = new WxAPI('wx00cf0e6d01bb8b01');
+            $wxApi = new WxAPI('gzh');
             $res = $wxApi->getAuth($code);
             // code has been used
             if (isset($res['errcode']) && $res['errcode'] == 40163) Common::res(['msg' => '已登录']);
