@@ -268,16 +268,14 @@ class User extends Base
 
     public function forbidden()
     {
-        $user_id = input('user_id');
-
+        $user_id = $this->req('user_id', 'integer');
+        $this->getUser();
+        if (UserStar::getStarId($user_id) != UserStar::getStarId($this->uid)) Common::res(['code' => 1]);
+        
         $type = 2;
 
-        $isDone = UserModel::where('id', $user_id)->update(['type' => $type]);
-        if ($isDone) {
-            Common::res();
-        } else {
-            Common::res(['code' => 1]);
-        }
+        UserModel::where('id', $user_id)->update(['type' => $type]);
+        Common::res();
     }
 
     /**团战积分 */
