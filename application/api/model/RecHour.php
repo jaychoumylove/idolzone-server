@@ -31,7 +31,13 @@ class RecHour extends Base
     {
         $time = date('YmdH');
 
-        return self::with('User,Star')->where('time', $time)->order('count desc,id asc')->page($page, $size)->select();
+        $list = self::with('User,Star')->where('time', $time)->order('count desc,id asc')->page($page, $size)->select();
+        foreach ($list as &$value) {
+            $value['user']['level'] = CfgUserLevel::getLevel($value['user']['id']);
+            $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
+        }
+
+        return $list;
     }
 
     /**小时榜用户贡献增加 */

@@ -5,8 +5,11 @@ namespace app\api\controller\v1;
 use app\api\model\CfgBadge;
 use app\api\model\CfgPkTime;
 use app\api\model\CfgUserLevel;
+use app\api\model\HeadwearUser;
 use app\api\model\PkStar;
 use app\api\model\PkUser;
+use app\api\model\Rec;
+use app\api\model\User;
 use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -128,6 +131,10 @@ class Pk extends Base
                 ->where(['pk.pk_time' => $pkTime, 'pk.pk_type' => $type, 'pk.star_id' => $mid])
                 ->order('pk.send_hot desc,pk.id desc')->page($page, 10)
                 ->field('pk.*,u.avatarurl,u.nickname as name')->select();
+            foreach ($data['userList'] as &$value) {
+                $value['level'] = CfgUserLevel::getLevel($value['uid']);
+                $value['headwear'] = HeadwearUser::getUse($value['uid']);
+            }
             $data['joinNum'] = Db::name('pk_user')->where(['pk_time' => $pkTime, 'pk_type' => $type, 'star_id' => $mid])->count();
 
             $data['isAdm'] = Db::name('user_star')->where(['user_id' => $this->uid, 'star_id' => $mid])->value('captain');
@@ -219,6 +226,10 @@ class Pk extends Base
                 ->where('pk.week', $week)
                 ->order('pk.total_count desc')->page($page, 10)
                 ->field('pk.*,u.avatarurl,u.nickname as name')->select();
+        }
+
+        foreach ($data['userList'] as &$value) {
+            $value['headwear'] = HeadwearUser::getUse($value['uid']);
         }
 
         foreach ($pkTime as $key => &$value) {
@@ -441,13 +452,6 @@ class Pk extends Base
             if ($type == 0) $pkTitle = '钻石场';
             else $pkTitle = '鲜花场';
 
-            // Db::name('all_log')->insert([
-            //     'uid' => $this->uid,
-            //     'type' => 69,
-            //     'name' => substr($pkTime, 5) . $pkTitle,
-            //     'create_time' => time()
-            // ]);
-
             // 新增报名明星
             $starExist = Db::name('pk_star')->where(['pk_time' => $pkTime, 'pk_type' => $type, 'star_id' => $star_id])->value('id');
             if (!$starExist) {
@@ -470,13 +474,12 @@ class Pk extends Base
     public function pkOut()
     {
         $mid = input('mid');
-        $type = input('type');
         $uid = input('uid');
         $time = input('time', 0); // 禁赛时长
         $this->getUser();
 
-        if ($this->uid != $uid && Db::name('guild_user')->where('uid', $this->uid)->where('mid', $mid)->value('adm') == 0) {
-            Common::res(['status' => 0, 'msg' => '抱歉，你没有权限']);
+        if ($this->uid != $uid && UserStar::where('user_id', $this->uid)->where('star_id', $mid)->value('captain') == 0) {
+            Common::res(['code' => 1, 'msg' => '抱歉，你没有权限']);
         }
 
         if ($time) {
@@ -488,32 +491,24 @@ class Pk extends Base
                     'open_time' => time() + $time * 3600
                 ]);
             }
-            Common::res(['status' => 0, 'msg' => '封禁成功']);
+            Common::res(['msg' => '封禁成功']);
         } else {
             // 踢人
             $data = $this->getPkStatus();
             $pkTime = date('Y-m-d', time()) . ' ' . $data['timeSpace']['start_time'] . ':00';
 
-            $res = Db::name('pk_user')->where(['uid' => $uid, 'mid' => $mid, 'pk_time' => $pkTime])->delete();
+            $res = Db::name('pk_user')->where(['uid' => $uid, 'star_id' => $mid, 'pk_time' => $pkTime])->delete();
 
             if ($res) {
                 // 记录
-                Db::name('all_log')->insert([
-                    'uid' => $this->uid,
-                    'name' => Db::name('user')->where('id', $uid)->value('nickname'),
-                    'type' => 65,
-                    'create_time' => time(),
-                ]);
-                Db::name('all_log')->insert([
-                    'uid' => $uid,
-                    'name' => Db::name('user')->where('id', $this->uid)->value('nickname'),
-                    'type' => 66,
-                    'create_time' => time(),
+                Rec::addRec([
+                    'user_id' => $uid,
+                    'content' => '你被' . User::where('id', $this->uid)->value('nickname') . '移出了团战'
                 ]);
 
-                Common::res(['status' => 0, 'msg' => '移出成功']);
+                Common::res(['msg' => '移出成功']);
             } else {
-                Common::res(['status' => 1, 'msg' => '移出失败']);
+                Common::res(['code' => 1, 'msg' => '移出失败']);
             }
         }
     }

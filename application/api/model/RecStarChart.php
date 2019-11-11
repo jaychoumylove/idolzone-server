@@ -31,11 +31,14 @@ class RecStarChart extends Base
                 $query->field('user_id,badge_id');
             }
         ]])->where(['star_id' => $starid])->order('id desc')->limit(10)->select();
+
+
         $list = json_decode(json_encode($list, JSON_UNESCAPED_UNICODE), true);
-        
-        // 粉丝等级
         foreach ($list as &$value) {
+            // 粉丝等级
             $value['user']['level'] = CfgUserLevel::getLevel($value['user']['id']);
+            // 头饰
+            $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
         }
 
         return array_reverse($list);

@@ -211,3 +211,11 @@ Route::post('api/:version/rank/pk_dianzan', 'api/v1.Pk/pkDianzan'); // 点赞用
 Route::rule('api/:version/rank/pk_settle', 'api/v1.Pk/autoSettle'); // 结算
 Route::post('api/:version/rank/pk_subscribe', 'api/v1.Pk/pkSubscribe'); // 团战订阅
 Route::rule('api/:version/rank/pk_push', 'api/v1.Pk/pkPush'); // 团战订阅推送
+
+// Headwear
+Route::rule('api/:version/headwear/select', 'api/v1.Headwear/select'); // 头饰
+Route::rule('api/:version/headwear/buy', 'api/v1.Headwear/buy'); // 头饰购买
+Route::rule('api/:version/headwear/use', 'api/v1.Headwear/use'); // 头饰佩戴
+Route::rule('api/:version/headwear/cancel', 'api/v1.Headwear/cancel'); // 头饰取消佩戴
+
+

@@ -25,17 +25,25 @@ class UserStar extends Base
         return self::where('user_id', $uid)->order('id desc')->value('star_id');
     }
 
-    /**用户贡献排名 */
+    /**用户贡献排名list */
     public static function getRank($starid, $field, $page, $size, $open_id = 0)
     {
         if ($field == 'thisbirth_rank') {
             // 生日应援
-            return StarBirthRank::getRank($starid, $page, $size);
+            $list = StarBirthRank::getRank($starid, $page, $size);
         } else if ($open_id) {
-            return OpenRank::with('User')->where('open_id', $open_id)->where('count', '<>', 0)->order('count desc,id asc')->page($page, $size)->select();
+            // 开屏图，
+            $list = OpenRank::with('User')->where('open_id', $open_id)->where('count', '<>', 0)->order('count desc,id asc')->page($page, $size)->select();
         } else {
-            return self::with('User')->where('star_id', $starid)->where([$field => ['neq', 0]])->order($field . ' desc')->field("*,{$field} as hot")->page($page, $size)->select();
+            $list = self::with('User')->where('star_id', $starid)->where([$field => ['neq', 0]])->order($field . ' desc')->field("*,{$field} as hot")->page($page, $size)->select();
         }
+
+        $list = json_decode(json_encode($list, JSON_UNESCAPED_UNICODE), true);
+        foreach ($list as &$value) {
+            $value['user']['level'] = CfgUserLevel::getLevel($value['user']['id']);
+            $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
+        }
+        return $list;
     }
 
     /**贡献度改变 */
@@ -121,7 +129,6 @@ class UserStar extends Base
                 self::destroy(['user_id' => $uid]);
                 // 记录退圈时间
                 UserExt::where(['user_id' => $uid])->update(['exit_group_time' => time()]);
-                Db::name('pk_user_rank')->where('uid', $uid)->delete();
 
                 Db::commit();
             } catch (\Exception $e) {
@@ -153,6 +160,9 @@ class UserStar extends Base
         } else {
             $res['rank'] = '未上榜';
         }
+
+        // 头饰
+        $res['headwear'] = HeadwearUser::getUse($uid);
 
         return $res;
     }
