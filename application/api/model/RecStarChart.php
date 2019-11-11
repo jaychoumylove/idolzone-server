@@ -81,8 +81,8 @@ class RecStarChart extends Base
                 }
             ])->where('id', $uid)->field('id,nickname,avatarurl,type')->find();
 
-            $totalCount = $res['user']['user_star']['total_count'];
-            $res['user']['level'] = CfgUserLevel::where('total', '<=', $totalCount)->max('level');
+            $res['user']['level'] = CfgUserLevel::getLevel($uid);
+            $res['user']['headwear'] = HeadwearUser::getUse($uid);
 
             if ($res['user']['type'] == 2) {
                 Db::rollback();
