@@ -71,7 +71,7 @@ class User
                 if ($userCurrency[$key] < $value / -1) {
                     if ($key == 'coin') {
                         Common::res(['code' => 1, 'msg' => '金豆不足']);
-                    } else  if ($key == 'flower') {
+                    } else if ($key == 'flower') {
                         Common::res(['code' => 1, 'msg' => '鲜花不足']);
                     } else if ($key == 'stone') {
                         Common::res(['code' => 1, 'msg' => '钻石不足']);
