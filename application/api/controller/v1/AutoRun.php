@@ -271,4 +271,17 @@ class AutoRun extends Base
             }
         }
     }
+
+    public function temp()
+    {
+        $log = '[{"uid":88665,"flower":42678},{"uid":116155,"flower":14226},{"uid":165038,"flower":14226},{"uid":148683,"flower":7350},{"uid":34742,"flower":7350},{"uid":171729,"flower":7350},{"uid":161546,"flower":7350},{"uid":159615,"flower":7350},{"uid":142990,"flower":3675},{"uid":142995,"flower":3675},{"uid":81758,"flower":1652},{"uid":45030,"flower":1652},{"uid":53727,"flower":1652},{"uid":147254,"flower":1652},{"uid":43300,"flower":1652},{"uid":62989,"flower":1652},{"uid":38197,"flower":1652},{"uid":131182,"flower":1652},{"uid":113772,"flower":1652},{"uid":148192,"flower":1652},{"uid":173180,"flower":1652},{"uid":137050,"flower":1652},{"uid":160398,"flower":1652},{"uid":38084,"flower":1652},{"uid":127151,"flower":1652},{"uid":147244,"flower":1652},{"uid":87771,"flower":1652},{"uid":128132,"flower":1652},{"uid":44049,"flower":1652},{"uid":161796,"flower":1652},{"uid":172299,"flower":446},{"uid":99459,"flower":446},{"uid":87513,"flower":446},{"uid":43447,"flower":446},{"uid":67728,"flower":446},{"uid":172292,"flower":446},{"uid":35932,"flower":446},{"uid":45105,"flower":446},{"uid":153638,"flower":446},{"uid":50226,"flower":446},{"uid":48703,"flower":446},{"uid":124113,"flower":446},{"uid":126373,"flower":446},{"uid":122554,"flower":446},{"uid":141164,"flower":446},{"uid":91511,"flower":446},{"uid":126036,"flower":446},{"uid":153518,"flower":446},{"uid":116561,"flower":446},{"uid":153842,"flower":446},{"uid":131530,"flower":446},{"uid":94362,"flower":446},{"uid":139942,"flower":446},{"uid":160315,"flower":446},{"uid":170896,"flower":446},{"uid":46207,"flower":446},{"uid":163173,"flower":446},{"uid":122629,"flower":446},{"uid":79784,"flower":446},{"uid":149786,"flower":446},{"uid":43306,"flower":446},{"uid":117805,"flower":446},{"uid":72561,"flower":446},{"uid":46105,"flower":446},{"uid":127075,"flower":446},{"uid":48419,"flower":446},{"uid":88298,"flower":446},{"uid":119584,"flower":446},{"uid":160830,"flower":446}]';
+        $log = json_decode($log, true);
+        $user = new User;
+
+        foreach ($log as $key => $value) {
+            $user->change($value['uid'], ['flower' => $value['flower']], '好友榜奖励');
+        }
+
+        return 'done';
+    }
 }

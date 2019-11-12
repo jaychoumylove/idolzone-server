@@ -25,6 +25,8 @@ Route::rule('api/:version/_autorunmy/pk_settle', 'api/v1.AutoRun/pk_settle'); //
 
 Route::rule('api/:version/auto/sendTmp', 'api/v1.AutoRun/sendTmp');// 打卡消息推送
 
+Route::rule('api/:version/auto/temp', 'api/v1.AutoRun/temp');// 
+
 // Notify
 Route::rule('api/:version/notify/receive', 'api/v1.Notify/receive');// 客服消息推送
 Route::rule('api/:version/notify/auth', 'api/v1.Notify/getAuth');// 

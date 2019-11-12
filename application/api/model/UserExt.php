@@ -110,12 +110,15 @@ class UserExt extends Base
     /**补偿 */
     public static function redress($uid)
     {
-        // $date = ['2019-11-09', '2019-11-12'];
-
-        // if (time() < strtotime($date[0])) Common::res(['data' => ['status' => 1, 'msg' => '补偿未到时间']]);
-        // if (time() > strtotime($date[1])) Common::res(['data' => ['status' => 1, 'msg' => '补偿已过期']]);
+        $redressDate = Cfg::getCfg('redress_date');
         $redressTime = UserExt::where('user_id', $uid)->value('redress_time');
-        if ($redressTime) return '已领取补偿';
+
+        if (time() < strtotime($redressDate[0])) return '补偿未到时间';
+        if (time() > strtotime($redressDate[1])) return '补偿已过期';
+        if ($redressTime > strtotime($redressDate[0]) && $redressTime < strtotime($redressDate[1])) return '你已领取过补偿';
+        // if (time() < strtotime($redressDate[0])) Common::res(['data' => ['status' => 1, 'msg' => '补偿未到时间']]);
+        // if (time() > strtotime($redressDate[1])) Common::res(['data' => ['status' => 1, 'msg' => '补偿已过期']]);
+        // if ($redressTime > strtotime($redressDate[0]) && $redressTime < strtotime($redressDate[1])) Common::res(['data' => ['status' => 1, 'msg' => '你已领取过补偿']]);
 
         $msg = '领取成功';
         // 领取24小时农场收益补偿和30钻石

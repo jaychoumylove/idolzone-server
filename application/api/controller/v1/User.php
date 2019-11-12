@@ -25,14 +25,11 @@ class User extends Base
     /**用户登录 */
     public function login()
     {
-        $code = input('code'); // 登录code
-        $platform = input('platform', 'MP-WEIXIN'); // 平台
-        if (!$code) Common::res(['code' => 100]);
+        $code = $this->req('code', 'require'); // 登录code
+        $res['platform'] = $this->req('platform', 'require', 'MP-WEIXIN'); // 平台
+        $res['model'] = $this->req('model'); // 手机型号
 
-        $res = (new UserService())->wxGetAuth($code, $platform);
-
-        $res['platform'] = $platform;
-        $res['model'] = input('model', null); // 手机型号
+        $res = (new UserService())->wxGetAuth($code, $res['platform']);
 
         $uid = UserModel::searchUser($res);
         $token = Common::setSession($uid);
@@ -43,13 +40,13 @@ class User extends Base
     /**保存用户信息 */
     public function saveInfo()
     {
+        $encryptedData = $this->req('encryptedData', 'require');
+        $iv = $this->req('iv', 'require');
+
         $this->getUser();
 
         $appid = (new WxAPI())->appinfo['appid'];
-        $sessionKey = UserModel::where(['id' => $this->uid])->value('session_key');
-
-        $encryptedData = input('encryptedData');
-        $iv = input('iv');
+        $sessionKey = UserModel::where('id', $this->uid)->value('session_key');
 
         // 解密encryptedData
         $res = Common::wxDecrypt($appid, $sessionKey, $encryptedData, $iv);
@@ -271,7 +268,7 @@ class User extends Base
         $user_id = $this->req('user_id', 'integer');
         $this->getUser();
         if (UserStar::getStarId($user_id) != UserStar::getStarId($this->uid)) Common::res(['code' => 1]);
-        
+
         $type = 2;
 
         UserModel::where('id', $user_id)->update(['type' => $type]);
