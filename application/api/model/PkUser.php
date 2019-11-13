@@ -102,4 +102,12 @@ class PkUser extends Base
             }
         }
     }
+
+    public static function clearPk()
+    {
+        $pkTime = date('Y-m-d H:i:s', strtotime('-1 day'));
+
+        Db::name('pk_user')->where('pk_time', '<', $pkTime)->delete();
+        Db::name('pk_star')->where('pk_time', '<', $pkTime)->delete();
+    }
 }

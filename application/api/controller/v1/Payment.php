@@ -19,6 +19,7 @@ use app\api\model\UserStar;
 use app\api\model\Star;
 use app\api\model\Cfg;
 use app\api\service\Star as AppStar;
+use think\Log;
 
 class Payment extends Base
 {
@@ -27,6 +28,11 @@ class Payment extends Base
     {
         $this->getUser();
         $res['list'] = PayGoods::where('1=1')->select();
+        foreach ($res['list'] as &$value) {
+            if ($value['remain'] < 0) {
+                $value['remain'] = 0;
+            }
+        }
 
         // 明星生日福利
         // $star_id = UserStar::getStarId($this->uid);
@@ -118,6 +124,7 @@ class Payment extends Base
                 }
             } catch (\Exception $e) {
                 Db::rollback();
+                Log::record($e->getMessage(), 'error');
             }
         }
     }

@@ -18,6 +18,7 @@ use think\Log;
 use app\api\model\Lock;
 use app\api\model\Open;
 use app\api\model\PayGoods;
+use app\api\model\PkUser;
 use app\api\model\Prop;
 use app\api\model\Rec;
 use app\api\model\RecCardHistory;
@@ -71,6 +72,8 @@ class AutoRun extends Base
             StarBirthRank::grantBirthAward();
             // 周末抽奖双倍
             CfgLottery::doubleAward();
+            // pk表清除
+            PkUser::clearPk();
 
             Db::commit();
         } catch (\Exception $e) {
