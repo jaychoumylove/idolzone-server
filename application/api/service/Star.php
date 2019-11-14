@@ -15,6 +15,7 @@ use app\api\model\OtherLock;
 use think\Cache;
 use app\api\model\UserExt;
 use app\api\model\CfgItem;
+use app\api\model\CfgUserLevel;
 use app\api\model\UserItem;
 use app\api\model\User as UserModel;
 use GatewayWorker\Lib\Gateway;
@@ -26,7 +27,7 @@ use app\api\model\PkUser;
 use app\api\model\RecHour;
 use app\api\model\RecTask;
 use app\api\model\UserProp;
-use app\api\model\Star as  StarModel;
+use app\api\model\Star as StarModel;
 use app\api\model\StarBirthRank;
 use app\api\model\Wxgroup;
 
@@ -59,16 +60,16 @@ class Star
         }
 
         if (!$starid) Common::res(['code' => 32, 'msg' => '请先加入一个圈子']);
-        if ($hot <= 0) Common::res(['code' => 32, 'msg' => '打榜的数值不正确']);
+        if ($hot <= 0) Common::res(['code' => 36, 'msg' => '打榜的数值不正确']);
+
+        // 当前粉丝等级
+        // $beforeLevel = CfgUserLevel::getLevel($uid);
 
         Db::startTrans();
         try {
             // 用户货币减少
-            if ($type == 1) {
-                $update = ['coin' => -$hot];
-            } else if ($type == 2) {
-                $update = ['flower' => -$hot];
-            }
+            if ($type == 1) $update = ['coin' => -$hot];
+            else if ($type == 2) $update = ['flower' => -$hot];
 
             (new UserService)->change($uid, $update, '为爱豆打榜');
 
@@ -82,12 +83,12 @@ class Star
                 UserStar::change($uid, $starid, $hot);
                 // 占领封面小时榜贡献增加
                 if ($type == 2) RecHour::change($uid, $hot, $starid);
-                // 团战
+                // 团战贡献增加
                 PkUser::addHot($uid, $starid, $hot);
-                
+
                 // 宝箱
             }
-            
+
             RecTask::addRec($uid, [14, 15, 16, 17, 18], $hot);
             // 明星增加人气
             StarRankModel::change($starid, $hot, $type);
@@ -97,6 +98,34 @@ class Star
             Db::rollBack();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
+
+        $user = UserModel::where('id', $uid)->field('nickname,avatarurl')->find();
+        // 打榜弹幕
+        Gateway::sendToGroup('star_' . $starid, json_encode([
+            'type' => 'sendHot',
+            'data' => [
+                'user' => $user,
+                'type' => $type,
+                'hot' => $hot
+            ]
+        ], JSON_UNESCAPED_UNICODE));
+
+        // 打榜后等级
+        // $afterLevel = CfgUserLevel::getLevel($uid);
+        // if ($afterLevel >= 1 && $afterLevel != $beforeLevel) {
+            // 推送socket消息
+            // 恭喜【罗云熙】家【头像】【名字】升至【12核心粉】
+            // Gateway::sendToAll(json_encode([
+            //     'type' => 'sayworld',
+            //     'data' => [
+            //         'type' => 1,
+            //         'starname' => StarModel::where('id', $myStarId)->value('name'),
+            //         'avatarurl' => $user['avatarurl'],
+            //         'nickname' => $user['nickname'],
+            //         'level' => $afterLevel
+            //     ],
+            // ], JSON_UNESCAPED_UNICODE));
+        // }
     }
 
     /**今日偷取数额上限 */

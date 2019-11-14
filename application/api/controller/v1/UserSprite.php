@@ -6,6 +6,7 @@ use app\api\model\CfgPetSkillFirst;
 use app\api\model\CfgPetSkillSecond;
 use app\api\model\CfgPetSkillThird;
 use app\api\model\FarmHelp;
+use app\api\model\PetSkilltwoRate;
 use app\base\controller\Base;
 use app\api\model\UserSprite as UserSpriteModel;
 use app\base\service\Common;
@@ -53,6 +54,16 @@ class UserSprite extends Base
         Common::res(['data' => $data]);
     }
 
+    public function skill2rateIncrease()
+    {
+        $this->getUser();
+        $rate = $this->req('rate', 'integer');
+        $stone = $this->req('stone', 'integer');
+        PetSkilltwoRate::increaseRate($this->uid, $rate, $stone);
+        $rate = PetSkilltwoRate::getRate($this->uid);
+        Common::res(['data' => $rate]);
+    }
+
     public function helplist()
     {
         $this->getUser();
@@ -74,4 +85,6 @@ class UserSprite extends Base
         $this->getUser();
         FarmHelp::helpstart($this->uid);
     }
+
+    
 }

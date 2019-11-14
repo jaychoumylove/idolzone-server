@@ -8,7 +8,6 @@ use think\Db;
 
 class RecTask extends Base
 {
-
     /**
      * 增加任务记录（进度） 
      * @param int $user_id
@@ -39,7 +38,6 @@ class RecTask extends Base
 
     /**
      * 任务完成进度
-     * 
      */
     public static function getUserRec($user_id, $type)
     {
@@ -75,5 +73,12 @@ class RecTask extends Base
             $isDone = self::where('user_id', $uid)->where('task_id', $task_id)->update(['is_settle' => 1]);
             if (!$isDone) Common::res(['code' => 1, 'msg' => '任务领取失败！']);
         }
+    }
+
+    /**每日签到 */
+    public static function checkIn($uid)
+    {
+        $done = self::where('user_id', $uid)->where('task_id', 1)->value('done_times');
+        if (!$done) self::addRec($uid, 1);
     }
 }

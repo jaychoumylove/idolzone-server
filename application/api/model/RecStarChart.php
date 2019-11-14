@@ -58,8 +58,10 @@ class RecStarChart extends Base
     /**留言 */
     public static function sendMsg($uid, $starid, $content)
     {
-        // 校验
-        self::verifyWord($content);
+        if (input('platform') == 'MP-WEIXIN') {
+            // 校验
+            self::verifyWord($content);
+        }
 
         Db::startTrans();
         try {

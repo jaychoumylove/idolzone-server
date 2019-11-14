@@ -120,6 +120,7 @@ Route::rule('api/:version/sprite/skill_settle', 'api/v1.UserSprite/skillSettle')
 Route::rule('api/:version/sprite/helplist', 'api/v1.UserSprite/helplist');// 我的加速列表
 Route::rule('api/:version/sprite/helpspeed', 'api/v1.UserSprite/helpspeed');// 我的加速列表
 Route::rule('api/:version/sprite/helpstart', 'api/v1.UserSprite/helpstart');// 我的加速列表
+Route::rule('api/:version/sprite/skill2rateIncrease', 'api/v1.UserSprite/skill2rateIncrease');// 搞点金豆概率提升
 
 
 // Pay

@@ -14,7 +14,7 @@ class CfgPetSkillSecond extends Base
     /**return true 可领取 */
     public static function getSkill($uid)
     {
-        $userSprite = UserSprite::where('user_id', $uid)->field('skill_two_level,skill_two_times')->find();
+        $userSprite = UserSprite::where('user_id', $uid)->field('skill_two_level,skill_two_times,skill_two_offset,total_speed_coin')->find();
 
         // 我的等级
         $data['myskill'] = self::where('level', $userSprite['skill_two_level'])->find();
@@ -24,6 +24,14 @@ class CfgPetSkillSecond extends Base
         // 今日剩余使用次数
         $dayMaxCount = $userSprite['skill_two_level'];
         $data['remainTimes'] = $dayMaxCount - $userSprite['skill_two_times'];
+        // 今日剩余使用钻石次数
+        $dayMaxCount = 10;
+        $data['remainOffset'] = $dayMaxCount - $userSprite['skill_two_offset'];
+
+        $userLevel = CfgUserLevel::getLevel($uid);
+        // 基础金豆产量
+        $data['baseCount'] = ceil($userSprite['total_speed_coin'] * 0.04 * $userSprite['skill_two_level'] * 0.8 * $userLevel * 2.4 * 3.6);
+        $data['rate'] = PetSkilltwoRate::getRate($uid);
 
         return $data;
     }
@@ -33,7 +41,7 @@ class CfgPetSkillSecond extends Base
     {
         $skill = self::getSkill($uid);
 
-        if ($skill['remainTimes'] > 0) {
+        if ($skill['remainOffset'] > 0) {
             Db::startTrans();
             try {
                 // 金豆全投
@@ -43,23 +51,41 @@ class CfgPetSkillSecond extends Base
                     (new Star)->sendHot($selfStarId, $selfCoin, $uid, 1);
                 }
 
-                // 使用可获得农场100秒产量x技能等级x粉丝等级的金豆。
-                // 每日按照技能等级最多使用十次。
-                $spriteInfo = UserSprite::getInfo($uid);
+                // 使用可获得：
+                // 农场产量*0.04*技能等级*0.8*粉丝等级*2.4*3.6的金豆。
+                $spriteInfo = UserSprite::where('user_id', $uid)->field('skill_two_level,skill_two_times,skill_two_offset,total_speed_coin')->find();
 
-                $spriteProduce = $spriteInfo['total_speed_coin'];
-                $skillLevel = $spriteInfo['skill_two_level'];
                 $userLevel = CfgUserLevel::getLevel($uid);
-                $count = ceil($spriteProduce * $skillLevel * $userLevel);
+                $count = ceil($spriteInfo['total_speed_coin'] * 0.04 * $spriteInfo['skill_two_level'] * 0.8 * $userLevel * 2.4 * 3.6);
 
-                (new User)->change($uid, [
-                    'coin' => $count,
-                ], '挖到金豆');
+                // 爆率
+                $rateList = PetSkilltwoRate::getRate($uid);
+                $rate = Common::lottery($rateList)['rate'];
+                $count *= $rate;
+                
+                $currencyUpdate = ['coin' => $count];
+                if ($skill['remainTimes'] <= 0) {
+                    // 使用钻石爆豆
+                    $currencyUpdate['stone'] = -1;
+                    UserSprite::where('user_id', $uid)->update([
+                        'skill_two_offset' => Db::raw('skill_two_offset+1')
+                    ]);
+                } else {
+                    // 免费爆豆
+                    UserSprite::where('user_id', $uid)->update([
+                        'skill_two_times' => Db::raw('skill_two_times+1')
+                    ]);
+                }
+                (new User)->change($uid, $currencyUpdate, '挖到金豆');
 
-                UserSprite::where('user_id', $uid)->update([
-                    'skill_two_times' => Db::raw('skill_two_times+1')
-                ]);
-
+                // 重置爆率
+                // PetSkilltwoRate::where('user_id' , $uid)->update([
+                //     'p_1' => 0,
+                //     'p_3' => 0,
+                //     'p_5' => 0,
+                //     'p_8' => 0,
+                //     'p_10' => 0,
+                // ]);
                 RecTask::addRec($uid, 4);
 
                 Db::commit();

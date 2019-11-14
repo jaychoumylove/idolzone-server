@@ -61,7 +61,10 @@ class AutoRun extends Base
             // 限量商品重置数量
             PayGoods::where('remain', 'not null')->update(['remain' => 100]);
             // 农场挖金豆技能使用次数清零
-            UserSprite::where('1=1')->update(['skill_two_times' => 0]);
+            UserSprite::where('1=1')->update([
+                'skill_two_times' => 0,
+                'skill_two_offset' => 0
+            ]);
             // 重置 抽奖次数 每日点赞次数
             UserExt::where('1=1')->update([
                 'lottery_count' => 0,
@@ -276,15 +279,5 @@ class AutoRun extends Base
     }
 
     public function temp()
-    {
-        $log = '[{"uid":288229,"flower":128033},{"uid":293279,"flower":90097},{"uid":203918,"flower":75871},{"uid":293541,"flower":40425},{"uid":291966,"flower":33075},{"uid":295000,"flower":33075},{"uid":270790,"flower":29400},{"uid":290733,"flower":25725},{"uid":294450,"flower":25725},{"uid":198637,"flower":9911},{"uid":294311,"flower":8259},{"uid":286559,"flower":8259},{"uid":295648,"flower":8259},{"uid":208218,"flower":8259},{"uid":296064,"flower":8259},{"uid":288280,"flower":8259},{"uid":291729,"flower":8259},{"uid":292565,"flower":6607},{"uid":289476,"flower":6607},{"uid":294552,"flower":6607},{"uid":292934,"flower":6607},{"uid":295282,"flower":6607},{"uid":248463,"flower":6607},{"uid":289113,"flower":6607},{"uid":294452,"flower":6607},{"uid":294189,"flower":6607},{"uid":293184,"flower":6607},{"uid":296027,"flower":6607},{"uid":295238,"flower":6607},{"uid":296021,"flower":1782},{"uid":294564,"flower":1337},{"uid":295006,"flower":1337},{"uid":293001,"flower":1337},{"uid":294787,"flower":1337},{"uid":292929,"flower":1337},{"uid":294593,"flower":1337},{"uid":294761,"flower":1337},{"uid":232516,"flower":1337},{"uid":294217,"flower":1337},{"uid":294766,"flower":1337},{"uid":295354,"flower":1337},{"uid":290496,"flower":1337},{"uid":295717,"flower":1337},{"uid":294979,"flower":1337},{"uid":296005,"flower":1337},{"uid":279681,"flower":1337},{"uid":295723,"flower":1337},{"uid":296189,"flower":1337},{"uid":296200,"flower":1337},{"uid":296396,"flower":1337},{"uid":290398,"flower":1337},{"uid":294106,"flower":891},{"uid":291522,"flower":891},{"uid":292901,"flower":891},{"uid":191161,"flower":891},{"uid":290299,"flower":891},{"uid":294769,"flower":891},{"uid":294803,"flower":891},{"uid":294191,"flower":891},{"uid":290222,"flower":891},{"uid":294277,"flower":891},{"uid":295039,"flower":891},{"uid":290088,"flower":891},{"uid":294259,"flower":891},{"uid":294928,"flower":891},{"uid":294928,"flower":891}]';
-        $log = json_decode($log, true);
-        $user = new User;
-
-        foreach ($log as $key => $value) {
-            $user->change($value['uid'], ['flower' => $value['flower']], '好友榜奖励');
-        }
-
-        return 'done';
-    }
+    { }
 }

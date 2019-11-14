@@ -22,7 +22,7 @@ class Task extends Base
         $this->getUser();
 
         // 每日签到
-        RecTask::addRec($this->uid, 1);
+        RecTask::checkIn($this->uid);
 
         if ($type == 2) {
             // 徽章

@@ -237,6 +237,7 @@ class UserSprite extends Base
             $data['num'] = CfgPetSkillFirst::skillSettle($uid);
             $data['msg'] = '钻石+' . $data['num'];
         } else if ($type == 2) {
+            // 搞点金豆
             $data['num'] = CfgPetSkillSecond::skillSettle($uid);
             $data['msg'] = '金豆+' . $data['num'];
         } else if ($type == 3) { }

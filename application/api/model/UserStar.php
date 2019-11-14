@@ -161,6 +161,8 @@ class UserStar extends Base
             $res['rank'] = '未上榜';
         }
 
+        // 等级
+        $res['level'] = CfgUserLevel::getLevel($uid);
         // 头饰
         $res['headwear'] = HeadwearUser::getUse($uid);
 
