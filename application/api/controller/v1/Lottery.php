@@ -31,6 +31,7 @@ class Lottery extends Base
             // 观看视频 直接+5次
             $remainCount = UserExt::where('user_id', $this->uid)->value('lottery_count');
             $remainCount += 5;
+            if ($remainCount > 30) $remainCount = 30;
             UserExt::where('user_id', $this->uid)->update(['lottery_count' => $remainCount, 'lottery_time' => time()]);
         }
 
