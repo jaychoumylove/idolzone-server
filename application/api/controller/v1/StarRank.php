@@ -54,4 +54,16 @@ class StarRank extends Base
         }
         Common::res(['data' => $res]);
     }
+
+    public function getRank()
+    {
+        $list = StarRankModel::with(['star'])->order('week_hot desc')->field('id,star_id')->limit(100)->select();
+
+        foreach ($list as $value) {
+            for ($i = 1; $i <= 1; $i++) {
+                echo "<a href='https://m.weibo.cn/api/container/getIndex?containerid=100103"
+                    . urlencode('type=60&q=' . $value['star']['name'] . '&t=0') . "&page_type=searchall&page={$i}'>{$value['star']['name']}|{$value['star_id']}</a></br>";
+            }
+        }
+    }
 }
