@@ -51,9 +51,10 @@ class Star
      * @param integer $starid 
      * @param integer $hot 人气 
      * @param integer $uid 
-     * @param integer $type 打榜类型：1送金豆 2送鲜花
+     * @param integer $type 打榜类型：1送金豆 2送鲜花 3送旧豆
+     * @param boolean $danmaku 是否推送打榜弹幕
      */
-    public function sendHot($starid, $hot, $uid, $type)
+    public function sendHot($starid, $hot, $uid, $type, $danmaku = true)
     {
         if (Lock::getVal('week_end')['value'] == 1) {
             Common::res(['code' => 1, 'msg' => '榜单结算中，请稍后再试！']);
@@ -63,13 +64,14 @@ class Star
         if ($hot <= 0) Common::res(['code' => 36, 'msg' => '打榜的数值不正确']);
 
         // 当前粉丝等级
-        // $beforeLevel = CfgUserLevel::getLevel($uid);
+        $beforeLevel = CfgUserLevel::getLevel($uid);
 
         Db::startTrans();
         try {
             // 用户货币减少
             if ($type == 1) $update = ['coin' => -$hot];
             else if ($type == 2) $update = ['flower' => -$hot];
+            else if ($type == 3) $update = ['old_coin' => -$hot];
 
             (new UserService)->change($uid, $update, '为爱豆打榜');
 
@@ -101,31 +103,33 @@ class Star
 
         $user = UserModel::where('id', $uid)->field('nickname,avatarurl')->find();
         // 打榜弹幕
-        Gateway::sendToGroup('star_' . $starid, json_encode([
-            'type' => 'sendHot',
-            'data' => [
-                'user' => $user,
-                'type' => $type,
-                'hot' => $hot
-            ]
-        ], JSON_UNESCAPED_UNICODE));
+        if ($danmaku) {
+            Gateway::sendToGroup('star_' . $starid, json_encode([
+                'type' => 'sendHot',
+                'data' => [
+                    'user' => $user,
+                    'type' => $type,
+                    'hot' => $hot
+                ]
+            ], JSON_UNESCAPED_UNICODE));
+        }
 
         // 打榜后等级
-        // $afterLevel = CfgUserLevel::getLevel($uid);
-        // if ($afterLevel >= 1 && $afterLevel != $beforeLevel) {
+        $afterLevel = CfgUserLevel::getLevel($uid);
+        if ($afterLevel >= 9 && $afterLevel != $beforeLevel) {
             // 推送socket消息
             // 恭喜【罗云熙】家【头像】【名字】升至【12核心粉】
-            // Gateway::sendToAll(json_encode([
-            //     'type' => 'sayworld',
-            //     'data' => [
-            //         'type' => 1,
-            //         'starname' => StarModel::where('id', $myStarId)->value('name'),
-            //         'avatarurl' => $user['avatarurl'],
-            //         'nickname' => $user['nickname'],
-            //         'level' => $afterLevel
-            //     ],
-            // ], JSON_UNESCAPED_UNICODE));
-        // }
+            Gateway::sendToAll(json_encode([
+                'type' => 'sayworld',
+                'data' => [
+                    'type' => 1,
+                    'starname' => StarModel::where('id', $myStarId)->value('name'),
+                    'avatarurl' => $user['avatarurl'],
+                    'nickname' => $user['nickname'],
+                    'level' => $afterLevel
+                ],
+            ], JSON_UNESCAPED_UNICODE));
+        }
     }
 
     /**今日偷取数额上限 */

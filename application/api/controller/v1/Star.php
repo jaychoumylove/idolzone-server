@@ -83,10 +83,11 @@ class Star extends Base
         $hot = $this->req('hot', 'integer');
         // 1金豆 2鲜花
         $type = $this->req('type', 'integer', 0);
+        $danmaku = $this->req('danmaku', 'integer', 1); // 是否推送打榜弹幕
         $this->getUser();
 
-        (new StarService())->sendHot($starid, $hot, $this->uid, $type);
-    
+        (new StarService())->sendHot($starid, $hot, $this->uid, $type, $danmaku);
+
         Common::res(['data' => []]);
     }
 

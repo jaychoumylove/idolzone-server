@@ -23,15 +23,14 @@ class Ext extends Base
 
     public function saveFormId()
     {
-        $formId = input('formId');
-        if (!$formId) Common::res(['code' => 100]);
+        $formId = $this->req('formId', 'require');
         $this->getUser();
 
         RecUserFormid::create([
             'user_id' => $this->uid,
             'form_id' => $formId,
         ]);
-        Common::res([]);
+        Common::res();
     }
 
     public function config()

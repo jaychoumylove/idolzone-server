@@ -102,10 +102,14 @@ class Article extends Base
 
         $weiboContent = Common::request($weiboUrl);
         preg_match("/\"stream_url\": \"(.+?)\",/", $weiboContent, $match);
-        // 有效的视频地址
-        $newSrc = $match[1];
 
-        ArticleModel::where('id', $id)->update(['video' => $newSrc]);
+        // 新的视频地址
+        $newSrc = '';
+        if (isset($match[1])) {
+            $newSrc = $match[1];
+            ArticleModel::where('id', $id)->update(['video' => $newSrc]);
+        }
+
         Common::res(['data' => $newSrc]);
     }
 

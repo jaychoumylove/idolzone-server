@@ -48,15 +48,18 @@ class StarRank extends Base
     /**明星人气增加 */
     public static function change($starid, $hot, $type)
     {
-        if ($type == 1) {
-            $extraHot = 'month_hot_coin';
-        } else if ($type == 2) {
-            $extraHot = 'month_hot_flower';
-        }
-        self::where('star_id', $starid)->update([
+        $update = [
             'week_hot' => Db::raw('week_hot+' . $hot),
             'month_hot' => Db::raw('month_hot+' . $hot),
-            $extraHot => Db::raw($extraHot . '+' . $hot),
-        ]);
+        ];
+        if ($type == 1) {
+            $extraHot = 'month_hot_coin';
+            $update[$extraHot] = Db::raw($extraHot . '+' . $hot);
+        } else if ($type == 2) {
+            $extraHot = 'month_hot_flower';
+            $update[$extraHot] = Db::raw($extraHot . '+' . $hot);
+        } 
+
+        self::where('star_id', $starid)->update($update);
     }
 }
