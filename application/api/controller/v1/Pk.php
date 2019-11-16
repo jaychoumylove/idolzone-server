@@ -501,10 +501,21 @@ class Pk extends Base
 
             if ($res) {
                 // 记录
-                Rec::addRec([
-                    'user_id' => $uid,
-                    'content' => '你被' . User::where('id', $this->uid)->value('nickname') . '移出了团战'
-                ]);
+                if ($this->uid != $uid) {
+                    Rec::addRec([
+                        'user_id' => $this->uid,
+                        'content' => '你将' . User::where('id', $uid)->value('nickname') . '移出了PK团战'
+                    ]);
+                    Rec::addRec([
+                        'user_id' => $uid,
+                        'content' => '你被' . User::where('id', $this->uid)->value('nickname') . '移出了PK团战'
+                    ]);
+                } else {
+                    Rec::addRec([
+                        'user_id' => $uid,
+                        'content' => '你退出了PK团战'
+                    ]);
+                }
 
                 Common::res(['msg' => '移出成功']);
             } else {

@@ -73,7 +73,11 @@ class Star
             else if ($type == 2) $update = ['flower' => -$hot];
             else if ($type == 3) $update = ['old_coin' => -$hot];
 
-            (new UserService)->change($uid, $update, '为爱豆打榜');
+            if ($type == 3) {
+                (new UserService)->change($uid, $update, '为爱豆打榜，旧豆-' . $hot);
+            } else {
+                (new UserService)->change($uid, $update, '为爱豆打榜');
+            }
 
             $myStarId = UserStar::getStarId($uid);
             if ($starid != $myStarId) {
