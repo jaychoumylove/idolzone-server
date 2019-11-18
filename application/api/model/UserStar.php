@@ -121,7 +121,7 @@ class UserStar extends Base
     public static function exit($uid)
     {
         $ext = UserExt::get(['user_id' => $uid]);
-        if (time() - $ext['exit_group_time'] > 3600 * 24 * 365 / 2) {
+        if (time() - $ext['exit_group_time'] > 3600 * 24 * 90) {
             // 半年才能退一次
             Db::startTrans();
             try {

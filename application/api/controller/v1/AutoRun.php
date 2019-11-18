@@ -135,8 +135,11 @@ class AutoRun extends Base
             //     ]);
             // }
 
-            // 后援会贡献重置
-            Fanclub::where('1=1')->update(['week_count' => 0]);
+            // 粉丝团贡献重置
+            // Fanclub::where('1=1')->update([
+            //     'lastweek_count' => Db::raw('week_count'),
+            //     'week_count' => 0,
+            // ]);
 
             Db::commit();
         } catch (\Exception $e) {
@@ -191,7 +194,10 @@ class AutoRun extends Base
             // RecCardHistory::settle();
 
             // 后援会贡献重置
-            Fanclub::where('1=1')->update(['month_count' => 0]);
+            // Fanclub::where('1=1')->update([
+            //     'lastmonth_count' => Db::raw('month_count'),
+            //     'month_count' => 0
+            // ]);
 
             Db::commit();
         } catch (\Exception $e) {
@@ -201,48 +207,6 @@ class AutoRun extends Base
 
         Lock::setVal('month_end', 0);
         return '本月执行完毕';
-    }
-
-    /**解锁消息推送 */
-    public function sendTmp()
-    {
-        $starid = input('starid');
-        $fee = input('fee');
-        $template_id = "T54MtDdRAPe8kNNtt2tQlj7P7ut7yEe-F8-CaMrKcvw";
-
-        $starname = Star::where('id', $starid)->value('name');
-        $pushUser = Db::query("SELECT u.openid,f.form_id
-                        FROM `f_user_star` as s 
-                        join f_user as u on u.id = s.user_id 
-                        join   
-                            (
-                        select * from f_rec_user_formid ORDER BY create_time desc
-                        )
-                        as f on f.user_id = s.user_id
-                        
-                        where s.star_id = " . $starid . " GROUP BY u.openid");
-
-        foreach ($pushUser as $value) {
-            if (!$value['openid'] || !$value['form_id']) continue;
-            $pushDatas[] = [
-                "touser" => $value['openid'],
-                "template_id" => $template_id,
-                "page" => "/pages/index/index",
-                "form_id" => $value['form_id'],
-                "data" => [
-                    "keyword1" => [
-                        "value" => $fee . "元"
-                    ],
-                    "keyword2" => [
-                        "value" =>  $starname . "已成功解锁" . $fee . "元应援金，赶快邀请后援会入驻领取吧，活动进行中，最多可解锁1000元。"
-                    ]
-                ],
-                "emphasis_keyword" => "keyword1.DATA"
-            ];
-        }
-
-        $wxApi = new WxAPI();
-        $wxApi->sendTemplate($pushDatas);
     }
 
     public function clearDb()
@@ -264,16 +228,23 @@ class AutoRun extends Base
         $list = Db::name('pk_settle_i')->limit(3)->select();
         $userService = new User;
         foreach ($list as $value) {
-            Db::name('pk_settle_i')->where('id', $value['id'])->delete();
-            $awards = json_decode($value['awards'], true);
-            $uids = json_decode($value['uids'], true);
+            Db::startTrans();
+            try {
+                Db::name('pk_settle_i')->where('id', $value['id'])->delete();
+                $awards = json_decode($value['awards'], true);
+                $uids = json_decode($value['uids'], true);
 
-            foreach ($uids as $uid) {
-                $userService->change($uid, [
-                    'coin' => $awards['coin'],
-                    'flower' =>  $awards['flower'],
-                    'stone' =>  $awards['stone'],
-                ], '团战奖励');
+                foreach ($uids as $uid) {
+                    $userService->change($uid, [
+                        'coin' => $awards['coin'],
+                        'flower' => $awards['flower'],
+                        'stone' => $awards['stone'],
+                    ], '团战奖励');
+                }
+                Db::commit();
+            } catch (\Exception $e) {
+                Db::rollback();
+                Common::res(['code' => 400, 'msg' => $e->getMessage()]);
             }
         }
     }

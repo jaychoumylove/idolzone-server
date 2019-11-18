@@ -100,6 +100,7 @@ Route::rule('api/:version/user/sendToOther', 'api/v1.User/sendToOther');// 送�
 Route::rule('api/:version/user/forbidden', 'api/v1.User/forbidden');// 禁言
 Route::rule('api/:version/user/extraCurrency', 'api/v1.User/extraCurrency');// 团战积分 喇叭
 Route::rule('api/:version/user/like', 'api/v1.User/like');// 点赞
+Route::rule('api/:version/user/level', 'api/v1.User/level');// 用户等级
 
 // Share
 Route::rule('api/:version/share/mass', 'api/v1.Share/mass');// 分享集结
@@ -154,10 +155,13 @@ Route::rule('api/:version/ext/redress', 'api/v1.Ext/redress');// 公众号补偿
 Route::rule('api/:version/uploadIndex', 'api/v1.Ext/uploadIndex');// 文件上传
 Route::rule('api/:version/upload', 'api/v1.Ext/upload');// 文件上传
 
-Route::rule('api/:version/Fanclub/join', 'api/v1.Ext/FanclubJoin');// 后援会
-Route::rule('api/:version/ext/fanclubList', 'api/v1.Ext/fanclubList');// 后援会列表
-Route::rule('api/:version/ext/joinFanclub', 'api/v1.Ext/joinFanclub');// 加入后援会
-Route::rule('api/:version/ext/exitFanclub', 'api/v1.Ext/exitFanclub');// 退出后援会
+// FansClub
+Route::rule('api/:version/ext/fanclubCreate', 'api/v1.FansClub/fanclubCreate');// 创建粉丝团
+Route::rule('api/:version/ext/fanclubList', 'api/v1.FansClub/fanclubList');// 粉丝团列表
+Route::rule('api/:version/ext/joinFanclub', 'api/v1.FansClub/joinFanclub');// 加入粉丝团
+Route::rule('api/:version/ext/exitFanclub', 'api/v1.FansClub/exitFanclub');// 退出粉丝团
+Route::rule('api/:version/ext/myFansClub', 'api/v1.FansClub/myFansClub');// 我加入的粉丝团
+Route::rule('api/:version/ext/fansclubMass', 'api/v1.FansClub/fansclubMass');// 我加入的粉丝团
 
 // lottery
 Route::rule('api/:version/lottery/addCount', 'api/v1.Lottery/addCount');// 增加抽奖次数
