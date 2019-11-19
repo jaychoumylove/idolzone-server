@@ -230,17 +230,20 @@ class AutoRun extends Base
         foreach ($list as $value) {
             Db::startTrans();
             try {
-                Db::name('pk_settle_i')->where('id', $value['id'])->delete();
-                $awards = json_decode($value['awards'], true);
-                $uids = json_decode($value['uids'], true);
+                $isDone = Db::name('pk_settle_i')->where('id', $value['id'])->delete();
+                if ($isDone) {
+                    $awards = json_decode($value['awards'], true);
+                    $uids = json_decode($value['uids'], true);
 
-                foreach ($uids as $uid) {
-                    $userService->change($uid, [
-                        'coin' => $awards['coin'],
-                        'flower' => $awards['flower'],
-                        'stone' => $awards['stone'],
-                    ], '团战奖励');
+                    foreach ($uids as $uid) {
+                        $userService->change($uid, [
+                            'coin' => $awards['coin'],
+                            'flower' => $awards['flower'],
+                            'stone' => $awards['stone'],
+                        ], '团战奖励');
+                    }
                 }
+
                 Db::commit();
             } catch (\Exception $e) {
                 Db::rollback();
