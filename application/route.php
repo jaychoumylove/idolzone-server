@@ -156,12 +156,14 @@ Route::rule('api/:version/uploadIndex', 'api/v1.Ext/uploadIndex');// 文件上�
 Route::rule('api/:version/upload', 'api/v1.Ext/upload');// 文件上传
 
 // FansClub
-Route::rule('api/:version/ext/fanclubCreate', 'api/v1.FansClub/fanclubCreate');// 创建粉丝团
-Route::rule('api/:version/ext/fanclubList', 'api/v1.FansClub/fanclubList');// 粉丝团列表
-Route::rule('api/:version/ext/joinFanclub', 'api/v1.FansClub/joinFanclub');// 加入粉丝团
-Route::rule('api/:version/ext/exitFanclub', 'api/v1.FansClub/exitFanclub');// 退出粉丝团
-Route::rule('api/:version/ext/myFansClub', 'api/v1.FansClub/myFansClub');// 我加入的粉丝团
-Route::rule('api/:version/ext/fansclubMass', 'api/v1.FansClub/fansclubMass');// 我加入的粉丝团
+Route::rule('api/:version/fans/create', 'api/v1.FansClub/create');// 创建粉丝团
+Route::rule('api/:version/fans/list', 'api/v1.FansClub/list');// 粉丝团列表
+Route::rule('api/:version/fans/join', 'api/v1.FansClub/join');// 加入粉丝团
+Route::rule('api/:version/fans/exit', 'api/v1.FansClub/exit');// 退出粉丝团
+Route::rule('api/:version/fans/info', 'api/v1.FansClub/info');// 我加入的粉丝团
+Route::rule('api/:version/fans/mass', 'api/v1.FansClub/mass');// 粉丝团集结
+Route::rule('api/:version/fans/joinMass', 'api/v1.FansClub/joinMass');// 粉丝团加入集结
+Route::rule('api/:version/fans/member', 'api/v1.FansClub/member');// 粉丝团成员
 
 // lottery
 Route::rule('api/:version/lottery/addCount', 'api/v1.Lottery/addCount');// 增加抽奖次数

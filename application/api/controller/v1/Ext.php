@@ -16,6 +16,7 @@ use app\api\model\Rec;
 use app\api\model\UserSprite;
 use app\api\model\RecActive;
 use app\api\model\GuideCron;
+use app\api\model\Star;
 use app\api\service\User;
 
 class Ext extends Base
@@ -141,56 +142,7 @@ class Ext extends Base
         }
     }
 
-    /**
-     * 后援会入住
-     */
-    public function FanclubJoin()
-    {
-        $this->getUser();
 
-        $find = Fanclub::where(['user_id' => $this->uid])->find();
-        if ($find) Common::res(['code' => 1, 'msg' => '请勿重复提交']);
-
-        $res['user_id'] = $this->uid;
-        $res['avatar'] = input('avatar');
-        $res['clubname'] = input('clubname');
-        $res['name'] = input('name');
-        $res['post'] = input('post');
-        $res['wx'] = input('wx');
-        $res['qualify'] = input('qualify');
-
-        $res['star_id'] = UserStar::where('user_id', $this->uid)->value('star_id');
-
-        Fanclub::create($res);
-        Common::res([]);
-    }
-
-    public function fanclubList()
-    {
-        $star_id = input('star_id');
-        $status = input('status', 2);
-        $this->getUser();
-
-        $list = Fanclub::getList($this->uid, $star_id, $status);
-        Common::res(['data' => $list]);
-    }
-
-    public function joinFanclub()
-    {
-        $f_id = input('fanclub_id');
-        $this->getUser();
-
-        Fanclub::joinFanclub($this->uid, $f_id);
-        Common::res();
-    }
-
-    public function exitFanclub()
-    {
-        $this->getUser();
-
-        Fanclub::exitFanclub($this->uid);
-        Common::res();
-    }
 
     public function log()
     {
@@ -222,93 +174,5 @@ class Ext extends Base
         UserExt::where('user_id', $this->uid)->update(['redress_time' => time()]);
 
         Common::res(['data' => ['status' => 0, 'msg' => $msg]]);
-    }
-
-    public function score()
-    {
-        $this->getUser();
-
-        // 我的积分
-        $data['myScore'] = ScoreUser::myScore($this->uid);
-        $data['task'] = Db::name('score_task')->order('sort asc')->select();
-
-        // 任务
-        $weiboPost = Db::name('task_weibo_log')->where('uid', $this->uid)->where('type', 0)
-            ->whereTime('create_time', 'today')
-            ->count('id');
-
-        $weiboTrans = Db::name('task_weibo_log')->where('uid', $this->uid)->where('type', 1)
-            ->whereTime('create_time', 'today')
-            ->count('id');
-
-        // 农场加速
-        $speedEnd = Db::name('user_pet')->where('uid', $this->uid)->value('speed_end');
-
-        // 每日首充
-        $isFee = Db::name('order')->where('uid', $this->uid)->where('status', 1)->whereTime('create_time', 'today')->find();
-
-        // 今日看视频次数
-        $playVideoTimes = Db::name('score_log')->where('uid', $this->uid)->where('task_id', 3)->whereTime('create_time', 'today')->count('id');
-
-        // 今日参加团战次数
-        $pkJoinTimes = Db::name('score_log')->where('uid', $this->uid)->where('task_id', 4)->whereTime('create_time', 'today')->count('id');
-        foreach ($data['task'] as &$task) {
-            $task['status'] = 0;
-            if ($task['id'] == 1) {
-                // 微博转发
-                if ($weiboTrans) {
-                    $task['status'] = 2;
-                }
-            } else if ($task['id'] == 2) {
-                // 微博发帖
-                if ($weiboPost) {
-                    $task['status'] = 2;
-                }
-            } else if ($task['id'] == 3) {
-                // 看视频
-                // 每天最多看20 次
-                if ($playVideoTimes >= 20) {
-                    $task['status'] = 2;
-                }
-            } else if ($task['id'] == 4) {
-                // 团战
-                if (!$pkJoinTimes) {
-                    $pkJoinTimes = 0;
-                }
-                $task['desc'] .= '(' . $pkJoinTimes . '/4)';
-            } else if ($task['id'] == 5) {
-                // 农场加速
-                if (date('Ymd') == date('Ymd',  $speedEnd)) {
-                    $task['status'] = 2;
-                }
-            } else if ($task['id'] == 8) {
-                // 贡献100万人气
-                $scoreCount = ScoreTotal::where('uid', $this->uid)->value('count');
-                if (!$scoreCount) {
-                    $scoreCount = 0;
-                }
-                $task['desc'] .= '(' . $scoreCount . '/1000000)';
-            } else if ($task['id'] == 9) {
-                // 每日首充
-                if ($isFee) {
-                    $task['status'] = 2;
-                }
-            }
-        }
-
-        // 兑换
-        $data['excharge'] = ScoreExchargeLog::myExcharge($this->uid);
-
-
-        $data['cfg']['weibo_zhuanfa'] = json_decode($this->cfg['weibo_zhuanfa'], true);
-        $data['cfg']['operate_cooling_time'] = $this->cfg['operate_cooling_time'];
-        $data['cfg']['share_off'] = $this->cfg['share_off'];
-        $data['cfg']['share_title_index'] = $this->cfg['share_title_index'];
-        $data['cfg']['share_img_index'] = $this->cfg['share_img_index'];
-        $share_img_index_arr = json_decode($this->cfg['share_img_index'], true);
-        $data['cfg']['share_img_index'] = $share_img_index_arr[rand(0, count($share_img_index_arr) - 1)]['img'];
-
-
-        return ['status' => 0, 'data' => $data];
     }
 }

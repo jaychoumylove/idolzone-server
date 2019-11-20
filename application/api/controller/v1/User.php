@@ -16,6 +16,7 @@ use app\api\model\CfgShareTitle;
 use app\api\model\Cfg;
 use app\base\service\WxAPI;
 use app\api\model\CfgSignin;
+use app\api\model\CfgUserLevel;
 use GatewayWorker\Lib\Gateway;
 use app\api\model\RecStarChart;
 use think\Db;
@@ -293,5 +294,16 @@ class User extends Base
 
         UserExt::like($this->uid, $user_id);
         Common::res();
+    }
+
+    public function level()
+    {
+        $user_id = $this->req('user_id', 'integer');
+
+        $count = UserStar::where('user_id', $user_id)->order('id desc')->value('total_count');
+        $res['level'] = CfgUserLevel::where('total', '<=', $count)->max('level');
+        $nextCount = CfgUserLevel::where('total', '>', $count)->order('level asc')->value('total');
+        $res['gap'] = $nextCount - $count;
+        Common::res(['data' => $res]);
     }
 }

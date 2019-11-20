@@ -91,6 +91,8 @@ class Star
                 if ($type == 2) RecHour::change($uid, $hot, $starid);
                 // 团战贡献增加
                 PkUser::addHot($uid, $starid, $hot);
+                // 粉丝团
+                Fanclub::change($uid, $hot);
 
                 // 宝箱
             }
