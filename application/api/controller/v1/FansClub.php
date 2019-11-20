@@ -26,8 +26,16 @@ class FansClub extends Base
         $res['user_id'] = $this->uid;
         $res['star_id'] = UserStar::getStarId($this->uid);
 
-        $new = Fanclub::create($res);
-        Fanclub::joinFanclub($this->uid, $new['id']);
+        Db::startTrans();
+        try {
+            $new = Fanclub::create($res);
+            Fanclub::joinFanclub($this->uid, $new['id']);
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+
         Common::res();
     }
 
@@ -110,9 +118,10 @@ class FansClub extends Base
         $fid = $this->req('fid', 'integer');
         $this->getUser();
 
-        $selfData = FanclubUser::where('user_id', $this->uid)->field('fanclub_id,mass_time')->find();
-        if ($selfData['fanclub_id'] != $fid) Common::res(['code' => 1, 'msg' => '未加入该粉丝团']);
-        if (date('YmdH') == $selfData['mass_time']) Common::res(['code' => 2, 'msg' => '本次已集结，请下次再来']);
+        $self_fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
+        if ($self_fid != $fid) Common::res(['code' => 1, 'msg' => '未加入该粉丝团']);
+        $self_massTime = Db::name('fanclub_user')->where('user_id', $this->uid)->order('mass_time desc')->value('mass_time');
+        if (date('YmdH') == $self_massTime) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下次再来']);
 
         if ($type == 0) {
             $coin = 100;
@@ -121,7 +130,7 @@ class FansClub extends Base
         }
         // 热度+
         Fanclub::where('id', $fid)->update(['week_hot' => Db::raw('week_hot+' . $coin)]);
-        
+
         FanclubUser::where('user_id', $this->uid)->update([
             'mass_time' => date('YmdH'),
             'mass_count' => $coin,
@@ -137,16 +146,17 @@ class FansClub extends Base
         $referrer = $this->req('referrer');
         $this->getUser();
 
+        $myStar = UserStar::getStarId($this->uid);
         $self_fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         $fid = FanclubUser::where('user_id', $referrer)->value('fanclub_id');
 
-        if ($self_fid === null) {
+        if (!$myStar) {
             // 没有加入圈子
             $res['userStatus'] = 1;
-        } else if ($self_fid === 0) {
+        } else if (!$self_fid) {
             // 没有加入粉丝团
             $res['userStatus'] = 2;
-        } else if ($self_fid !== 0 && $self_fid != $fid) {
+        } else if ($self_fid != $fid) {
             // 已经加入别的粉丝团
             $res['userStatus'] = 3;
         } else {

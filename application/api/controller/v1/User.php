@@ -17,6 +17,7 @@ use app\api\model\Cfg;
 use app\base\service\WxAPI;
 use app\api\model\CfgSignin;
 use app\api\model\CfgUserLevel;
+use app\api\model\FanclubUser;
 use GatewayWorker\Lib\Gateway;
 use app\api\model\RecStarChart;
 use think\Db;
@@ -67,6 +68,9 @@ class User extends Base
         $uid = $this->req('user_id', 'integer');
 
         $res = UserModel::where('id', $uid)->field('id,nickname,avatarurl,type')->find();
+
+        // 粉丝团
+        $res['fanclub'] = FanclubUser::with('fanclub')->where('user_id', $uid)->find()['fanclub'];
         Common::res(['data' => $res]);
     }
 

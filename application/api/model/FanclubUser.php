@@ -11,4 +11,9 @@ class FanclubUser extends Base
     {
         return $this->belongsTo('User', 'user_id', 'id')->field('id,avatarurl,nickname');
     }
+
+    public function fanclub()
+    {
+        return $this->belongsTo('Fanclub', 'fanclub_id', 'id')->field('id,clubname,avatar');
+    }
 }

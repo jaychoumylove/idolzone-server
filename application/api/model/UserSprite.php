@@ -120,7 +120,7 @@ class UserSprite extends Base
                 // 技能二挖金豆升级
                 $field = 'skill_two_level';
                 $nextSkill = CfgPetSkillSecond::get(['level' => $userSprite[$field] + 1]);
-                if (!$nextSkill)  Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
+                if (!$nextSkill) Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
                 $need_stone = $nextSkill['stone'];
 
                 break;
@@ -128,7 +128,7 @@ class UserSprite extends Base
                 // 技能三离线升级
                 $field = 'skill_three_level';
                 $nextSkill = CfgPetSkillThird::get(['level' => $userSprite[$field] + 1]);
-                if (!$nextSkill)  Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
+                if (!$nextSkill) Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
                 // 要达到一定粉丝等级
                 $userLevel = CfgUserLevel::getLevel($uid);
                 if ($userLevel < $nextSkill['level']) Common::res(['code' => 1, 'msg' => '粉丝等级需达到' . $nextSkill['level'] . '级']);
@@ -139,7 +139,7 @@ class UserSprite extends Base
                 // 房子升级
                 $field = 'house_level';
                 $nextSkill = CfgPetHouse::get(['level' => $userSprite[$field] + 1]);
-                if (!$nextSkill)  Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
+                if (!$nextSkill) Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
                 $need_stone = $nextSkill['stone'];
                 break;
 
@@ -147,7 +147,7 @@ class UserSprite extends Base
                 // 树1升级
                 $field = 'tree_1_level';
                 $nextSkill = CfgPetTree::get(['level' => $userSprite[$field] + 1]);
-                if (!$nextSkill)  Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
+                if (!$nextSkill) Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
                 $need_stone = $nextSkill['stone'];
                 break;
 
@@ -155,7 +155,7 @@ class UserSprite extends Base
                 // 树2升级
                 $field = 'tree_2_level';
                 $nextSkill = CfgPetTree::get(['level' => $userSprite[$field] + 1]);
-                if (!$nextSkill)  Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
+                if (!$nextSkill) Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
                 $need_stone = $nextSkill['stone'];
 
                 break;
@@ -163,7 +163,7 @@ class UserSprite extends Base
                 // 地1升级
                 $field = 'land_1_level';
                 $nextSkill = CfgPetLand::get(['level' => $userSprite[$field] + 1]);
-                if (!$nextSkill)  Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
+                if (!$nextSkill) Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
                 $need_stone = $nextSkill['stone'];
                 break;
 
@@ -171,7 +171,7 @@ class UserSprite extends Base
                 // 地2升级
                 $field = 'land_2_level';
                 $nextSkill = CfgPetLand::get(['level' => $userSprite[$field] + 1]);
-                if (!$nextSkill)  Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
+                if (!$nextSkill) Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
                 $need_stone = $nextSkill['stone'];
 
                 break;
@@ -183,7 +183,7 @@ class UserSprite extends Base
         Db::startTrans();
         try {
             self::where(['user_id' => $uid])->update([
-                $field => Db::raw($field . '+1'),
+                $field => $nextSkill['level'],
             ]);
 
             (new User())->change($uid, [

@@ -2,6 +2,7 @@
 
 namespace app\api\model;
 
+use app\api\controller\v1\FansClub;
 use app\base\model\Base;
 use app\base\service\Common;
 use think\Db;
@@ -15,7 +16,14 @@ class Fanclub extends Base
 
     /**加入粉丝团 */
     public static function joinFanclub($uid, $f_id)
-    {
+    {   
+        if (UserStar::getStarId($uid) != Fanclub::where('id', $f_id)->value('star_id') ) {
+            Common::res(['code' => 1, 'msg' => '不能加入所属其他爱豆的粉丝团']);
+        }
+
+        $isExist = FanclubUser::where('user_id', $uid)->value('fanclub_id');
+        if ($isExist) Common::res(['code' => 1, 'msg' => '你已加入了一个粉丝团']);
+
         self::where('id', $f_id)->update([
             'mem_count' => Db::raw('mem_count+1')
         ]);

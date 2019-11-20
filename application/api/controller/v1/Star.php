@@ -100,7 +100,7 @@ class Star extends Base
         $uid = UserStar::joinNew($starid, $this->uid);
         UserRelation::join($starid, $uid);
 
-        Common::res([]);
+        Common::res();
     }
 
     /**偷花 */
