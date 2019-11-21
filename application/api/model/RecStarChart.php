@@ -39,6 +39,8 @@ class RecStarChart extends Base
             $value['user']['level'] = CfgUserLevel::getLevel($value['user']['id']);
             // 头饰
             $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
+            // 粉丝团团长
+            $value['user']['isLeader'] = FanclubUser::isLeader($value['user']['id']);
         }
 
         return array_reverse($list);
@@ -85,6 +87,7 @@ class RecStarChart extends Base
 
             $res['user']['level'] = CfgUserLevel::getLevel($uid);
             $res['user']['headwear'] = HeadwearUser::getUse($uid);
+            $res['user']['isLeader'] = FanclubUser::isLeader($uid);
 
             if ($res['user']['type'] == 2) {
                 Db::rollback();

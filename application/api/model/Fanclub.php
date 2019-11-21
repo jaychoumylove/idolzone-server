@@ -16,8 +16,8 @@ class Fanclub extends Base
 
     /**加入粉丝团 */
     public static function joinFanclub($uid, $f_id)
-    {   
-        if (UserStar::getStarId($uid) != Fanclub::where('id', $f_id)->value('star_id') ) {
+    {
+        if (UserStar::getStarId($uid) != Fanclub::where('id', $f_id)->value('star_id')) {
             Common::res(['code' => 1, 'msg' => '不能加入所属其他爱豆的粉丝团']);
         }
 
@@ -41,6 +41,9 @@ class Fanclub extends Base
         if (strtotime($fanclubUser['delete_time']) > time() - 3600 * 24 * 3) {
             Common::res(['code' => 1, 'msg' => '三天之内不能再次退出粉丝团']);
         }
+
+        $isLeader = FanclubUser::isLeader($uid);
+        if ($isLeader) Common::res(['code' => 1, 'msg' => '团长暂时不能退出粉丝团']);
 
         $fid = $fanclubUser['fanclub_id'];
 
