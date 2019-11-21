@@ -452,6 +452,12 @@ class Pk extends Base
             if ($type == 0) $pkTitle = '钻石场';
             else $pkTitle = '鲜花场';
 
+            // 日志
+            Rec::addRec([
+                'user_id' => $this->uid,
+                'content' => '加入团战，' . substr($pkTime, 11) . $pkTitle,
+            ]);
+
             // 新增报名明星
             $starExist = Db::name('pk_star')->where(['pk_time' => $pkTime, 'pk_type' => $type, 'star_id' => $star_id])->value('id');
             if (!$starExist) {
