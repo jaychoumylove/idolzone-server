@@ -310,4 +310,24 @@ class User extends Base
         $res['gap'] = $nextCount - $count;
         Common::res(['data' => $res]);
     }
+
+    public function edit()
+    {
+        $this->getUser();
+        $res['avatarurl'] = $this->req('avatar', 'require');
+        $res['nickname'] = $this->req('nickname', 'require');
+
+        Db::startTrans();
+        try {   
+            (new UserService)->change($this->uid, ['stone' => -100], '修改个人信息');
+            UserModel::where('id', $this->uid)->update($res);
+
+            Db::commit();   
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+
+        Common::res();
+    }
 }

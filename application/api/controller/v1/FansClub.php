@@ -42,10 +42,9 @@ class FansClub extends Base
     public function info()
     {
         $fid = $this->req('fid', 'integer', 0);
-        if (!$fid) {
-            $this->getUser();
-            $fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
-        }
+
+        $this->getUser();
+        if (!$fid) $fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
 
         $res = Fanclub::with('star')->where('id', $fid)->find();
         $res['week_rank'] = Fanclub::where('week_count', '>', $res['week_count'])->count() + 1;
@@ -54,6 +53,8 @@ class FansClub extends Base
         $res['mass_total'] = FanclubUser::where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->sum('mass_count');
         $res['mass_people'] = FanclubUser::where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->count();
         $res['mass_user'] = FanclubUser::with('user')->where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->field('user_id')->limit(10)->select();
+
+        $res['leader'] = FanclubUser::isLeader($this->uid);
 
         Common::res(['data' => $res]);
     }
@@ -74,15 +75,10 @@ class FansClub extends Base
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 10);
         $keyword = $this->req('keyword');
-        // 关键字
-        if ($keyword) {
-            $ids = Star::where('name', 'like', '%' . $keyword . '%')->column('id');
-            $w = ['star_id' => ['in', $ids]];
-        } else {
-            $w = '1=1';
-        }
+        $field = $this->req('field', 'require');
 
-        $list = Fanclub::with('star')->where($w)->whereOr('clubname', 'like', '%' . $keyword . '%')->order('week_count desc')->page($page, $size)->select();
+        $list = Fanclub::getList($keyword, $field, $page, $size);
+
         Common::res(['data' => $list]);
     }
 
@@ -108,6 +104,29 @@ class FansClub extends Base
         }
 
         Fanclub::exitFanclub($uid);
+        Common::res();
+    }
+
+    public function edit()
+    {
+        $fid = $this->req('fid', 'require');
+        $res['avatar'] = $this->req('avatar', 'require');
+        $res['clubname'] = $this->req('clubname', 'require');
+        $res['wx'] = $this->req('wx', 'require');
+
+        $this->getUser();
+        Db::startTrans();
+        try {
+            
+            (new User)->change($this->uid, ['stone' => -100], '修改粉丝团信息');
+            Fanclub::where('id', $fid)->update($res);
+
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+
         Common::res();
     }
 

@@ -69,6 +69,7 @@ Route::rule('api/:version/banner/top', 'api/v1.Banner/getTop');// 风云榜
 Route::rule('api/:version/user/login', 'api/v1.User/login');// 登录
 
 Route::rule('api/:version/user/saveinfo', 'api/v1.User/saveInfo');// 保存用户详细信息
+Route::rule('api/:version/user/edit', 'api/v1.User/edit');// 修改用户头像和昵称
 Route::rule('api/:version/user/info', 'api/v1.User/getInfo');// 获取用户详细信息
 Route::rule('api/:version/user/currency', 'api/v1.User/getCurrency');// 获取用户货币
 Route::rule('api/:version/user/item', 'api/v1.User/getItem');// 获取用户道具
@@ -157,6 +158,7 @@ Route::rule('api/:version/upload', 'api/v1.Ext/upload');// 文件上传
 
 // FansClub
 Route::rule('api/:version/fans/create', 'api/v1.FansClub/create');// 创建粉丝团
+Route::rule('api/:version/fans/edit','api/v1.FansClub/edit');// 修改粉丝团
 Route::rule('api/:version/fans/list', 'api/v1.FansClub/list');// 粉丝团列表
 Route::rule('api/:version/fans/join', 'api/v1.FansClub/join');// 加入粉丝团
 Route::rule('api/:version/fans/exit', 'api/v1.FansClub/exit');// 退出粉丝团

@@ -36,11 +36,11 @@ class RecStarChart extends Base
         $list = json_decode(json_encode($list, JSON_UNESCAPED_UNICODE), true);
         foreach ($list as &$value) {
             // 粉丝等级
-            $value['user']['level'] = CfgUserLevel::getLevel($value['user']['id']);
+            $value['user']['level'] = CfgUserLevel::getLevel($value['user_id']);
             // 头饰
             $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
             // 粉丝团团长
-            $value['user']['isLeader'] = FanclubUser::isLeader($value['user']['id']);
+            $value['user']['isLeader'] = FanclubUser::isLeader($value['user_id']);
         }
 
         return array_reverse($list);
