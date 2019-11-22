@@ -12,6 +12,7 @@ use app\api\model\UserCurrency;
 use app\api\model\OtherLock;
 use think\Cache;
 use app\api\model\Fanclub;
+use app\api\model\FanclubUser;
 use app\api\model\Star;
 use app\base\service\WxAPI;
 use think\Log;
@@ -136,10 +137,13 @@ class AutoRun extends Base
             // }
 
             // 粉丝团贡献重置
-            // Fanclub::where('1=1')->update([
-            //     'lastweek_count' => Db::raw('week_count'),
-            //     'week_count' => 0,
-            // ]);
+            Fanclub::where('1=1')->update([
+                'lastweek_count' => Db::raw('week_count'),
+                'week_count' => 0,
+                'week_hot' => 0
+            ]);
+
+            FanclubUser::where('1=1')->update(['thisweek_count' => 0]);
 
             Db::commit();
         } catch (\Exception $e) {
@@ -194,10 +198,10 @@ class AutoRun extends Base
             // RecCardHistory::settle();
 
             // 后援会贡献重置
-            // Fanclub::where('1=1')->update([
-            //     'lastmonth_count' => Db::raw('month_count'),
-            //     'month_count' => 0
-            // ]);
+            Fanclub::where('1=1')->update([
+                'lastmonth_count' => Db::raw('month_count'),
+                'month_count' => 0
+            ]);
 
             Db::commit();
         } catch (\Exception $e) {
