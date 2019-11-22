@@ -308,6 +308,7 @@ class User extends Base
         $res['level'] = CfgUserLevel::where('total', '<=', $count)->max('level');
         $nextCount = CfgUserLevel::where('total', '>', $count)->order('level asc')->value('total');
         $res['gap'] = $nextCount - $count;
+        if ($res['gap'] < 0) $res['gap'] = 0;
         Common::res(['data' => $res]);
     }
 
@@ -318,11 +319,11 @@ class User extends Base
         $res['nickname'] = $this->req('nickname', 'require');
 
         Db::startTrans();
-        try {   
+        try {
             (new UserService)->change($this->uid, ['stone' => -100], '修改个人信息');
             UserModel::where('id', $this->uid)->update($res);
 
-            Db::commit();   
+            Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
