@@ -42,28 +42,27 @@ class Fanclub extends Base
             Common::res(['code' => 1, 'msg' => '三天之内不能再次退出粉丝团']);
         }
 
-        $curFid = FanclubUser::where('user_id', $uid)->value('fanclub_id');
+        $fid = FanclubUser::where('user_id', $uid)->value('fanclub_id');
+        $leader = FanclubUser::isLeader($uid);
 
-        if ($curFid != 0) {
+        if ($fid) {
             Db::startTrans();
             try {
                 // 用户退出
                 FanclubUser::destroy(['user_id' => $uid]);
 
-                self::where('id', $curFid)->update([
+                self::where('id', $fid)->update([
                     'mem_count' => Db::raw('mem_count-1')
                 ]);
-
-                // 团长退出
-                $leader = FanclubUser::isLeader($uid);
+                
                 if ($leader) {
-                    $user_id = FanclubUser::where(['fanclub_id' => $curFid])->order('thisweek_count desc')->value('user_id');
+                    $user_id = FanclubUser::where(['fanclub_id' => $fid])->order('thisweek_count desc')->value('user_id');
                     if ($user_id === null) {
                         // 销毁粉丝团
                         self::destroy(['user_id' => $uid]);
                     } else {
                         // 转交团长
-                        self::where('id', $curFid)->update(['user_id' => $user_id]);
+                        self::where('id', $fid)->update(['user_id' => $user_id]);
                     }
                 }
 
