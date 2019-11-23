@@ -182,7 +182,7 @@ class FansClub extends Base
             $res['userStatus'] = 0;
         }
 
-        $res['noticeId'] = 19;
+        $res['noticeId'] = 10;
         $res['fanclub'] = Fanclub::with('star')->where('id', $fid)->find();
         // 总共的能量
         $res['totalCount'] = FanclubUser::where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->sum('mass_count');
