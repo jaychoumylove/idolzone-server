@@ -187,7 +187,7 @@ class FansClub extends Base
         // 总共的能量
         $res['totalCount'] = FanclubUser::where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->sum('mass_count');
         // 参与集结用户
-        $res['list'] = FanclubUser::with('user')->where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->select();
+        $res['list'] = FanclubUser::with('user')->where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->order('thisweek_count desc')->select();
         // 集结剩余时间
         $res['remainTime'] = strtotime(date('Y-m-d H:00:00', time() + 3600)) - time();
         Common::res(['data' => $res]);

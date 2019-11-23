@@ -13,7 +13,7 @@ class RecActive extends Base
         return  $this->belongsTo('User', 'user_id', 'id')->field('id,avatarurl,nickname');
     }
 
-    /**获取用户的大咖信息 */
+    /**获取用户的打卡信息 */
     public static function getOneInfo($uid, $starid, $active_id)
     {
         $data = self::where('user_id', $uid)->where('star_id', $starid)->where('active_id', $active_id)->find();

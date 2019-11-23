@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\CfgActive;
 use app\api\model\CfgLottery;
 use app\base\controller\Base;
 use app\api\model\StarRank;
@@ -193,9 +194,6 @@ class AutoRun extends Base
                 'month_hot_flower' => 10000,
                 'month_hot_coin' => 10000,
             ]);
-
-            // 应援结算
-            // RecCardHistory::settle();
 
             // 后援会贡献重置
             Fanclub::where('1=1')->update([
