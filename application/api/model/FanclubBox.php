@@ -22,7 +22,10 @@ class FanclubBox extends Base
         $res['can_settle'] = 0;
         foreach ($res['list'] as &$value) {
             // 已领取的
-            if (FanclubBoxUser::where('box_id', $value['id'])->where('user_id', $uid)->value('id')) {
+            if (
+                FanclubBoxUser::where('box_id', $value['id'])->where('user_id', $uid)->value('id')
+                || FanclubBoxUser::where('box_id', $value['id'])->count('id') >= $value['people']
+            ) {
                 $value['settle'] = true;
             } else {
                 $res['can_settle']++;

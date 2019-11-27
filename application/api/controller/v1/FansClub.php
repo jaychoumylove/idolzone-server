@@ -202,7 +202,7 @@ class FansClub extends Base
         $fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         $res = FanclubBox::getBoxList($fid, $this->uid);
 
-        $res['noticeId'] = 1;
+        $res['noticeId'] = 12;
 
         Common::res(['data' => $res]);
     }
