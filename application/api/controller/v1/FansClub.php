@@ -6,6 +6,8 @@ use app\base\controller\Base;
 use app\base\service\Common;
 use app\api\model\UserStar;
 use app\api\model\Fanclub;
+use app\api\model\FanclubBox;
+use app\api\model\FanclubBoxUser;
 use app\api\model\FanclubUser;
 use app\api\model\Star;
 use app\api\service\User;
@@ -117,7 +119,7 @@ class FansClub extends Base
         $this->getUser();
         Db::startTrans();
         try {
-            
+
             (new User)->change($this->uid, ['stone' => -100], '修改粉丝团信息');
             Fanclub::where('id', $fid)->update($res);
 
@@ -190,6 +192,54 @@ class FansClub extends Base
         $res['list'] = FanclubUser::with('user')->where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->order('thisweek_count desc')->select();
         // 集结剩余时间
         $res['remainTime'] = strtotime(date('Y-m-d H:00:00', time() + 3600)) - time();
+        Common::res(['data' => $res]);
+    }
+
+    public function mybox()
+    {
+        $this->getUser();
+
+        $fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
+        $res = FanclubBox::getBoxList($fid, $this->uid);
+
+        $res['noticeId'] = 1;
+
+        Common::res(['data' => $res]);
+    }
+
+    /**发宝箱 */
+    public function sendbox()
+    {
+        $type = $this->req('type', 'integer', 0); // 0钻石 1积分 2鲜花
+        $consume = $this->req('consume', 'integer'); // 消耗
+        $people = $this->req('people', 'integer', 10); // 人数
+        $this->getUser();
+
+        FanclubBox::sendbox($this->uid, $type, $consume, $people);
+        Common::res();
+    }
+
+    public function getBox()
+    {
+        $box_id = $this->req('box_id', 'integer');
+
+        $this->getUser();
+
+        FanclubBoxUser::openBox($this->uid, $box_id);
+
+        $res['info'] = FanclubBox::with('user')->where('id', $box_id)->find();
+
+        $res['self'] = FanclubBoxUser::with('user')->where('box_id', $box_id)->where('user_id', $this->uid)->find();
+        if (!$res['self']) $res['self'] = ['count' => 0];
+
+        $res['list'] = FanclubBoxUser::with('user')->where('box_id', $box_id)->order('id desc')->select();
+        // 已领取
+        $res['info']['isEarn'] = FanclubBoxUser::where('box_id', $box_id)->sum('count');
+        // 手气最佳
+        $res['lucky'] = FanclubBoxUser::where('box_id', $box_id)->order('count desc')->value('user_id');
+        // // 奖品type 1coin
+        // $res['award_type'] = RecLottery::with(['lottery'])->where('id', $box_id)->find()['lottery']['type'];
+
         Common::res(['data' => $res]);
     }
 }

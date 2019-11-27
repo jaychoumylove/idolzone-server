@@ -19,6 +19,7 @@ use app\api\model\RecPayOrder;
 use app\api\model\Cfg;
 use app\api\model\CfgLottery;
 use app\api\model\CfgUserLevel;
+use app\api\model\Fanclub;
 use app\api\model\Lock;
 use app\api\model\PayGoods;
 use app\api\model\RecCardHistory;
@@ -27,6 +28,7 @@ use app\api\model\User;
 use app\api\model\UserCurrency;
 use app\api\model\UserFather;
 use app\api\model\Wxgroup;
+use app\api\service\Redis;
 use ReflectionClass;
 use ReflectionObject;
 
@@ -45,14 +47,21 @@ class Test extends Base
 
     public function index()
     {
-        $list = StarRank::with(['star'])->order('week_hot desc')->field('id,star_id')->limit(100)->select();
+        echo 1;
+        // echo strtotime;
+        // Fanclub::where('1=1')->update(['wx' => 1]);
+        // echo $_SERVER['SERVER_ADDR'];
+        // $redis = new Redis;
+        // echo $redis->get('a');
 
-        foreach ($list as $value) {
-            for ($i = 1; $i <= 1; $i++) {
-                echo "<a href='https://m.weibo.cn/api/container/getIndex?containerid=100103"
-                    . urlencode('type=60&q=' . $value['star']['name'] . '&t=0') . "&page_type=searchall&page={$i}'>{$value['star']['name']}|{$value['star_id']}</a></br>";
-            }
-        }
+        // $list = StarRank::with(['star'])->order('week_hot desc')->field('id,star_id')->limit(100)->select();
+
+        // foreach ($list as $value) {
+        //     for ($i = 1; $i <= 1; $i++) {
+        //         echo "<a href='https://m.weibo.cn/api/container/getIndex?containerid=100103"
+        //             . urlencode('type=60&q=' . $value['star']['name'] . '&t=0') . "&page_type=searchall&page={$i}'>{$value['star']['name']}|{$value['star_id']}</a></br>";
+        //     }
+        // }
         // echo gettype(1);
 
         // PayGoods::where('remain', 'not null')->update(['remain' => 100]);

@@ -71,8 +71,11 @@ class Ext extends Base
     /**活动信息 */
     public function getActiveInfo()
     {
-        $starid = input('starid');
-        $active_id = $this->req('id', 'integer');
+        $starid = $this->req('starid', 'integer');
+        $active_id = $this->req('id', 'integer', 0);
+        if (!$active_id) {
+            $active_id = CfgActive::where('1=1')->value('id');
+        }
         $this->getUser();
 
         $res = UserStar::getActiveInfo($this->uid, $starid, $active_id);
@@ -86,6 +89,9 @@ class Ext extends Base
         $this->getUser();
         $starid = $this->req('starid', 'integer');
         $active_id = $this->req('active_id', 'integer');
+        if (!$active_id) {
+            $active_id = CfgActive::where('1=1')->value('id');
+        }
 
         UserStar::setCard($this->uid, $starid, $active_id);
         Common::res();
@@ -97,6 +103,9 @@ class Ext extends Base
         $page =  input('page', 1);
         $size =  input('size', 10);
         $active_id = $this->req('active_id', 'integer');
+        if (!$active_id) {
+            $active_id = CfgActive::where('1=1')->value('id');
+        }
 
         $list = RecActive::with(['user'])->where('star_id', $starid)->where('total_clocks', '>', 0)->where('active_id', $active_id)
             ->order('total_clocks desc')->page($page, $size)->select();

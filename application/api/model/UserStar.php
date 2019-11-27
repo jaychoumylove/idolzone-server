@@ -68,10 +68,13 @@ class UserStar extends Base
                 $uid = self::getVirtualUser($starid, $uid);
             }
 
-            if (!self::get(['user_id' => $uid, 'star_id' => $starid])) {
-                self::create([
-                    'user_id' => $uid, 'star_id' => $starid
-                ]);
+            $isExist = Db::name('user_star')->where('user_id', $uid)->where('star_id', $starid)->find();
+            if (!$isExist) {
+                // 创建
+                self::create(['user_id' => $uid, 'star_id' => $starid]);
+            } else {
+                // 恢复
+                Db::name('user_star')->where('user_id', $uid)->where('star_id', $starid)->update(['delete_time' => null]);
             }
             Db::commit();
         } catch (\Exception $e) {

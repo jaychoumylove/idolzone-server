@@ -34,10 +34,6 @@ class Payment extends Base
             }
         }
 
-        // 明星生日福利
-        // $star_id = UserStar::getStarId($this->uid);
-        // $birth = (new AppStar)->isTodayBrith($star_id);
-
         // 我的优惠
         $res['discount'] = PayGoods::getMyDiscount($this->uid);
 

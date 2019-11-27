@@ -132,6 +132,10 @@ Route::rule('api/:version/pay/order', 'api/v1.Payment/order');// 支付下单
 Route::rule('api/:version/pay/notify', 'api/v1.Payment/notify');// 支付通知
 Route::rule('api/:version/pay/goods', 'api/v1.Payment/goods');// 商品列表
 
+// Newboy
+Route::rule('api/:version/new/gift', 'api/v1.Newboy/gift');// 礼包
+Route::rule('api/:version/new/settle', 'api/v1.Newboy/settle');// 领取礼包
+
 // Task
 Route::rule('api/:version/task', 'api/v1.Task/index');// 任务
 Route::rule('api/:version/task/settle', 'api/v1.Task/settle');// 任务领取
@@ -166,6 +170,10 @@ Route::rule('api/:version/fans/info', 'api/v1.FansClub/info');// 我加入的粉
 Route::rule('api/:version/fans/mass', 'api/v1.FansClub/mass');// 粉丝团集结
 Route::rule('api/:version/fans/joinMass', 'api/v1.FansClub/joinMass');// 粉丝团加入集结
 Route::rule('api/:version/fans/member', 'api/v1.FansClub/member');// 粉丝团成员
+
+Route::rule('api/:version/fans/mybox', 'api/v1.FansClub/mybox');// 粉丝团宝箱
+Route::rule('api/:version/fans/sendbox', 'api/v1.FansClub/sendbox');// 发粉丝团宝箱
+Route::rule('api/:version/fans/getBox', 'api/v1.FansClub/getBox');// 发粉丝团宝箱
 
 // lottery
 Route::rule('api/:version/lottery/addCount', 'api/v1.Lottery/addCount');// 增加抽奖次数

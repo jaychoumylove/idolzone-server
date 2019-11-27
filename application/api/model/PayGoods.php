@@ -2,6 +2,7 @@
 
 namespace app\api\model;
 
+use app\api\service\Star as StarService;
 use think\Model;
 use app\base\model\Base;
 use app\base\service\Common;
@@ -19,6 +20,18 @@ class PayGoods extends Base
         $data['discount'] = 0.8;
         $data['flower_increase'] = 1;
         $data['stone_increase'] = 1;
+
+        // 明星生日福利
+        $star_id = UserStar::getStarId($uid);
+        $birth = (new StarService)->isTodayBrith($star_id);
+        if ($birth) {
+            $increase = 2;
+        } else {
+            $increase = 1;
+        }
+        $data['flower_increase'] *= $increase;
+        $data['stone_increase'] *= $increase;
+
         return $data;
     }
 

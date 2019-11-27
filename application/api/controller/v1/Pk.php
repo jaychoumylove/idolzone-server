@@ -122,7 +122,7 @@ class Pk extends Base
 
         if ($pkStatus == 1 || $s == 1) {
             if (!$mid) {
-                $mid = Db::name('guild_user')->where(['uid' => $this->uid])->value('mid');
+                $mid = Db::name('user_star')->where(['user_id' => $this->uid])->value('star_id');
             }
             // 用户排名
             $data['userList'] = Db::name('pk_user')->alias('pk')
@@ -136,7 +136,7 @@ class Pk extends Base
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
             }
             $data['joinNum'] = Db::name('pk_user')->where(['pk_time' => $pkTime, 'pk_type' => $type, 'star_id' => $mid])->count();
-
+            if ($data['joinNum'] > 100) $data['joinNum'] = 100;
             $data['isAdm'] = Db::name('user_star')->where(['user_id' => $this->uid, 'star_id' => $mid])->value('captain');
             $data['uid'] = $this->uid;
         }

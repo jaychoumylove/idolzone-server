@@ -34,7 +34,7 @@ class Fanclub extends Base
         } else if ($field == 'star_hot') {
             $list = Db::name('fanclub')->alias('f')->join('star s', 's.id = f.star_id')
                 ->field('s.name as clubname,s.head_img_s as avatar,f.star_id,sum(mem_count) as mem_count,sum(week_count) as week_count,sum(week_hot) as week_hot')
-                ->where($w)->group('f.star_id')->order('week_hot desc')->select();
+                ->where($w)->group('f.star_id')->page($page, $size)->order('week_hot desc')->select();
         }
 
         return $list;
