@@ -67,7 +67,7 @@ class FansClub extends Base
         $page = $this->req('page', 'integer', 1);
 
         $res['list'] = FanclubUser::with('User')->where('fanclub_id', $fid)->field('user_id,thisweek_count')
-            ->order('thisweek_count desc')->page($page, 10)->select();
+            ->order('thisweek_count desc')->page($page, 20)->select();
         $res['leader_uid'] = Fanclub::where('id', $fid)->value('user_id');
         Common::res(['data' => $res]);
     }
@@ -203,6 +203,7 @@ class FansClub extends Base
         $res = FanclubBox::getBoxList($fid, $this->uid);
 
         $res['noticeId'] = 12;
+        $res['isJoinFanclub'] = FanclubUser::where('user_id', $this->uid)->value('id');
 
         Common::res(['data' => $res]);
     }

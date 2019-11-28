@@ -68,7 +68,7 @@ class Payment extends Base
 
         if ($goods['category'] == 0) {
             // 鲜花充值折扣
-            $discount = PayGoods::getMyDiscount($user_id);
+            $discount = PayGoods::getMyDiscount($this->uid);
             $goods['flower'] = round($goods['flower'] * $discount['flower_increase']);
             $goods['stone'] = round($goods['stone'] * $discount['stone_increase']);
             $totalFee = round($totalFee * $discount['discount'], 2);
