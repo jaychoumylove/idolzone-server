@@ -50,7 +50,7 @@ class FanclubBox extends Base
                 $coin = $consume * 300;
                 $myScore = Db::name('pk_user_rank')->where('uid', $uid)->order('id desc')->value('score');
                 if ($myScore < $consume * 10000) Common::res(['code' => 1, 'msg' => '积分不足']);
-                Db::name('pk_user_rank')->where('uid', $uid)->update(['score' => Db::raw('score-' . $consume * 10000)]);
+                Db::name('pk_user_rank')->where('uid', $uid)->order('id desc')->limit(1)->update(['score' => Db::raw('score-' . $consume * 10000)]);
             } else if ($type == 2) {
                 // 鲜花 // 1 = 1
                 $coin = $consume * 1;
