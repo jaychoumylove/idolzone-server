@@ -47,7 +47,7 @@ class WxAPI
         $url = str_replace('APPSECRET', $this->appinfo['appsecret'], $url);
 
         $res = $this->request($url);
-        Log::record(json_encode($res), 'error');
+        // Log::record(json_encode($res), 'error');
         $this->appinfo['access_token'] = $res['access_token'];
         // 将新的token保存到数据库
         Appinfo::where(['id' => $this->appinfo['id']])->update([

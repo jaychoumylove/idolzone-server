@@ -10,6 +10,9 @@ use app\api\model\User;
 use app\api\service\Star;
 use app\api\model\Cfg;
 use app\api\model\CfgBadge;
+use app\api\model\CfgTaskgift;
+use app\api\model\CfgTaskgiftCategory;
+use app\api\model\NewboySignin;
 use app\api\model\RecTask;
 use app\api\model\UserStar;
 use app\api\model\UserStar as AppUserStar;
@@ -111,6 +114,35 @@ class Task extends Base
 
         $this->getUser();
         CfgBadge::badgeUse($badgeId, $this->uid);
+        Common::res();
+    }
+
+    public function taskgiftCategory()
+    {
+        $res = CfgTaskgiftCategory::all();
+        Common::res(['data' => $res]);
+    }
+
+    public function taskGift()
+    {
+        $cid = $this->req('cid', 'integer');
+        $this->getUser();
+
+        $list = CfgTaskgift::where('category_id', $cid)->select();
+
+        $res['list'] = CfgTaskgift::listHandle($cid, $list, $this->uid);
+
+        Common::res(['data' => $res]);
+    }
+
+    public function taskGiftSettle()
+    {
+        $cid = $this->req('cid', 'integer');
+        $this->getUser();
+        $list = CfgTaskgift::where('category_id', $cid)->select();
+
+        CfgTaskgift::settleHandle($cid, $list, $this->uid);
+
         Common::res();
     }
 }

@@ -14,6 +14,7 @@ use app\api\model\UserRelation;
 use app\api\model\UserExt;
 use app\api\model\Rec;
 use app\api\model\Cfg;
+use app\api\model\StarEditSubmit;
 use app\base\service\WxAPI;
 use app\api\model\UserSprite;
 use GatewayWorker\Lib\Gateway;
@@ -127,5 +128,22 @@ class Star extends Base
         $res = Rec::with(['User ' => ['UserStar ' => ['Star']]])->where('target_star_id', $starid)->limit(10)->order('id desc')->select();
 
         Common::res(['data' => $res]);
+    }
+
+    public function editimg()
+    {
+        $key = $this->req('key', 'require');
+        $value = $this->req('value', 'require');
+        $this->getUser();
+        $star_id = UserStar::getStarId($this->uid);
+
+        StarEditSubmit::create([
+            'user_id' => $this->uid,
+            'star_id' => $star_id,
+            'key' => $key,
+            'value' => $value
+        ]);
+
+        Common::res();
     }
 }

@@ -54,6 +54,7 @@ Route::rule('api/:version/star/sendhot', 'api/v1.Star/sendHot');// 给明星贡�
 Route::rule('api/:version/star/follow', 'api/v1.Star/follow');// 加入明星圈子
 Route::rule('api/:version/star/steal', 'api/v1.Star/steal');// 偷花
 Route::rule('api/:version/star/dynamic', 'api/v1.Star/dynamic');// 动态
+Route::rule('api/:version/star/editimg', 'api/v1.Star/editimg');// 修改明星图片
 
 // StarRank
 Route::rule('api/:version/star/rank', 'api/v1.StarRank/getRankList');// 明星排名
@@ -142,6 +143,10 @@ Route::rule('api/:version/task/settle', 'api/v1.Task/settle');// 任务领取
 Route::rule('api/:version/task/weibo', 'api/v1.Task/weibo');// 提交微博链接
 Route::rule('api/:version/sharetext', 'api/v1.Task/sharetext');// 分享文字 
 Route::rule('api/:version/badge/use', 'api/v1.Task/badgeUse');// 徽章使用
+
+Route::rule('api/:version/task/taskgiftCategory', 'api/v1.Task/taskgiftCategory');// 任务礼包分类
+Route::rule('api/:version/task/taskGift', 'api/v1.Task/taskGift');// 任务礼包
+Route::rule('api/:version/task/taskGiftSettle', 'api/v1.Task/taskGiftSettle');// 任务礼包领取
 
 // Ext
 Route::rule('api/:version/config', 'api/v1.Ext/config');// 配置信息

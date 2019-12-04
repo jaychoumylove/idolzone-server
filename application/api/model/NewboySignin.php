@@ -17,18 +17,8 @@ class NewboySignin extends Base
     }
 
     /**领奖励 */
-    public static function getSettle($uid)
+    public static function getSettle($uid, $awards)
     {
-        $awards = [
-            ['coin' => 2000, 'trumpet' => 3],
-            ['coin' => 3000, 'stone' => 2],
-            ['flower' => 5000, 'trumpet' => 3],
-            ['coin' => 10000, 'stone' => 5],
-            ['coin' => 20000, 'flower' => 10000],
-            ['coin' => 50000, 'trumpet' => 10],
-            ['flower' => 100000, 'stone' => 20],
-        ];
-
         $data = self::where('user_id', $uid)->find();
         if ($data['days'] >= count($awards)) {
             Common::res(['code' => 1, 'msg' => '你已完成全部任务']);

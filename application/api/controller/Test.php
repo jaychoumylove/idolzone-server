@@ -47,12 +47,16 @@ class Test extends Base
 
     public function index()
     {
-        echo 1;
+        // echo 1;
+        // $redis = new Redis;
+        // $isLock = $redis->get('pkjoin_lock_' . 1);
+
+        // echo $isLock;
         // echo strtotime;
         // Fanclub::where('1=1')->update(['wx' => 1]);
         // echo $_SERVER['SERVER_ADDR'];
-        // $redis = new Redis;
-        // echo $redis->get('a');
+        $redis = new Redis;
+        echo $redis->get('test');
 
         // $list = StarRank::with(['star'])->order('week_hot desc')->field('id,star_id')->limit(100)->select();
 
@@ -93,8 +97,6 @@ class Test extends Base
         // Lock::where('1=1')->update([
         //     'value' => 0
         // ]);
-
-
 
 
         // RecCardHistory::settle();
