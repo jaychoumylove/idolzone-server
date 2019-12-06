@@ -23,7 +23,7 @@ class CfgTaskgiftCategory extends Base
             
             switch ($value['id']) {
                 case 1:
-                    $value['title'] = '感恩有你，累计登陆领好礼';          
+                    $value['title'] = '感恩有你，累计登陆7天领好礼';    
                     break;                    
                 case 2:
                     $userLevel = (int) CfgUserLevel::getLevel($uid);
@@ -36,6 +36,7 @@ class CfgTaskgiftCategory extends Base
                     break;                    
                 case 3:
                     $userPayed = CfgTaskgift::userPayed($value['id'], $uid);
+                    $userPayed['fee'] = $userPayed['fee'] ? $userPayed['fee']: (int)$userPayed['fee'];
                     $userPayed['start_time'] = date('m月d', strtotime($userPayed['start_time']));
                     $userPayed['end_time'] = date('m月d', strtotime($userPayed['end_time']));
                     $value['title'] = $userPayed['start_time'] . '~' . $userPayed['end_time'] . ' 累计充值：' . $userPayed['fee'];
