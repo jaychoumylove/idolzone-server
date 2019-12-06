@@ -1,5 +1,4 @@
 <?php
-
 namespace app\api\model;
 
 use app\base\model\Base;
@@ -7,5 +6,50 @@ use think\Model;
 
 class CfgTaskgiftCategory extends Base
 {
-    //
+    // 红点和title
+    public static function getCategoryMore($uid)
+    {
+        $res['list'] = self::all(function ($query){
+                $query->where('end_time','NULL')->whereOR(['end_time'=>['>=',date('Y-m-d H:i:s')]]);
+        });
+        
+        $res['all_title'] = ''; // 总标题
+        $res['all_tips'] = 0; // 提醒红点
+            
+        foreach ($res['list'] as &$value) {
+            $value['status'] = 0; // 是否显示
+            $value['tips'] = 0; // 提醒红点
+            $value['title'] = ''; // 标题内容
+            
+            switch ($value['id']) {
+                case 1:
+                    $value['title'] = '感恩有你，累计登陆领好礼';          
+                    break;                    
+                case 2:
+                    $value['title'] = '当前用户等级：LV' . (int) CfgUserLevel::getLevel($uid);
+                    break;                    
+                case 3:
+                    $userPayed = CfgTaskgift::userPayed($value['id'], $uid);
+                    $userPayed['start_time'] = date('m月d', strtotime($userPayed['start_time']));
+                    $userPayed['end_time'] = date('m月d', strtotime($userPayed['end_time']));
+                    $value['title'] = $userPayed['start_time'] . '~' . $userPayed['end_time'] . ' 累计充值：' . $userPayed['fee'];
+                    break;
+            }
+            
+            // 获取子集任务的详情
+            $resTask = CfgTaskgift::all(function ($query) use($value) {
+                $query->where('category_id', $value['id']);
+            });
+            
+            foreach ($resTask as $k => $v) {
+                $taskStatus = CfgTaskgift::getSettleStatu($value['id'], $v['id'], $uid)['status'];
+                $value['status'] = (int) ($value['status'] == 1 || $taskStatus != 2);
+                $value['tips'] = (int) ($value['tips'] == 1 || $taskStatus == 1);
+                
+                if($res['all_title']=='' && $value['status'] ==1) $res['all_title'] = $value['name'];
+                $res['all_tips'] = (int) ($res['all_tips'] == 1 || $value['tips'] ==1);
+            }
+        }
+        return $res;
+    }
 }

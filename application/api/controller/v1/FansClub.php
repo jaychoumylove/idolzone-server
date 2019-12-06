@@ -1,5 +1,4 @@
 <?php
-
 namespace app\api\controller\v1;
 
 use app\base\controller\Base;
@@ -9,6 +8,7 @@ use app\api\model\Fanclub;
 use app\api\model\FanclubBox;
 use app\api\model\FanclubBoxUser;
 use app\api\model\FanclubUser;
+use app\api\model\CfgTaskgiftCategory;
 use app\api\model\Star;
 use app\api\service\User;
 use think\Db;
@@ -74,15 +74,17 @@ class FansClub extends Base
 
     public function list()
     {
-        $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 10);
-        $keyword = $this->req('keyword');
-        $field = $this->req('field', 'require');
-
-        $list = Fanclub::getList($keyword, $field, $page, $size);
-
-        Common::res(['data' => $list]);
-    }
+    $page = $this->req('page', 'integer', 1);
+    $size = $this->req('size', 'integer', 10);
+    $keyword = $this->req('keyword');
+    $field = $this->req('field', 'require');
+    
+    $list = Fanclub::getList($keyword, $field, $page, $size);
+    
+    Common::res([
+        'data' => $list
+    ]);
+}
 
     public function join()
     {
@@ -204,7 +206,10 @@ class FansClub extends Base
 
         $res['noticeId'] = 12;
         $res['isJoinFanclub'] = FanclubUser::where('user_id', $this->uid)->value('id');
-
+        
+        $taskGiftCategory = CfgTaskgiftCategory::getCategoryMore($this->uid);
+        $res['signGift_title'] = $taskGiftCategory['all_title'];
+        $res['signGift_tips'] = $taskGiftCategory['all_tips'];
         Common::res(['data' => $res]);
     }
 
