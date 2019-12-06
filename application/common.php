@@ -33,4 +33,27 @@ function get_onlineip()
     return $ip;
 }
 
+function formatNumber($number)
+{
+    if (empty($number) || !is_numeric($number)) return $number;
+    $unit = "";
+    if ($number > 100000000) {
+        $leftNumber = floor($number / 100000000);
+        $rightNumber = bcmul(($number % 100000000) / 100000000, '1', 2);
+        $number = floatval($leftNumber + $rightNumber);
+        $unit = "亿";        
+    }
+    elseif ($number > 10000) {
+        $leftNumber = floor($number / 10000);
+        $rightNumber = round(($number % 10000) / 10000, 2);
+        // $rightNumber = bcmul(($number % 10000) / 10000, '1', 2);
+        $number = floatval($leftNumber + $rightNumber);
+        $unit = "万";
+    } else {
+        $decimals = $number > 1 ? 2 : 6;
+        $number = (float)number_format($number, $decimals, '.', '');
+    }
+    return (string)$number . $unit;
+}
+
 

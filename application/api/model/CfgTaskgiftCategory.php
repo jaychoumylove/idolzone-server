@@ -26,7 +26,13 @@ class CfgTaskgiftCategory extends Base
                     $value['title'] = '感恩有你，累计登陆领好礼';          
                     break;                    
                 case 2:
-                    $value['title'] = '当前用户等级：LV' . (int) CfgUserLevel::getLevel($uid);
+                    $userLevel = (int) CfgUserLevel::getLevel($uid);
+                    $userGrown = (int) CfgUserLevel::where('level', $userLevel+1)->value('total');
+                    $value['title'] = '当前等级：LV' . $userLevel;
+                    if($userGrown){
+                        $userNowHot = (int) UserStar::where('user_id', $uid)->value('total_count');
+                        $value['title'] .= '，还差'.formatNumber($userGrown-$userNowHot).'人气升至LV'.($userLevel+1);
+                    }                    
                     break;                    
                 case 3:
                     $userPayed = CfgTaskgift::userPayed($value['id'], $uid);
