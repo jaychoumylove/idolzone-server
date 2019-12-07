@@ -39,13 +39,13 @@ function formatNumber($number)
     $unit = "";
     if ($number > 100000000) {
         $leftNumber = floor($number / 100000000);
-        $rightNumber = bcmul(($number % 100000000) / 100000000, '1', 2);
+        $rightNumber = round(($number % 100000000) / 100000000, 1);
         $number = floatval($leftNumber + $rightNumber);
         $unit = "亿";        
     }
     elseif ($number > 10000) {
         $leftNumber = floor($number / 10000);
-        $rightNumber = round(($number % 10000) / 10000, 2);
+        $rightNumber = round(($number % 10000) / 10000, 1);
         // $rightNumber = bcmul(($number % 10000) / 10000, '1', 2);
         $number = floatval($leftNumber + $rightNumber);
         $unit = "万";

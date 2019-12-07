@@ -28,7 +28,7 @@ class CfgTaskgiftCategory extends Base
                 case 2:
                     $userLevel = (int) CfgUserLevel::getLevel($uid);
                     $userGrown = (int) CfgUserLevel::where('level', $userLevel+1)->value('total');
-                    $value['title'] = '当前等级：LV' . $userLevel;
+                    $value['title'] = '当前LV' . $userLevel;
                     if($userGrown){
                         $userNowHot = (int) UserStar::where('user_id', $uid)->value('total_count');
                         $value['title'] .= '，还差'.formatNumber($userGrown-$userNowHot).'人气升至LV'.($userLevel+1);
