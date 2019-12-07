@@ -34,10 +34,13 @@ class CfgTaskgift extends Base
                 $res = RecTaskgift::where([
                     'user_id' => $uid,
                     'cid' => $cid
-                ])->order('update_time desc')->column('update_time', $task_id);
-                $status = !(($task_id != count($res) + 1) || ($res && date('Ymd', strtotime($res[$task_id])) == date('Ymd')));
+                ])->order('update_time asc')->column('update_time');
+                $status = ($task_id <= count($res) + 1);
+                if($status && isset($res[count($res)-1])){
+                    $status = date('Ymd', strtotime($res[count($res)-1])) != date('Ymd');
+                }                
                 $btn_text = $status ? '领取':'明天继续';
-                break;
+                break;                
                 
             case 2:
                 $userLevel = (int) CfgUserLevel::getLevel($uid);
@@ -49,8 +52,8 @@ class CfgTaskgift extends Base
                 $userPayed = self::userPayed($cid,$uid)['fee'];
                 $userPayed = $userPayed ? $userPayed : 0;
                 $status = !(! $userPayed || $userPayed < self::where('id',$task_id)->value('count'));
-                $btn_text = $status ? '领取':'去充值';
-                $name_addon = $status ? '':$userPayed.'/'.self::where('id',$task_id)->value('count');
+                $btn_text = $status ? '领取':'去充值';                
+                $name_addon = $status ? '':round($userPayed,2).'/'.self::where('id',$task_id)->value('count');
                 break;                
         }
         if(!isset($status)) $status = 0;

@@ -39,7 +39,7 @@ class CfgTaskgiftCategory extends Base
                     $userPayed['fee'] = $userPayed['fee'] ? $userPayed['fee']: (int)$userPayed['fee'];
                     $userPayed['start_time'] = date('m月d', strtotime($userPayed['start_time']));
                     $userPayed['end_time'] = date('m月d', strtotime($userPayed['end_time']));
-                    $value['title'] = $userPayed['start_time'] . '~' . $userPayed['end_time'] . ' 累计充值：' . $userPayed['fee'];
+                    $value['title'] = $userPayed['start_time'] . '~' . $userPayed['end_time'] . ' 累计充值：' . round($userPayed['fee'],2);
                     break;
             }
             
