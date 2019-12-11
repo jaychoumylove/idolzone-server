@@ -5,18 +5,10 @@ use app\api\model\Cfg;
 use app\api\model\RecTask;
 use app\api\model\Task as TaskModel;
 use think\Db;
-use app\api\model\UserStar;
 use app\base\service\Common;
-use app\api\model\RecStarChart;
-use app\api\model\Rec;
-use app\api\model\RecPayOrder;
 use app\api\model\RecWeibo;
-use app\api\model\UserRelation;
-use app\api\model\UserExt;
-use app\api\model\RecItem;
 use app\api\model\RecTaskgift;
 use app\api\model\CfgUserLevel;
-use app\api\model\CfgTaskgiftCategory;
 use app\api\model\CfgTaskgift;
 
 class Task
@@ -32,7 +24,10 @@ class Task
         // 任务完成进度
         $recTask = RecTask::getUserRec($uid, $type);
         
-        foreach ($taskList as &$task) {
+        foreach ($taskList as $key => &$task) {            
+            //对于4级以下的用户不显示
+            if($task['id']==20 && CfgUserLevel::getLevel($uid)<4) unset($taskList[$key]);
+
             // 任务状态 0未完成 1已完成 2已领取
             $task['status'] = 0;
             // 完成次数

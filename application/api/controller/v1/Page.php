@@ -97,8 +97,10 @@ class Page extends Base
         
         $starService = new Star();
         $res['starInfo']['star_rank']['week_hot_rank'] = $starService->getRank($res['starInfo']['star_rank']['week_hot'], 'week_hot');
-        
+
         $res['userRank'] = UserStar::getRank($starid, 'thisday_count', 1, 6);
+        if(!$res['userRank']) $res['userRank'] = UserStar::getRank($starid, 'total_count', 1, 6);
+        
         $res['captain'] = UserStar::where('user_id', $this->uid)->value('captain');
         // 聊天内容
         $res['chartList'] = RecStarChart::getLeastChart($starid);
