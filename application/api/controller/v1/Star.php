@@ -7,15 +7,12 @@ use app\api\service\Star as StarService;
 use app\api\model\Star as StarModel;
 use app\base\service\Common;
 use app\api\model\RecStarChart;
-use app\api\model\User as UserModel;
-use think\Db;
 use app\api\model\UserStar;
 use app\api\model\UserRelation;
 use app\api\model\UserExt;
 use app\api\model\Rec;
 use app\api\model\Cfg;
 use app\api\model\StarEditSubmit;
-use app\base\service\WxAPI;
 use app\api\model\UserSprite;
 use GatewayWorker\Lib\Gateway;
 

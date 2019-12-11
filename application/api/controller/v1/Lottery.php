@@ -6,11 +6,9 @@ use app\base\controller\Base;
 use app\base\service\Common;
 use app\api\model\UserExt;
 use app\api\service\User;
-use app\api\model\Cfg;
 use app\api\model\LotteryBox;
 use app\api\model\Rec;
 use app\api\model\RecLottery;
-use think\Db;
 
 class Lottery extends Base
 {

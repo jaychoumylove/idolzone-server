@@ -32,75 +32,83 @@ class UserProp extends Base
 
         self::insertAll($insert);
     }
-
-    public static function getList($uid)
+    
+    public static function getList($uid, $order='id desc',$where='1=1')
     {
-        $list = self::with('Prop')->where('user_id', $uid)->order('id desc')->select();
+        $list = self::with('Prop')->where('user_id', $uid)->where($where)->where('status=0')->order($order)->select();
 
         // 检查是否已过期
         foreach ($list as &$value) {
-            if ($value['status'] == 0 && date('Ymd', strtotime($value['create_time'])) != date('Ymd')) {
+            $value['title'] = $value['prop']['name'].'(失效时间'.$value['end_time'].')';
+            if ($value['status'] == 0 && strtotime($value['end_time']) < time()) {
                 // 购买的道具仅限当天使用
                 $value['status'] = 2;
                 self::where('id', $value['id'])->update(['status' => 2]);
             }
         }
-
         return $list;
     }
-
-    /**使用道具 */
-    public static function use($id)
+    
+    /**积分兑换 */
+    public static function exchangePoint($uid, $id, $count)
     {
-        $prop = self::get($id);
-        if (!$prop || $prop['status'] != 0) Common::res(['code' => 3, 'msg' => '道具无法使用']);
-
+        $prop = Prop::get($id);
+        if (!$prop || $prop['delete_time'] != NULL) Common::res(['code' => 3, 'msg' => '奖品无法兑换']);
+        
         $res = [];
         Db::startTrans();
         try {
-            switch ($prop['prop_id']) {
-                case 1:
-                    // 可偷金豆增加卡
-
-                    break;
-                case 2:
-                    // 精灵生产加速卡
-                    // 是否有正在使用中的卡
-                    $usingTime = 2 * 3600;
-
-                    // 最近使用该类型道具时间
-                    $least_use_time = self::where(['user_id' => $prop['user_id'], 'prop_id' => $prop['prop_id']])->max('use_time');
-                    if ($least_use_time > time() - $usingTime) {
-                        Common::res(['code' => 1, 'msg' => '抱歉，无法叠加']);
-                    }
-
-                    break;
-                case 3:
-                    // 送礼物获得额外金豆卡
-                    break;
-                case 4:
-                    // 金豆福袋
-                    $awards = [10000, 12000, 15000, 20000];
-                    $rd = mt_rand(0, 3);
-                    (new User())->change($prop['user_id'], [
-                        'coin' => $awards[$rd]
-                    ], ['type' => 26]);
-                    $res['awards'] = $awards[$rd];
-                default:
-                    # code...
-                    break;
+            for($i=1;$i<=$count;$i++){
+                (new User())->change($uid, [
+                    'point' => (-1) * $prop['point'],
+                ], $prop['title']);
+                
+                self::create([
+                    'user_id' => $uid,
+                    'prop_id' => $id,
+                    'end_time' => date('Y-m-d H:i:s',strtotime('+7 day'))
+                ]);
             }
-
-            self::where('id', $id)->update([
-                'status' => 1,
-                'use_time' => time()
-            ]);
+            
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
-
+    
+        return $res;
+    }
+    
+    /**道具使用 */
+    public static function useIt($uid, $userprop_id)
+    {
+        $userProp = self::get($userprop_id);
+        if (!$userProp || $userProp['delete_time'] != NULL || $userProp['status'] != 0 ) Common::res(['code' => 3, 'msg' => '无法使用']);
+    
+        $res = [];
+        Db::startTrans();
+        try {
+            switch ($userProp['prop_id']) {
+                case 10://兑换随机金豆
+                    // 能量福袋
+                    $awards = [10000, 12000, 15000, 20000];
+                    (new User())->change($uid, [
+                        'coin' => $awards[mt_rand(0, 3)],
+                    ], '使用金豆福袋');
+                    
+                    self::where('id',$userprop_id)->update(['status'=>1]);
+                    
+                    break;
+                
+                default:
+                    break;
+            }
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+    
         return $res;
     }
 

@@ -2,7 +2,6 @@
 
 namespace app\api\controller\v1;
 
-use app\api\model\CfgBadge;
 use app\api\model\CfgPkTime;
 use app\api\model\CfgUserLevel;
 use app\api\model\HeadwearUser;
@@ -202,7 +201,8 @@ class Pk extends Base
             if ($pkStatus['status'] == 1) {
                 // 正在报名 上一场数据
                 $lastPkTime = Db::name('pk_settle')->where('is_settle', 1)->order('id desc')->value('pk_time');
-            } else if ($pkStatus['status'] = 2) {
+            
+            } elseif ($pkStatus['status'] == 2) {
                 // 团战开始 当前场数据
                 $lastPkTime = date('Y-m-d', time()) . ' ' . $pkStatus['timeSpace']['start_time'] . ':00';
             }
@@ -356,7 +356,7 @@ class Pk extends Base
                     Db::name('pk_settle')->where(['pk_time' => $pk_time])->update(['is_settle' => 1]);
                 }
                 Db::commit();
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 Db::rollback();
                 Common::res(['code' => 400, 'msg' => $e->getMessage()]);
             }
@@ -388,7 +388,7 @@ class Pk extends Base
                 Db::name('pk_zan')->insert([
                     'uid' => $this->uid
                 ]);
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 Common::res(['code' => 400, 'msg' => $e->getMessage()]);
             }
             $userZan['zan'] = 0;

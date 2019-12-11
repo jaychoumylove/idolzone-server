@@ -158,8 +158,8 @@ class FansClub extends Base
             'mass_time' => date('YmdH'),
             'mass_count' => $coin,
         ]);
-
-        (new User)->change($this->uid, ['coin' => $coin], '粉丝团集结');
+        
+        (new User)->change($this->uid, ['coin' => $coin,'point'=>$coin], '粉丝团集结');
         Common::res(['data' => $coin]);
     }
 

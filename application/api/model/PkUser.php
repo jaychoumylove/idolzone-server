@@ -71,7 +71,7 @@ class PkUser extends Base
                 $pkRank = Db::name('pk_user_rank')->where(['uid' => $uid, 'mid' => $mid, 'week' => 0])->find();
                 if ($pkRank) {
                     $pkUpdateData = [
-                        'score' => Db::raw('score+' . $hot), // 10000贡献 = 1积分
+                        //'score' => Db::raw('score+' . $hot), // 10000贡献 = 1积分
                         'total_count' => Db::raw('total_count+' . $hot),
 
                         'last_pk_time' => $pkTime,
@@ -91,7 +91,7 @@ class PkUser extends Base
 
                         'week' => 0,
 
-                        'score' => $hot,
+                        //'score' => $hot,
                         'total_count' => $hot,
 
                         'last_pk_time' => $pkTime,

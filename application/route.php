@@ -34,8 +34,6 @@ Route::rule('api/:version/notify/auth', 'api/v1.Notify/getAuth');//
 // Page 
 Route::rule('api/:version/page/app', 'api/v1.Page/app');
 Route::rule('api/:version/page/group', 'api/v1.Page/group');
-Route::rule('api/:version/page/prop', 'api/v1.Page/prop');
-Route::rule('api/:version/page/myprop', 'api/v1.Page/myprop');
 Route::rule('api/:version/page/game', 'api/v1.Page/game');
 Route::rule('api/:version/page/groupMass', 'api/v1.Page/groupMass');
 Route::rule('api/:version/page/wxgroup', 'api/v1.Page/wxgroup');// 
@@ -207,8 +205,11 @@ Route::rule('api/:version/page/gift_num', 'api/v1.Page/giftCount');// 礼物数�
 
 Route::rule('api/:version/subscribe', 'api/v1.Subscribe/index');// 订阅消息
 
-// Prop
-Route::rule('api/:version/prop/use', 'api/v1.Prop/use');// 使用道具
+// Prop 积分兑换
+Route::rule('api/:version/page/prop', 'api/v1.Page/prop');//兑换列表
+Route::rule('api/:version/page/myprop', 'api/v1.Page/myprop');//我的卡券
+Route::rule('api/:version/page/propexchange', 'api/v1.Page/propExchange');//积分兑换
+Route::rule('api/:version/page/propuse', 'api/v1.Page/propUse');//使用道具
 
 // Open 
 Route::rule('api/:version/open/upload', 'api/v1.Open/upload');// 上传开屏

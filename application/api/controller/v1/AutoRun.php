@@ -2,7 +2,6 @@
 
 namespace app\api\controller\v1;
 
-use app\api\model\CfgActive;
 use app\api\model\CfgLottery;
 use app\base\controller\Base;
 use app\api\model\StarRank;
@@ -10,25 +9,18 @@ use think\Db;
 use app\api\model\StarRankHistory;
 use app\api\model\UserStar;
 use app\api\model\UserCurrency;
-use app\api\model\OtherLock;
-use think\Cache;
 use app\api\model\Fanclub;
 use app\api\model\FanclubUser;
-use app\api\model\Star;
-use app\base\service\WxAPI;
-use think\Log;
 use app\api\model\Lock;
-use app\api\model\Open;
 use app\api\model\PayGoods;
 use app\api\model\PkUser;
-use app\api\model\Prop;
 use app\api\model\Rec;
-use app\api\model\RecCardHistory;
 use app\api\model\RecTask;
 use app\api\model\StarBirthRank;
 use app\api\model\UserExt;
 use app\api\model\UserSprite;
 use app\api\service\User;
+use app\base\service\Common;
 
 class AutoRun extends Base
 {
@@ -62,6 +54,8 @@ class AutoRun extends Base
             ]);
             // 限量商品重置数量
             PayGoods::where('remain', 'not null')->update(['remain' => 100]);
+            PayGoods::where('id', 12)->update(['remain' => 300]);
+            
             // 农场挖金豆技能使用次数清零
             UserSprite::where('1=1')->update([
                 'skill_two_times' => 0,
@@ -126,7 +120,12 @@ class AutoRun extends Base
             StarRank::where('1=1')->update([
                 'week_hot' => 10000,
             ]);
-
+            
+            // 重置离线收益结算时间
+            UserSprite::where('1=1')->update([
+                'settle_time' => time()
+            ]);            
+            
             // 前三
             // $topThreeAward = [290000, 190000, 90000];
             // $topThreeIds = array_slice(array_column($rankList, 'star_id'), 0, 3);

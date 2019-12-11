@@ -7,29 +7,19 @@ use think\Db;
 use app\api\model\UserStar;
 use app\api\service\User as UserService;
 use app\base\service\Common;
-use app\api\model\Rec;
 use app\api\model\Cfg;
-use app\api\model\UserRelation;
-use app\api\model\UserFather;
-use app\api\model\OtherLock;
-use think\Cache;
 use app\api\model\UserExt;
-use app\api\model\CfgItem;
 use app\api\model\CfgUserLevel;
-use app\api\model\UserItem;
 use app\api\model\User as UserModel;
 use GatewayWorker\Lib\Gateway;
-use app\api\model\RecItem;
 use app\api\model\Fanclub;
 use app\api\model\Lock;
-use app\api\model\Open;
 use app\api\model\PkUser;
 use app\api\model\RecHour;
 use app\api\model\RecTask;
 use app\api\model\UserProp;
 use app\api\model\Star as StarModel;
 use app\api\model\StarBirthRank;
-use app\api\model\Wxgroup;
 
 class Star
 {
@@ -69,10 +59,10 @@ class Star
         Db::startTrans();
         try {
             // 用户货币减少
-            if ($type == 1) $update = ['coin' => -$hot];
-            else if ($type == 2) $update = ['flower' => -$hot];
-            else if ($type == 3) $update = ['old_coin' => -$hot];
-
+            if ($type == 1) $update = ['coin' => -$hot, 'point'=>$hot];
+            else if ($type == 2) $update = ['flower' => -$hot, 'point'=>$hot];
+            else if ($type == 3) $update = ['old_coin' => -$hot, 'point'=>$hot];
+            
             if ($type == 3) {
                 (new UserService)->change($uid, $update, '为爱豆打榜，旧豆-' . $hot);
             } else {

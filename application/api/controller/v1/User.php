@@ -11,8 +11,6 @@ use app\api\model\UserCurrency;
 use app\api\model\UserStar;
 use app\api\model\UserRelation;
 use app\api\model\UserExt;
-use app\api\model\UserSprite;
-use app\api\model\CfgShareTitle;
 use app\api\model\Cfg;
 use app\base\service\WxAPI;
 use app\api\model\CfgSignin;

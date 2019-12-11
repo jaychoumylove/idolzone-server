@@ -9,15 +9,13 @@ use app\api\model\CfgShareTitle;
 use app\api\model\Cfg;
 use app\api\model\CfgActive;
 use app\api\model\UserStar;
-use think\Db;
 use app\base\service\WxAPI;
-use app\api\model\Fanclub;
 use app\api\model\Rec;
 use app\api\model\UserSprite;
 use app\api\model\RecActive;
 use app\api\model\GuideCron;
-use app\api\model\Star;
 use app\api\service\User;
+use app\api\model\UserExt;
 
 class Ext extends Base
 {

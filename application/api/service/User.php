@@ -60,7 +60,6 @@ class User
     public function change($uid, $currency, $recContent = '')
     {
         $userCurrency = UserCurrency::get(['uid' => $uid]);
-
         $update = [];
         foreach ($currency as $key => $value) {
             if ($value > 0) {
@@ -77,7 +76,9 @@ class User
                         Common::res(['code' => 1, 'msg' => '钻石不足']);
                     } else if ($key == 'trumpet') {
                         Common::res(['code' => 1, 'msg' => '喇叭不足']);
-                    } else if ($key == 'old_coin') {
+                    } else if ($key == 'point') {
+                        Common::res(['code' => 1, 'msg' => '积分不足']);
+                    }else if ($key == 'old_coin') {
                         Common::res(['code' => 1, 'msg' => '旧豆不足']);
                     }
                 }
@@ -99,11 +100,13 @@ class User
                 'flower' => isset($currency['flower']) ? $currency['flower'] : 0,
                 'stone' => isset($currency['stone']) ? $currency['stone'] : 0,
                 'trumpet' => isset($currency['trumpet']) ? $currency['trumpet'] : 0,
+                'point' => isset($currency['point']) ? $currency['point'] : 0,
 
                 'before_coin' => $userCurrency['coin'],
                 'before_flower' => $userCurrency['flower'],
                 'before_stone' => $userCurrency['stone'],
                 'before_trumpet' => $userCurrency['trumpet'],
+                'before_point' => $userCurrency['point'],
             ]);
         }
     }

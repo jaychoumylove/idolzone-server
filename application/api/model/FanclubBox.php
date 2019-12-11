@@ -44,17 +44,17 @@ class FanclubBox extends Base
             if ($type == 0) {
                 // 钻石 // 1 = 3000
                 $coin = $consume * 3000;
-                (new User)->change($uid, ['stone' => -$consume], '发宝箱');
+                (new User)->change($uid, ['stone' => -$consume], '钻石发宝箱');
             } else if ($type == 1) {
                 // 积分 // 1 = 300
                 $coin = $consume * 300;
-                $myScore = Db::name('pk_user_rank')->where('uid', $uid)->order('id desc')->value('score');
+                $myScore = UserCurrency::getCurrency($uid)['point'];
                 if ($myScore < $consume * 10000) Common::res(['code' => 1, 'msg' => '积分不足']);
-                Db::name('pk_user_rank')->where('uid', $uid)->order('id desc')->limit(1)->update(['score' => Db::raw('score-' . $consume * 10000)]);
+                (new User)->change($uid, ['point' => -$consume * 10000], '积分发宝箱');                
             } else if ($type == 2) {
                 // 鲜花 // 1 = 1
                 $coin = $consume * 1;
-                (new User)->change($uid, ['flower' => -$consume], '发宝箱');
+                (new User)->change($uid, ['flower' => -$consume], '鲜花发宝箱');
             }
 
             $fid = FanclubUser::where('user_id', $uid)->value('fanclub_id');

@@ -8,7 +8,6 @@ use app\base\service\Common;
 use app\api\model\ArticleExtra;
 use app\api\model\Notice;
 use app\api\model\UserStar;
-use think\Db;
 
 class Article extends Base
 {

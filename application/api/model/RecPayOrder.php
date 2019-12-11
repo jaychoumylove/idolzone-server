@@ -21,6 +21,7 @@ class RecPayOrder extends Base
         (new UserService)->change($uid, [
             'flower' => $goodsInfo['flower'] * $goodsInfo['num'],
             'stone' => $goodsInfo['stone'] * $goodsInfo['num'],
+            'point' => $order['total_fee'] * 10000,
         ], '充值到账，付款人：' . User::where('id', $pay_uid)->value('nickname'));
 
         if ($goodsInfo['remain'] !== null) {

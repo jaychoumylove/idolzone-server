@@ -9,17 +9,10 @@ use app\api\model\RecPayOrder;
 use app\base\service\WxAPI;
 use app\api\model\User;
 use app\base\service\WxPay as WxPayService;
-use app\api\service\User as UserService;
 use think\Db;
-use app\api\model\UserItem;
-use app\api\model\CfgItem;
-use app\api\model\Rec;
 use app\api\model\Prop;
-use app\api\model\UserStar;
-use app\api\model\Star;
-use app\api\model\Cfg;
-use app\api\service\Star as AppStar;
 use think\Log;
+use app\api\model\UserProp;
 
 class Payment extends Base
 {
@@ -27,18 +20,28 @@ class Payment extends Base
     public function goods()
     {
         $this->getUser();
+        $userprop_id = $this->req('userprop_id', 'integer', 0); // 优惠券id
         $res['list'] = PayGoods::where('1=1')->select();
         foreach ($res['list'] as &$value) {
             if ($value['remain'] < 0) {
                 $value['remain'] = 0;
             }
-        }
-
+        }        
         // 我的优惠
-        $res['discount'] = PayGoods::getMyDiscount($this->uid);
+        $res['discount'] = PayGoods::getMyDiscount($this->uid, $userprop_id);
+        
+        // 可选优惠
+        $arr[] = ['id'=>0,'status'=>0,'prop'=>['name'=>'请选择优惠券'], 'title'=>'不选择优惠券'];
+        $data = UserProp::getList($this->uid,'id asc','prop_id in (1,2)');        
+        array_walk($arr,function($item) use (&$data){
+            array_unshift($data,$item);
+        });        
+        $res['discount_option'] = $data;
+        
 
         foreach ($res['list'] as &$value) {
             if ($value['category'] == 0) {
+                
                 // 鲜花充值有折扣
                 $value['fee'] = round($value['fee'] * $res['discount']['discount'], 2);
                 $value['flower'] = round($value['flower'] * $res['discount']['flower_increase']);
@@ -59,6 +62,7 @@ class Payment extends Base
         $goodsId = $this->req('goods_id', 'integer'); // 商品id
         $user_id = $this->req('user_id', 'integer'); // 充值目标用户
         $goodsNum = $this->req('goods_num', 'integer', 1); // 商品数量
+        $userprop_id = $this->req('userprop_id', 'integer', 0); // 使用的优惠券
 
         // 商品
         $goods = PayGoods::get($goodsId);
@@ -68,10 +72,12 @@ class Payment extends Base
 
         if ($goods['category'] == 0) {
             // 鲜花充值折扣
-            $discount = PayGoods::getMyDiscount($this->uid);
+            $discount = PayGoods::getMyDiscount($this->uid,$userprop_id);
             $goods['flower'] = round($goods['flower'] * $discount['flower_increase']);
             $goods['stone'] = round($goods['stone'] * $discount['stone_increase']);
+            $goods['userprop_id'] = $userprop_id;            
             $totalFee = round($totalFee * $discount['discount'], 2);
+            $goods['totalFee'] = $totalFee;            
         }
 
         if ($goods['remain'] !== null && $goods['remain'] <= 0) {

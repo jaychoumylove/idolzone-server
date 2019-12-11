@@ -6,9 +6,6 @@ use app\base\controller\Base;
 use app\api\model\StarRank as StarRankModel;
 use app\base\service\Common;
 use app\api\model\StarRankHistory;
-use app\api\model\UserExt;
-use app\api\model\Cfg;
-use app\api\model\UserSprite;
 use app\api\service\Star;
 
 class StarRank extends Base

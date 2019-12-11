@@ -18,8 +18,9 @@ class UserCurrency extends Base
                 'coin' => 0,
                 'stone' => 0,
                 'trumpet' => 0,
+                'point' => 0,
             ]);
-        }
+        }        
         unset($item['id']);
         unset($item['create_time']);
         unset($item['uid']);
