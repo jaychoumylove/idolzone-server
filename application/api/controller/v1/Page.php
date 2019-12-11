@@ -26,6 +26,8 @@ use app\api\model\UserProp;
 use app\api\model\UserWxgroup;
 use app\api\model\Wxgroup;
 use app\api\model\WxgroupDynamic;
+use think\Db;
+use app\api\service\User as UserService;
 
 class Page extends Base
 {
@@ -167,6 +169,25 @@ class Page extends Base
     public function myprop()
     {
         $this->getUser();
+        
+        //触发用户PK积分转移
+        $score = Db::name('pk_user_rank')->where('uid',$this->uid)->order('last_pk_time desc')->value('score');
+        if($score){
+            
+            Db::startTrans();
+            try {
+                (new UserService)->change($this->uid, ['point'=>$score], 'PK积分转移');
+                Db::name('pk_user_rank')->where('uid',$this->uid)->order('last_pk_time desc')->update(['score'=>0]);
+                
+                Db::commit();
+            } catch (\Exception $e) {
+                Db::rollBack();
+                Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+            }
+            
+        }
+        
+        
         $res['list'] = UserProp::getList($this->uid);
         $res['currentPoint'] = UserCurrency::getCurrency($this->uid)['point'];
         $res['pointNoticeId'] = 15;
