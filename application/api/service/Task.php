@@ -26,7 +26,10 @@ class Task
         
         foreach ($taskList as $key => &$task) {            
             //对于4级以下的用户不显示
-            if($task['id']==20 && CfgUserLevel::getLevel($uid)<4) unset($taskList[$key]);
+            if($task['id']==20 && CfgUserLevel::getLevel($uid)<4){
+                unset($taskList[$key]);
+                continue;
+            }
 
             // 任务状态 0未完成 1已完成 2已领取
             $task['status'] = 0;
