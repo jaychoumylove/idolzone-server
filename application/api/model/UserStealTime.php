@@ -4,7 +4,7 @@ namespace app\api\model;
 
 use app\base\model\Base;
 
-class UserExt extends Base
+class UserStealTime extends Base
 {
     public static function setTime($uid, $index)
     {

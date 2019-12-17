@@ -6,7 +6,7 @@ use app\base\model\Base;
 use think\Db;
 use app\base\service\Common;
 
-class UserStar extends Base
+class UserContribute extends Base
 {
     public function User()
     {

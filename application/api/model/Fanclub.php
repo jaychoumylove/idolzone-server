@@ -2,7 +2,6 @@
 
 namespace app\api\model;
 
-use app\api\controller\v1\FansClub;
 use app\base\model\Base;
 use app\base\service\Common;
 use think\Db;
