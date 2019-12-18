@@ -99,7 +99,7 @@ class UserExt extends Base
         Db::startTrans();
         try {
             self::where('user_id', $self)->update(['thisday_like' => Db::raw('thisday_like+1')]);
-            UserStar::where('user_id', $other)->update(['like_count' => Db::raw('like_count+1')]);
+            UserStar::changeHandle($other, 'like');
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();

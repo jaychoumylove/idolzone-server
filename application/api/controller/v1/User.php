@@ -284,7 +284,7 @@ class User extends Base
     public function extraCurrency()
     {
         $this->getUser();
-        $res['score'] = round(Db::name('pk_user_rank')->where('uid', $this->uid)->order('id desc')->value('score') / 10000);
+        $res['score'] = 0;//round(Db::name('pk_user_rank')->where('uid', $this->uid)->order('id desc')->value('score') / 10000);
         Common::res(['data' => $res]);
     }
 

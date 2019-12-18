@@ -76,8 +76,8 @@ class Star
                 StarBirthRank::change($uid, $starid, $hot);
             } else {
                 // 用户贡献度增加
-                UserStar::change($uid, $starid, $hot);
-                // 占领封面小时榜贡献增加
+                UserStar::changeHandle($uid, 'pick', $starid, $hot,  $type);
+                // 赠送鲜花时：占领封面小时榜贡献增加
                 if ($type == 2) RecHour::change($uid, $hot, $starid);
                 // 团战贡献增加
                 PkUser::addHot($uid, $starid, $hot);
@@ -100,31 +100,37 @@ class Star
         $user = UserModel::where('id', $uid)->field('nickname,avatarurl')->find();
         // 打榜弹幕
         if ($danmaku) {
-            Gateway::sendToGroup('star_' . $starid, json_encode([
-                'type' => 'sendHot',
-                'data' => [
-                    'user' => $user,
-                    'type' => $type,
-                    'hot' => $hot
-                ]
-            ], JSON_UNESCAPED_UNICODE));
+            try {
+                Gateway::sendToGroup('star_' . $starid, json_encode([
+                    'type' => 'sendHot',
+                    'data' => [
+                        'user' => $user,
+                        'type' => $type,
+                        'hot' => $hot
+                    ]
+                ], JSON_UNESCAPED_UNICODE));
+            } 
+            catch (\Exception $e) {}
         }
 
         // 打榜后等级
         $afterLevel = CfgUserLevel::getLevel($uid);
         if ($afterLevel >= 9 && $afterLevel != $beforeLevel) {
-            // 推送socket消息
-            // 恭喜【罗云熙】家【头像】【名字】升至【12核心粉】
-            Gateway::sendToAll(json_encode([
-                'type' => 'sayworld',
-                'data' => [
-                    'type' => 1,
-                    'starname' => StarModel::where('id', $myStarId)->value('name'),
-                    'avatarurl' => $user['avatarurl'],
-                    'nickname' => $user['nickname'],
-                    'level' => $afterLevel
-                ],
-            ], JSON_UNESCAPED_UNICODE));
+            try {
+                // 推送socket消息
+                // 恭喜【罗云熙】家【头像】【名字】升至【12核心粉】
+                Gateway::sendToAll(json_encode([
+                    'type' => 'sayworld',
+                    'data' => [
+                        'type' => 1,
+                        'starname' => StarModel::where('id', $myStarId)->value('name'),
+                        'avatarurl' => $user['avatarurl'],
+                        'nickname' => $user['nickname'],
+                        'level' => $afterLevel
+                    ],
+                ], JSON_UNESCAPED_UNICODE));
+            } catch (\Exception $e) {}
+            
         }
     }
 

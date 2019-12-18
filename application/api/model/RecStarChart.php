@@ -41,6 +41,8 @@ class RecStarChart extends Base
             $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
             // 粉丝团团长
             $value['user']['isLeader'] = FanclubUser::isLeader($value['user_id']);
+            //徽章
+            $value['user']['userBadge'] = BadgeUser::getUse($value['user_id']);
         }
 
         return array_reverse($list);

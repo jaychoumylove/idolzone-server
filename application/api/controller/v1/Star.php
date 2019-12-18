@@ -12,9 +12,11 @@ use app\api\model\UserRelation;
 use app\api\model\UserExt;
 use app\api\model\Rec;
 use app\api\model\Cfg;
-use app\api\model\StarEditSubmit;
+use app\api\model\RecStarinfoHistory;
 use app\api\model\UserSprite;
 use GatewayWorker\Lib\Gateway;
+use app\api\model\GuideCron;
+use think\Db;
 
 class Star extends Base
 {
@@ -133,14 +135,36 @@ class Star extends Base
         $value = $this->req('value', 'require');
         $this->getUser();
         $star_id = UserStar::getStarId($this->uid);
-
-        StarEditSubmit::create([
-            'user_id' => $this->uid,
-            'star_id' => $star_id,
-            'key' => $key,
-            'value' => $value
-        ]);
-
-        Common::res();
+        $starinfo = StarModel::where('id',$star_id)->find();
+        
+        Db::startTrans();
+        try {
+            //转存记录
+            if($starinfo[$key]) RecStarinfoHistory::create([
+                'user_id' => $this->uid,
+                'star_id' => $star_id,
+                'key' => $key,
+                'value' => $starinfo[$key]
+            ]);
+            
+            //更新star表
+            StarModel::where('id',$star_id)->update([$key=>$value]);
+            Db::commit(); 
+            
+            //如果今天有开屏
+            if($key=='open_img')
+                GuideCron::where('star_id',$star_id)->where('start_time', '<', time())->where('end_time', '>', time())->update(['open_img'=>$value]);
+            
+            $userStar = UserStar::with('Star')->where([
+                'user_id' => $this->uid
+            ])
+            ->order('id desc')
+            ->find();
+            $userStar['star']['captain'] = $userStar['captain'];
+            Common::res(['data'=>['userStar'=>$userStar['star']]]);            
+        } catch (\Exception $e) {
+            Db::rollBack();
+            return 'rollBack:' . $e->getMessage();
+        }
     }
 }

@@ -15,7 +15,6 @@ use app\api\model\Star as StarModel;
 use app\api\model\RecStarChart;
 use app\api\model\Article;
 use app\api\model\CfgAds;
-use app\api\model\UserSprite;
 use app\api\model\CfgItem;
 use app\api\model\Notice;
 use app\api\model\UserItem;
@@ -28,6 +27,7 @@ use app\api\model\Wxgroup;
 use app\api\model\WxgroupDynamic;
 use think\Db;
 use app\api\service\User as UserService;
+use app\api\model\BadgeUser;
 
 class Page extends Base
 {
@@ -65,12 +65,8 @@ class Page extends Base
         $res['config'] = Cfg::getList();
         $res['config']['share_text'] = CfgShareTitle::getOne();
         
-        // $spriteUpgrade = UserSprite::getInfo($this->uid, $this->uid)['need_stone'];
-        // $stone = UserCurrency::where(['uid' => $this->uid])->value('stone');
-        
-        // if ($stone >= $spriteUpgrade) {
-        // $res['upSprite'] = true;
-        // }
+        //生成我的徽章数据
+        BadgeUser::initBadge($this->uid);
         
         Common::res([
             'data' => $res
@@ -179,7 +175,7 @@ class Page extends Base
             Db::startTrans();
             try {
                 (new UserService)->change($this->uid, ['point'=>$score], 'PK积分转移');
-                Db::name('pk_user_rank')->where('uid',$this->uid)->order('last_pk_time desc')->update(['score'=>0]);
+                Db::name('pk_user_rank')->where('uid',$this->uid)->update(['score'=>0]);
                 
                 Db::commit();
             } catch (\Exception $e) {

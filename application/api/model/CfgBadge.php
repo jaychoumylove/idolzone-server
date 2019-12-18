@@ -3,50 +3,43 @@
 namespace app\api\model;
 
 use app\base\model\Base;
+use app\api\model\BadgeUser;
 use think\Model;
 
 class CfgBadge extends Base
 {
-    public static function getList($uid)
+    public static function getAll($uid,$btype)
     {
-        $list = self::all();
-        // 正佩戴的徽章
-        $curBadgeId = UserExt::where('user_id', $uid)->value('badge_id');
+        $myBadgeHas = BadgeUser::where('uid', $uid)->column('badge_id');
+        $myBadgeUse = BadgeUser::where('uid', $uid)->where('status', 1)->column('badge_id');
+        $list = self::where('btype', $btype)->field('stype')->group('stype')->select();
 
-        // 拉新数
-        $dataInvitCount = UserRelation::invitCount($uid);
-
-        foreach ($list as $key => &$value) {
-            // status默认未达成
-            $value['status'] = 0;
-            switch ($value['type']) {
-                case 1:
-                    // 拉新
-                    $value['doneTimes'] = $dataInvitCount;
-                    if ($value['count'] <= $dataInvitCount) {
-                        $value['status'] = 1;
-                    }
-
-                    break;
-                default:
-                    # code...
-                    break;
-            }
-
-            if ($curBadgeId == $value['id']) {
-                $value['status'] = 2;
+        foreach ($list as $key=>$value) {
+            $slist = self::where('stype', $value['stype'])->select();
+            $data[$value['stype']] = $slist;
+            $complete = BadgeUser::getUserComplete($uid, $value['stype']);
+            
+            foreach ($slist as $k=>$v) {
+                
+                if (in_array($v['id'], $myBadgeUse)) {
+                    $data[$value['stype']][$k]['status'] = 1;
+                    $data[$value['stype']][$k]['create_time_has'] = BadgeUser::where(['uid'=>$uid,'badge_id'=>$v['id']])->value('left(create_time, 11) as create_time');
+                }
+                elseif (in_array($v['id'], $myBadgeHas)) {
+                    $data[$value['stype']][$k]['status'] = 0;
+                    $data[$value['stype']][$k]['create_time_has'] = BadgeUser::where(['uid'=>$uid,'badge_id'=>$v['id']])->value('left(create_time, 11) as create_time');
+                }
+                else{
+                    $data[$value['stype']][$k]['status'] = -1;
+                    if($data[$value['stype']][$k]['count']==0) $data[$value['stype']][$k]['percent'] = 0;
+                    else $data[$value['stype']][$k]['percent'] = $complete/$data[$value['stype']][$k]['count']*100;
+                    
+                }
             }
         }
-
-        return $list;
-    }
-
-    /**徽章使用 */
-    public static function badgeUse($badgeId, $uid)
-    {
-        $isDone = UserExt::where('user_id', $uid)->update(['badge_id' => $badgeId]);
-        if (!$isDone) {
-            UserExt::where('user_id', $uid)->update(['badge_id' => 0]);
-        }
+        // 正在佩戴的徽章
+        $res['curBadge'] = BadgeUser::getUse($uid);
+        $res['list'] = $data;
+        return $res;
     }
 }

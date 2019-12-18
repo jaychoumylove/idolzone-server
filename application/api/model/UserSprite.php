@@ -24,7 +24,7 @@ class UserSprite extends Base
     {
         $item = self::where('user_id', $uid)->find();
         if (!$item['total_speed_coin']) $item['total_speed_coin'] = self::getTotalFarmCoin($uid);
-
+        $item['total_speed_coin'] += BadgeUser::speedUp($uid);
         return $item;
     }
 
@@ -189,8 +189,10 @@ class UserSprite extends Base
             (new User())->change($uid, [
                 'stone' => -$need_stone,
             ], '农场升级');
-
-            self::getTotalFarmCoin($uid);
+            
+            $total_speed_coin = self::getTotalFarmCoin($uid);
+            BadgeUser::addRec($uid, 4, $total_speed_coin);//stype=4产量徽章
+            
             Db::commit();
         } catch (\Exception $e) {
             Db::rollBack();

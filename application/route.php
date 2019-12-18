@@ -19,6 +19,9 @@ Route::rule('api/:version/auto', 'api/v1.AutoRun/index');// 定时任务
 Route::rule('api/:version/auto/d', 'api/v1.AutoRun/dayHandle');// 每日定期执行
 Route::rule('api/:version/auto/w', 'api/v1.AutoRun/weekHandle');// 每周定期执行
 Route::rule('api/:version/auto/m', 'api/v1.AutoRun/monthHandle');// 每月定期执行
+//临时活动
+Route::rule('api/:version/auto/activeOn', 'api/v1.AutoRun/activeOn');//开启
+Route::rule('api/:version/auto/activeOff', 'api/v1.AutoRun/activeOff');//关闭
 
 Route::rule('api/:version/auto/clear', 'api/v1.AutoRun/clearDb');// 清除数据表
 Route::rule('api/:version/_autorunmy/pk_settle', 'api/v1.AutoRun/pk_settle'); // pk结算
@@ -140,7 +143,6 @@ Route::rule('api/:version/task', 'api/v1.Task/index');// 任务
 Route::rule('api/:version/task/settle', 'api/v1.Task/settle');// 任务领取
 Route::rule('api/:version/task/weibo', 'api/v1.Task/weibo');// 提交微博链接
 Route::rule('api/:version/sharetext', 'api/v1.Task/sharetext');// 分享文字 
-Route::rule('api/:version/badge/use', 'api/v1.Task/badgeUse');// 徽章使用
 
 Route::rule('api/:version/task/taskgiftCategory', 'api/v1.Task/taskgiftCategory');// 任务礼包分类
 Route::rule('api/:version/task/taskGift', 'api/v1.Task/taskGift');// 任务礼包
@@ -244,5 +246,11 @@ Route::rule('api/:version/headwear/select', 'api/v1.Headwear/select'); // 头饰
 Route::rule('api/:version/headwear/buy', 'api/v1.Headwear/buy'); // 头饰购买
 Route::rule('api/:version/headwear/use', 'api/v1.Headwear/use'); // 头饰佩戴
 Route::rule('api/:version/headwear/cancel', 'api/v1.Headwear/cancel'); // 头饰取消佩戴
+
+// Badge
+Route::rule('api/:version/badge/achieve', 'api/v1.Badge/achieve');// 徽章获得弹窗
+Route::rule('api/:version/badge/use', 'api/v1.Badge/use');// 徽章使用
+Route::rule('api/:version/badge/cancel', 'api/v1.Badge/cancel');// 徽章摘下
+Route::rule('api/:version/badge/select', 'api/v1.Badge/select');// 选择
 
 

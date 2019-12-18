@@ -33,7 +33,13 @@ class RecTaskgift extends Base
                 'task_id' => $task_id,
                 'cid' => $cid
             ]);
-            (new User())->change($uid, json_decode($awardsList[$task_id]['awards'],true), $awardsList[$task_id]['title'] . '奖励');
+            
+            $awards = json_decode($awardsList[$task_id]['awards'],true);            
+            if(isset($awards['badge'])){
+                BadgeUser::addRec($uid, 7, 1, $awards['badge']['id']);//冬至徽章
+                unset($awards['badge']);
+            }
+            (new User())->change($uid, $awards, $awardsList[$task_id]['title'] . '奖励');
             
             Db::commit();
         } catch (\Exception $e) {

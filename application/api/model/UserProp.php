@@ -7,6 +7,7 @@ use app\base\model\Base;
 use app\base\service\Common;
 use think\Db;
 use app\api\service\User;
+use app\api\controller\v1\Badge;
 
 class UserProp extends Base
 {
@@ -56,8 +57,19 @@ class UserProp extends Base
         if (!$prop || $prop['delete_time'] != NULL) Common::res(['code' => 3, 'msg' => '奖品无法兑换']);
         
         $res = [];
+        $status = 0;
         Db::startTrans();
         try {
+            if(in_array($id, [11,12,13])){//冬至，圣诞，元旦徽章
+                $count = 1;  //只能买一个
+                $badge = [11=>55,12=>56,13=>57];
+                $status = 1;  //已使用
+                if(BadgeUser::where(['uid'=>$uid])->where('badge_id','in',$badge)->value('count(1)'))
+                    Common::res(['code' => 3, 'msg' => '你已经兑换过了']);
+                
+                BadgeUser::addRec($uid, 0, 1, $badge[$id]);//增加徽章
+            }
+            
             for($i=1;$i<=$count;$i++){
                 (new User())->change($uid, [
                     'point' => (-1) * $prop['point'],
@@ -66,7 +78,8 @@ class UserProp extends Base
                 self::create([
                     'user_id' => $uid,
                     'prop_id' => $id,
-                    'end_time' => date('Y-m-d H:i:s',strtotime('+7 day'))
+                    'end_time' => date('Y-m-d H:i:s',strtotime('+7 day')),
+                    'status' => $status,
                 ]);
             }
             

@@ -12,6 +12,7 @@ use app\api\model\User;
 use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
+use app\api\model\BadgeUser;
 use think\Db;
 
 class Pk extends Base
@@ -277,10 +278,6 @@ class Pk extends Base
         $isExist = Db::name('pk_settle')->where(['pk_time' => $pkTime])->find();
 
         if (!$isExist) {
-            // 延迟发放奖励
-            // if (date('i') < 1) {
-            //     Common::res();
-            // }
             Db::startTrans();
             try {
                 Db::name('pk_settle')->insert([
@@ -321,6 +318,12 @@ class Pk extends Base
                                         $paizi => Db::raw($paizi . '+1'),
                                         'last_pk_medal' => $paizi
                                     ]);
+                                    
+                                    //团战徽章
+                                    if($paizi=='gold'){
+                                        $total_paizi = Db::name('pk_user_rank')->where(['uid' => $uids[0], 'mid' => $star_id, 'week' => $week])->value('gold');
+                                        BadgeUser::addRec($uids[0], 6, $total_paizi);//stype=6团战徽章
+                                    }
                                 }
 
                                 Db::name('pk_settle_i')->insert([
@@ -328,27 +331,6 @@ class Pk extends Base
                                     'uids' => json_encode($uids),
                                     'pk_type' => $pk_type,
                                 ]);
-
-                                // Db::name('user')->where('id', 'in', $uids)->update([
-                                //     'diamonds' => ['exp', 'diamonds+' . $awards['diamonds']],
-                                //     'flower' => ['exp', 'flower+' . $awards['flower']],
-                                //     'coins' => ['exp', 'coins+' . $awards['coin']],
-                                // ]);
-
-                                // // 保存日志
-                                // $logList = [];
-                                // foreach ($uids as $uid) {
-                                //     $logList[] = [
-                                //         'uid' => $uid,
-                                //         'type' => 49,
-                                //         'mid' => $mid,
-                                //         'diamonds' => $awards['diamonds'],
-                                //         'flower' => $awards['flower'],
-                                //         'count' => $awards['coin'],
-                                //         'create_time' => time(),
-                                //     ];
-                                // }
-                                // if ($logList) Db::name('all_log')->insertAll($logList);
                             }
                         }
                     }
