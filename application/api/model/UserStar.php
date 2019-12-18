@@ -221,7 +221,8 @@ class UserStar extends Base
     /**退出相关操作 */
     public static function destroyConform($uid)
     {        
-        $user = self::get($uid);
+        $user = self::where(['user_id'=>$uid])->find();
+        $user = json_decode(json_encode($user),true);        
         unset($user['id']);
         
         //删除本条记录
