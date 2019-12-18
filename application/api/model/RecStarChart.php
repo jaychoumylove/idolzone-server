@@ -90,6 +90,7 @@ class RecStarChart extends Base
             $res['user']['level'] = CfgUserLevel::getLevel($uid);
             $res['user']['headwear'] = HeadwearUser::getUse($uid);
             $res['user']['isLeader'] = FanclubUser::isLeader($uid);
+            $res['user']['userBadge'] = BadgeUser::getUse($uid);
 
             if ($res['user']['type'] == 2) {
                 Db::rollback();
