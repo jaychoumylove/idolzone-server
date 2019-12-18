@@ -18,8 +18,12 @@ class BadgeUser extends Base
     /**正在使用的头饰 */
     public static function getUse($uid)
     {
-        $badge_ids = self::where('uid', $uid)->where('status', 1)->column('badge_id');
-        return CfgBadge::where('id','in',$badge_ids)->field('simg')->select();
+        $badges = self::with('CfgBadge')->where('uid', $uid)->where('status', 1)->order('update_time asc')->select();
+        $res = [];
+        foreach ($badges as $key=>$value){
+            $res[$key]['simg'] = $value['cfg_badge']['simg'];
+        }
+        return $res;
     }
     
     public static function cancel($uid, $badge_id)
@@ -30,8 +34,8 @@ class BadgeUser extends Base
     public static function use($uid, $stype, $badge_id)
     {
         $useCount = self::where(['uid'=>$uid,'status' =>1])->group('stype')->select();
-        if(count($useCount) > 3){
-            Common::res(['code' => 400, 'msg' => '佩戴的徽章数不能超过4个']);
+        if(count($useCount) > 6){
+            Common::res(['code' => 400, 'msg' => '佩戴的徽章数不能超过7个']);
         }
         else{
             self::where(['uid'=>$uid,'stype'=>$stype,'status'=>1])->update(['status' => 0]);
