@@ -24,7 +24,7 @@ class UserSprite extends Base
     {
         $item = self::where('user_id', $uid)->find();
         if (!$item['total_speed_coin']) $item['total_speed_coin'] = self::getTotalFarmCoin($uid);
-        $item['total_speed_coin'] += BadgeUser::speedUp($uid);
+        //$item['total_speed_coin'] += BadgeUser::speedUp($uid);
         return $item;
     }
 
