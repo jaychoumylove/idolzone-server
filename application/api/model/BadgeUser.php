@@ -101,6 +101,7 @@ class BadgeUser extends Base
         $data = self::alias('b')
             ->join('cfg_badge c','b.badge_id=c.id','LEFT')
             ->where('b.stype',7)
+            ->where('b.uid',$uid)
             ->where('c.end_time','>=',$timenow)
             ->value('sum(c.add_count)');
         
