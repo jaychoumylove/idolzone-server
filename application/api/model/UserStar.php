@@ -66,7 +66,7 @@ class UserStar extends Base
             $update[$key] = Db::raw($key . $value);
             if ($key=='pick_days')  $update['pick_time'] = time();
         }
-        if (!$update) return;
+        if (!$update) return;   
         self::where(['user_id' => $uid, 'star_id' => $starid])->update($update);
     }
     
@@ -83,7 +83,7 @@ class UserStar extends Base
     {
         $primary_where = $starid ? ['user_id' => $uid, 'star_id' => $starid] : ['user_id' => $uid];
         $primary = self::get($primary_where);
-        $starid = $starid ? $primary['star_id'] : $starid;
+        $starid = $starid ? $starid : $primary['star_id'];
         
         $changArr = [];
         
@@ -126,7 +126,6 @@ class UserStar extends Base
             $changArr += ['fanclub_mass_times' => $count];
             BadgeUser::addRec($uid, 3, $primary['fanclub_mass_times'] + $count);//stype=3集结徽章
         }
-        
         self::change($uid, $starid, $changArr);
     
     }

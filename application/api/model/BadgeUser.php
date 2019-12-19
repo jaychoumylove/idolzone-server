@@ -84,10 +84,13 @@ class BadgeUser extends Base
                 break;
             case 3:
                 $complete = UserStar::where('user_id',$uid)->value('fanclub_mass_times');
+                break;
             case 4:
                 $complete = UserSprite::where('user_id', $uid)->value('total_speed_coin');
+                break;
             case 5:
-                $complete = UserStar::where('user_id',$uid)->value('like_count');                
+                $complete = UserStar::where('user_id',$uid)->value('like_count');
+                break;
             case 6:
                 $complete = Db::name('pk_user_rank')->where('uid',$uid)->order('last_pk_time desc')->value('gold');
                 break;
