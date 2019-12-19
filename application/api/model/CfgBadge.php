@@ -30,10 +30,12 @@ class CfgBadge extends Base
                 else $value['percent'] = $complete[$value['stype']]/$value['count']*100;
             }
             
+            if($value['stype']==7) $value['end_time'] = date('Y-m-d',strtotime($value['end_time'])-1);
             $data[$value['stype']][] = $value;
         }
         // 正在佩戴的徽章
         $res['curBadge'] = BadgeUser::getUse($uid);
+        $res['badgeCount'] = BadgeUser::where('uid', $uid)->value('count(1)');
         $res['list'] = $data;
         return $res;
     }
