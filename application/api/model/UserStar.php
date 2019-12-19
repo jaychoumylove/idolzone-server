@@ -260,8 +260,6 @@ class UserStar extends Base
                 $where = $starid ? ['star_id' => $starid] : '1=1';
                 $res['rank'] = self::where($where)->where($field, '>', $res['score'])->count() + 1;
             }
-            
-            if($res['rank']>100) $res['rank']= '99+';
         } else {
             $res['rank'] = '未上榜';
         }
