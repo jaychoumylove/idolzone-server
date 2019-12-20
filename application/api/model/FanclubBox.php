@@ -46,11 +46,11 @@ class FanclubBox extends Base
                 $coin = $consume * 3000;
                 (new User)->change($uid, ['stone' => -$consume], '钻石发宝箱');
             } else if ($type == 1) {
-                // 积分 // 1 = 300
+                // 星星 // 1 = 300
                 $coin = $consume * 300;
                 $myScore = UserCurrency::getCurrency($uid)['point'];
-                if ($myScore < $consume * 10000) Common::res(['code' => 1, 'msg' => '积分不足']);
-                (new User)->change($uid, ['point' => -$consume * 10000], '积分发宝箱');                
+                if ($myScore < $consume * 10000) Common::res(['code' => 1, 'msg' => '星星不足']);
+                (new User)->change($uid, ['point' => -$consume * 10000], '星星发宝箱');                
             } else if ($type == 2) {
                 // 鲜花 // 1 = 1
                 $coin = $consume * 1;

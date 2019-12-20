@@ -77,7 +77,7 @@ class User
                     } else if ($key == 'trumpet') {
                         Common::res(['code' => 1, 'msg' => '喇叭不足']);
                     } else if ($key == 'point') {
-                        Common::res(['code' => 1, 'msg' => '积分不足']);
+                        Common::res(['code' => 1, 'msg' => '星星不足']);
                     }else if ($key == 'old_coin') {
                         Common::res(['code' => 1, 'msg' => '旧豆不足']);
                     }

@@ -285,7 +285,7 @@ class AutoRun extends Base
         $giftTask_startTime = '2019-12-18 00:00:00'; //新人礼包开始时间
         $giftTask_endTime = '2019-12-22 23:59:59'; //新人礼包结束时间
         $speedUp_endTime = '2020-01-20 00:00:00';  //徽章加速结束时间
-        $propId = 11;  //积分兑换冬至徽章开启
+        $propId = 11;  //星星兑换冬至徽章开启
         
         //判断活动是否已开始
         $nowdate = date('Y-m-d H:i:s');
@@ -319,7 +319,7 @@ class AutoRun extends Base
     {
         
         $editTaskId = 30;//新人礼包奖励，任务ID
-        $propId = 11;  //积分兑换冬至徽章关闭
+        $propId = 11;  //星星兑换冬至徽章关闭
         
         //判断活动是否已结束
         $nowdate = date('Y-m-d H:i:s');
