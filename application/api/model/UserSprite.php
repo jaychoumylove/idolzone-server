@@ -23,6 +23,11 @@ class UserSprite extends Base
     public static function getInfo($uid)
     {
         $item = self::where('user_id', $uid)->find();
+        $item['house_img'] = CfgPetHouse::where('level',$item['house_level'])->value('img');
+        $item['tree_1_img'] = CfgPetTree::where('level',$item['tree_1_level'])->value('img');
+        $item['tree_2_img'] = CfgPetTree::where('level',$item['tree_2_level'])->value('img');
+        $item['land_1_img'] = CfgPetLand::where('level',$item['land_1_level'])->value('img');
+        $item['land_2_img'] = CfgPetLand::where('level',$item['land_2_level'])->value('img');
         if (!$item['total_speed_coin']) $item['total_speed_coin'] = self::getTotalFarmCoin($uid);
         $item['total_speed_coin'] += BadgeUser::speedUp($uid);
         return $item;
