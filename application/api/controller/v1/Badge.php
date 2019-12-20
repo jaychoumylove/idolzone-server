@@ -6,6 +6,7 @@ use app\api\model\CfgBadge;
 use app\api\model\BadgeUser;
 use app\base\controller\Base;
 use app\base\service\Common;
+use app\api\model\UserStar;
 
 class Badge extends Base
 {
@@ -38,11 +39,23 @@ class Badge extends Base
         BadgeUser::use($this->uid, $stype, $badge_id);
         Common::res();
     }
+    
     public function cancel()
     {
         $this->getUser();
         $badge_id = input('badgeId');
         BadgeUser::cancel($this->uid, $badge_id);
         Common::res();
+    }
+    
+    public function getRank()
+    {
+        $starid = input('starid', 0);
+        $stype = $this->req('stype', 'require', 0);
+        $page = input('page', 1);
+        $size = input('size', 10);
+        
+        $res['list'] = BadgeUser::getRank($starid, $stype, $page, $size);
+        Common::res(['data' => $res]);
     }
 }

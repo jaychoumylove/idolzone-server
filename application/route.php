@@ -252,5 +252,6 @@ Route::rule('api/:version/badge/achieve', 'api/v1.Badge/achieve');// 徽章获�
 Route::rule('api/:version/badge/use', 'api/v1.Badge/use');// 徽章使用
 Route::rule('api/:version/badge/cancel', 'api/v1.Badge/cancel');// 徽章摘下
 Route::rule('api/:version/badge/select', 'api/v1.Badge/select');// 选择
+Route::rule('api/:version/badge/rank', 'api/v1.Badge/getRank');// 圈内排行
 
 

@@ -4,6 +4,8 @@ namespace app\api\model;
 
 use app\base\model\Base;
 use app\base\service\Common;
+use app\api\model\UserSprite;
+use app\api\model\User as UserModel;
 use think\Model;
 use think\Db;
 
@@ -116,18 +118,56 @@ class BadgeUser extends Base
         return $data;
     }
     
+    public static function getMaxBadge($uid, $stype){
+        $data = [];
+        $data = self::where(['uid'=>$uid,'stype'=>$stype])->order('badge_id desc')->field('badge_id,stype,left(create_time, 11) as complete_time')->find();
+        if($data) $data['simg'] = CfgBadge::where('id',$data['badge_id'])->value('simg');
+        
+        return $data;        
+    }
+    
+    /**排行 */
+    public static function getRank($starid, $stype, $page, $size = 10)
+    {
+        $field = [1=>'pick_days',2=>'total_flower',3=>'fanclub_mass_times',4=>'total_speed_coin',5=>'like_count',6=>'gold'];
+        $where = $starid ? ['st.star_id'=>$starid] : '1=1';
+        
+        switch ($stype) {
+            case 4://农场产量
+                $list = UserSprite::alias('sp')->join('user_star st','sp.user_id=st.user_id','LEFT')->join('user_ext ex','ex.user_id=st.user_id','LEFT')->where('ex.badge_id','>',0)->where($where)->where([$field[$stype] => ['neq', 0]])->order($field[$stype] . ' desc,st.total_count desc')->field("*,{$field[$stype]} as hot")->page($page, $size)->select();
+                break;
+                
+            case 6://pk金牌
+                $list = PkUserRank::alias('sp')->join('user_star st','sp.uid=st.user_id','LEFT')->join('user_ext ex','ex.user_id=st.user_id','LEFT')->where('ex.badge_id','>',0)->where($where)->where([$field[$stype] => ['neq', 0]])->order($field[$stype] . ' desc,st.total_count desc')->field("*,{$field[$stype]} as hot")->page($page, $size)->select();
+                break;
+                
+            default:
+                $list = UserStar::alias('st')->join('user_ext ex','ex.user_id=st.user_id','LEFT')->where('ex.badge_id','>',0)->where($where)->where([$field[$stype] => ['neq', 0]])->order($field[$stype] . ' desc,st.total_count desc')->field("*,{$field[$stype]} as hot")->page($page, $size)->select();
+                break;                
+        }
+        
+        foreach ($list as $key => &$value) {
+            $value['user'] = UserModel::where('id',$value['user_id'])->field('id,nickname,avatarurl')->find();
+            if(!isset($value['user']) || !isset($value['user']['id'])) continue;
+            $value['user']['maxBadge'] = self::getMaxBadge($value['user']['id'],$stype);
+            if(!$value['user']['maxBadge']) unset($list[$key]);
+        }
+        return array_values($list);
+    }
+    
     //初始化徽章
     public static function initBadge($uid)
     {
         $regTime = strtotime(User::where(['id'=>$uid])->value('create_time'));
         if(date('Ymd')==date('Ymd',$regTime)) return;
-        
-        $done = UserExt::where(['user_id'=>$uid])->update(['badge_id'=>1]);
+
+        $done = UserExt::where(['user_id'=>$uid])->update(['badge_id'=>2]);
         if(!$done) return;
         
         //打榜徽章，按注册日期  1
         $days = (int)(time() - $regTime) / 86400;
-        BadgeUser::addRec($uid, 1, $days);
+        UserStar::where(['user_id'=>$uid])->order('total_count desc')->update(['pick_days'=>Db::raw('pick_days+' . $days)]);
+        BadgeUser::addRec($uid, 1, $days); 
         
         //农场徽章 4
         $count = UserSprite::where(['user_id'=>$uid])->value('total_speed_coin');
