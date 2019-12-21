@@ -216,7 +216,7 @@ class FansClub extends Base
     /**发宝箱 */
     public function sendbox()
     {
-        $type = $this->req('type', 'integer', 0); // 0钻石 1星星 2鲜花
+        $type = $this->req('type', 'integer', 0); // 0钻石 1积分 2鲜花
         $consume = $this->req('consume', 'integer'); // 消耗
         $people = $this->req('people', 'integer', 10); // 人数
         $this->getUser();
