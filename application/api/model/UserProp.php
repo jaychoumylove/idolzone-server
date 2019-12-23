@@ -64,7 +64,7 @@ class UserProp extends Base
                 $count = 1;  //只能买一个
                 $badge = [11=>55,12=>56,13=>57];
                 $status = 1;  //已使用
-                if(BadgeUser::where(['uid'=>$uid])->where('badge_id','in',$badge)->value('count(1)'))
+                if(BadgeUser::where(['uid'=>$uid])->where('badge_id','in',$badge[$id])->value('count(1)'))
                     Common::res(['code' => 3, 'msg' => '你已经兑换过了']);
                 
                 BadgeUser::addRec($uid, 0, 1, $badge[$id]);//增加徽章
