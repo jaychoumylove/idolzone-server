@@ -25,6 +25,7 @@ use app\api\model\RecTaskgift;
 use app\api\model\CfgTaskgift;
 use app\api\model\CfgBadge;
 use app\api\model\Prop;
+use app\api\model\Cfg;
 
 class AutoRun extends Base
 {
@@ -352,6 +353,9 @@ class AutoRun extends Base
             //关闭充值翻倍
             PayGoods::where('1=1')->update(['flower'=>Db::raw('flower/2')]);
             PayGoods::where('category','in',[1,2,3])->update(['delete_time'=>date('Y-m-d H:i:s')]);
+            
+            //关闭大神榜
+            Cfg::where('key','dashen_rank_switch')->update(['value'=>0]);
             
             Db::commit();
         } 
