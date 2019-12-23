@@ -280,60 +280,85 @@ class AutoRun extends Base
     // 冬至日活动
     public function activeOn()
     {
-        $editTaskId = 30;//新人礼包奖励，任务ID
-        $badge = CfgBadge::where('id',55)->field('id,bimg as img,name')->find();
-        $giftTask_startTime = '2019-12-18 00:00:00'; //新人礼包开始时间
-        $giftTask_endTime = '2019-12-22 23:59:59'; //新人礼包结束时间
-        $speedUp_endTime = '2020-01-20 00:00:00';  //徽章加速结束时间
-        $propId = 11;  //积分兑换冬至徽章开启
+        $editTaskId1 = 30;//新人礼包奖励，任务ID
+        $editTaskId2 = 31;//新人礼包奖励，任务ID
+        $badge1 = CfgBadge::where('id',56)->field('id,bimg as img,name')->find();
+        $badge2 = CfgBadge::where('id',57)->field('id,bimg as img,name')->find();
+        $giftTask_startTime = '2019-12-23 00:00:00'; //新人礼包开始时间
+        $giftTask_endTime = '2020-1-1 23:59:59'; //新人礼包结束时间
+        $propId = [12,13];  //积分兑换冬至徽章开启
         
         //判断活动是否已开始
         $nowdate = date('Y-m-d H:i:s');
         $active_exist = CfgTaskgiftCategory::where('id', 3)->where('start_time', '<=', $nowdate)->where('end_time', '>=', $nowdate)->value('count(1)');
         if($active_exist) Common::res(['code' => 400,'msg' => '活动已经开始']);
         
-        //清除历史数据
-        RecTaskgift::where('cid',3)->delete();
-        
-        //设置礼包启动时间
-        CfgTaskgiftCategory::where('id', 3)->update(['name'=>'冬至礼包','start_time'=>$giftTask_startTime,'end_time'=>$giftTask_endTime]);
-        //设置徽章加速截止时间
-        CfgBadge::where('id', $badge['id'])->update(['end_time'=>$speedUp_endTime,'delete_time'=>NULL]);
-        
-        //增加徽章奖励
-        $awards = json_decode(CfgTaskgift::where('id', $editTaskId)->value('awards'),true);      
-        if(!isset($awards['badge'])){
-            $awards['badge'] = $badge;
+        Db::startTrans();
+        try {
+            //清除历史数据
+            RecTaskgift::where('cid',3)->delete();
+            
+            //设置礼包启动时间
+            CfgTaskgiftCategory::where('id', 3)->update(['name'=>'双诞礼包','start_time'=>$giftTask_startTime,'end_time'=>$giftTask_endTime]);
+            
+            //增加徽章奖励
+            $awards['badge'] = $badge1;
             $update = ['awards'=>json_encode($awards)];
-            CfgTaskgift::where('id', $editTaskId)->update($update);
+            CfgTaskgift::where('id', $editTaskId1)->update($update);
+            $awards['badge'] = $badge2;
+            $update = ['awards'=>json_encode($awards),'title'=>'累计充值200元','count'=>200];
+            CfgTaskgift::where('id', $editTaskId2)->update($update);
+            CfgTaskgift::where('id','in',[28,29,32,33,34,35])->update(['delete_time'=>date('Y-m-d H:i:s')]);
+            
+            //开启积分商城冬至徽章兑换
+            Db::name('prop')->where('id','in',$propId)->update(['delete_time'=>NULL]);
+            
+            //充值翻倍
+            PayGoods::where('1=1')->update(['flower'=>Db::raw('flower*2')]);
+            
+            Db::commit();
+        } 
+        catch (\Exception $e) {
+            Db::rollBack();
+            return 'rollBack:' . $e->getMessage();
         }
-        
-        //开启冬至徽章兑换
-        (new Prop())->restore(['id'=>$propId]);
-        
         Common::res(['code' => 0,'msg' => '操作成功']);
     }
     
     // 冬至日活动
     public function activeOff()
     {
-        
-        $editTaskId = 30;//新人礼包奖励，任务ID
-        $propId = 11;  //积分兑换冬至徽章关闭
+
+        $editTaskId1 = 30;//新人礼包奖励，任务ID
+        $editTaskId2 = 31;//新人礼包奖励，任务ID
+        $propId = [12,13];  //积分兑换冬至徽章关闭
         
         //判断活动是否已结束
         $nowdate = date('Y-m-d H:i:s');
         $active_end = CfgTaskgiftCategory::where('id', 3)->where('end_time', '<', $nowdate)->value('count(1)');
         if(!$active_end) Common::res(['code' => 400,'msg' => '活动还未截止']);
         
-        //取消徽章奖励
-        $awards = json_decode(CfgTaskgift::where('id', $editTaskId)->value('awards'),true);
-        unset($awards['badge']);
-        $update = ['awards'=>json_encode($awards)];
-        CfgTaskgift::where('id', $editTaskId)->update($update);
-        
-        //关闭冬至徽章兑换
-        Prop::destroy(['id'=>$propId]);
+        Db::startTrans();
+        try {
+            //取消徽章奖励        
+            $update = ['awards'=>'{"coin":100000,"stone":10,"trumpet":10}'];
+            CfgTaskgift::where('id', $editTaskId1)->update($update);
+            $update = ['awards'=>'{"coin":500000,"stone":55,"trumpet":50}','title'=>'累计充值500元','count'=>500];
+            CfgTaskgift::where('id', $editTaskId2)->update($update);
+            
+            //关闭积分商城冬至徽章兑换
+            Prop::where('id','in',$propId)->update(['delete_time'=>date('Y-m-d H:i:s')]);           
+            
+            //关闭充值翻倍
+            PayGoods::where('1=1')->update(['flower'=>Db::raw('flower/2')]);
+            PayGoods::where('category','in',[1,2,3])->update(['delete_time'=>date('Y-m-d H:i:s')]);
+            
+            Db::commit();
+        } 
+        catch (\Exception $e) {
+            Db::rollBack();            
+            return 'rollBack:' . $e->getMessage();
+        }
         
         Common::res(['code' => 0,'msg' => '操作成功']);        
     }
