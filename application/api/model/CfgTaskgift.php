@@ -3,6 +3,7 @@ namespace app\api\model;
 
 use app\base\model\Base;
 use think\Model;
+use think\Db;
 
 class CfgTaskgift extends Base
 {
@@ -72,10 +73,9 @@ class CfgTaskgift extends Base
                 $data['end_time']
             ]
         ];
-        $where['user_id'] = $uid;
         $where['pay_time'] = ['NEQ','NULL'];
-
-        $data['fee'] = RecPayOrder::where($where)->value('sum(total_fee)');
+        $data['fee'] = RecPayOrder::where('user_id='.$uid.' OR tar_user_id='.$uid)->where($where)->value('sum(total_fee)');
+        
         return $data;
     }
 }

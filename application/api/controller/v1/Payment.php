@@ -22,11 +22,6 @@ class Payment extends Base
         $this->getUser();
         $userprop_id = $this->req('userprop_id', 'integer', 0); // 优惠券id
         $res['list'] = PayGoods::where('1=1')->select();
-        foreach ($res['list'] as &$value) {
-            if ($value['remain'] < 0) {
-                $value['remain'] = 0;
-            }
-        }        
         // 我的优惠
         $res['discount'] = PayGoods::getMyDiscount($this->uid, $userprop_id);
         
@@ -38,8 +33,14 @@ class Payment extends Base
         });        
         $res['discount_option'] = $data;
         
-
+        $tehui_show = false;
         foreach ($res['list'] as &$value) {
+            if($value['category'] > 0) $tehui_show = true; 
+                
+            if ($value['remain'] < 0) {
+                $value['remain'] = 0;
+            }
+            
             if ($value['category'] == 0) {
                 
                 // 鲜花充值有折扣
@@ -48,7 +49,8 @@ class Payment extends Base
                 $value['stone'] = round($value['stone'] * $res['discount']['stone_increase']);
             }
         }
-
+        
+        $res += ['tehui_show'=>$tehui_show];
         Common::res(['data' => $res]);
     }
 
@@ -89,6 +91,7 @@ class Payment extends Base
         $order = RecPayOrder::create([
             'id' => date('YmdHis') . mt_rand(1000, 9999),
             'user_id' => $this->uid,
+            'tar_user_id' => $user_id==$this->uid ? 0 : $user_id,
             'total_fee' => $totalFee,
             'goods_info' => json_encode($goods, JSON_UNESCAPED_UNICODE), // 商品信息
         ]);
