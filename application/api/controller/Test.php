@@ -5,6 +5,10 @@ namespace app\api\controller;
 use think\Controller;
 use app\base\service\Common;
 use app\base\controller\Base;
+use app\api\model\UserExt;
+use app\api\model\User;
+use app\api\model\UserStar;
+use think\Db;
 
 class Test extends Base
 {
