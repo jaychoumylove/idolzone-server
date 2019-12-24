@@ -11,7 +11,7 @@ class CfgHeadwear extends Base
     {
         $myHeadwearHas = HeadwearUser::where('uid', $uid)->where('status', 0)->column('hid');
         $myHeadwearUse = HeadwearUser::where('uid', $uid)->where('status', 1)->column('hid');
-        $list = self::all();
+        $list = self::order('sort desc,diamond asc')->select();
 
         foreach ($list as $key => &$value) {
             $value['status'] = -1;

@@ -13,7 +13,7 @@ class HeadwearUser extends Base
     /**正在使用的头饰 */
     public static function getUse($uid)
     {
-        $hid = self::where('uid', $uid)->where('status', 1)->value('hid');
+        $hid = self::where('uid', $uid)->where('end_time is NULL or end_time>="'.date('Y-m-d H:i:s').'"')->where('status', 1)->value('hid');
         return CfgHeadwear::get($hid);
     }
 
@@ -31,16 +31,17 @@ class HeadwearUser extends Base
     public static function buy($uid, $hid)
     {
         // 需要多少钻石
-        $needDiamond = CfgHeadwear::where('id', $hid)->value('diamond');
-
+        $headWear = CfgHeadwear::where('id', $hid)->field('diamond,days')->find();
+        
         Db::startTrans();
         try {
             // 扣钻石
-            (new User)->change($uid, ['stone' => -$needDiamond], '头饰购买');
+            (new User)->change($uid, ['stone' => -$headWear['diamond']], '头饰购买');
 
             self::create([
                 'uid' => $uid,
                 'hid' => $hid,
+                'end_time' => $headWear['days']>0 ? date('Y-m-d H:i:s',strtotime('+'.$headWear['days'].' day')) : NULL
             ]);
 
             self::use($uid, $hid);

@@ -26,9 +26,6 @@ class RecStarChart extends Base
         $list = self::with(['User' => [
             'UserStar' => function ($query) {
                 $query->field('user_id,total_count,captain');
-            },
-            'UserExt' => function ($query) {
-                $query->field('user_id,badge_id');
             }
         ]])->where(['star_id' => $starid])->order('id desc')->limit(10)->select();
 
