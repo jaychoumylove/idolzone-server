@@ -19,46 +19,77 @@ use app\api\model\FanclubUser;
 use GatewayWorker\Lib\Gateway;
 use app\api\model\RecStarChart;
 use think\Db;
+use think\Log;
 
 class User extends Base
 {
-    /**用户登录 */
+    /**
+     * 用户登录
+     * 获取到用户的openid
+     */
     public function login()
     {
-        $code = $this->req('code', 'require'); // 登录code
+        // 登录code 小程序 公众号H5
+        $code = $this->req('code');
+
         $res['platform'] = $this->req('platform', 'require', 'MP-WEIXIN'); // 平台
         $res['model'] = $this->req('model'); // 手机型号
 
-        $res = (new UserService())->wxGetAuth($code, $res['platform']);
+        if ($code) {
+            // 以code形式获取openid
+            $res = array_merge($res, (new UserService())->wxGetAuth($code, $res['platform']));
+        } else {
+            $res['openid'] = $this->req('openid');
+        }
 
         $uid = UserModel::searchUser($res);
         $token = Common::setSession($uid);
 
-        Common::res(['msg' => '登录成功', 'data' => ['token' => $token]]);
+        Common::res(['msg' => '登录成功', 'data' => ['token' => $token, 'package' => $res]]);
     }
 
-    /**保存用户信息 */
+    /**授权&保存用户信息 */
     public function saveInfo()
     {
-        $encryptedData = $this->req('encryptedData', 'require');
-        $iv = $this->req('iv', 'require');
+        $type = $this->req('type', 'require', 0);
 
-        $this->getUser();
+        if ($type == 0) {
+            // 小程序授权
+            // 解密形式
+            $encryptedData = $this->req('encryptedData', 'require');
+            $iv = $this->req('iv', 'require');
 
-        $appid = (new WxAPI())->appinfo['appid'];
-        $sessionKey = UserModel::where('id', $this->uid)->value('session_key');
+            $this->getUser();
 
-        // 解密encryptedData
-        $res = Common::wxDecrypt($appid, $sessionKey, $encryptedData, $iv);
-        if ($res['errcode']) Common::res(['code' => 1, 'msg' => $res['data']]);
-        // 保存
-        foreach ($res['data'] as $key => $value) {
-            $saveData[strtolower($key)] = $value;
+            $appid = (new WxAPI())->appinfo['appid'];
+            $sessionKey = UserModel::where('id', $this->uid)->value('session_key');
+
+            // 解密encryptedData
+            $res = Common::wxDecrypt($appid, $sessionKey, $encryptedData, $iv);
+            if ($res['errcode']) Common::res(['code' => 1, 'msg' => $res['data']]);
+
+            // 保存
+            foreach ($res['data'] as $key => $value) {
+                $saveData[strtolower($key)] = $value;
+            }
+        } else {
+            // 公众号和app授权
+            // 通过openid和access_token
+            $openid = $this->req('openid', 'require');
+            $access_token = $this->req('access_token', 'require');
+            $res = (new WxAPI())->getUserInfo($openid, $access_token);
+            if (isset($res['errcode'])) Common::res(['code' => 1, 'msg' => $res['data']]);
+
+            $saveData = $res;
+            $saveData['avatarurl'] = $res['headimgurl'];
+            $saveData['gender'] = $res['sex'];
         }
-        unset($saveData['watermark']);
 
-        UserModel::where('id', $this->uid)->update($saveData);
-        Common::res();
+        $saveData['platform'] = $this->req('platform', 'require', 'MP-WEIXIN'); // 平台
+
+        // 包含用户信息和unionid的数据集合
+        $data = UserModel::saveUserInfo($saveData);
+        Common::res(['data' => ['userInfo' => $data]]);
     }
 
     public function getInfo()
@@ -284,7 +315,7 @@ class User extends Base
     public function extraCurrency()
     {
         $this->getUser();
-        $res['score'] = 0;//round(Db::name('pk_user_rank')->where('uid', $this->uid)->order('id desc')->value('score') / 10000);
+        $res['score'] = 0; //round(Db::name('pk_user_rank')->where('uid', $this->uid)->order('id desc')->value('score') / 10000);
         Common::res(['data' => $res]);
     }
 

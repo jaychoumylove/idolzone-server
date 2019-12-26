@@ -23,30 +23,32 @@ class User extends Base
     }
 
     /**
-     * 检索用户
+     * 创建用户
      * @return integer uid 用户id
      */
     public static function searchUser($data)
     {
         Db::startTrans();
         try {
-            $user = self::get(['openid' => $data['openid']]);
+            if ($data['platform'] == 'APP') {
+                $openidType = 'openid_app';
+            } else if ($data['platform'] == 'H5') {
+                $openidType = 'openid_h5';
+            } else if ($data['platform'] == 'MP-WEIXIN') {
+                $openidType = 'openid';
+            }
+            $user = self::get([$openidType => $data['openid']]);
             if (!$user) {
                 // 创建新用户
                 // User
-                $insert = [
-                    'openid' => $data['openid'],
-                    'unionid' => isset($data['unionid']) ? $data['unionid'] : null,
+                $user = self::create([
+                    $openidType => isset($data['openid']) ? $data['openid'] : null,
                     'session_key' => isset($data['session_key']) ? $data['session_key'] : null,
-                    'ident_code' => strtoupper(substr(md5(md5($data['openid'])), 0, 6)),
+
                     'platform' => isset($data['platform']) ? $data['platform'] : null,
                     'model' => isset($data['model']) ? $data['model'] : null,
                     'type' => isset($data['type']) ? $data['type'] : 0,
-                    'nickname' => isset($data['nickname']) ? $data['nickname'] : null,
-                    'avatarurl' => isset($data['avatarurl']) ? $data['avatarurl'] : null,
-                ];
-
-                $user = self::create($insert);
+                ]);
                 // UserCurrency
                 $currency = [
                     'uid' => $user['id'],
@@ -73,14 +75,13 @@ class User extends Base
                 // UserSprite
                 UserSprite::create([
                     'user_id' => $user['id'],
-                    'settle_time' => time(), 
+                    'settle_time' => time(),
                 ]);
             } else {
                 if (isset($data['session_key'])) {
-                    self::where(['openid' => $data['openid']])->update(['session_key' => $data['session_key']]);
+                    self::where('id', $user['id'])->update(['session_key' => $data['session_key']]);
                 }
             }
-
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
@@ -88,6 +89,50 @@ class User extends Base
         }
 
         return $user['id'];
+    }
+
+    /**保存用户信息 */
+    public static function saveUserInfo($data)
+    {
+        if ($data['platform'] == 'APP') {
+            $openidType = 'openid_app';
+        } else if ($data['platform'] == 'H5') {
+            $openidType = 'openid_h5';
+        } else if ($data['platform'] == 'MP-WEIXIN') {
+            $openidType = 'openid';
+        }
+
+        // 寻找是否有已存在的账号unionid相同但openid为空
+        $optherPlatformUid = self::where('unionid', $data['unionid'])->where($openidType, 'null')->value('id');
+        $currentUid = self::where($openidType, $data['openid'])->value('id');
+        if ($optherPlatformUid) {
+            // 在其他平台已有账号
+            // 删除当前用户
+            self::where('id', $currentUid)->delete(true);
+            // UserCurrency
+            UserCurrency::where('uid', $currentUid)->delete(true);
+            // UserExt
+            UserExt::where('user_id', $currentUid)->delete(true);
+            // UserSprite
+            UserSprite::where('user_id', $currentUid)->delete(true);
+
+            $currentUid = $optherPlatformUid;
+        }
+        $update = [
+            $openidType => isset($data['openid']) ? $data['openid'] : null,
+            'unionid' => isset($data['unionid']) ? $data['unionid'] : null,
+
+            'nickname' => isset($data['nickname']) ? $data['nickname'] : null,
+            'avatarurl' => isset($data['avatarurl']) ? $data['avatarurl'] : null,
+            'gender' => isset($data['gender']) ? $data['gender'] : null,
+            'language' => isset($data['language']) ? $data['language'] : null,
+            'city' => isset($data['city']) ? $data['city'] : null,
+            'province' => isset($data['province']) ? $data['province'] : null,
+            'country' => isset($data['country']) ? $data['country'] : null,
+        ];
+        self::where('id', $currentUid)->update($update);
+        $update['id'] = $currentUid;
+        return $update;
     }
 
     /**创建虚拟用户 */

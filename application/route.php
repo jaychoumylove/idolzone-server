@@ -8,6 +8,7 @@ Route::rule('getToken', 'api/Test/getToken');
 Route::rule('getUid', 'api/Test/getUid');
 // H5
 Route::rule('h5/star', 'api/v1.H5/star');
+Route::rule('api/:version/h5/getSign', 'api/v1.H5/getSign');
 
 // Clearner
 Route::rule('api/:version/clean', 'api/v1.Cleaner/index');
@@ -69,6 +70,7 @@ Route::rule('api/:version/banner/top', 'api/v1.Banner/getTop');// 风云榜
 
 // User
 Route::rule('api/:version/user/login', 'api/v1.User/login');// 登录
+Route::rule('api/:version/user/login_app', 'api/v1.User/login_app');// 登录
 
 Route::rule('api/:version/user/saveinfo', 'api/v1.User/saveInfo');// 保存用户详细信息
 Route::rule('api/:version/user/edit', 'api/v1.User/edit');// 修改用户头像和昵称

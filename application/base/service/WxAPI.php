@@ -57,6 +57,25 @@ class WxAPI
     }
 
     /**
+     * 获得jsapi_ticket
+     */
+    public function getJsapiTicket()
+    {
+        if (!$this->appinfo['jsapi_ticket'] || time() > $this->appinfo['jsapi_ticket_expire']) {
+            $url = 'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=' . $this->appinfo['access_token'] . '&type=jsapi';
+            $res = $this->request($url);
+            Appinfo::where('id', $this->appinfo['id'])->update([
+                'jsapi_ticket' => $res['ticket'],
+                'jsapi_ticket_expire' => time() + 7200
+            ]);
+
+            return $res['ticket'];
+        } else {
+            return $this->appinfo['jsapi_ticket'];
+        }
+    }
+
+    /**
      * 小程序登录
      */
     public function code2session($js_code)
@@ -86,13 +105,13 @@ class WxAPI
     }
 
     /**
-     * 公众号获取用户信息
+     * 拉取获取用户信息
      * @param string $openid 用户的唯一标识
      */
-    public function getUserInfo($openid)
+    public function getUserInfo($openid, $access_token)
     {
-        $url = 'https://' . $this->apiHost . '/cgi-bin/user/info?access_token=' . $this->appinfo['access_token'] . '&openid=' . $openid . '&lang=zh_CN';
-        // $url = 'https://' . $this->apiHost . '/sns/userinfo?access_token=' . $this->appinfo['access_token'] . '&openid='. $openid .'&lang=zh_CN';
+        // $url = 'https://' . $this->apiHost . '/cgi-bin/user/info?access_token=' . $this->appinfo['access_token'] . '&openid=' . $openid . '&lang=zh_CN';
+        $url = 'https://' . $this->apiHost . '/sns/userinfo?access_token=' . $access_token . '&openid=' . $openid . '&lang=zh_CN';
         return $this->request($url);
     }
 
@@ -288,8 +307,7 @@ class WxAPI
      */
     public function createMenu($data)
     {
-        $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token='.  $this->appinfo['access_token'];
+        $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' .  $this->appinfo['access_token'];
         return $this->request($url, $data);
-        
     }
 }
