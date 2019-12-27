@@ -21,8 +21,6 @@ class Notify extends Base
 
         $user = $wxMsg->getUser($msg['FromUserName']);
 
-        Log::record(json_encode($user), 'error');
-
         $content = "欢迎！回复：\n1 充值 \n2 农场补偿";
 
         Log::record('收到客服消息：' . json_encode($msg, JSON_UNESCAPED_UNICODE), 'error');

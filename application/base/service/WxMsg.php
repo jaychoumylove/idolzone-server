@@ -4,6 +4,7 @@ namespace app\base\service;
 
 use app\api\model\User;
 use app\api\model\WxImg;
+use think\Log;
 
 class WxMsg
 {
@@ -111,7 +112,8 @@ class WxMsg
         $wxApi = new WxAPI($this->appinfo['appid']);
         $res = $wxApi->getUserInfocgi($openid);
         if (isset($res['errcode'])) Common::res(['code' => 1, 'msg' => $res]);
-
+        Log::record(json_encode($res), 'error');
+        return;
         $saveData = $res;
         $saveData['platform'] = 'H5';
         $saveData['avatarurl'] = $res['headimgurl'];
