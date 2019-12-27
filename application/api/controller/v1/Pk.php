@@ -553,7 +553,7 @@ class Pk extends Base
                 "emphasis_keyword" => "keyword1.DATA"
             ];
 
-            (new Weapp())->sendTemplateMessage($pushData);
+            // (new Weapp())->sendTemplateMessage($pushData);
         }
     }
 }

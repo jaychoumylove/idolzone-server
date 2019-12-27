@@ -34,7 +34,7 @@ class User extends Base
                 $openidType = 'openid_app';
             } else if ($data['platform'] == 'H5') {
                 $openidType = 'openid_h5';
-            } else if ($data['platform'] == 'MP-WEIXIN') {
+            } else if ($data['platform'] == 'MP-WEIXIN' || $data['platform'] == 'MP-QQ') {
                 $openidType = 'openid';
             }
             $user = self::get([$openidType => $data['openid']]);
@@ -98,14 +98,18 @@ class User extends Base
             $openidType = 'openid_app';
         } else if ($data['platform'] == 'H5') {
             $openidType = 'openid_h5';
-        } else if ($data['platform'] == 'MP-WEIXIN') {
+        } else if ($data['platform'] == 'MP-WEIXIN' || $data['platform'] == 'MP-QQ') {
             $openidType = 'openid';
         }
 
         // 寻找是否有已存在的账号unionid相同但openid为空
-        $optherPlatformUid = self::where('unionid', $data['unionid'])->where($openidType, 'null')->value('id');
+        if (isset($data['unionid']) && $data['unionid']) {
+            $optherPlatformUid = self::where('unionid', $data['unionid'])->where($openidType, 'null')->value('id');
+        } else {
+            $data['unionid'] = null;
+        }
         $currentUid = self::where($openidType, $data['openid'])->value('id');
-        if ($optherPlatformUid) {
+        if (isset($optherPlatformUid) && $optherPlatformUid) {
             // 在其他平台已有账号
             // 删除当前用户
             self::where('id', $currentUid)->delete(true);

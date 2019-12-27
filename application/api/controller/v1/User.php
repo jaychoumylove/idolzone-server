@@ -86,7 +86,7 @@ class User extends Base
         }
 
         $saveData['platform'] = $this->req('platform', 'require', 'MP-WEIXIN'); // 平台
-
+        
         // 包含用户信息和unionid的数据集合
         $data = UserModel::saveUserInfo($saveData);
         Common::res(['data' => ['userInfo' => $data]]);

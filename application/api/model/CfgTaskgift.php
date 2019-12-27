@@ -73,7 +73,7 @@ class CfgTaskgift extends Base
             ]
         ];
         $where['pay_time'] = ['NEQ','NULL'];
-        $data['fee'] = RecPayOrder::where('(tar_user_id=0 and user_id='.$uid.') OR tar_user_id='.$uid)->where($where)->value('sum(total_fee)');
+        $data['fee'] = RecPayOrder::where('tar_user_id', $uid)->where($where)->value('sum(total_fee)');
         
         return $data;
     }
