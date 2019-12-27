@@ -34,9 +34,7 @@ class Notify extends Base
                 } else {
                     $content = '未找到用户，可能是因为您还未进入小程序游玩';
                 }
-            } else if ($msg['Content'] == '充值' || $msg['Content'] == 1) {
-                $content = '<a href="https://idolzone.cyoor.com/#/pages/charge/charge">充值</a>';
-            }
+            } 
         } else if ($msg['MsgType'] == 'event') {
             if ($msg['EventKey'] == 'CLICK_kefu') {
                 $content = " 【联系客服】\n您的用户ID为：" . ($user_id * 1234 ? $user_id * 1234 : '') . "\n请加客服（大白）微信：vpanfxcom\n请一定注明反馈的问题或者建议，否则可能会被忽略哦！";
@@ -45,9 +43,12 @@ class Notify extends Base
             } else if ($msg['Event'] == 'subscribe') {
                 $content = '谢谢你那么可爱还关注了我~';
             }
+        } else {
+            $content = '欢迎~';
         }
 
-        $content .= "\n你可能还对以下内容感兴趣：";
+        $content .= "\n你可能对以下内容感兴趣：";
+        $content .= "\n回复“2019”领取福利";
         $content .= "\n<a href='https://idolzone.cyoor.com/#/pages/charge/charge'>鲜花充值</a>";
         $content .= "\n<a href='http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=100000649&idx=1&sn=38d263825275b1051d539344692e15b7&chksm=4ef49c1d7983150b7b486381a147b972bf9c674d5683cc76d9455c718eb468c184453f7dbbde#rd'>榜单福利</a>";
         $content .= "\n<a href='http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=100000654&idx=1&sn=ec592eb867cc5c0f2aa40f9e3f4a6cc4&chksm=4ef49c1a7983150c37bd65374e1c7d63b26957d9fda988536b749aff92894e309501a0289d77#rd'>打榜攻略</a>";
