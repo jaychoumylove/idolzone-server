@@ -45,7 +45,7 @@ class Notify extends Base
             }
         }
 
-        $content .= "--------------------------";
+        $content .= "\n----------------------";
         $content .= "\n你可能对以下内容感兴趣：";
         $content .= "\n回复“2019”领取福利";
         $content .= "\n<a href='https://idolzone.cyoor.com/#/pages/charge/charge'>鲜花充值</a>";
