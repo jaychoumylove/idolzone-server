@@ -17,6 +17,9 @@ class StarRank extends Base
         $size = input('size', 10);
         $keywords = input('keywords', '');
         $rankField = input('rankField', 'week_hot');
+        if ($rankField == 'undefined') {
+            $rankField = 'week_hot';
+        }
         $type = input('type', 0);
 
         $list = StarRankModel::getRankList($page, $size, $rankField, $keywords);
