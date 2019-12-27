@@ -128,7 +128,7 @@ class UserExt extends Base
         $update['stone'] = 20;
         $msg .= '，钻石+' . $update['stone'];
 
-        (new User)->change($uid, $update, '系统奖励');
+        (new User)->change($uid, $update, '年终感恩回馈');
 
         UserExt::where('user_id', $uid)->update(['redress_time' => time()]);
 
