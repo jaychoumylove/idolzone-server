@@ -109,7 +109,7 @@ class WxMsg
     public function getUser($openid)
     {
         $wxApi = new WxAPI($this->appinfo['appid']);
-        $res = $wxApi->getUserInfo($openid);
+        $res = $wxApi->getUserInfocgi($openid);
         if (isset($res['unionid'])) {
             $user_id = User::where(['unionid' => $res['unionid']])->value('id');
             if (!$user_id) {

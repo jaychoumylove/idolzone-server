@@ -91,7 +91,7 @@ class Payment extends Base
         $order = RecPayOrder::create([
             'id' => date('YmdHis') . mt_rand(1000, 9999),
             'user_id' => $this->uid,
-            'tar_user_id' => $user_id==$this->uid ? 0 : $user_id,
+            'tar_user_id' => $user_id,
             'total_fee' => $totalFee,
             'goods_info' => json_encode($goods, JSON_UNESCAPED_UNICODE), // 商品信息
         ]);

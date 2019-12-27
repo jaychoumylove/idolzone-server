@@ -110,8 +110,18 @@ class WxAPI
      */
     public function getUserInfo($openid, $access_token)
     {
-        // $url = 'https://' . $this->apiHost . '/cgi-bin/user/info?access_token=' . $this->appinfo['access_token'] . '&openid=' . $openid . '&lang=zh_CN';
         $url = 'https://' . $this->apiHost . '/sns/userinfo?access_token=' . $access_token . '&openid=' . $openid . '&lang=zh_CN';
+        
+        return $this->request($url);
+    }
+
+    /**
+     * 获取用户基本信息（包括UnionID机制）
+     * @param string $openid 用户的唯一标识
+     */
+    public function getUserInfocgi($openid)
+    {
+        $url = 'https://' . $this->apiHost . '/cgi-bin/user/info?access_token=' . $this->appinfo['access_token'] . '&openid=' . $openid . '&lang=zh_CN';
         
         return $this->request($url);
     }

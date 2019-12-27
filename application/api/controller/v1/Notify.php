@@ -21,12 +21,14 @@ class Notify extends Base
 
         $content = "欢迎！回复：\n1 充值 \n2 农场补偿";
 
+        Log::record('收到客服消息：' . json_encode($msg, JSON_UNESCAPED_UNICODE), 'error');
+
         // {"ToUserName":"gh_7c87eaf27f5a",
         // "FromUserName":"oj77y5LIpHuIWUU2kW8BHVP4goPc","CreateTime":"1558089549",
         // "MsgType":"text","Content":"99","MsgId":"22306477788296821"}
 
         if ($msg['MsgType'] == 'text') {
-            if ($msg['Content'] == '农场补偿' || $msg['Content'] == 2) {
+            if ($msg['Content'] == '农场补偿' || $msg['Content'] == 2 || $msg['Content'] == '2019') {
                 $user_id = $wxMsg->getUser($msg['FromUserName']);
                 if (gettype($user_id) != 'integer') {
                     $content = $user_id;
@@ -36,6 +38,18 @@ class Notify extends Base
                 }
             } else if ($msg['Content'] == '充值' || $msg['Content'] == 1) {
                 $content = '<a href="https://idolzone.cyoor.com/#/pages/charge/charge">充值</a>';
+            }
+            
+        } else if ($msg['MsgType'] == 'event') {
+            if ($msg['EventKey'] == 'CLICK_kefu') {
+                $content = "【联系客服】\n
+                您的平台ID为：123456789\n
+                请加客服（大白）微信：vpanfxcom\n
+                请一定注明反馈的问题或者建议，否则可能会被忽略哦！";
+            } else if ($msg['EventKey'] == 'CLICK_lianxi') {
+                $content = "【商务合作】\n
+                寻求合作及赞助可发送邮件：alben.liu@qq.com\n
+                请一定注明公司、姓名、以及合作内容、品牌，否则可能会被忽略哦！";
             }
         }
 
@@ -49,19 +63,46 @@ class Notify extends Base
     public function createMenu()
     {
         $data = '{
-            "button":[
-            {
-            "type": "miniprogram",
-            "name": "打榜",
-            "url": "https://mp.weixin.qq.com/s/V-Zw-FDPKLKY4GJfBdZS7w",
-            "appid": "wx3a69eb5e1b2a7fa9",
-            "pagepath": "/pages/index/index"
-            },{
-            "type": "view",
-            "name": "充值",
-            "url": "https://idolzone.cyoor.com/#/pages/charge/charge"
-            }]
-            }';
+            "button": [
+                {
+                    "name": "打榜应援",
+                    "sub_button": [
+                        {
+                            "type": "miniprogram",
+                            "name": "小程序打榜",
+                            "url": "https://mp.weixin.qq.com/s/V-Zw-FDPKLKY4GJfBdZS7w",
+                            "appid": "wx3a69eb5e1b2a7fa9",
+                            "pagepath":"pages/open/open"
+                        },
+                        {
+                            "type": "view",
+                            "name": "网页打榜",
+                            "url": "https://idolzone.cyoor.com"
+                        }
+                    ]
+                },
+                {
+                    "type": "view",
+                    "name": "鲜花充值",
+                    "url": "https://idolzone.cyoor.com/#/pages/charge/charge"
+                },
+                {
+                    "name": "联系我们",
+                    "sub_button": [
+                        {
+                            "type": "click",
+                            "name": "在线客服",
+                            "key": "CLICK_kefu"
+                        },
+                        {
+                            "type": "click",
+                            "name": "联系我们",
+                            "key": "CLICK_lianxi"
+                        }
+                    ]
+                }
+            ]
+        }';
 
         dump((new WxAPI('gzh'))->createMenu($data));
     }
