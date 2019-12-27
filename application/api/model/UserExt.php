@@ -6,6 +6,7 @@ use app\base\model\Base;
 use app\base\service\Common;
 use think\Db;
 use app\api\service\User;
+use think\Log;
 
 class UserExt extends Base
 {
@@ -111,6 +112,8 @@ class UserExt extends Base
     public static function redress($uid)
     {
         $redressDate = Cfg::getCfg('redress_date');
+        Log::record(json_encode($redressDate), 'error');
+        
         $redressTime = UserExt::where('user_id', $uid)->value('redress_time');
 
         if (time() < strtotime($redressDate[0])) return '补偿未到时间';
