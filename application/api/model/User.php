@@ -141,8 +141,7 @@ class User extends Base
             ]);
         }
         self::where('id', $currentUid)->update($update);
-        $update['id'] = $currentUid;
-        return $update;
+        return self::get($currentUid);
     }
 
     /**创建虚拟用户 */
