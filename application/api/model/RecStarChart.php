@@ -52,17 +52,14 @@ class RecStarChart extends Base
      */
     public static function verifyWord($text)
     {
-        $res = (new WxAPI())->msgCheck($text);
-        if ($res['errcode'] == 87014) Common::res(['code' => 1, 'msg' => '内容被屏蔽']);
+       (new WxAPI())->msgCheck($text);
     }
 
     /**留言 */
     public static function sendMsg($uid, $starid, $content)
     {
-        if (input('platform') == 'MP-WEIXIN') {
-            // 校验
-            self::verifyWord($content);
-        }
+        // 校验
+        self::verifyWord($content);
 
         Db::startTrans();
         try {

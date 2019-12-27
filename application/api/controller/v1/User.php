@@ -192,10 +192,8 @@ class User extends Base
     {
         $content = $this->req('content', 'require');
         $this->getUser();
-        if (input('platform') == 'MP-WEIXIN') {
-            // 格式化发言内容
-            RecStarChart::verifyWord($content);
-        }
+        // 格式化发言内容
+        RecStarChart::verifyWord($content);
         // 扣除喇叭
         (new UserService())->change($this->uid, [
             'trumpet' => -1

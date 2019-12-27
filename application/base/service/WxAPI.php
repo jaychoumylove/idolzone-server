@@ -25,7 +25,10 @@ class WxAPI
     public function request($url, $data = null)
     {
         $res = Common::request($url, $data);
-        if (isset($res['errmsg']) && strpos($res['errmsg'], 'access_token') !== false) {
+        if (isset($res['errmsg'])) $errMsg = $res['errmsg'];
+        else if (isset($res['errMsg'])) $errMsg = $res['errMsg'];
+
+        if (isset($errMsg) && strpos($errMsg, 'access_token') !== false) {
             // 更新access_token
             $oldAccessToken = $this->appinfo['access_token'];
             $this->getAccessToken();
@@ -42,12 +45,15 @@ class WxAPI
     public function getAccessToken()
     {
         // 更新accessToken
-        $url = 'https://' . $this->apiHost . '/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET';
+        if (input('platform') == 'MP-QQ') {
+            $url = 'https://' . $this->apiHost . '/api/getToken?grant_type=client_credential&appid=APPID&secret=APPSECRET';
+        } else {
+            $url = 'https://' . $this->apiHost . '/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET';
+        }
         $url = str_replace('APPID', $this->appinfo['appid'], $url);
         $url = str_replace('APPSECRET', $this->appinfo['appsecret'], $url);
 
         $res = $this->request($url);
-        // Log::record(json_encode($res), 'error');
         $this->appinfo['access_token'] = $res['access_token'];
         // 将新的token保存到数据库
         Appinfo::where(['id' => $this->appinfo['id']])->update([
@@ -111,7 +117,7 @@ class WxAPI
     public function getUserInfo($openid, $access_token)
     {
         $url = 'https://' . $this->apiHost . '/sns/userinfo?access_token=' . $access_token . '&openid=' . $openid . '&lang=zh_CN';
-        
+
         return $this->request($url);
     }
 
@@ -122,7 +128,7 @@ class WxAPI
     public function getUserInfocgi($openid)
     {
         $url = 'https://' . $this->apiHost . '/cgi-bin/user/info?access_token=' . $this->appinfo['access_token'] . '&openid=' . $openid . '&lang=zh_CN';
-        
+
         return $this->request($url);
     }
 
@@ -284,12 +290,20 @@ class WxAPI
      */
     public function msgCheck($content)
     {
-        $url = 'https://' . $this->apiHost . '/wxa/msg_sec_check?access_token=' . $this->appinfo['access_token'];
+        if (input('platform') == 'MP-QQ') {
+            $url = 'https://' . $this->apiHost . '/api/json/security/MsgSecCheck?access_token=' . $this->appinfo['access_token'];
+            $data = 'content=' . $content;
+        } else {
+            $url = 'https://' . $this->apiHost . '/wxa/msg_sec_check?access_token=' . $this->appinfo['access_token'];
+            $data = json_encode([
+                'content' => $content
+            ], JSON_UNESCAPED_UNICODE);
+        }
 
-        $data = [
-            'content' => $content
-        ];
-        return $this->request($url, json_encode($data, JSON_UNESCAPED_UNICODE));
+        $res = $this->request($url, $data);
+
+        if (isset($res['errcode']) && $res['errcode'] == 87014) Common::res(['code' => 1, 'msg' => '内容被屏蔽']);
+        if (isset($res['errCode']) && $res['errCode'] == 87014) Common::res(['code' => 1, 'msg' => '内容被屏蔽']);
     }
 
     /**校验一张图片是否含有违法违规内容 */
