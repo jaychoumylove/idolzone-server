@@ -122,12 +122,12 @@ class UserExt extends Base
 
         $msg = '领取成功';
         // 领取24小时农场收益补偿和30钻石
-        $update['coin'] = 24 * 3600 / 100 * UserSprite::where('user_id', $uid)->value('total_speed_coin');
+        $update['coin'] = 300000;
         $msg .= '，金豆+' . $update['coin'];
-        $update['stone'] = 30;
+        $update['stone'] = 20;
         $msg .= '，钻石+' . $update['stone'];
 
-        (new User)->change($uid, $update, '农场补偿');
+        (new User)->change($uid, $update, '系统补偿');
 
         UserExt::where('user_id', $uid)->update(['redress_time' => time()]);
 
