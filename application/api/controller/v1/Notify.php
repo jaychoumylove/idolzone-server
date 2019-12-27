@@ -25,7 +25,7 @@ class Notify extends Base
         // {"ToUserName":"gh_7c87eaf27f5a",
         // "FromUserName":"oj77y5LIpHuIWUU2kW8BHVP4goPc","CreateTime":"1558089549",
         // "MsgType":"text","Content":"99","MsgId":"22306477788296821"}
-
+        $content = '欢迎~';
         if ($msg['MsgType'] == 'text') {
             if ($msg['Content'] == '农场补偿' || $msg['Content'] == 2 || $msg['Content'] == '2019') {
                 if (gettype($user_id) == 'integer') {
@@ -34,7 +34,7 @@ class Notify extends Base
                 } else {
                     $content = '未找到用户，可能是因为您还未进入小程序游玩';
                 }
-            } 
+            }
         } else if ($msg['MsgType'] == 'event') {
             if ($msg['EventKey'] == 'CLICK_kefu') {
                 $content = " 【联系客服】\n您的用户ID为：" . ($user_id * 1234 ? $user_id * 1234 : '') . "\n请加客服（大白）微信：vpanfxcom\n请一定注明反馈的问题或者建议，否则可能会被忽略哦！";
@@ -43,8 +43,6 @@ class Notify extends Base
             } else if ($msg['Event'] == 'subscribe') {
                 $content = '谢谢你那么可爱还关注了我~';
             }
-        } else {
-            $content = '欢迎~';
         }
 
         $content .= "\n你可能对以下内容感兴趣：";
