@@ -103,23 +103,31 @@ class WxMsg
     }
 
     /**
-     * 公众号通过unionid机制获取用户id
+     * 公众号获取用户信息
      * @param string $openid FromUserName
      */
     public function getUser($openid)
     {
         $wxApi = new WxAPI($this->appinfo['appid']);
         $res = $wxApi->getUserInfocgi($openid);
-        if (isset($res['unionid'])) {
-            $user_id = User::where(['unionid' => $res['unionid']])->value('id');
-            if (!$user_id) {
-                return '请先到同名小程序进行用户授权';
-            } else {
-                return $user_id;
-            }
-        } else {
-            return '未获取到用户信息，缺少unionid';
-        }
+        if (isset($res['errcode'])) Common::res(['code' => 1, 'msg' => $res]);
+
+        $saveData = $res;
+        $saveData['platform'] = 'H5';
+        $saveData['avatarurl'] = $res['headimgurl'];
+        $saveData['gender'] = $res['sex'];
+
+        return User::saveUserInfo($saveData);
+        // if (isset($res['unionid'])) {
+        //     $user_id = User::where(['unionid' => $res['unionid']])->value('id');
+        //     if (!$user_id) {
+        //         return '请先到同名小程序进行用户授权';
+        //     } else {
+        //         return $user_id;
+        //     }
+        // } else {
+        //     return '未获取到用户信息，缺少unionid';
+        // }
     }
 
     /**下载图片 */

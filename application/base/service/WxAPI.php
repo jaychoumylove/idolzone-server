@@ -105,7 +105,7 @@ class WxAPI
     }
 
     /**
-     * 拉取获取用户信息
+     * 拉取获取用户信息(不需要用户关注公众号)
      * @param string $openid 用户的唯一标识
      */
     public function getUserInfo($openid, $access_token)
@@ -116,7 +116,7 @@ class WxAPI
     }
 
     /**
-     * 获取用户基本信息（包括UnionID机制）
+     * 获取用户基本信息(需要用户关注公众号)
      * @param string $openid 用户的唯一标识
      */
     public function getUserInfocgi($openid)
@@ -243,7 +243,7 @@ class WxAPI
         $url = 'https://' . $this->apiHost . '/cgi-bin/message/wxopen/template/send?access_token=' . $this->appinfo['access_token'];
 
         foreach ($datas as $data) {
-            $this->requestAsync($url, json_encode($data, JSON_UNESCAPED_UNICODE));
+            Common::requestAsync($url, json_encode($data, JSON_UNESCAPED_UNICODE));
         }
 
         // return $this->request($url, json_encode($data, JSON_UNESCAPED_UNICODE));
