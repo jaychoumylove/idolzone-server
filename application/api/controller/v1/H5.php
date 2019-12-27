@@ -1,14 +1,19 @@
 <?php
+
 namespace app\api\controller\v1;
 
 use app\base\controller\Base;
 use app\api\model\StarRank as StarRankModel;
+use app\base\service\Common;
+use app\base\service\WxAPI;
+use app\base\service\WxPay;
+use think\Request;
 
 class H5 extends Base
 {
 
     private $starUrl = 'https://ouridol.xiaolishu.com/h5/star/';
-    
+
     // star首页
     public function star()
     {
@@ -18,24 +23,24 @@ class H5 extends Base
         $sign = input('sign', 0); // 韩星榜
         $rankField = input('rankField', 'week_hot');
         $type = input('type', 0);
-        $getStrFlag = input('getStrFlag',0);
-        
+        $getStrFlag = input('getStrFlag', 0);
+
         $list = StarRankModel::getRankList($page, $size, $rankField, $keywords, $sign);
         $list = json_decode(json_encode($list), true);
-        
+
         if ($page == 1 && empty($keywords)) {
             $data3 = array_slice($list, 0, 3);
             $pop[0] = array_shift($data3);
             array_splice($data3, 1, 0, $pop);
             $list = array_slice($list, 3);
         } else $data3 = [];
-        
+
         if ($getStrFlag && $list) {
             $datastr = '';
             foreach ($list as $key => $val) {
                 $datastr .= '<div class="star-other box box-lr box-align-center" onclick="linked(' . $val['id'] . ')">';
-               $keywords || $datastr .= '<span class="rank">' . ((($page-1)*$size)+$key+1) . '</span> ';
-               $datastr .= '<img src="' . $val['star']['head_img_s'] . '" class="avatar-big" /> 
+                $keywords || $datastr .= '<span class="rank">' . ((($page - 1) * $size) + $key + 1) . '</span> ';
+                $datastr .= '<img src="' . $val['star']['head_img_s'] . '" class="avatar-big" /> 
                <div class="star-info box box-tb flex">
                 <span class="name ellipsis">' .  $val['star']['name']  . '</span> 
                 <div class="box box-lr box-align-center">
@@ -48,12 +53,35 @@ class H5 extends Base
               </div>';
             }
             return  $datastr;
-            
         } else {
             $this->assign('data3', $data3);
             $this->assign('list', $list);
             $this->assign('starUrl', $this->starUrl);
             return view();
         }
+    }
+
+    public function getSign()
+    {
+        $wxApi = new WxAPI('gzh');
+        $jsapiTicket = $wxApi->getJsapiTicket();
+        $nonceStr = Common::getRandCode(16);
+        $timestamp = time();
+        $url = input('url');
+
+        // 这里参数的顺序要按照 key 值 ASCII 码升序排序
+        $string = "jsapi_ticket=$jsapiTicket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
+        $signature = sha1($string);
+
+        $signPackage = array(
+            "appId"     => $wxApi->appinfo['appid'],
+            "nonceStr"  => $nonceStr,
+            "timestamp" => $timestamp,
+            "url"       => $url,
+            "signature" => $signature,
+            "rawString" => $string
+        );
+
+        Common::res(['data' => $signPackage]);
     }
 }
