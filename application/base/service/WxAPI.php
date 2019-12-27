@@ -112,6 +112,8 @@ class WxAPI
     {
         // $url = 'https://' . $this->apiHost . '/cgi-bin/user/info?access_token=' . $this->appinfo['access_token'] . '&openid=' . $openid . '&lang=zh_CN';
         $url = 'https://' . $this->apiHost . '/sns/userinfo?access_token=' . $access_token . '&openid=' . $openid . '&lang=zh_CN';
+        Log::record($url, 'error');
+        
         return $this->request($url);
     }
 
