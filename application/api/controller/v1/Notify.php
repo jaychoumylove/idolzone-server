@@ -18,10 +18,11 @@ class Notify extends Base
 
         $wxMsg->checkSignature();
         $msg = $wxMsg->getMsg();
+        // Log::record('收到客服消息：' . json_encode($msg, JSON_UNESCAPED_UNICODE), 'error');
+
+        $user_id = $wxMsg->getUser($msg['FromUserName']);
 
         $content = "欢迎！回复：\n1 充值 \n2 农场补偿";
-        $user_id = $wxMsg->getUser($msg['FromUserName']);
-        Log::record('收到客服消息：' . json_encode($msg, JSON_UNESCAPED_UNICODE), 'error');
 
         // {"ToUserName":"gh_7c87eaf27f5a",
         // "FromUserName":"oj77y5LIpHuIWUU2kW8BHVP4goPc","CreateTime":"1558089549",
@@ -29,14 +30,18 @@ class Notify extends Base
 
         if ($msg['MsgType'] == 'text') {
             if ($msg['Content'] == '农场补偿' || $msg['Content'] == 2 || $msg['Content'] == '2019') {
-                $content = UserExt::redress($user_id);
-                $content .= '<a data-miniprogram-appid="wx3a69eb5e1b2a7fa9" data-miniprogram-path="/pages/user/log" href="http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=2247483657&idx=1&sn=f6fed458fdb14f16f8a0e035b874a462&chksm=cef49e9df983178b8fc49143703041fa2b1c230da13d4154b11403d1cd215f38892c16f3a0be#rd">点击此链接去查看</a>';
+                if (gettype($user_id) == 'integer') {
+                    $content = UserExt::redress($user_id);
+                    $content .= '<a data-miniprogram-appid="wx3a69eb5e1b2a7fa9" data-miniprogram-path="/pages/user/log" href="http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=2247483657&idx=1&sn=f6fed458fdb14f16f8a0e035b874a462&chksm=cef49e9df983178b8fc49143703041fa2b1c230da13d4154b11403d1cd215f38892c16f3a0be#rd">点击此链接去查看</a>';
+                } else {
+                    $content = '未找到用户，可能是因为您还未进入小程序游玩';
+                }
             } else if ($msg['Content'] == '充值' || $msg['Content'] == 1) {
                 $content = '<a href="https://idolzone.cyoor.com/#/pages/charge/charge">充值</a>';
             }
         } else if ($msg['MsgType'] == 'event') {
             if ($msg['EventKey'] == 'CLICK_kefu') {
-                $content = " 【联系客服】\n您的用户ID为：$user_id\n请加客服（大白）微信：vpanfxcom\n请一定注明反馈的问题或者建议，否则可能会被忽略哦！";
+                $content = " 【联系客服】\n您的用户ID为：" . ($user_id * 1234 ? $user_id * 1234 : '') . "\n请加客服（大白）微信：vpanfxcom\n请一定注明反馈的问题或者建议，否则可能会被忽略哦！";
             } else if ($msg['EventKey'] == 'CLICK_lianxi') {
                 $content = " 【商务合作】\n寻求合作及赞助可发送邮件：alben.liu@qq.com\n请一定注明公司、姓名、以及合作内容、品牌，否则可能会被忽略哦！";
             }

@@ -28,6 +28,7 @@ use app\api\model\WxgroupDynamic;
 use think\Db;
 use app\api\service\User as UserService;
 use app\api\model\BadgeUser;
+use app\api\model\RecPayOrder;
 
 class Page extends Base
 {
@@ -63,6 +64,13 @@ class Page extends Base
         
         // 顺便获取分享信息
         $res['config'] = Cfg::getList();
+        // TODO:
+        // 充值大于10元的用户才能看到首页弹图
+        $userTotalPay = RecPayOrder::where('tar_user_id', $this->uid)->where('pay_time', 'not null')->sum('total_fee');
+        if ($userTotalPay < 10) {
+            $res['config']['index_open'] = null;
+        }
+
         $res['config']['share_text'] = CfgShareTitle::getOne();
         
         //生成我的徽章数据

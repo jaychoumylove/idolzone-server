@@ -104,7 +104,7 @@ class WxMsg
     }
 
     /**
-     * 公众号获取用户id
+     * 公众号获取用户id,需要关注公众号
      * @param string $openid FromUserName
      */
     public function getUser($openid)
@@ -113,14 +113,7 @@ class WxMsg
         $res = $wxApi->getUserInfocgi($openid);
 
         if (isset($res['unionid'])) {
-            $user_id = User::where(['unionid' => $res['unionid']])->value('id');
-            if (!$user_id) {
-                return '请先到同名小程序进行用户授权';
-            } else {
-                return $user_id;
-            }
-        } else {
-            return '未获取到用户信息，缺少unionid';
+            return User::where(['unionid' => $res['unionid']])->value('id');
         }
     }
 
