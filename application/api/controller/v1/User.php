@@ -78,7 +78,7 @@ class User extends Base
             $openid = $this->req('openid', 'require');
             $access_token = $this->req('access_token', 'require');
             $res = (new WxAPI())->getUserInfo($openid, $access_token);
-            if (isset($res['errcode'])) Common::res(['code' => 1, 'msg' => $res['data']]);
+            if (isset($res['errcode'])) Common::res(['code' => 1, 'msg' => $res]);
 
             $saveData = $res;
             $saveData['avatarurl'] = $res['headimgurl'];
