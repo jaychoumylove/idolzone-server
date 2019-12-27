@@ -122,18 +122,24 @@ class User extends Base
 
             $currentUid = $optherPlatformUid;
         }
+
+        $user = self::get($currentUid);
         $update = [
             $openidType => isset($data['openid']) ? $data['openid'] : null,
             'unionid' => isset($data['unionid']) ? $data['unionid'] : null,
-
-            'nickname' => isset($data['nickname']) ? $data['nickname'] : null,
-            'avatarurl' => isset($data['avatarurl']) ? $data['avatarurl'] : null,
-            'gender' => isset($data['gender']) ? $data['gender'] : null,
-            'language' => isset($data['language']) ? $data['language'] : null,
-            'city' => isset($data['city']) ? $data['city'] : null,
-            'province' => isset($data['province']) ? $data['province'] : null,
-            'country' => isset($data['country']) ? $data['country'] : null,
         ];
+
+        if ($data['platform'] == 'MP-WEIXIN' || !$user['nickname']) {
+            $update = array_merge($update, [
+                'nickname' => isset($data['nickname']) ? $data['nickname'] : null,
+                'avatarurl' => isset($data['avatarurl']) ? $data['avatarurl'] : null,
+                'gender' => isset($data['gender']) ? $data['gender'] : null,
+                'language' => isset($data['language']) ? $data['language'] : null,
+                'city' => isset($data['city']) ? $data['city'] : null,
+                'province' => isset($data['province']) ? $data['province'] : null,
+                'country' => isset($data['country']) ? $data['country'] : null,
+            ]);
+        }
         self::where('id', $currentUid)->update($update);
         $update['id'] = $currentUid;
         return $update;
