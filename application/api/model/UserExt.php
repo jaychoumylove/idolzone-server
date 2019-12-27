@@ -112,8 +112,6 @@ class UserExt extends Base
     public static function redress($uid)
     {
         $redressDate = Cfg::getCfg('redress_date');
-        Log::record(json_encode($redressDate), 'error');
-        
         $redressTime = UserExt::where('user_id', $uid)->value('redress_time');
 
         if (time() < strtotime($redressDate[0])) return '补偿未到时间';
@@ -130,7 +128,7 @@ class UserExt extends Base
         $update['stone'] = 20;
         $msg .= '，钻石+' . $update['stone'];
 
-        (new User)->change($uid, $update, '系统补偿');
+        (new User)->change($uid, $update, '农场补偿');
 
         UserExt::where('user_id', $uid)->update(['redress_time' => time()]);
 
