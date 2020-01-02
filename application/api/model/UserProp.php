@@ -40,8 +40,12 @@ class UserProp extends Base
 
         // 检查是否已过期
         foreach ($list as &$value) {
-            $value['title'] = $value['prop']['name'] . '(失效时间' . $value['end_time'] . ')';
-            if ($value['status'] == 0 && strtotime($value['end_time']) < time()) {
+            if ($value['end_time']) {
+                $value['title'] = $value['prop']['name'] . '(失效时间' . $value['end_time'] . ')';
+            } else {
+                $value['title'] = $value['prop']['name'];
+            }
+            if ($value['status'] == 0 && strtotime($value['end_time']) < time() && !$value['end_time']) {
                 // 购买的道具仅限当天使用
                 $value['status'] = 2;
                 self::where('id', $value['id'])->update(['status' => 2]);
