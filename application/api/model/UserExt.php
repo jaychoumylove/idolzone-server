@@ -147,7 +147,7 @@ class UserExt extends Base
             $msg .= '，金豆+' . $update['coin'];
             $update['stone'] = 3;
             $msg .= '，钻石+' . $update['stone'];
-            $msg .= '，明天记得还要来哦'
+            $msg .= '，明天记得还要来哦';
 
             (new User)->change($uid, $update, '公众号签到');
             self::where('user_id', $uid)->update(['gzh_signin_time' => time()]);
