@@ -24,33 +24,33 @@ class Payment extends Base
         $res['list'] = PayGoods::where('1=1')->select();
         // 我的优惠
         $res['discount'] = PayGoods::getMyDiscount($this->uid, $userprop_id);
-        
+
         // 可选优惠
-        $arr[] = ['id'=>0,'status'=>0,'prop'=>['name'=>'请选择优惠券'], 'title'=>'不选择优惠券'];
-        $data = UserProp::getList($this->uid,'id asc','prop_id in (1,2)');        
-        array_walk($arr,function($item) use (&$data){
-            array_unshift($data,$item);
-        });        
+        $arr[] = ['id' => 0, 'status' => 0, 'prop' => ['name' => '请选择优惠券'], 'title' => '不选择优惠券'];
+        $data = UserProp::getList($this->uid, 'id asc', 'prop_id in (1,2)');
+        array_walk($arr, function ($item) use (&$data) {
+            array_unshift($data, $item);
+        });
         $res['discount_option'] = $data;
-        
+
         $tehui_show = false;
         foreach ($res['list'] as &$value) {
-            if($value['category'] > 0) $tehui_show = true; 
-                
+            if ($value['category'] > 0) $tehui_show = true;
+
             if ($value['remain'] < 0) {
                 $value['remain'] = 0;
             }
-            
+
             if ($value['category'] == 0) {
-                
+
                 // 鲜花充值有折扣
                 $value['fee'] = round($value['fee'] * $res['discount']['discount'], 2);
                 $value['flower'] = round($value['flower'] * $res['discount']['flower_increase']);
                 $value['stone'] = round($value['stone'] * $res['discount']['stone_increase']);
             }
         }
-        
-        $res += ['tehui_show'=>$tehui_show];
+
+        $res += ['tehui_show' => $tehui_show];
         Common::res(['data' => $res]);
     }
 
@@ -74,12 +74,12 @@ class Payment extends Base
 
         if ($goods['category'] == 0) {
             // 鲜花充值折扣
-            $discount = PayGoods::getMyDiscount($this->uid,$userprop_id);
+            $discount = PayGoods::getMyDiscount($this->uid, $userprop_id);
             $goods['flower'] = round($goods['flower'] * $discount['flower_increase']);
             $goods['stone'] = round($goods['stone'] * $discount['stone_increase']);
-            $goods['userprop_id'] = $userprop_id;            
+            $goods['userprop_id'] = $userprop_id;
             $totalFee = round($totalFee * $discount['discount'], 2);
-            $goods['totalFee'] = $totalFee;            
+            $goods['totalFee'] = $totalFee;
         }
 
         if ($goods['remain'] !== null && $goods['remain'] <= 0) {
@@ -95,15 +95,25 @@ class Payment extends Base
             'total_fee' => $totalFee,
             'goods_info' => json_encode($goods, JSON_UNESCAPED_UNICODE), // 商品信息
         ]);
-        // 预支付
-        $res = (new WxAPI())->unifiedorder([
+        // 预支付参数
+        $config = [
             'body' => $goods['title'], // 支付标题
             'orderId' => $order['id'], // 订单ID
             'totalFee' => $totalFee, // 支付金额
             'notifyUrl' => 'https://' . $_SERVER['HTTP_HOST'] . '/api/v1/pay/notify', // 支付成功通知url
             'tradeType' => 'JSAPI', // 支付类型
-            'openid' => User::where('id', $this->uid)->value('openid'), // 用户openid
-        ]);
+        ];
+        // APP和小程序差异
+        $openidType = 'openid';
+        if (input('platform') == 'APP') {
+            $openidType = 'openid_app';
+            $config['tradeType'] = 'APP';
+        } 
+
+        $config['openid'] = User::where('id', $this->uid)->value($openidType);
+
+        $res = (new WxAPI())->unifiedorder($config);
+
         // 处理预支付数据
         (new WxPayService())->returnFront($res);
     }

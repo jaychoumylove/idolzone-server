@@ -1,4 +1,5 @@
 <?php
+
 namespace app\api\controller\v1;
 
 use app\base\controller\Base;
@@ -36,32 +37,32 @@ class Page extends Base
     public function app()
     {
         $this->getUser();
-        
+
         $rer_user_id = input('referrer', 0);
         if ($rer_user_id) {
             // 拉新关系
             UserRelation::saveNew($this->uid, $rer_user_id);
         }
-        
+
         $res['userInfo'] = User::where([
             'id' => $this->uid
         ])->field('id,nickname,avatarurl,type')->find();
         $res['userCurrency'] = UserCurrency::getCurrency($this->uid);
         $res['userExt'] = UserExt::where('user_id', $this->uid)->find();
-        
+
         $userStar = UserStar::with('Star')->where([
             'user_id' => $this->uid
         ])
             ->order('id desc')
             ->find();
-        if (! $userStar) {
+        if (!$userStar) {
             $res['userStar'] = [];
         } else {
             $starInfo = $userStar['star'];
             $starInfo['captain'] = $userStar['captain'];
             $res['userStar'] = $userStar['star'];
         }
-        
+
         // 顺便获取分享信息
         $res['config'] = Cfg::getList();
         // TODO:
@@ -72,10 +73,10 @@ class Page extends Base
         }
 
         $res['config']['share_text'] = CfgShareTitle::getOne();
-        
+
         //生成我的徽章数据
         BadgeUser::initBadge($this->uid);
-        
+
         Common::res([
             'data' => $res
         ]);
@@ -86,49 +87,49 @@ class Page extends Base
         $starid = input('starid');
         $client_id = input('client_id');
         $this->getUser();
-        
-        if (! $starid)
+
+        if (!$starid)
             Common::res([
                 'code' => 100
             ]);
-        
+
         $res['starInfo'] = StarModel::with('StarRank')->where([
             'id' => $starid
         ])->find();
         if (date('md') == $res['starInfo']['birthday']) {
             $res['starInfo']['isBirth'] = true;
         }
-        
+
         $starService = new Star();
         $res['starInfo']['star_rank']['week_hot_rank'] = $starService->getRank($res['starInfo']['star_rank']['week_hot'], 'week_hot');
 
         $res['userRank'] = UserStar::getRank($starid, 'thisday_count', 1, 6);
-        if(!$res['userRank']) $res['userRank'] = UserStar::getRank($starid, 'total_count', 1, 6);
-        
+        if (!$res['userRank']) $res['userRank'] = UserStar::getRank($starid, 'total_count', 1, 6);
+
         $res['captain'] = UserStar::where('user_id', $this->uid)->value('captain');
         // 聊天内容
         $res['chartList'] = RecStarChart::getLeastChart($starid);
         // 加入聊天室
         Gateway::joinGroup($client_id, 'star_' . $starid);
         $res['disLeastCount'] = StarModel::disLeastCount($starid);
-        
+
         // $res['mass'] = ShareMass::getMass($this->uid);
-        
+
         // $res['invitList'] = [
         // 'list' => UserRelation::fixByType(1, $this->uid, 1, 10),
         // 'award' => Cfg::getCfg('invitAward'),
         // 'hasInvitcount' => UserRelation::with('User')->where(['rer_user_id' => $this->uid, 'status' => ['in', [1, 2]]])->count()
         // ];
-        
+
         $res['article'] = Notice::where('1=1')->order('create_time desc,id desc')->find();
-        
+
         // 礼物
         // $res['itemList'] = CfgItem::where('1=1')->order('count asc')->select();
         // foreach ($res['itemList'] as &$value) {
         // $value['self'] = UserItem::where(['uid' => $this->uid, 'item_id' => $value['id']])->value('count');
         // if (!$value['self']) $value['self'] = 0;
         // }
-        
+
         Common::res([
             'data' => $res
         ]);
@@ -143,10 +144,10 @@ class Page extends Base
                 'uid' => $this->uid,
                 'item_id' => $value['id']
             ])->value('count');
-            if (! $value['self'])
+            if (!$value['self'])
                 $value['self'] = 0;
         }
-        
+
         Common::res([
             'data' => $res
         ]);
@@ -165,35 +166,41 @@ class Page extends Base
 
     public function prop()
     {
-        Common::res([
-            'data' => Prop::all(function ($query){
+        $rechargeSwitch = Cfg::getCfg('ios_switch');
+        if (input('platform') == 'MP-WEIXIN' && $rechargeSwitch == 3) {
+            $propList = Prop::all(function ($query) {
+                $query->where('id', 'not in', [1, 2])->order('point asc');
+            });
+        } else {
+            $propList = Prop::all(function ($query) {
                 $query->order('point asc');
-            })
-        ]);
+            });
+        }
+
+        Common::res(['data' => $propList]);
     }
-    
+
     public function myprop()
     {
         $this->getUser();
-        
+
         //触发用户PK积分转移
-        $score = Db::name('pk_user_rank')->where('uid',$this->uid)->order('last_pk_time desc')->value('score');
-        if($score){
-            
+        $score = Db::name('pk_user_rank')->where('uid', $this->uid)->order('last_pk_time desc')->value('score');
+        if ($score) {
+
             Db::startTrans();
             try {
-                (new UserService)->change($this->uid, ['point'=>$score], 'PK积分转移');
-                Db::name('pk_user_rank')->where('uid',$this->uid)->update(['score'=>0]);
-                
+                (new UserService)->change($this->uid, ['point' => $score], 'PK积分转移');
+                Db::name('pk_user_rank')->where('uid', $this->uid)->update(['score' => 0]);
+
                 Db::commit();
             } catch (\Exception $e) {
                 Db::rollBack();
                 Common::res(['code' => 400, 'msg' => $e->getMessage()]);
             }
-            
         }
-        
-        
+
+
         $res['list'] = UserProp::getList($this->uid);
         $res['currentPoint'] = UserCurrency::getCurrency($this->uid)['point'];
         $res['pointNoticeId'] = 15;
@@ -201,7 +208,7 @@ class Page extends Base
             'data' => $res
         ]);
     }
-    
+
     public function propExchange()
     {
         $proid = $this->req('proid', 'integer', 0);
@@ -247,17 +254,17 @@ class Page extends Base
     {
         $gid = $this->req('gid', 'integer');
         $star_id = $this->req('star_id', 'integer');
-        
+
         UserWxgroup::massSettle();
-        
+
         $res = UserWxgroup::massStatus($gid);
         // 集结成员
         if ($res['status'] != 0) {
             $res['list'] = UserWxgroup::with('User')->where('wxgroup_id', $gid)
                 ->whereTime('mass_join_at', 'between', [
-                $res['massStartTime'],
-                $res['massEndTime']
-            ])
+                    $res['massStartTime'],
+                    $res['massEndTime']
+                ])
                 ->order('mass_join_at asc')
                 ->select();
         } else {
@@ -275,7 +282,7 @@ class Page extends Base
         $this->getUser();
         // 集结动态
         // $res['dynamic'] = array_reverse(WxgroupDynamic::where('1=1')->order('id desc')->limit(30)->select());
-        
+
         // 群日贡献排名
         $res['groupList'] = Wxgroup::with('star')->order('thisday_count desc')
             ->limit(10)
@@ -287,10 +294,10 @@ class Page extends Base
                 ->limit(5)
                 ->select();
         }
-        
+
         // 贡献奖励
         $res['reback'] = UserWxgroup::where('user_id', $this->uid)->sum('daycount_reback');
-        
+
         Common::res([
             'data' => $res
         ]);
@@ -304,9 +311,9 @@ class Page extends Base
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 10);
         $star_id = $this->req('star_id', 'require');
-        
+
         $this->getUser();
-        
+
         // 文章列表
         $res['article'] = Article::getList($star_id, $page, $size);
         // 是否订阅
@@ -317,7 +324,7 @@ class Page extends Base
         ])
             ->field('id,head_img_s,name,square_bg_img,square_bg_color')
             ->find();
-        
+
         $starService = new Star();
         $res['starInfo']['star_rank']['week_hot_rank'] = $starService->getRank($res['starInfo']['star_rank']['week_hot'], 'week_hot');
         Common::res([

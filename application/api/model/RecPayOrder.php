@@ -6,6 +6,7 @@ use think\Model;
 use app\base\model\Base;
 use app\api\service\User as UserService;
 use think\Db;
+use think\Log;
 
 class RecPayOrder extends Base
 {
@@ -29,6 +30,11 @@ class RecPayOrder extends Base
             PayGoods::where('id', $goodsInfo['id'])->update([
                 'remain' => Db::raw('remain-1')
             ]);
+        }
+
+        // 优惠券
+        if (isset($goodsInfo['userprop_id']) && $goodsInfo['userprop_id']) {
+            UserProp::useIt($pay_uid, $goodsInfo['userprop_id']);
         }
 
         RecTask::addRec($uid, 7);

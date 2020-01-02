@@ -11,11 +11,13 @@ class WxAPI
     private $apiHost;
     public function __construct($w = null)
     {
+        $this->apiHost = 'api.weixin.qq.com';
         if (input('platform') == 'MP-QQ') {
             $this->apiHost = 'api.q.qq.com';
             $type = 'qq';
+        } else if (input('platform') == 'APP') {
+            $type = 'app';
         } else {
-            $this->apiHost = 'api.weixin.qq.com';
             $type = 'miniapp';
         }
         if (!$w) $w = $type;

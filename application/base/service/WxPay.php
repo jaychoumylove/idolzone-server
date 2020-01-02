@@ -8,6 +8,16 @@ class WxPay
 {
     public function __construct($w = null)
     {
+        $this->apiHost = 'api.weixin.qq.com';
+        if (input('platform') == 'MP-QQ') {
+            $this->apiHost = 'api.q.qq.com';
+            $type = 'qq';
+        } else if (input('platform') == 'APP') {
+            $type = 'app';
+        } else {
+            $type = 'miniapp';
+        }
+        if (!$w) $w = $type;
         $this->appinfo = Common::getAppinfo($w);
     }
 
@@ -28,6 +38,17 @@ class WxPay
                     'signType' => 'MD5',
                 ];
                 $returnData['paySign'] = $this->makeSign($returnData);
+            } else if ($res['trade_type'] == 'APP') {
+                // APP支付
+                $returnData = [
+                    'appid' => $this->appinfo['appid'],
+                    'partnerid' => $res['mch_id'],
+                    'prepayid' => $res['prepay_id'],
+                    'package' => 'Sign=WXPay',
+                    'noncestr' => $res['nonce_str'],
+                    'timestamp' => (string) time(),
+                ];
+                $returnData['sign'] = $this->makeSign($returnData);
             }
 
             Common::res(['data' => $returnData]);

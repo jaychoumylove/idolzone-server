@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\Cfg;
 use app\base\controller\Base;
 use app\api\model\StarRank as StarRankModel;
 use app\base\service\Common;
@@ -83,5 +84,11 @@ class H5 extends Base
         );
 
         Common::res(['data' => $signPackage]);
+    }
+
+    public function update()
+    {
+        $result = Cfg::getCfg('app_version');
+        Common::res(['data' => $result]);
     }
 }

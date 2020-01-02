@@ -6,6 +6,9 @@ use think\Route;
 Route::rule('test', 'api/Test/index');
 Route::rule('getToken', 'api/Test/getToken');
 Route::rule('getUid', 'api/Test/getUid');
+
+// APP热更新
+Route::rule('api/:version/app/update', 'api/v1.H5/update');
 // H5
 Route::rule('h5/star', 'api/v1.H5/star');
 Route::rule('api/:version/h5/getSign', 'api/v1.H5/getSign');

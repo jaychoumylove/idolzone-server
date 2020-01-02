@@ -7,5 +7,7 @@ use app\base\model\Base;
 
 class Prop extends Base
 {
-    //
+    
+
+    
 }
