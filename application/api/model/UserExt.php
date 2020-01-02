@@ -116,9 +116,9 @@ class UserExt extends Base
         $redressDate = Cfg::getCfg('redress_date');
         $redressTime = UserExt::where('user_id', $uid)->value('redress_time');
 
+        if ($redressTime > strtotime($redressDate[0]) && $redressTime < strtotime($redressDate[1])) return '你已领取过补偿';
         if (time() < strtotime($redressDate[0])) return '补偿未到时间';
         if (time() > strtotime($redressDate[1])) return '补偿已过期';
-        if ($redressTime > strtotime($redressDate[0]) && $redressTime < strtotime($redressDate[1])) return '你已领取过补偿';
 
         $msg = '领取成功';
         $update['coin'] = 300000;

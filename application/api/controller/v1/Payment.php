@@ -26,6 +26,9 @@ class Payment extends Base
         $res['discount'] = PayGoods::getMyDiscount($this->uid, $userprop_id);
 
         // 可选优惠
+        $giveResult = UserProp::giveRechargeTicketEveryday($this->uid);
+        if (strpos($giveResult, '送') !== false) $res['modal'] = '送您一张双倍券，现在充值就享双倍鲜花哦';
+
         $arr[] = ['id' => 0, 'status' => 0, 'prop' => ['name' => '请选择优惠券'], 'title' => '不选择优惠券'];
         $data = UserProp::getList($this->uid, 'id asc', 'prop_id in (1,2)');
         array_walk($arr, function ($item) use (&$data) {
@@ -42,7 +45,6 @@ class Payment extends Base
             }
 
             if ($value['category'] == 0) {
-
                 // 鲜花充值有折扣
                 $value['fee'] = round($value['fee'] * $res['discount']['discount'], 2);
                 $value['flower'] = round($value['flower'] * $res['discount']['flower_increase']);
@@ -108,9 +110,10 @@ class Payment extends Base
         if (input('platform') == 'APP') {
             $openidType = 'openid_app';
             $config['tradeType'] = 'APP';
-        } 
+        }
 
         $config['openid'] = User::where('id', $this->uid)->value($openidType);
+        if (!$config['openid']) Common::res(['code' => 1, 'msg' => '请先登录小程序']);
 
         $res = (new WxAPI())->unifiedorder($config);
 

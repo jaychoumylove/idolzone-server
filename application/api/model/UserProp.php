@@ -143,12 +143,12 @@ class UserProp extends Base
         $propId = 2;
 
         $isExit = self::where('user_id', $uid)->where('prop_id', $propId)->where('status', 0)->where('end_time', '>', date('Y-m-d H:i:s'))->find();
-        if ($isExit) return '您有未使用的双倍券，现在充值就享双倍鲜花哦';
+        if ($isExit) return "<a href='https://idolzone.cyoor.com/#/pages/charge/charge'>您有未使用的双倍券，现在充值就享双倍鲜花哦</a>";
 
         $isExit = self::where('user_id', $uid)->where('prop_id', $propId)->whereTime('create_time', 'd')->find();
-        if ($isExit) return '今日双倍券已领，您可以明日再来';
+        if ($isExit) return "<a href='https://idolzone.cyoor.com/#/pages/charge/charge'>今日双倍券已领</a>";
 
         self::addProp($uid, $propId, 1);
-        return '送您一张双倍券，现在充值就享双倍鲜花哦';
+        return "<a href='https://idolzone.cyoor.com/#/pages/charge/charge'>送您一张双倍券，现在充值就享双倍鲜花哦</a>";
     }
 }

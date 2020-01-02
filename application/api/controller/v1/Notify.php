@@ -40,7 +40,7 @@ class Notify extends Base
                 // 每日签到
                 if (gettype($user_id) == 'integer') {
                     $content = UserExt::gzhSignin($user_id);
-                    $content .= "\n" . UserProp::giveRechargeTicketEveryday($user_id);
+                    $content .= "\n\n" . UserProp::giveRechargeTicketEveryday($user_id);
                 } else {
                     $content = '未找到用户，可能是因为您还未进入应用游玩';
                 }
@@ -57,7 +57,7 @@ class Notify extends Base
 
         $content .= "\n";
         $content .= "\n你可能对以下内容感兴趣：";
-        $content .= "\n回复“2019”领取年终福利";
+        // $content .= "\n回复“2019”领取年终福利";
         $content .= "\n回复“签到”领取每日签到奖励";
         $content .= "\n<a href='https://idolzone.cyoor.com/#/pages/charge/charge'>鲜花充值</a>";
         $content .= "\n<a href='http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=100000649&idx=1&sn=38d263825275b1051d539344692e15b7&chksm=4ef49c1d7983150b7b486381a147b972bf9c674d5683cc76d9455c718eb468c184453f7dbbde#rd'>榜单福利</a>";

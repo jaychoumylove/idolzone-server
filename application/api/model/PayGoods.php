@@ -17,7 +17,6 @@ class PayGoods extends Base
     /**用户优惠 */
     public static function getMyDiscount($uid, $userprop_id = 0)
     {
-
         $data['discount'] = 1;
         $data['flower_increase'] = 1;
         $data['stone_increase'] = 1;
@@ -27,6 +26,7 @@ class PayGoods extends Base
         $birth = (new StarService)->isTodayBrith($star_id);
         if ($birth) {
             $increase = 2;
+            $data['text'] = '充值双倍';
         } else {
             $increase = 1;
         }
@@ -36,12 +36,14 @@ class PayGoods extends Base
         if ($increase == 1 && $prop_id == 2) //使用翻倍券
         {
             $increase = 2;
+            $data['text'] = '充值双倍';
         } elseif ($increase == 2 && $prop_id == 2) //不使用翻倍券
         {
             $userprop_id = 0;
         } elseif ($data['discount'] == 1 && $prop_id == 1) //使用折扣券
         {
             $data['discount'] = 0.8;
+            $data['text'] = '8折优惠';
         }
 
         $data['userprop_id'] = $userprop_id;
