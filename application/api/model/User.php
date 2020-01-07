@@ -109,7 +109,6 @@ class User extends Base
             $data['unionid'] = null;
         }
         $currentUid = self::where($openidType, $data['openid'])->value('id');
-        $uidChange = false;
         if (isset($optherPlatformUid) && $optherPlatformUid) {
             // 在其他平台已有账号
             // 删除当前用户
@@ -121,7 +120,6 @@ class User extends Base
             // UserSprite
             UserSprite::where('user_id', $currentUid)->delete(true);
 
-            $uidChange = true;
             $currentUid = $optherPlatformUid;
         }
 
@@ -132,6 +130,7 @@ class User extends Base
         ];
 
         if ($data['platform'] == 'MP-WEIXIN' || !$user['nickname']) {
+            // 如果是微信小程序或者用户没有授权则更新用户资料
             $update = array_merge($update, [
                 'nickname' => isset($data['nickname']) ? $data['nickname'] : null,
                 'avatarurl' => isset($data['avatarurl']) ? $data['avatarurl'] : null,
@@ -143,9 +142,7 @@ class User extends Base
             ]);
         }
         self::where('id', $currentUid)->update($update);
-        $res = json_decode(json_encode(self::get($currentUid), JSON_UNESCAPED_UNICODE), true);
-        $res['uid_change'] = $uidChange;
-        return $res;
+        return self::get($currentUid);
     }
 
     /**创建虚拟用户 */

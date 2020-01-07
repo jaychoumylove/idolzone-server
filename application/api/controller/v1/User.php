@@ -89,7 +89,8 @@ class User extends Base
         
         // 包含用户信息和unionid的数据集合
         $data = UserModel::saveUserInfo($saveData);
-        Common::res(['data' => ['userInfo' => $data]]);
+        $token = Common::setSession($data['id']);
+        Common::res(['data' => ['userInfo' => $data, 'token' => $token]]);
     }
 
     public function getInfo()
