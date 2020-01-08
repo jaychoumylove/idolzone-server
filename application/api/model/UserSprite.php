@@ -104,7 +104,7 @@ class UserSprite extends Base
     /**农产升级 */
     public static function upgrade($uid, $type)
     {
-        $userSprite = self::getInfo($uid);
+        $userSprite = self::where('user_id', $uid)->master(true)->find();
 
         switch ($type) {
             case 0:
