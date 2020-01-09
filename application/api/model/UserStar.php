@@ -34,8 +34,8 @@ class UserStar extends Base
             // 开屏图，
             $list = OpenRank::with('User')->where('open_id', $open_id)->where('count', '<>', 0)->order('count desc,id asc')->page($page, $size)->select();
         } else {
-            $where = $starid ? ['star_id'=>$starid] : '1=1';            
-            if($starid) $list = self::with('User')->where($where)->where([$field => ['neq', 0]])->order($field . ' desc')->field("*,{$field} as hot")->page($page, $size)->select();
+            $where = $starid ? ['star_id' => $starid] : '1=1';
+            if ($starid) $list = self::with('User')->where($where)->where([$field => ['neq', 0]])->order($field . ' desc')->field("*,{$field} as hot")->page($page, $size)->select();
             else $list = self::with('User')->with('Star')->where($where)->where([$field => ['neq', 0]])->order($field . ' desc')->field("*,{$field} as hot")->page($page, $size)->select();
         }
 
@@ -60,16 +60,16 @@ class UserStar extends Base
             if ($value > 0) {
                 // 增加
                 $value = '+' . $value;
-            } else{
+            } else {
                 continue;
             }
             $update[$key] = Db::raw($key . $value);
-            if ($key=='pick_days')  $update['pick_time'] = time();
+            if ($key == 'pick_days')  $update['pick_time'] = time();
         }
-        if (!$update) return;   
+        if (!$update) return;
         self::where(['user_id' => $uid, 'star_id' => $starid])->update($update);
     }
-    
+
 
     /**
      * userStar数据变动
@@ -79,16 +79,16 @@ class UserStar extends Base
      * @param int $count 改变的数值
      * @param set $type 1金豆，2鲜花，3旧豆子
      */
-    public static function changeHandle($uid, $act, $starid=0, $count=1, $type=0)
+    public static function changeHandle($uid, $act, $starid = 0, $count = 1, $type = 0)
     {
         $primary_where = $starid ? ['user_id' => $uid, 'star_id' => $starid] : ['user_id' => $uid];
         $primary = self::get($primary_where);
         $starid = $starid ? $starid : $primary['star_id'];
-        
+
         $changArr = [];
-        
+
         //打榜
-        if( $act== 'pick'){
+        if ($act == 'pick') {
             $changArr = [
                 'total_count' => $count,
                 'thisday_count' => $count,
@@ -96,40 +96,38 @@ class UserStar extends Base
                 'thismonth_count' => $count,
             ];
             //送鲜花
-            if($type==2){
+            if ($type == 2) {
                 $changArr += ['total_flower' => $count];
-                BadgeUser::addRec($uid, 2, $primary['total_flower'] + $count);//stype=2鲜花徽章
+                BadgeUser::addRec($uid, 2, $primary['total_flower'] + $count); //stype=2鲜花徽章
             }
-            
+
             //打榜天数
-            $today_picked = date('Ymd') == date('Ymd',$primary['pick_time']);
-            if(!$today_picked){
+            $today_picked = date('Ymd') == date('Ymd', $primary['pick_time']);
+            if (!$today_picked) {
                 $changArr += ['pick_days' => 1];
-                BadgeUser::addRec($uid, 1, $primary['pick_days'] + 1);//stype=1打榜次数徽章
+                BadgeUser::addRec($uid, 1, $primary['pick_days'] + 1); //stype=1打榜次数徽章
             }
-            
+
             //2020年开始，且爱豆今天生日,获得生日徽章
-            if(date('Y') >= 2019 && in_array($starid, Star::where('birthday', date('md'))->column('id'))){
-                BadgeUser::addRec($uid, 8, 1);//stype=8生日徽章
+            if (date('Y') >= 2019 && in_array($starid, Star::where('birthday', date('md'))->column('id'))) {
+                BadgeUser::addRec($uid, 8, 1); //stype=8生日徽章
             }
-            
         }
-        
+
         //点赞
-        elseif( $act== 'like'){
+        elseif ($act == 'like') {
             $changArr += ['like_count' => $count];
-            BadgeUser::addRec($uid, 5, $primary['like_count'] + $count);//stype=5集赞徽章
+            BadgeUser::addRec($uid, 5, $primary['like_count'] + $count); //stype=5集赞徽章
         }
-        
+
         //集结
-        elseif( $act== 'mass'){
+        elseif ($act == 'mass') {
             $changArr += ['fanclub_mass_times' => $count];
-            BadgeUser::addRec($uid, 3, $primary['fanclub_mass_times'] + $count);//stype=3集结徽章
+            BadgeUser::addRec($uid, 3, $primary['fanclub_mass_times'] + $count); //stype=3集结徽章
         }
         self::change($uid, $starid, $changArr);
-    
     }
-    
+
 
     /**加入爱豆圈子 */
     public static function joinNew($starid, $uid)
@@ -216,29 +214,28 @@ class UserStar extends Base
             Common::res(['code' => 1, 'msg' => '退出圈子失败，上次退出圈子时间为' . date('Y-m-d', $ext['exit_group_time'])]);
         }
     }
-    
+
     /**退出相关操作 */
     public static function destroyConform($uid)
-    {        
-        $user = self::where(['user_id'=>$uid])->find();
-        $user = json_decode(json_encode($user),true);        
+    {
+        $user = self::where(['user_id' => $uid])->find();
+        $user = json_decode(json_encode($user), true);
         unset($user['id']);
-        
+
         //删除本条记录
-        self::where(['user_id'=>$uid])->delete();
+        self::where(['user_id' => $uid])->delete();
         Db::name('user_star_bakup')->insert($user);
-        
+
         //删除圈子相关徽章
-        BadgeUser::where(['uid'=>$uid])->where('badge_id','in',[1,2,3,5,6,8])->delete();
-        
+        BadgeUser::where(['uid' => $uid])->where('badge_id', 'in', [1, 2, 3, 5, 6, 8])->delete();
+
         //删除pk相关
-        Db::name('pk_user_rank')->where(['uid'=>$uid])->delete();
-        Db::name('pk_zan')->where(['uid'=>$uid])->delete();
-        Db::name('pk_user')->where(['uid'=>$uid])->delete();
-        
+        Db::name('pk_user_rank')->where(['uid' => $uid])->delete();
+        Db::name('pk_zan')->where(['uid' => $uid])->delete();
+        Db::name('pk_user')->where(['uid' => $uid])->delete();
+
         //删除粉丝团相关
-        Fanclub::exitFanclub($uid,true);
-        
+        Fanclub::exitFanclub($uid, true);
     }
 
     /**我在圈子里的排名信息 */

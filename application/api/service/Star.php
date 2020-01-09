@@ -46,6 +46,10 @@ class Star
      */
     public function sendHot($starid, $hot, $uid, $type, $danmaku = true)
     {
+        if (date('H') == 0 && date('i') == 0 && date('s') < 5) {
+            Common::res(['code' => 1, 'msg' => '打榜请稍后再试']);
+        }
+
         if (Lock::getVal('week_end')['value'] == 1) {
             Common::res(['code' => 1, 'msg' => '榜单结算中，请稍后再试！']);
         }
