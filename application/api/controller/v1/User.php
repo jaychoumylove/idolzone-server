@@ -330,6 +330,7 @@ class User extends Base
 
     public function level()
     {
+        $this->getUser();
         $user_id = $this->req('user_id', 'integer');
 
         $count = UserStar::where('user_id', $user_id)->order('id desc')->value('total_count');

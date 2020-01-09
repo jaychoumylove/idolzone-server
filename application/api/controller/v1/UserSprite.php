@@ -15,6 +15,8 @@ class UserSprite extends Base
 {
     public function info()
     {
+        $this->getUser();
+
         $user_id = $this->req('user_id', 'integer');
         $res['spriteInfo'] = UserSpriteModel::getInfo($user_id);
         $res['skillOneRemainTime'] = CfgPetSkillFirst::getSkill($user_id)['remainTime'];
