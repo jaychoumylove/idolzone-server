@@ -51,6 +51,10 @@ class AutoRun extends Base
         
         Db::startTrans();
         try {
+            // 重置明星人气
+            StarRank::where('1=1')->update([
+                'day_hot_flower' => 1000
+            ]);
             // 用户日贡献清零
             UserStar::where('1=1')->update([
                 'thisday_count' => 0

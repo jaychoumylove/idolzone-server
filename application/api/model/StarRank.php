@@ -53,11 +53,12 @@ class StarRank extends Base
             'month_hot' => Db::raw('month_hot+' . $hot),
         ];
         if ($type == 1) {
-            $extraHot = 'month_hot_coin';
-            $update[$extraHot] = Db::raw($extraHot . '+' . $hot);
+            // 金豆
+            $update['month_hot_coin'] = Db::raw('month_hot_coin+' . $hot);
         } else if ($type == 2) {
-            $extraHot = 'month_hot_flower';
-            $update[$extraHot] = Db::raw($extraHot . '+' . $hot);
+            // 鲜花
+            $update['day_hot_flower'] = Db::raw('day_hot_flower+' . $hot);
+            $update['month_hot_flower'] = Db::raw('month_hot_flower+' . $hot);
         } 
 
         self::where('star_id', $starid)->update($update);
