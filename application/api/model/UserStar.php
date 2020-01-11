@@ -109,7 +109,7 @@ class UserStar extends Base
             }
 
             //2020年开始，且爱豆今天生日,获得生日徽章
-            if (date('Y') >= 2019 && in_array($starid, Star::where('birthday', date('md'))->column('id'))) {
+            if (date('Y') >= 2019 && in_array($starid, Star::where('birthday', (int) date('md'))->column('id'))) {
                 BadgeUser::addRec($uid, 8, 1); //stype=8生日徽章
             }
         }
