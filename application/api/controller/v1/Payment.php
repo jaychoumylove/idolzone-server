@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\Cfg;
 use app\base\controller\Base;
 use app\base\service\Common;
 use app\api\model\PayGoods;
@@ -20,39 +21,17 @@ class Payment extends Base
     public function goods()
     {
         $this->getUser();
-        $userprop_id = $this->req('userprop_id', 'integer', 0); // 优惠券id
-        $res['list'] = PayGoods::where('1=1')->select();
+        $res['list'] = PayGoods::all();
         // 我的优惠
-        $res['discount'] = PayGoods::getMyDiscount($this->uid, $userprop_id);
+        $res['discount'] = PayGoods::getMyDiscount($this->uid);
 
-        // 可选优惠
-        $giveResult = UserProp::giveRechargeTicketEveryday($this->uid);
-        if (strpos($giveResult, '送') !== false) $res['modal'] = '送您一张双倍券，现在充值就享双倍鲜花哦';
-
-        $arr[] = ['id' => 0, 'status' => 0, 'prop' => ['name' => '请选择优惠券'], 'title' => '不选择优惠券'];
-        $data = UserProp::getList($this->uid, 'id asc', 'prop_id in (1,2)');
-        array_walk($arr, function ($item) use (&$data) {
-            array_unshift($data, $item);
-        });
-        $res['discount_option'] = $data;
-
-        $tehui_show = false;
         foreach ($res['list'] as &$value) {
-            if ($value['category'] > 0) $tehui_show = true;
-
-            if ($value['remain'] < 0) {
-                $value['remain'] = 0;
-            }
-
-            if ($value['category'] == 0) {
-                // 鲜花充值有折扣
-                $value['fee'] = round($value['fee'] * $res['discount']['discount'], 2);
-                $value['flower'] = round($value['flower'] * $res['discount']['flower_increase']);
-                $value['stone'] = round($value['stone'] * $res['discount']['stone_increase']);
-            }
+            // 鲜花充值有折扣
+            $value['fee'] = round($value['fee'] * $res['discount']['discount'], 2);
+            $value['flower'] = round($value['flower'] * $res['discount']['flower_increase']);
+            $value['stone'] = round($value['stone'] * $res['discount']['stone_increase']);
         }
 
-        $res += ['tehui_show' => $tehui_show];
         Common::res(['data' => $res]);
     }
 
@@ -63,31 +42,18 @@ class Payment extends Base
     public function order()
     {
         $this->getUser();
-        $goodsId = $this->req('goods_id', 'integer'); // 商品id
-        $user_id = $this->req('user_id', 'integer'); // 充值目标用户
-        $goodsNum = $this->req('goods_num', 'integer', 1); // 商品数量
-        $userprop_id = $this->req('userprop_id', 'integer', 0); // 使用的优惠券
+        $type = $this->req('type', 'require');
+        $user_id = $this->req('user_id', 'require');
+        $count = $this->req('count', 'integer');
 
-        // 商品
-        $goods = PayGoods::get($goodsId);
-        $goods['num'] = $goodsNum;
-        $goods['user_id'] = $user_id;
-        $totalFee = round($goods['fee'] * $goodsNum, 2);
-
-        if ($goods['category'] == 0) {
-            // 鲜花充值折扣
-            $discount = PayGoods::getMyDiscount($this->uid, $userprop_id);
-            $goods['flower'] = round($goods['flower'] * $discount['flower_increase']);
-            $goods['stone'] = round($goods['stone'] * $discount['stone_increase']);
-            $goods['userprop_id'] = $userprop_id;
-            $totalFee = round($totalFee * $discount['discount'], 2);
-            $goods['totalFee'] = $totalFee;
+        $res['discount'] = PayGoods::getMyDiscount($this->uid);
+        if ($type == 'stone') {
+            $rate = Cfg::getCfg('recharge_rate')['stone'];
+            $fee = $count * $rate;
         }
 
-        if ($goods['remain'] !== null && $goods['remain'] <= 0) {
-            // 限量商品
-            Common::res(['code' => 1, 'msg' => '抱歉，该商品已售完']);
-        }
+        
+
 
         // 下单
         $order = RecPayOrder::create([

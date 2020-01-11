@@ -15,7 +15,7 @@ class PayGoods extends Base
     }
 
     /**用户优惠 */
-    public static function getMyDiscount($uid, $userprop_id = 0)
+    public static function getMyDiscount($uid)
     {
         $data['discount'] = 1;
         $data['flower_increase'] = 1;
@@ -31,22 +31,6 @@ class PayGoods extends Base
             $increase = 1;
         }
 
-        //使用什么券
-        $prop_id = UserProp::where(['user_id' => $uid, 'id' => $userprop_id, 'status' => 0])->value('prop_id');
-        if ($increase == 1 && $prop_id == 2) //使用翻倍券
-        {
-            $increase = 2;
-            $data['text'] = '充值双倍';
-        } elseif ($increase == 2 && $prop_id == 2) //不使用翻倍券
-        {
-            $userprop_id = 0;
-        } elseif ($data['discount'] == 1 && $prop_id == 1) //使用折扣券
-        {
-            $data['discount'] = 0.8;
-            $data['text'] = '8折优惠';
-        }
-
-        $data['userprop_id'] = $userprop_id;
         $data['flower_increase'] *= $increase;
         $data['stone_increase'] *= $increase;
 
