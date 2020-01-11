@@ -28,6 +28,5 @@ class Test extends Base
 
     public function index()
     {
-        StarBirthRank::grantBirthAward();
     }
 }
