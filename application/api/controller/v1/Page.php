@@ -167,9 +167,19 @@ class Page extends Base
 
     public function prop()
     {
-        $propList = Prop::all(function ($query) {
-            $query->order('point asc');
-        });
+        $rechargeSwitch = Cfg::getCfg('ios_switch');
+        if (input('platform') == 'MP-WEIXIN' && $rechargeSwitch == 3) {
+            $propList = Prop::all(function ($query) {
+                $query->where('id', 'not in', [1, 2])->order('point asc');
+            });
+        } else {
+            $propList = Prop::all(function ($query) {
+                $query->order('point asc');
+            });
+        }
+        // $propList = Prop::all(function ($query) {
+        //     $query->order('point asc');
+        // });
 
         Common::res(['data' => $propList]);
     }
