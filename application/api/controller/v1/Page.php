@@ -63,14 +63,15 @@ class Page extends Base
             $res['userStar'] = $userStar['star'];
         }
 
-        // 顺便获取分享信息
+        // 获取分享信息
         $res['config'] = Cfg::getList();
-        // 充值大于10元的用户才能看到首页弹图
         $userTotalPay = RecPayOrder::where('tar_user_id', $this->uid)->where('pay_time', 'not null')->sum('total_fee');
-        if ($userTotalPay < Cfg::getCfg('open_img_show_charge')) {
-            $res['config']['index_open'] = null;
-        } else if ($res['userStar'] && $res['userStar']['birthday'] == (int) date('md') && $res['userStar']['open_img']) {
+        if ($res['userStar'] && $res['userStar']['birthday'] == (int) date('md') && $res['userStar']['open_img']) {
+            // 显示生日图
             $res['config']['index_open']['img'] = $res['userStar']['open_img'];
+        } else if ($userTotalPay < Cfg::getCfg('open_img_show_charge')) {
+            // 充值小于10元的用户隐藏首页弹图
+            $res['config']['index_open'] = null;
         }
 
         $res['config']['share_text'] = CfgShareTitle::getOne();
