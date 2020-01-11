@@ -7,7 +7,6 @@ use app\api\model\CfgItem;
 use app\api\model\GuideCron;
 use app\api\model\Open as OpenModel;
 use app\api\model\OpenTop;
-use app\api\model\Star;
 use app\api\model\UserItem;
 use app\api\model\UserStar;
 use app\base\controller\Base;
@@ -61,17 +60,10 @@ class Open extends Base
 
     public function today()
     {
-        $this->getUser();
-        $starId = UserStar::getStarId($this->uid);
-        // 生日
-        $img = Star::where('id', $starId)->where('birthday', (int) date('md'))->value('open_img');
+        $img = GuideCron::where('start_time', '<', time())->where('end_time', '>', time())->value('open_img');
         if (!$img) {
-            $img = GuideCron::where('start_time', '<', time())->where('end_time', '>', time())->value('open_img');
-            if (!$img) {
-                $img = Cfg::getCfg('open_img');
-            }
+            $img = Cfg::getCfg('open_img');
         }
-
         Common::res(['data' => $img]);
     }
 }
