@@ -136,7 +136,6 @@ class Pk extends Base
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
             }
             $data['joinNum'] = Db::name('pk_user')->where(['pk_time' => $pkTime, 'pk_type' => $type, 'star_id' => $mid])->count();
-            if ($data['joinNum'] > 100) $data['joinNum'] = 100;
             $data['isAdm'] = Db::name('user_star')->where(['user_id' => $this->uid, 'star_id' => $mid])->value('captain');
             $data['uid'] = $this->uid;
         }
@@ -202,7 +201,6 @@ class Pk extends Base
             if ($pkStatus['status'] == 1) {
                 // 正在报名 上一场数据
                 $lastPkTime = Db::name('pk_settle')->where('is_settle', 1)->order('id desc')->value('pk_time');
-            
             } elseif ($pkStatus['status'] == 2) {
                 // 团战开始 当前场数据
                 $lastPkTime = date('Y-m-d', time()) . ' ' . $pkStatus['timeSpace']['start_time'] . ':00';
@@ -318,11 +316,11 @@ class Pk extends Base
                                         $paizi => Db::raw($paizi . '+1'),
                                         'last_pk_medal' => $paizi
                                     ]);
-                                    
+
                                     //团战徽章
-                                    if($paizi=='gold'){
+                                    if ($paizi == 'gold') {
                                         $total_paizi = Db::name('pk_user_rank')->where(['uid' => $uids[0], 'mid' => $star_id, 'week' => $week])->value('gold');
-                                        BadgeUser::addRec($uids[0], 6, $total_paizi);//stype=6团战徽章
+                                        BadgeUser::addRec($uids[0], 6, $total_paizi); //stype=6团战徽章
                                     }
                                 }
 
@@ -403,6 +401,13 @@ class Pk extends Base
         $type = input('type');
         $this->getUser();
 
+        // $redis = new Redis;
+        // $lockName = "pk_{$star_id}_{$type}";
+        // if ($redis->connectSuccess) {
+        //     $getLock = $redis->lock($lockName, 1);
+        //     if (!$getLock) Common::res(['code' => 1, 'msg' => '当前报名人数过多，请稍后再试']);
+        // }
+
         // 是否被禁赛
         $openTime = Db::name('pk_user_ban')->where('uid', $this->uid)->value('open_time');
         if ($openTime && $openTime > time()) Common::res(['code' => 1, 'msg' => '预计解封时间：' . date('Y-m-d H:m:s', $openTime)]);
@@ -424,12 +429,13 @@ class Pk extends Base
 
         Db::startTrans();
         try {
-            Db::name('pk_user')->insert([
-                'uid' => $this->uid,
-                'star_id' => $star_id,
-                'pk_time' => $pkTime,
-                'pk_type' => $type
-            ]);
+            // 加入团战
+            $pre = config('database.prefix');
+            $isDone = Db::execute("INSERT INTO {$pre}pk_user (uid, star_id, pk_time, pk_type) 
+            SELECT {$this->uid}, {$star_id}, '{$pkTime}', {$type} 
+            FROM DUAL WHERE EXISTS
+            (SELECT count(*) as c FROM {$pre}pk_user where star_id = {$star_id} and pk_time = '{$pkTime}' and pk_type = {$type} having c < 100);");
+            if (!$isDone) Common::res(['code' => 1, 'msg' => '报名人数已满']);
 
             if ($type == 0) $pkTitle = '钻石场';
             else $pkTitle = '鲜花场';
@@ -454,6 +460,8 @@ class Pk extends Base
             Db::rollback();
             Common::res(['code' => 1, 'msg' => '报名失败' . $e->getMessage()]);
         }
+
+        // if ($redis->connectSuccess) $redis->unlock($lockName);
 
         Common::res(['code' => 0, 'msg' => '参加成功']);
     }
