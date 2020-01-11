@@ -65,11 +65,12 @@ class Page extends Base
 
         // 顺便获取分享信息
         $res['config'] = Cfg::getList();
-        // TODO:
         // 充值大于10元的用户才能看到首页弹图
         $userTotalPay = RecPayOrder::where('tar_user_id', $this->uid)->where('pay_time', 'not null')->sum('total_fee');
-        if ($userTotalPay < 10) {
+        if ($userTotalPay < Cfg::getCfg('open_img_show_charge')) {
             $res['config']['index_open'] = null;
+        } else if ($res['userStar'] && $res['userStar']['birthday'] == (int) date('md') && $res['userStar']['open_img']) {
+            $res['config']['index_open']['img'] = $res['userStar']['open_img'];
         }
 
         $res['config']['share_text'] = CfgShareTitle::getOne();
@@ -166,16 +167,9 @@ class Page extends Base
 
     public function prop()
     {
-        $rechargeSwitch = Cfg::getCfg('ios_switch');
-        if (input('platform') == 'MP-WEIXIN' && $rechargeSwitch == 3) {
-            $propList = Prop::all(function ($query) {
-                $query->where('id', 'not in', [1, 2])->order('point asc');
-            });
-        } else {
-            $propList = Prop::all(function ($query) {
-                $query->order('point asc');
-            });
-        }
+        $propList = Prop::all(function ($query) {
+            $query->order('point asc');
+        });
 
         Common::res(['data' => $propList]);
     }
