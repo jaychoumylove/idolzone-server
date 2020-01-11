@@ -7,6 +7,7 @@ use app\api\model\CfgItem;
 use app\api\model\GuideCron;
 use app\api\model\Open as OpenModel;
 use app\api\model\OpenTop;
+use app\api\model\Star;
 use app\api\model\UserItem;
 use app\api\model\UserStar;
 use app\base\controller\Base;
@@ -60,20 +61,17 @@ class Open extends Base
 
     public function today()
     {
-        // $topInfo = OpenTop::where('date', date("Ymd", strtotime("-1 day")))->find();
-        // if ($topInfo) {
-        //     // 助力开屏
-        //     $res['img'] = $topInfo['open_img'];
-        //     $res['starname'] = $topInfo['starname'];
-        //     $res['user'] = $topInfo['user_rank'][0];
-        // } else {
-        //     $res['img'] = Cfg::getCfg('open_img');
-        // }
-
-        $img = GuideCron::where('start_time', '<', time())->where('end_time', '>', time())->value('open_img');
+        $this->getUser();
+        $starId = UserStar::getStarId($this->uid);
+        // 生日
+        $img = Star::where('id', $starId)->where('birthday', (int) date('md'))->value('open_img');
         if (!$img) {
-            $img = Cfg::getCfg('open_img');
+            $img = GuideCron::where('start_time', '<', time())->where('end_time', '>', time())->value('open_img');
+            if (!$img) {
+                $img = Cfg::getCfg('open_img');
+            }
         }
+
         Common::res(['data' => $img]);
     }
 }
