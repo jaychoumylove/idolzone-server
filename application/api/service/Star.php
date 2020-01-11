@@ -63,10 +63,10 @@ class Star
         Db::startTrans();
         try {
             // 用户货币减少
-            if ($type == 1) $update = ['coin' => -$hot, 'point'=>$hot];
-            else if ($type == 2) $update = ['flower' => -$hot, 'point'=>$hot];
-            else if ($type == 3) $update = ['old_coin' => -$hot, 'point'=>$hot];
-            
+            if ($type == 1) $update = ['coin' => -$hot, 'point' => $hot];
+            else if ($type == 2) $update = ['flower' => -$hot, 'point' => $hot];
+            else if ($type == 3) $update = ['old_coin' => -$hot, 'point' => $hot];
+
             if ($type == 3) {
                 (new UserService)->change($uid, $update, '为爱豆打榜，旧豆-' . $hot);
             } else {
@@ -113,8 +113,8 @@ class Star
                         'hot' => $hot
                     ]
                 ], JSON_UNESCAPED_UNICODE));
-            } 
-            catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
 
         // 打榜后等级
@@ -133,8 +133,8 @@ class Star
                         'level' => $afterLevel
                     ],
                 ], JSON_UNESCAPED_UNICODE));
-            } catch (\Exception $e) {}
-            
+            } catch (\Exception $e) {
+            }
         }
     }
 

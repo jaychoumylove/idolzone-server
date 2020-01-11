@@ -70,7 +70,7 @@ class Page extends Base
             // 显示生日图
             $res['config']['index_open']['img'] = $res['userStar']['open_img'];
         } else if ($userTotalPay < Cfg::getCfg('open_img_show_charge')) {
-            // 充值小于10元的用户隐藏首页弹图
+            // 充值小于n元的用户隐藏首页弹图
             $res['config']['index_open'] = null;
         }
 

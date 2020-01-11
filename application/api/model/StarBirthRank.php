@@ -42,7 +42,7 @@ class StarBirthRank extends Base
     /**给生日明星粉丝上周贡献前100名52000鲜花 */
     public static function grantBirthAward()
     {
-        $starids = Star::where('birthday', date('md'))->column('id');
+        $starids = Star::where('birthday', (int) date('md'))->column('id');
         if ($starids) {
             $uids = [];
             foreach ($starids as $starid) {

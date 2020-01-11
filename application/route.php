@@ -3,7 +3,7 @@
 use think\Route;
 
 // Test
-Route::rule('test', 'api/Test/index');
+Route::rule('testaa', 'api/Test/index');
 Route::rule('getToken', 'api/Test/getToken');
 Route::rule('getUid', 'api/Test/getUid');
 
@@ -199,6 +199,7 @@ Route::rule('api/:version/article', 'api/v1.Article/getArticle');// 获取文章
 Route::rule('api/:version/article/extra', 'api/v1.Article/getArticleExtra');// 获取文章的额外，评论点赞信息
 Route::rule('api/:version/article/list', 'api/v1.Article/getList');// 获取文章列表
 Route::rule('api/:version/article/subscribe', 'api/v1.Article/subscribe');// 订阅文章推送
+Route::rule('api/:version/article/hotsearch', 'api/v1.Article/hotsearch');// 热搜
 Route::rule('api/:version/article/delete', 'api/v1.Article/delete');// 删除文章
 Route::rule('api/:version/article/video_exipre', 'api/v1.Article/getVideoExpire');// 获取视频过期
 Route::rule('api/:version/article/notice', 'api/v1.Article/getNotice');// 官方通知
@@ -260,3 +261,5 @@ Route::rule('api/:version/badge/select', 'api/v1.Badge/select');// 选择
 Route::rule('api/:version/badge/rank', 'api/v1.Badge/getRank');// 圈内排行
 
 
+// Active
+Route::rule('api/:version/active/laren', 'api/v1.Active/laren');// 活动
