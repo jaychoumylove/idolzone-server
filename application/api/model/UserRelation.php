@@ -46,6 +46,10 @@ class UserRelation extends Base
         if ($relation) {
             // 更新状态为1，表示成功拉新一次 此时上级可以领取奖励
             self::where(['ral_user_id' => $uid])->update(['status' => 1]);
+            // 拉人活动爱心+1
+            if (input('platform') == 'MP-WEIXIN') {
+                UserExt::where('user_id', $relation['rer_user_id'])->update(['aixin' => Db::raw('aixin+1')]);
+            }
 
             RecTask::addRec($relation['rer_user_id'], [11, 12, 13]);
         }

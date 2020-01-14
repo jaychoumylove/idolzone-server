@@ -6,6 +6,8 @@ use app\base\controller\Base;
 use app\api\model\Article as ArticleModel;
 use app\base\service\Common;
 use app\api\model\ArticleExtra;
+use app\api\model\Hotsearch;
+use app\api\model\HotsearchFetch;
 use app\api\model\Notice;
 use app\api\model\UserStar;
 
@@ -66,6 +68,23 @@ class Article extends Base
         ]);
 
         Common::res(['data' => ['sub' => (int) !$curSubscribeStatus]]);
+    }
+
+    public function hotsearch()
+    {
+        // 微博热搜
+        $fetchArr = json_decode(HotsearchFetch::where('1=1')->order('id desc')->value('content'), true);
+        // 已订阅明星name关键字
+        $matchArr = Db::query("SELECT s.id, s.name FROM `f_user_star` u join f_star s on s.id = u.star_id where article_subscribe = 1 group by u.star_id;");
+
+        foreach ($fetchArr as $fetch) {
+            foreach ($matchArr as $match) {
+                if (strpos($fetch['content'], $match['name']) !== false) {
+                    $fetch['star_id'] = $match['id'];
+                    Hotsearch::saveAndPush($fetch);
+                }
+            }
+        }
     }
 
     public function getVideoExpire()

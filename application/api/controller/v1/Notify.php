@@ -2,12 +2,10 @@
 
 namespace app\api\controller\v1;
 
-use app\api\model\User;
 use app\api\model\UserExt;
 use app\api\model\UserProp;
 use app\base\service\WxMsg;
 use app\base\controller\Base;
-use think\Log;
 use app\base\service\WxAPI;
 
 class Notify extends Base

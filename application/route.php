@@ -136,7 +136,7 @@ Route::rule('api/:version/sprite/skill2rateIncrease', 'api/v1.UserSprite/skill2r
 
 // Pay
 Route::rule('api/:version/pay/order', 'api/v1.Payment/order');// 支付下单
-Route::rule('api/:version/pay/notify', 'api/v1.Payment/notify');// 支付通知
+Route::rule('api/:version/pay/notify/:platform', 'api/v1.Payment/notify');// 支付通知
 Route::rule('api/:version/pay/goods', 'api/v1.Payment/goods');// 商品列表
 
 // Newboy
@@ -193,6 +193,7 @@ Route::rule('api/:version/lottery/getBox', 'api/v1.Lottery/getBox');// 抽奖宝
 Route::rule('api/:version/lottery/getBoxOpen', 'api/v1.Lottery/getBoxOpen');// 抽奖宝箱信息
 Route::rule('api/:version/lottery/dayEarn', 'api/v1.Lottery/dayEarn');// 抽奖今日获得
 Route::rule('api/:version/lottery/log', 'api/v1.Lottery/log');// 抽奖今日明细
+Route::rule('api/:version/lottery/double', 'api/v1.Lottery/double');// 双倍领取奖励
 
 // Article
 Route::rule('api/:version/article', 'api/v1.Article/getArticle');// 获取文章
@@ -263,3 +264,4 @@ Route::rule('api/:version/badge/rank', 'api/v1.Badge/getRank');// 圈内排行
 
 // Active
 Route::rule('api/:version/active/laren', 'api/v1.Active/laren');// 活动
+Route::rule('api/:version/active/sendAixin', 'api/v1.Active/sendAixin');// 送爱心

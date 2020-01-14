@@ -32,7 +32,17 @@ class Task
             // 完成次数
             $task['doneTimes'] = 0;
 
-            if (isset($recTask[$task['id']])) {
+            if ($task['id'] == 20) {
+                // 游戏试玩 暂不显示
+                unset($taskList[$key]);
+            } else if ($task['id'] == 21) {
+                // 公众号签到
+                $signin = UserExt::where('user_id', $uid)->whereTime('gzh_signin_time', 'd')->value('id');
+                if ($signin) {
+                    $task['status'] = 2;
+                    $task['doneTimes'] = 1;
+                }
+            } else if (isset($recTask[$task['id']])) {
                 $task['doneTimes'] = $recTask[$task['id']]['done_times'];
 
                 if ($recTask[$task['id']]['is_settle']) {
@@ -42,19 +52,6 @@ class Task
                     if ($task['doneTimes'] >= $task['times']) {
                     // 已完成
                     $task['status'] = 1;
-                }
-            } else if ($task['id'] == 20) {
-                // 游戏试玩
-                if (CfgUserLevel::getLevel($uid) < 4) {
-                    // 对于4级以下的用户不显示
-                    unset($taskList[$key]);
-                }
-            } else if ($task['id'] == 21) {
-                // 公众号签到
-                $signin = UserExt::where('user_id', $uid)->whereTime('gzh_signin_time', 'd')->value('id');
-                if ($signin) {
-                    $task['status'] = 2;
-                    $task['doneTimes'] = 1;
                 }
             }
         }

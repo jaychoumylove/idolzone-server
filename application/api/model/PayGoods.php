@@ -3,7 +3,6 @@
 namespace app\api\model;
 
 use app\api\service\Star as StarService;
-use think\Model;
 use app\base\model\Base;
 use app\base\service\Common;
 
@@ -17,22 +16,25 @@ class PayGoods extends Base
     /**用户优惠 */
     public static function getMyDiscount($uid)
     {
+        // 金额折扣
         $data['discount'] = 1;
-        $data['flower_increase'] = 1;
-        $data['stone_increase'] = 1;
+        // 加成倍率
+        $data['increase'] = 1;
+        // 活动文字
+        $data['text'] = '';
 
-        // 明星生日福利
         $star_id = UserStar::getStarId($uid);
         $birth = (new StarService)->isTodayBrith($star_id);
+        $sysIncrease = Cfg::getCfg('recharge_rate')['increase'];
         if ($birth) {
-            $increase = 2;
-            $data['text'] = '充值双倍';
-        } else {
-            $increase = 1;
+            // 明星生日福利，加成x2
+            $data['increase'] = 2;
+            $data['text'] = '生日x2';
+        } else if ($sysIncrease > 1) {
+            // 系统活动
+            $data['increase'] = $sysIncrease;
+            $data['text'] = 'x' . $sysIncrease;
         }
-
-        $data['flower_increase'] *= $increase;
-        $data['stone_increase'] *= $increase;
 
         return $data;
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace app\api\controller\v1;
 
 use app\base\controller\Base;
@@ -74,17 +75,17 @@ class FansClub extends Base
 
     public function list()
     {
-    $page = $this->req('page', 'integer', 1);
-    $size = $this->req('size', 'integer', 10);
-    $keyword = $this->req('keyword');
-    $field = $this->req('field', 'require');
-    
-    $list = Fanclub::getList($keyword, $field, $page, $size);
-    
-    Common::res([
-        'data' => $list
-    ]);
-}
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+        $keyword = $this->req('keyword');
+        $field = $this->req('field', 'require');
+
+        $list = Fanclub::getList($keyword, $field, $page, $size);
+
+        Common::res([
+            'data' => $list
+        ]);
+    }
 
     public function join()
     {
@@ -158,7 +159,7 @@ class FansClub extends Base
             'mass_time' => date('YmdH'),
             'mass_count' => $coin,
         ]);
-        (new User)->change($this->uid, ['coin' => $coin,'point'=>$coin], '粉丝团集结');
+        (new User)->change($this->uid, ['coin' => $coin, 'point' => $coin], '粉丝团集结');
         UserStar::changeHandle($this->uid, 'mass');
         Common::res(['data' => $coin]);
     }
@@ -206,7 +207,7 @@ class FansClub extends Base
 
         $res['noticeId'] = 12;
         $res['isJoinFanclub'] = FanclubUser::where('user_id', $this->uid)->value('id');
-        
+
         $taskGiftCategory = CfgTaskgiftCategory::getCategoryMore($this->uid);
         $res['signGift_title'] = $taskGiftCategory['all_title'];
         $res['signGift_tips'] = $taskGiftCategory['all_tips'];

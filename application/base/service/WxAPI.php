@@ -137,7 +137,11 @@ class WxAPI
     /**统一下单API */
     public function unifiedorder($config)
     {
-        $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+        if (input('platform') == 'MP-QQ') {
+            $url = 'https://qpay.qq.com/cgi-bin/pay/qpay_unified_order.cgi';
+        } else {
+            $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+        }
         $params = [
             'appid' => $this->appinfo['appid'],
             'mch_id' => $this->appinfo['paymchid'],

@@ -49,6 +49,7 @@ class Page extends Base
         ])->field('id,nickname,avatarurl,type')->find();
         $res['userCurrency'] = UserCurrency::getCurrency($this->uid);
         $res['userExt'] = UserExt::where('user_id', $this->uid)->find();
+        $res['userExt']['totalCount'] = UserStar::where('user_id', $this->uid)->max('total_count');
 
         $userStar = UserStar::with('Star')->where([
             'user_id' => $this->uid
@@ -240,12 +241,9 @@ class Page extends Base
     public function game()
     {
         $type = $this->req('type', 'integer', 0);
+        $w = ['platform' => input('platform')];
         if ($type == 1) {
-            $w = [
-                'show' => 1
-            ];
-        } else {
-            $w = '1=1';
+            $w['show'] = 1;
         }
         Common::res([
             'data' => CfgAds::where($w)->order('sort asc')->select()

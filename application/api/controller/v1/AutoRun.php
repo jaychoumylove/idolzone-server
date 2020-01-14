@@ -10,6 +10,9 @@ use app\api\model\UserStar;
 use app\api\model\UserCurrency;
 use app\api\model\Fanclub;
 use app\api\model\FanclubUser;
+use app\api\model\Star;
+use app\base\service\WxAPI;
+use think\Log;
 use app\api\model\Lock;
 use app\api\model\PayGoods;
 use app\api\model\PkUser;
@@ -160,13 +163,11 @@ class AutoRun extends Base
             Fanclub::where('1=1')->update([
                 'lastweek_count' => Db::raw('week_count'),
                 'week_count' => 0,
-                'week_hot' => 0
+                'week_hot' => 0,
             ]);
-            
-            FanclubUser::where('1=1')->update([
-                'thisweek_count' => 0
-            ]);
-            
+
+            FanclubUser::where('1=1')->update(['thisweek_count' => 0]);
+
             Db::commit();
         } catch (\Exception $e) {
             Db::rollBack();

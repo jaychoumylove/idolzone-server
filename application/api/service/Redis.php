@@ -3,39 +3,40 @@
 namespace app\api\service;
 
 use think\cache\driver\Redis as ThinkRedis;
+use think\Log;
 
 class Redis extends ThinkRedis
 {
+    /**是否连接成功 */
+    public $connectSuccess;
     public function __construct()
     {
         try {
             parent::__construct([
-                'host' => 'localhost'
+                'host' => '106.14.183.11'
             ]);
-        } catch (\Throwable $e) {
-            $this->connect = false;
+            $this->connectSuccess = true;
+        } catch (\Throwable $th) {
+            Log::record('redis连接出现了问题' . $th->getMessage(), 'error');
         }
     }
 
-    public function get($name, $default = false)
+    /**
+     * 加锁
+     * @return boolean true 加锁成功，false 加锁失败
+     */
+    public function lock($name, $expire = 3)
     {
-        try {
-            return parent::get($name, $default = false);
-        } catch (\Throwable $th) {
-            //throw $th;
-
-            echo 'get失败';
+        if ($this->has($name)) {
+            return false;
+        } else {
+            return $this->set($name, 'locked', $expire);
         }
     }
 
-    public function set($name, $value, $expire = null)
+    /**解除锁 */
+    public function unlock($name)
     {
-        try {
-            return parent::get($name, $value, $expire = null);
-        } catch (\Throwable $th) {
-            //throw $th;
-
-            echo 'set失败';
-        }
+        return $this->rm($name);
     }
 }

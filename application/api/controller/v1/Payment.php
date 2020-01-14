@@ -9,11 +9,10 @@ use app\api\model\PayGoods;
 use app\api\model\RecPayOrder;
 use app\base\service\WxAPI;
 use app\api\model\User;
+use app\api\model\UserSprite;
 use app\base\service\WxPay as WxPayService;
 use think\Db;
-use app\api\model\Prop;
 use think\Log;
-use app\api\model\UserProp;
 
 class Payment extends Base
 {
@@ -25,35 +24,35 @@ class Payment extends Base
         // 我的优惠
         $res['discount'] = PayGoods::getMyDiscount($this->uid);
 
-        foreach ($res['list'] as &$value) {
-            // 鲜花充值有折扣
-            $value['fee'] = round($value['fee'] * $res['discount']['discount'], 2);
-            $value['flower'] = round($value['flower'] * $res['discount']['flower_increase']);
-            $value['stone'] = round($value['stone'] * $res['discount']['stone_increase']);
-        }
+        // 农场产量
+        $res['farm_coin'] = UserSprite::where('user_id', $this->uid)->value('total_speed_coin');
+        $res['farm_distance'] = 432 - $res['farm_coin'];
 
         Common::res(['data' => $res]);
     }
 
     /**
      * 下单
-     * @只能有一个商品，但可以多数量
      */
     public function order()
     {
         $this->getUser();
         $type = $this->req('type', 'require');
         $user_id = $this->req('user_id', 'require');
-        $count = $this->req('count', 'integer');
+        $count = $this->req('count', 'integer'); // 数目
 
-        $res['discount'] = PayGoods::getMyDiscount($this->uid);
+        $discount = PayGoods::getMyDiscount($this->uid);
         if ($type == 'stone') {
             $rate = Cfg::getCfg('recharge_rate')['stone'];
-            $fee = $count * $rate;
+            $totalFee = $count * $rate;
+            if ($count < 10) Common::res(['code' => 1, 'msg' => '数值过小，需大于10颗']);
+            $count *= $discount['increase'];
+        } else if ($type == 'flower') {
+            $rate = Cfg::getCfg('recharge_rate')['flower'];
+            $totalFee = $count * $rate;
+            if ($count < 100000) Common::res(['code' => 1, 'msg' => '数值过小，需大于10万']);
+            $count *= $discount['increase'];
         }
-
-        
-
 
         // 下单
         $order = RecPayOrder::create([
@@ -61,14 +60,15 @@ class Payment extends Base
             'user_id' => $this->uid,
             'tar_user_id' => $user_id,
             'total_fee' => $totalFee,
-            'goods_info' => json_encode($goods, JSON_UNESCAPED_UNICODE), // 商品信息
+            'goods_info' => json_encode([$type => $count], JSON_UNESCAPED_UNICODE), // 商品信息
+            'platform' => input('platform', null),
         ]);
         // 预支付参数
         $config = [
-            'body' => $goods['title'], // 支付标题
+            'body' => '充值', // 支付标题
             'orderId' => $order['id'], // 订单ID
             'totalFee' => $totalFee, // 支付金额
-            'notifyUrl' => 'https://' . $_SERVER['HTTP_HOST'] . '/api/v1/pay/notify', // 支付成功通知url
+            'notifyUrl' => 'https://' . $_SERVER['HTTP_HOST'] . '/api/v1/pay/notify/' . input('platform'), // 支付成功通知url
             'tradeType' => 'JSAPI', // 支付类型
         ];
         // APP和小程序差异
@@ -76,6 +76,8 @@ class Payment extends Base
         if (input('platform') == 'APP') {
             $openidType = 'openid_app';
             $config['tradeType'] = 'APP';
+        } else if (input('platform') == 'MP-QQ') {
+            $config['tradeType'] = 'MINIAPP';
         }
 
         $config['openid'] = User::where('id', $this->uid)->value($openidType);

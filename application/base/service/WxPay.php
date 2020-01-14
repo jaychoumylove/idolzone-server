@@ -28,7 +28,7 @@ class WxPay
     public function returnFront($res)
     {
         if (isset($res['result_code']) && $res['result_code'] == 'SUCCESS') {
-            if ($res['trade_type'] == 'JSAPI') {
+            if ($res['trade_type'] == 'JSAPI' || $res['trade_type'] == 'MINIAPP') {
                 // JSAPI支付
                 $returnData = [
                     'appId' => $this->appinfo['appid'],
@@ -84,7 +84,7 @@ class WxPay
         $data = Common::fromXml($xmlData);
         $sign = $data['sign'];
         unset($data['sign']); // 剔除sign再校验
-        if ($sign == $this->makeSign($data) && $data['result_code'] == 'SUCCESS') {
+        if ($sign == $this->makeSign($data)) {
             // 校验成功，返回data
             return $data;
         } else {
