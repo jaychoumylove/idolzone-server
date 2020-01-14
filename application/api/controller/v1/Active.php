@@ -21,7 +21,7 @@ class Active extends Base
         // rank
         $res['rank'] = LarenUser::rank();
 
-        $res['noticeId'] = 2;
+        $res['noticeId'] = 26;
 
         Common::res(['data' => $res]);
     }
