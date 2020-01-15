@@ -38,7 +38,7 @@ class Notify extends Base
                 // 每日签到
                 if (gettype($user_id) == 'integer') {
                     $content = UserExt::gzhSignin($user_id);
-                    $content .= "\n\n" . UserProp::giveRechargeTicketEveryday($user_id);
+                    // $content .= "\n\n" . UserProp::giveRechargeTicketEveryday($user_id);
                 } else {
                     $content = '未找到用户，可能是因为您还未进入应用游玩';
                 }

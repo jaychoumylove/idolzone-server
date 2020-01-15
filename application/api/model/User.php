@@ -129,7 +129,7 @@ class User extends Base
             'unionid' => isset($data['unionid']) ? $data['unionid'] : null,
         ];
 
-        if ($data['platform'] == 'MP-WEIXIN' || !$user['nickname']) {
+        if ($data['platform'] == 'MP-WEIXIN' || $data['platform'] == 'MP-QQ' || !$user['nickname']) {
             // 如果是微信小程序或者用户没有授权则更新用户资料
             $update = array_merge($update, [
                 'nickname' => isset($data['nickname']) ? $data['nickname'] : null,
