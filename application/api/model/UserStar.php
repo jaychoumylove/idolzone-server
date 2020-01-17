@@ -286,6 +286,9 @@ class UserStar extends Base
         // 我的打卡信息
         $res['self'] = RecActive::getOneInfo($uid, $starid, $active_id);
 
+        // 分享text
+        $res['shareText'] = '为STARNAME打卡' . $res['min_days'] . '天，解锁' . $res['title'];
+
         // canvas活动标题
         // $res['canvas_title'] = Cfg::getCfg('canvas_title_active');
 
