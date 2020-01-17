@@ -39,7 +39,7 @@ class LarenUser extends Base
 
             if ($active['cate_id'] == 3) {
                 // 兑换虚拟货币
-                if (date('md') < '0214') Common::res(['code' => 1, 'msg' => '02月14日开放']);
+                if (date('md') < '0215') Common::res(['code' => 1, 'msg' => '02月15日开放']);
                 if ($active['title'] == '金豆') $field = 'coin';
                 if ($active['title'] == '鲜花') $field = 'flower';
                 if ($active['title'] == '钻石') $field = 'stone';
