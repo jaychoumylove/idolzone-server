@@ -9,16 +9,18 @@ class GzhUser extends Base
     /**公众号关注 */
     public static function gzhSubscribe($appid, $uid, $openid, $sub = 1)
     {
-        $isDone = self::where('openid', $openid)->update([
-            'user_id' => $uid,
-            'gzh_appid' => $appid,
-            'subscribe' => $sub,
-        ]);
-        if (!$isDone) {
+        $isExist = self::where('openid', $openid)->find();
+        if (!$isExist) {
             self::create([
                 'user_id' => $uid,
                 'gzh_appid' => $appid,
                 'openid' => $openid,
+                'subscribe' => $sub,
+            ]);
+        } else {
+            self::where('openid', $openid)->update([
+                'user_id' => $uid,
+                'gzh_appid' => $appid,
                 'subscribe' => $sub,
             ]);
         }
