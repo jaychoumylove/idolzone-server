@@ -45,6 +45,7 @@ Route::rule('api/:version/page/game', 'api/v1.Page/game');
 Route::rule('api/:version/page/groupMass', 'api/v1.Page/groupMass');
 Route::rule('api/:version/page/wxgroup', 'api/v1.Page/wxgroup');// 
 Route::rule('api/:version/page/square', 'api/v1.Page/square');// 
+Route::rule('api/:version/page/gzhSubscribe', 'api/v1.Page/gzhSubscribe');// 公众号订阅推送
 
 // Remote
 Route::rule('api/:version/remote/zuimei', 'api/v1.Remote/zuimei');
@@ -164,6 +165,8 @@ Route::rule('api/:version/active/userrank', 'api/v1.Ext/userRank');// 用户打�
 Route::rule('api/:version/ext/log', 'api/v1.Ext/log');// 用户日志
 
 Route::rule('api/:version/ext/redress', 'api/v1.Ext/redress');// 公众号补偿
+
+Route::rule('api/:version/ext/gzhPushSubscribe', 'api/v1.Ext/gzhPushSubscribe');// 公众号订阅推送
 
 // 
 

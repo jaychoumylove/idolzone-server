@@ -29,6 +29,9 @@ use app\api\model\WxgroupDynamic;
 use think\Db;
 use app\api\service\User as UserService;
 use app\api\model\BadgeUser;
+use app\api\model\CfgGzhPush;
+use app\api\model\GzhUser;
+use app\api\model\GzhUserPush;
 use app\api\model\RecPayOrder;
 
 class Page extends Base
@@ -39,6 +42,11 @@ class Page extends Base
         $this->getUser();
 
         $rer_user_id = input('referrer', 0);
+        $enterScene = $this->req('scene');// 场景
+        if ($enterScene == 1001 || $enterScene == 1089) {
+            // 添加到我的小程序
+            UserExt::where('user_id', $this->uid)->update(['add_enter' => 1]);
+        }
         if ($rer_user_id) {
             // 拉新关系
             UserRelation::saveNew($this->uid, $rer_user_id);
@@ -333,5 +341,18 @@ class Page extends Base
         Common::res([
             'data' => $res
         ]);
+    }
+
+    /**公众号订阅列表 */
+    public function gzhSubscribe()
+    {
+        $this->getUser();
+        $gzh_appid = 'wx3507654fa8d00974';// 服务号APPID
+        $res['subscribe'] = GzhUser::where('gzh_appid', $gzh_appid)->where('user_id', $this->uid)->value('subscribe');
+        if ($res['subscribe']) {
+            $res['list'] = GzhUserPush::getList($this->uid);
+        }
+
+        Common::res(['data' => $res]);
     }
 }

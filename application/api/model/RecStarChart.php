@@ -92,6 +92,8 @@ class RecStarChart extends Base
             }
             RecTask::addRec($uid, 2);
 
+            // RecChartAt::getAt($content, $res['id']);
+
             // 推送socket消息
             Gateway::sendToGroup('star_' . $starid, json_encode([
                 'type' => 'chartMsg',

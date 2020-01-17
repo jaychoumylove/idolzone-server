@@ -9,6 +9,7 @@ use think\Validate;
 
 class Base extends Controller
 {
+    protected $uid;
     public function __construct()
     {
         parent::__construct();

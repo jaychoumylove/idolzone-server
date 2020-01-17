@@ -80,5 +80,11 @@ class RecTask extends Base
     {
         $done = self::where('user_id', $uid)->where('task_id', 1)->value('done_times');
         if (!$done) self::addRec($uid, 1);
+        
+        if (input('platform') == 'APP') {
+            // APP签到
+            $done = self::where('user_id', $uid)->where('task_id', 22)->value('done_times');
+            if (!$done) self::addRec($uid, 22);
+        }
     }
 }

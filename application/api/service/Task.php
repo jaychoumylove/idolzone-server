@@ -42,7 +42,14 @@ class Task
                     $task['status'] = 2;
                     $task['doneTimes'] = 1;
                 }
-            } else if (isset($recTask[$task['id']])) {
+            } else if ($task['id'] == 22) {
+                // APP签到
+                if (input('platform') !== 'APP') {
+                    unset($taskList[$key]);
+                }
+            }
+            
+            if (isset($recTask[$task['id']])) {
                 $task['doneTimes'] = $recTask[$task['id']]['done_times'];
 
                 if ($recTask[$task['id']]['is_settle']) {

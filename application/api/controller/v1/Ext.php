@@ -14,6 +14,7 @@ use app\api\model\Rec;
 use app\api\model\UserSprite;
 use app\api\model\RecActive;
 use app\api\model\GuideCron;
+use app\api\model\GzhUserPush;
 use app\api\service\User;
 use app\api\model\UserExt;
 
@@ -181,5 +182,15 @@ class Ext extends Base
         UserExt::where('user_id', $this->uid)->update(['redress_time' => time()]);
 
         Common::res(['data' => ['status' => 0, 'msg' => $msg]]);
+    }
+
+    public function gzhPushSubscribe()
+    {
+        $this->getUser();
+        $push_id = $this->req('push_id', 'require');
+        $checked = $this->req('checked', 'require');
+
+        GzhUserPush::setData($this->uid, $push_id, $checked);
+        Common::res();
     }
 }

@@ -10,6 +10,7 @@ use app\api\model\Hotsearch;
 use app\api\model\HotsearchFetch;
 use app\api\model\Notice;
 use app\api\model\UserStar;
+use think\Db;
 
 class Article extends Base
 {

@@ -323,6 +323,16 @@ class WxAPI
     }
 
     /**
+     * 发送模板消息
+     */
+    public function sendMessageGzh($data)
+    {
+        $url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" . $this->appinfo['access_token'];
+
+        return $this->request($url, $data);
+    }
+
+    /**
      * 创建菜单(认证后的订阅号可用)
      *
      * @param array $data
