@@ -95,22 +95,22 @@ class Lottery extends Base
     /**双倍领取 */
     public function double()
     {
-        $this->getUser();
-        $latest = Rec::where('user_id', $this->uid)->where('content', '幸运抽奖')->order('id desc')->find();
+        // $this->getUser();
+        // $latest = Rec::where('user_id', $this->uid)->where('content', '幸运抽奖')->order('id desc')->find();
 
-        (new User)->change($this->uid, [
-            'coin' => $latest['coin'],
-            'flower' => $latest['flower'],
-            'stone' => $latest['stone'],
-            'trumpet' => $latest['trumpet'],
-        ]);
-        // 更新日志
-        Rec::where('id', $latest['id'])->update([
-            'coin' => $latest['coin'] * 2,
-            'flower' => $latest['flower'] * 2,
-            'stone' => $latest['stone'] * 2,
-            'trumpet' => $latest['trumpet'] * 2,
-        ]);
-        Common::res();
+        // (new User)->change($this->uid, [
+        //     'coin' => $latest['coin'],
+        //     'flower' => $latest['flower'],
+        //     'stone' => $latest['stone'],
+        //     'trumpet' => $latest['trumpet'],
+        // ]);
+        // // 更新日志
+        // Rec::where('id', $latest['id'])->update([
+        //     'coin' => $latest['coin'] * 2,
+        //     'flower' => $latest['flower'] * 2,
+        //     'stone' => $latest['stone'] * 2,
+        //     'trumpet' => $latest['trumpet'] * 2,
+        // ]);
+        // Common::res();
     }
 }
