@@ -64,9 +64,9 @@ class UserProp extends Base
         $status = 0;
         Db::startTrans();
         try {
-            if (in_array($id, [11, 12, 13])) { //冬至，圣诞，元旦徽章
+            if (in_array($id, [11, 12, 13,14])) { //冬至，圣诞，元旦徽章,春节徽章
                 $count = 1;  //只能买一个
-                $badge = [11 => 55, 12 => 56, 13 => 57];
+                $badge = [11 => 55, 12 => 56, 13 => 57, 14 => 59];
                 $status = 1;  //已使用
                 if (BadgeUser::where(['uid' => $uid])->where('badge_id', 'in', $badge[$id])->value('count(1)'))
                     Common::res(['code' => 3, 'msg' => '你已经兑换过了']);
@@ -121,12 +121,6 @@ class UserProp extends Base
 
                     self::where('id', $userprop_id)->update(['status' => 1]);
 
-                    break;
-                case 14: //兑换春节徽章
-                    BadgeUser::addRec($uid, 7, 1, 59);//兑换春节徽章
-                    
-                    self::where('id', $userprop_id)->update(['status' => 1]);
-                    
                     break;
 
                 default:
