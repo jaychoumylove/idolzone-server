@@ -122,6 +122,12 @@ class UserProp extends Base
                     self::where('id', $userprop_id)->update(['status' => 1]);
 
                     break;
+                case 14: //兑换春节徽章
+                    BadgeUser::addRec($uid, 7, 1, 59);//兑换春节徽章
+                    
+                    self::where('id', $userprop_id)->update(['status' => 1]);
+                    
+                    break;
 
                 default:
                     break;
