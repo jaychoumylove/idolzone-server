@@ -458,7 +458,7 @@ class Pk extends Base
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
-            Common::res(['code' => 1, 'msg' => '报名失败' . $e->getMessage()]);
+            Common::res(['code' => 1, 'msg' => '报名人数过多，请稍后再试', 'data' => $e->getMessage()]);
         }
 
         // if ($redis->connectSuccess) $redis->unlock($lockName);
