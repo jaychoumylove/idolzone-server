@@ -58,6 +58,7 @@ class StarRank extends Base
         } else if ($type == 2) {
             // 鲜花
             $update['day_hot_flower'] = Db::raw('day_hot_flower+' . $hot);
+            $update['week_hot_flower'] = Db::raw('week_hot_flower+' . $hot);
             $update['month_hot_flower'] = Db::raw('month_hot_flower+' . $hot);
         } 
 
