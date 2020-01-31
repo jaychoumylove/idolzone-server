@@ -4,6 +4,7 @@ namespace app\api\model;
 
 use app\base\model\Base;
 use app\base\service\Common;
+use app\api\service\User as UserService;
 use think\Db;
 
 class Fanclub extends Base
@@ -48,24 +49,34 @@ class Fanclub extends Base
 
         $isExist = FanclubUser::where('user_id', $uid)->value('fanclub_id');
         if ($isExist) Common::res(['code' => 1, 'msg' => '你已加入了一个粉丝团']);
-
-        self::where('id', $f_id)->update([
-            'mem_count' => Db::raw('mem_count+1')
-        ]);
-
-        FanclubUser::create([
-            'user_id' => $uid,
-            'fanclub_id' => $f_id,
-        ]);
+        
+        Db::startTrans();
+        try {        
+            self::where('id', $f_id)->update([
+                'mem_count' => Db::raw('mem_count+1')
+            ]);
+    
+            FanclubUser::create([
+                'user_id' => $uid,
+                'fanclub_id' => $f_id,
+            ]);
+            
+            RecTaskfanclub::addRec($f_id, [1,2,3]);
+            
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
     }
 
     /**退出粉丝团 */
     public static function exitFanclub($uid,$force=false)
     {
-        $delete_time = Db::name('fanclub_user')->where('user_id', $uid)->order('delete_time desc')->value('delete_time');
-        if (strtotime($delete_time) > time() - 3600 * 24 * 3) {
-            Common::res(['code' => 1, 'msg' => '三天之内不能再次退出粉丝团']);
-        }
+        $hasExited = Db::name('fanclub_user')->where('user_id', $uid)->order('delete_time desc')->value('delete_time');
+//         if (strtotime($delete_time) > time() - 3600 * 24 * 3) {
+//             Common::res(['code' => 1, 'msg' => '三天之内不能再次退出粉丝团']);
+//         }
 
         $fid = FanclubUser::where('user_id', $uid)->value('fanclub_id');
         $leader = FanclubUser::isLeader($uid);
@@ -93,6 +104,11 @@ class Fanclub extends Base
                         self::where('id', $fid)->update(['user_id' => $user_id]);
                     }
                 }
+                
+                RecTaskfanclub::addRec($fid, [1,2,3],-1);
+
+                //退过的需要100钻石
+                if($hasExited) (new UserService)->change($uid, ['stone' => -100], '退出粉丝团，钻石-100');
 
                 Db::commit();
             } catch (\Exception $e) {

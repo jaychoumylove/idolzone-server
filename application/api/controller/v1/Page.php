@@ -29,10 +29,11 @@ use app\api\model\WxgroupDynamic;
 use think\Db;
 use app\api\service\User as UserService;
 use app\api\model\BadgeUser;
-use app\api\model\CfgGzhPush;
 use app\api\model\GzhUser;
 use app\api\model\GzhUserPush;
 use app\api\model\RecPayOrder;
+use app\api\model\FanclubUser;
+use app\api\model\CfgShare;
 
 class Page extends Base
 {
@@ -84,6 +85,7 @@ class Page extends Base
         }
 
         $res['config']['share_text'] = CfgShareTitle::getOne();
+        $res['config']['share_cfg'] = CfgShare::column('title,imageUrl,path','id');
 
         //生成我的徽章数据
         BadgeUser::initBadge($this->uid);
@@ -133,6 +135,7 @@ class Page extends Base
         // ];
 
         $res['article'] = Notice::where('1=1')->order('create_time desc,id desc')->find();
+        $res['fanclub_id'] = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
 
         // 礼物
         // $res['itemList'] = CfgItem::where('1=1')->order('count asc')->select();

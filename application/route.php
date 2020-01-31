@@ -183,6 +183,8 @@ Route::rule('api/:version/fans/info', 'api/v1.FansClub/info');// 我加入的粉
 Route::rule('api/:version/fans/mass', 'api/v1.FansClub/mass');// 粉丝团集结
 Route::rule('api/:version/fans/joinMass', 'api/v1.FansClub/joinMass');// 粉丝团加入集结
 Route::rule('api/:version/fans/member', 'api/v1.FansClub/member');// 粉丝团成员
+Route::rule('api/:version/fans/task', 'api/v1.FansClub/task');// 粉丝团任务
+Route::rule('api/:version/fans/tasksettle', 'api/v1.FansClub/settle');// 粉丝团任务结算
 
 Route::rule('api/:version/fans/mybox', 'api/v1.FansClub/mybox');// 粉丝团宝箱
 Route::rule('api/:version/fans/sendbox', 'api/v1.FansClub/sendbox');// 发粉丝团宝箱
