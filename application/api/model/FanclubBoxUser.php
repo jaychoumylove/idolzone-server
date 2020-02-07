@@ -50,6 +50,8 @@ class FanclubBoxUser extends Base
 
             (new UserService)->change($uid, ['coin' => $awardNum], '粉丝团宝箱奖励');
 
+            RecTaskfather::addRec($uid, [8, 19, 30, 41]);
+
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();

@@ -13,6 +13,7 @@ use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
 use app\api\model\BadgeUser;
+use app\api\model\RecTaskfather;
 use think\Db;
 
 class Pk extends Base
@@ -455,6 +456,8 @@ class Pk extends Base
                     'pk_type' => $type,
                 ]);
             }
+
+            RecTaskfather::addRec($this->uid, [9, 20, 31, 42]);
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();

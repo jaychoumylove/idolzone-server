@@ -7,6 +7,7 @@ use app\api\model\CfgTaskfanclub as TaskModel;
 use app\base\service\Common;
 use think\Db;
 use app\api\model\Fanclub;
+use app\api\model\RecTaskfather;
 
 class FanclubTask
 {
@@ -17,7 +18,7 @@ class FanclubTask
     {
         // 任务列表
         $taskList = TaskModel::where('type', $type)->order('sort asc')->select();
-        
+
         // 用户的任务完成进度
         $recTask = RecTask::getRec($fanclub_id, $type);
         foreach ($taskList as $key => &$task) {
@@ -26,7 +27,7 @@ class FanclubTask
             // 完成次数
             $task['lastWeek_doneTimes'] = 0;
             $task['doneTimes'] = 0;
-            
+
             if (isset($recTask[$task['id']])) {
                 $task['lastWeek_doneTimes'] = $recTask[$task['id']]['lastweek_done_times'];
                 $task['doneTimes'] = $recTask[$task['id']]['done_times'];
@@ -54,7 +55,7 @@ class FanclubTask
         $task = TaskModel::get($task_id);
         $fid = Fanclub::where('user_id', $uid)->value('id');
         if (!$fid) Common::res(['code' => 1, 'msg' => '你不在粉丝团或者没有权限！']);
-        
+
         Db::startTrans();
         try {
             RecTask::settle($fid, $task_id);

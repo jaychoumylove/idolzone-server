@@ -3,6 +3,7 @@
 namespace app\api\service;
 
 use app\api\model\Cfg;
+use app\api\model\CfgTaskfather;
 use app\api\model\RecTask;
 use app\api\model\Task as TaskModel;
 use think\Db;
@@ -11,6 +12,9 @@ use app\api\model\RecWeibo;
 use app\api\model\RecTaskgift;
 use app\api\model\CfgUserLevel;
 use app\api\model\CfgTaskgift;
+use app\api\model\Father;
+use app\api\model\FatherEarn;
+use app\api\model\RecTaskfather;
 use app\api\model\UserExt;
 
 class Task
@@ -48,15 +52,14 @@ class Task
                     unset($taskList[$key]);
                 }
             }
-            
+
             if (isset($recTask[$task['id']])) {
                 $task['doneTimes'] = $recTask[$task['id']]['done_times'];
 
                 if ($recTask[$task['id']]['is_settle']) {
                     // 已领取
                     $task['status'] = 2;
-                } else 
-                    if ($task['doneTimes'] >= $task['times']) {
+                } else if ($task['doneTimes'] >= $task['times']) {
                     // 已完成
                     $task['status'] = 1;
                 }
@@ -96,6 +99,44 @@ class Task
                 'trumpet' => $task['trumpet']
             ];
             (new User())->change($uid, $update, '完成任务');
+
+            RecTaskfather::addRec($uid, [7, 18, 29, 40]);
+
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollBack();
+            Common::res([
+                'code' => 400,
+                'msg' => $e->getMessage()
+            ]);
+        }
+
+        return $update;
+    }
+
+    /**
+     * 师徒任务师徒奖励领取
+     */
+    public function settleFather($task_id, $uid)
+    {
+        $task = CfgTaskfather::get($task_id);
+        $father_uid = Father::where('son_uid', $uid)->value('father_uid');
+        if (!$father_uid) Common::res(['code' => 1, 'msg' => '你没有师父，不能领取奖励']);
+
+        Db::startTrans();
+        try {
+            RecTaskfather::settle($uid, $task_id);
+
+            $update = [
+                'coin' => $task['coin'],
+                'flower' => $task['flower'],
+                'stone' => $task['stone'],
+                'trumpet' => $task['trumpet']
+            ];
+            (new User())->change($uid, $update, '完成师徒任务');
+            FatherEarn::add($uid, $update);
+            (new User())->change($father_uid, $update, '徒弟完成任务奖励');
+            FatherEarn::add($father_uid, $update);
 
             Db::commit();
         } catch (\Exception $e) {

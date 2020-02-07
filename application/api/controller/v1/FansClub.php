@@ -15,6 +15,7 @@ use app\api\service\User;
 use think\Db;
 use app\api\service\FanclubTask;
 use app\api\model\RecTaskfanclub;
+use app\api\model\RecTaskfather;
 
 class FansClub extends Base
 {
@@ -50,6 +51,7 @@ class FansClub extends Base
 
         $this->getUser();
         if (!$fid) $fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
+        if (!$fid) Common::res(['data' => ['redirect' => true]]);
 
         $res = Fanclub::with('star')->where('id', $fid)->find();
         unset($res['wx']);
@@ -59,9 +61,9 @@ class FansClub extends Base
         $res['mass_total'] = FanclubUser::where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->sum('mass_count');
         $res['mass_people'] = FanclubUser::where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->count();
         $res['mass_user'] = FanclubUser::with('user')->where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->field('user_id')->limit(5)->select();
-        $res['new_user'] = FanclubUser::with('user')->where('fanclub_id', $fid)->whereTime('create_time','Today')->field('user_id')->limit(5)->select();
+        $res['new_user'] = FanclubUser::with('user')->where('fanclub_id', $fid)->whereTime('create_time', 'Today')->field('user_id')->limit(5)->select();
         $res['new_people'] = count($res['new_user']);
-        
+
         $res['leader'] = FanclubUser::isLeader($this->uid);
 
         Common::res(['data' => $res]);
@@ -72,15 +74,15 @@ class FansClub extends Base
         $fid = $this->req('fid', 'integer');
         $page = $this->req('page', 'integer', 1);
         $field  = $this->req('field');
-        
-        $res['list'] = FanclubUser::with('User')->where('fanclub_id', $fid)->field('user_id,'.$field.' as hot')
-            ->order($field.' desc')->page($page, 20)->select();
-        
+
+        $res['list'] = FanclubUser::with('User')->where('fanclub_id', $fid)->field('user_id,' . $field . ' as hot')
+            ->order($field . ' desc')->page($page, 20)->select();
+
         $res['leader_uid'] = Fanclub::where('id', $fid)->value('user_id');
 
         $this->getUser();
         $res['my'] = FanclubUser::getMyRankInfo($this->uid, $fid, $field);
-        
+
         Common::res(['data' => $res]);
     }
 
@@ -165,18 +167,20 @@ class FansClub extends Base
         }
         Db::startTrans();
         try {
-        
+
             // 热度+
             Fanclub::where('id', $fid)->update(['week_hot' => Db::raw('week_hot+' . $coin)]);
-    
+
             FanclubUser::where('user_id', $this->uid)->update([
                 'mass_time' => date('YmdH'),
                 'mass_count' => $coin,
                 'thisweek_hot' => Db::raw('thisweek_hot+' . $coin),
             ]);
-            
-            RecTaskfanclub::addRec($fid, [4,5,6] ,$coin);
-            
+
+            RecTaskfanclub::addRec($fid, [4, 5, 6], $coin);
+
+            RecTaskfather::addRec($this->uid, [3, 14, 25, 36]);
+
             (new User)->change($this->uid, ['coin' => $coin, 'point' => $coin], '粉丝团集结');
             UserStar::changeHandle($this->uid, 'mass');
 
@@ -185,7 +189,7 @@ class FansClub extends Base
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
-        
+
         Common::res(['data' => $coin]);
     }
 
@@ -247,12 +251,12 @@ class FansClub extends Base
         $people = $this->req('people', 'integer', 10); // 人数
         $this->getUser();
         $fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
-        
+
         Db::startTrans();
         try {
             FanclubBox::sendbox($this->uid, $type, $consume, $people);
-            if($fid) RecTaskfanclub::addRec($fid, [7,8,9]);
-        
+            if ($fid) RecTaskfanclub::addRec($fid, [7, 8, 9]);
+
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
@@ -284,29 +288,29 @@ class FansClub extends Base
 
         Common::res(['data' => $res]);
     }
-    
+
 
 
     public function task()
     {
         $fid = $this->req('fid', 'integer', 0);
         $type = $this->req('type', 'integer');
-    
+
         $this->getUser();
         if (!$fid) $fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
-    
+
         if ($type == 1) {
             // 每周任务
             $list = (new FanclubTask())->checkTask($fid, $type);
         }
         Common::res(['data' => $list]);
     }
-    
+
     public function settle()
     {
         $task_id = $this->req('task_id', 'integer');
         $this->getUser();
-    
+
         $earn = (new FanclubTask())->settle($task_id, $this->uid);
         Common::res([
             'data' => $earn

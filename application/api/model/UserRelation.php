@@ -52,6 +52,8 @@ class UserRelation extends Base
             // }
 
             RecTask::addRec($relation['rer_user_id'], [11, 12, 13]);
+
+            RecTaskfather::addRec($relation['rer_user_id'], [2, 13, 24, 35]);
         }
     }
 

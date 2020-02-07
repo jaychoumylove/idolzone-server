@@ -62,6 +62,12 @@ class CfgTaskgift extends Base
                 $status = $complete;
                 $btn_text = $status ? '领取' : '去关注';
                 break;
+
+            case 5:
+                $app = User::where('id', $uid)->value('openid_app');
+                $status = $app ? 1 : 0;
+                $btn_text = $status ? '领取' : '去下载';
+                break;
         }
         if (!isset($status)) $status = 0;
         if (!isset($btn_text)) $btn_text = '未完成';

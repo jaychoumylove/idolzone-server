@@ -14,3 +14,4 @@ public/uploads/*
 application/push/start_register.php
 thinkphp/*
 application/config.php
+public/static/files

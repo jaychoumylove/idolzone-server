@@ -101,6 +101,8 @@ class FarmHelp extends Base
                 'speed_end' => time()
             ]);
 
+            RecTaskfather::addRec($uid, [6, 17, 28, 39]);
+
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();

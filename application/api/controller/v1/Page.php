@@ -34,6 +34,7 @@ use app\api\model\GzhUserPush;
 use app\api\model\RecPayOrder;
 use app\api\model\FanclubUser;
 use app\api\model\CfgShare;
+use app\api\model\RecTaskfather;
 
 class Page extends Base
 {
@@ -89,6 +90,9 @@ class Page extends Base
 
         //生成我的徽章数据
         BadgeUser::initBadge($this->uid);
+
+        // 师徒每日登录
+        RecTaskfather::checkIn($this->uid);
 
         Common::res([
             'data' => $res

@@ -65,6 +65,7 @@ class UserExt extends Base
         ]);
 
         RecTask::addRec($uid, [5, 6]);
+        RecTaskfather::addRec($uid, [4, 15, 26, 37]);
 
         // if ($lottery['id'] == 3 || $lottery['id'] == 6) {
         //     // 抽中宝箱

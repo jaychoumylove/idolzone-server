@@ -127,7 +127,7 @@ class UserSprite extends Base
                 $nextSkill = CfgPetSkillSecond::get(['level' => $userSprite[$field] + 1]);
                 if (!$nextSkill) Common::res(['code' => 1, 'msg' => '已经是顶级了！']);
                 $need_stone = $nextSkill['stone'];
- 
+
                 break;
             case 3:
                 // 技能三离线升级

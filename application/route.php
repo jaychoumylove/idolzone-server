@@ -270,3 +270,15 @@ Route::rule('api/:version/badge/rank', 'api/v1.Badge/getRank');// 圈内排行
 // Active
 Route::rule('api/:version/active/laren', 'api/v1.Active/laren');// 活动
 Route::rule('api/:version/active/sendAixin', 'api/v1.Active/sendAixin');// 送爱心
+
+
+// Father
+Route::rule('api/:version/father/info', 'api/v1.Father/info');// 师徒
+Route::rule('api/:version/father/fatherList', 'api/v1.Father/fatherList');// 师父列表
+Route::rule('api/:version/father/baishi', 'api/v1.Father/baishi');// 拜师
+Route::rule('api/:version/father/editMsg', 'api/v1.Father/editMsg');// 修改收徒宣言
+Route::rule('api/:version/father/editNotice', 'api/v1.Father/editNotice');// 修改公告
+Route::rule('api/:version/father/taskList', 'api/v1.Father/taskList');// 徒弟任务列表
+Route::rule('api/:version/father/taskSettle', 'api/v1.Father/taskSettle');// 
+Route::rule('api/:version/father/sonList', 'api/v1.Father/sonList');// 
+Route::rule('api/:version/father/exit', 'api/v1.Father/exit');// 
