@@ -54,9 +54,9 @@ class Father extends Base
 
         $data = Db::query("SELECT us.* FROM f_user_sprite sp 
                             join f_user_star st on st.user_id = sp.user_id
-                            join f_user us on us.id = sp.user_id      
-                            where star_id = '{$star_id}'
-                            and total_speed_coin >= 432
+                            join f_user us on us.id = sp.user_id
+                            where star_id = {$star_id}
+                            and sp.total_speed_coin >= 432
                             ORDER BY RAND() limit 20;");
 
         foreach ($data as $key => &$value) {
@@ -65,7 +65,7 @@ class Father extends Base
             // 粉丝等级
             $value['user_level'] = CfgUserLevel::getLevel($value['id']);
             $count = self::where('father_uid', $value['id'])->count();
-            if ($count >= 1) unset($data[$key]);
+            if ($count >= 10) unset($data[$key]);
         }
 
         return $data;
