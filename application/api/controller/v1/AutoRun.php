@@ -22,6 +22,8 @@ use app\api\service\User;
 use app\base\service\Common;
 use app\api\model\RecTaskfanclub;
 use app\api\model\StarRankHistoryTmp;
+use app\api\model\Family;
+use app\api\model\FamilyUser;
 
 class AutoRun extends Base
 {
@@ -171,23 +173,43 @@ class AutoRun extends Base
             
             // 粉丝团贡献重置
             Fanclub::where('1=1')->update([
+                'lastweek_hot' => Db::raw('week_hot'),
                 'lastweek_count' => Db::raw('week_count'),
-                'week_count' => 0,
+                'lastweekmem_count' => Db::raw('weekmem_count'),
+                'lastweekbox_count' => Db::raw('weekbox_count'),
                 'week_hot' => 0,
+                'week_count' => 0,
+                'weekmem_count' => 0,
+                'weekbox_count' => 0,
             ]);
 
             FanclubUser::where('1=1')->update([
-                'lastweek_count' => Db::raw('thisweek_count'),
-                'lastweek_hot' => Db::raw('thisweek_hot'),
-                'thisweek_count' => 0,
-                'thisweek_hot' => 0,
+                'lastweek_hot' => Db::raw('week_hot'),
+                'lastweek_count' => Db::raw('week_count'),
+                'lastweekmem_count' => Db::raw('weekmem_count'),
+                'lastweekbox_count' => Db::raw('weekbox_count'),
+                'week_hot' => 0,
+                'week_count' => 0,
+                'weekmem_count' => 0,
+                'weekbox_count' => 0,
             ]);
             
             RecTaskfanclub::where('1=1')->update([
-                'lastweek_done_times' => Db::raw('done_times'),
-                'done_times' => 0,
+                'is_settle' => 0
             ]);
-
+            
+            
+            // 家族贡献重置
+            Family::where('1=1')->update([
+                'lastweek_count' => Db::raw('thisweek_count'),
+                'thisweek_count' => 0,
+            ]);
+            
+            FamilyUser::where('1=1')->update([
+                'lastweek_count' => Db::raw('thisweek_count'),
+                'thisweek_count' => 0,
+            ]);
+            
             Db::commit();
         } catch (\Exception $e) {
             Db::rollBack();

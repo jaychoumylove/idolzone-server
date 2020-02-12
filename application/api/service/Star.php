@@ -20,6 +20,7 @@ use app\api\model\RecTask;
 use app\api\model\UserProp;
 use app\api\model\Star as StarModel;
 use app\api\model\StarBirthRank;
+use app\api\model\Family;
 
 class Star
 {
@@ -87,6 +88,9 @@ class Star
                 PkUser::addHot($uid, $starid, $hot);
                 // 粉丝团
                 Fanclub::change($uid, $hot);
+                
+                // 家族贡献
+                Family::change($uid, $hot);
 
                 // 宝箱
             }

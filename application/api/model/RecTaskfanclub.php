@@ -21,18 +21,15 @@ class RecTaskfanclub extends Base
         }
         
         foreach ($task_ids as $task_id) {
-            $isDone = self::where('fanclub_id', $fanclub_id)->where('task_id', $task_id)
-                ->update(['done_times' => Db::raw('done_times+' . $times)]);
-
-            if (!$isDone) {
-                $taskType = CfgTaskfanclub::where('id', $task_id)->value('type');
+            $taskType = CfgTaskfanclub::where('id', $task_id)->value('type');
+            try {
                 self::create([
                     'fanclub_id' => $fanclub_id,
                     'task_id' => $task_id,
                     'task_type' => $taskType,
-                    'done_times' => $times,
                 ]);
-            }
+            
+            } catch (\Exception $e) {}
         }
     }
 
@@ -51,9 +48,19 @@ class RecTaskfanclub extends Base
     }
 
     /**将任务进度设置为已领取 */
-    public static function settle($fanclub_id, $task_id)
+    public static function settle($fanclub_id, $task_id, $task_type)
     {
-        $isDone = self::where('fanclub_id', $fanclub_id)->where('task_id', $task_id)->update(['is_settle' => 1]);
+        $isDone = self::where('fanclub_id', $fanclub_id)->where('task_id', $task_id)->update(['is_settle' => 1,'settle_time' => date('Y-m-d H:i:s')]);
+        
+        if (!$isDone)
+        $isDone = self::create([
+                'fanclub_id' => $fanclub_id,
+                'task_id' => $task_id,
+                'task_type' => $task_type,
+                'is_settle' => 1,
+                'settle_time' => date('Y-m-d H:i:s'),
+            ]);
+            
         if (!$isDone) Common::res(['code' => 1, 'msg' => '任务领取失败！']);
     }
 }

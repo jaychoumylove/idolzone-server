@@ -185,6 +185,7 @@ Route::rule('api/:version/fans/joinMass', 'api/v1.FansClub/joinMass');// 粉丝�
 Route::rule('api/:version/fans/member', 'api/v1.FansClub/member');// 粉丝团成员
 Route::rule('api/:version/fans/task', 'api/v1.FansClub/task');// 粉丝团任务
 Route::rule('api/:version/fans/tasksettle', 'api/v1.FansClub/settle');// 粉丝团任务结算
+Route::rule('api/:version/fans/editNotice', 'api/v1.FansClub/editNotice');// 修改公告
 
 Route::rule('api/:version/fans/mybox', 'api/v1.FansClub/mybox');// 粉丝团宝箱
 Route::rule('api/:version/fans/sendbox', 'api/v1.FansClub/sendbox');// 发粉丝团宝箱
@@ -280,5 +281,21 @@ Route::rule('api/:version/father/editMsg', 'api/v1.Father/editMsg');// 修改收
 Route::rule('api/:version/father/editNotice', 'api/v1.Father/editNotice');// 修改公告
 Route::rule('api/:version/father/taskList', 'api/v1.Father/taskList');// 徒弟任务列表
 Route::rule('api/:version/father/taskSettle', 'api/v1.Father/taskSettle');// 
-Route::rule('api/:version/father/sonList', 'api/v1.Father/sonList');// 
+Route::rule('api/:version/father/sonList', 'api/v1.Father/sonList');// 徒弟列表
+Route::rule('api/:version/father/applyList', 'api/v1.Father/applyList');// 申请列表
+Route::rule('api/:version/father/applyDeal', 'api/v1.Father/applyDeal');// 申请处理
 Route::rule('api/:version/father/exit', 'api/v1.Father/exit');// 
+
+// Family
+Route::rule('api/:version/family/create', 'api/v1.FamilyClub/create');// 创建家族
+Route::rule('api/:version/family/edit','api/v1.FamilyClub/edit');// 修改家族
+Route::rule('api/:version/family/list', 'api/v1.FamilyClub/rank');// 家族列表
+Route::rule('api/:version/family/apply', 'api/v1.FamilyClub/apply');// 申请加入家族
+Route::rule('api/:version/family/applylist', 'api/v1.FamilyClub/applylist');// 申请列表
+Route::rule('api/:version/family/applydeal', 'api/v1.FamilyClub/applydeal');// 申请列表
+Route::rule('api/:version/family/join', 'api/v1.FamilyClub/join');// 加入家族
+Route::rule('api/:version/family/exit', 'api/v1.FamilyClub/quit');// 退出家族
+Route::rule('api/:version/family/info', 'api/v1.FamilyClub/info');// 我加入的家族
+Route::rule('api/:version/family/member', 'api/v1.FamilyClub/member');// 家族成员
+Route::rule('api/:version/family/enter', 'api/v1.FamilyClub/enter');// 邀请页面
+Route::rule('api/:version/family/settle', 'api/v1.FamilyClub/settle');// 领取奖励

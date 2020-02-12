@@ -142,6 +142,9 @@ class Ext extends Base
             }
         }
         if ($realPath) {
+            //违规检测
+            (new WxAPI())->imgCheck($realPath);
+            
             // 上传到微信
             $res = (new WxAPI('gzh'))->uploadimg($realPath);
             $res['https_url'] = str_replace('http', 'https', $res['url']);

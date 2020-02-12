@@ -3,6 +3,7 @@
 namespace app\api\model;
 
 use app\base\model\Base;
+use app\api\model\Father as ModelFather;
 use think\Db;
 use app\base\service\Common;
 
@@ -197,20 +198,11 @@ class UserStar extends Base
     {
         $ext = UserExt::get(['user_id' => $uid]);
         if (time() - $ext['exit_group_time'] > 3600 * 24 * 90) {
-            // 半年才能退一次
-            Db::startTrans();
-            try {
-                // 退圈
-                self::destroyConform($uid);
-                // 记录退圈时间
-                UserExt::where(['user_id' => $uid])->update(['exit_group_time' => time()]);
-
-                Db::commit();
-            } catch (\Exception $e) {
-                Db::rollBack();
-                Common::res(['code' => 400, 'msg' => $e->getMessage()]);
-            }
+            // 90才能退一次
+            self::destroyConform($uid); // 退圈
+            
         } else {
+            
             Common::res(['code' => 1, 'msg' => '退出圈子失败，上次退出圈子时间为' . date('Y-m-d', $ext['exit_group_time'])]);
         }
     }
@@ -222,20 +214,40 @@ class UserStar extends Base
         $user = json_decode(json_encode($user), true);
         unset($user['id']);
 
-        //删除本条记录
-        self::where(['user_id' => $uid])->delete();
-        Db::name('user_star_bakup')->insert($user);
-
-        //删除圈子相关徽章
-        BadgeUser::where(['uid' => $uid])->where('badge_id', 'in', [1, 2, 3, 5, 6, 8])->delete();
-
-        //删除pk相关
-        Db::name('pk_user_rank')->where(['uid' => $uid])->delete();
-        Db::name('pk_zan')->where(['uid' => $uid])->delete();
-        Db::name('pk_user')->where(['uid' => $uid])->delete();
-
-        //删除粉丝团相关
-        Fanclub::exitFanclub($uid, true);
+        Db::startTrans();
+        try {
+            // 记录退圈时间
+            UserExt::where(['user_id' => $uid])->update(['exit_group_time' => time()]);
+        
+            //删除本条记录
+            self::where(['user_id' => $uid])->delete();
+            Db::name('user_star_bakup')->insert($user);
+    
+            //删除圈子相关徽章
+            BadgeUser::where(['uid' => $uid])->where('badge_id', 'in', [1, 2, 3, 5, 6, 8])->delete();
+    
+            //删除pk相关
+            Db::name('pk_user_rank')->where(['uid' => $uid])->delete();
+            Db::name('pk_zan')->where(['uid' => $uid])->delete();
+            Db::name('pk_user')->where(['uid' => $uid])->delete();
+    
+            //删除粉丝团相关,用团长的身份踢出，才不扣钻石
+            $fanclub_id = FanclubUser::where('user_id',$uid)->value('fanclub_id');
+            if($fanclub_id) $fanLeader = Fanclub::where('id',$fanclub_id)->value('user_id');
+            if($fanLeader) Fanclub::exitFanclub($fanLeader,$uid);
+    
+            //退出家族
+            Family::exitFamily($uid,$uid);
+    
+            //退出师徒
+            if(ModelFather::where('father_uid',$uid)->count()) Common::res(['code' => 1, 'msg' => '你还有师徒关系未解除，不能退圈']);
+            ModelFather::exit();
+    
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollBack();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
     }
 
     /**我在圈子里的排名信息 */
@@ -258,7 +270,7 @@ class UserStar extends Base
                 $res['rank'] = self::where($where)->where($field, '>', $res['score'])->count() + 1;
             }
         } else {
-            $res['rank'] = '未上榜';
+            $res['rank'] = 'no';
         }
 
         // 等级

@@ -7,7 +7,6 @@ use think\Db;
 use app\base\service\Common;
 use GatewayWorker\Lib\Gateway;
 use app\base\service\WxAPI;
-use think\Log;
 
 class RecStarChart extends Base
 {

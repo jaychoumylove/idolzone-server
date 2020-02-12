@@ -19,7 +19,6 @@ use app\api\model\FanclubUser;
 use GatewayWorker\Lib\Gateway;
 use app\api\model\RecStarChart;
 use think\Db;
-use think\Log;
 
 class User extends Base
 {
@@ -346,6 +345,7 @@ class User extends Base
         $this->getUser();
         $res['avatarurl'] = $this->req('avatar', 'require');
         $res['nickname'] = $this->req('nickname', 'require');
+        (new WxAPI())->msgCheck($res['nickname']);//非法词检测
 
         Db::startTrans();
         try {

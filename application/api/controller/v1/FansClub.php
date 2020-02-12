@@ -1,5 +1,4 @@
 <?php
-
 namespace app\api\controller\v1;
 
 use app\base\controller\Base;
@@ -14,8 +13,9 @@ use app\api\model\Star;
 use app\api\service\User;
 use think\Db;
 use app\api\service\FanclubTask;
-use app\api\model\RecTaskfanclub;
 use app\api\model\RecTaskfather;
+use app\api\model\CfgUserLevel;
+use app\base\service\WxAPI;
 
 class FansClub extends Base
 {
@@ -24,11 +24,15 @@ class FansClub extends Base
      */
     public function create()
     {
-        $this->getUser();
 
         $res['avatar'] = $this->req('avatar', 'require');
         $res['clubname'] = $this->req('clubname', 'require');
         $res['wx'] = $this->req('wx', 'require');
+        $this->getUser();
+        
+        if(CfgUserLevel::getLevel($this->uid)<9) Common::res(['code' => 1, 'msg' => '粉丝等级需达到9级']);
+        
+        (new WxAPI())->msgCheck($res['clubname']);
         $res['user_id'] = $this->uid;
         $res['star_id'] = UserStar::getStarId($this->uid);
 
@@ -53,7 +57,7 @@ class FansClub extends Base
         if (!$fid) $fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         if (!$fid) Common::res(['data' => ['redirect' => true]]);
 
-        $res = Fanclub::with('star')->where('id', $fid)->find();
+        $res = Fanclub::with(['star','user'])->where('id', $fid)->find();
         unset($res['wx']);
         $res['week_rank'] = Fanclub::where('week_count', '>', $res['week_count'])->count() + 1;
 
@@ -73,10 +77,29 @@ class FansClub extends Base
     {
         $fid = $this->req('fid', 'integer');
         $page = $this->req('page', 'integer', 1);
-        $field  = $this->req('field');
-
-        $res['list'] = FanclubUser::with('User')->where('fanclub_id', $fid)->field('user_id,' . $field . ' as hot')
-            ->order($field . ' desc')->page($page, 20)->select();
+        $field  = input('field');
+        $keyword  = input('keyword');
+        
+        
+        if(!$field){
+            $field = 'thisweek_count';
+            $res['list'] = FanclubUser::with('User')->where('fanclub_id', $fid)->field('user_id,thisweek_count')
+                        ->order('thisweek_count desc')->page($page, 20)->select();
+        }
+        else{
+            $w = $keyword ? ['nickname'=>['like', '%'.$keyword.'%']]:'1=1';
+            $res['list'] = Db::name('fanclub_user')
+                ->alias('f')
+                ->join('user u', 'u.id = f.user_id','LEFT')
+                ->field('avatarurl,nickname,user_id,' . $field . ' as hot,last' . $field . ' as lastweek_hot')
+                ->where($w)
+                ->where('fanclub_id', $fid)
+                ->where('f.delete_time', 'NULL')
+                ->order($field . ' desc')->page($page, 20)->select();
+        }
+        foreach ($res['list'] as &$value){
+            $value['level'] = CfgUserLevel::getLevel($value['user_id']);
+        }
 
         $res['leader_uid'] = Fanclub::where('id', $fid)->value('user_id');
 
@@ -88,17 +111,17 @@ class FansClub extends Base
 
     public function list()
     {
-        $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 10);
-        $keyword = $this->req('keyword');
-        $field = $this->req('field', 'require');
-
-        $list = Fanclub::getList($keyword, $field, $page, $size);
-
-        Common::res([
-            'data' => $list
-        ]);
-    }
+    $page = $this->req('page', 'integer', 1);
+    $size = $this->req('size', 'integer', 10);
+    $keyword = $this->req('keyword');
+    $field = $this->req('field', 'require');
+    
+    $list = Fanclub::getList($keyword, $field, $page, $size);
+    
+    Common::res([
+        'data' => $list
+    ]);
+}
 
     public function join()
     {
@@ -114,14 +137,7 @@ class FansClub extends Base
         $this->getUser();
         $uid = $this->req('user_id', 'integer');
 
-        if ($this->uid != $uid) {
-            // 是否是团长
-            $f_id = UserStar::where('user_id', $uid)->value('fanclub_id');
-            $leader = Fanclub::where('id', $f_id)->value('user_id');
-            if ($leader != $this->uid) Common::res(['code' => 1, 'msg' => '没有权限']);
-        }
-
-        Fanclub::exitFanclub($uid);
+        Fanclub::exitFanclub($this->uid,$uid);
         Common::res();
     }
 
@@ -131,6 +147,9 @@ class FansClub extends Base
         $res['avatar'] = $this->req('avatar', 'require');
         $res['clubname'] = $this->req('clubname', 'require');
         $res['wx'] = $this->req('wx', 'require');
+        
+        //安全检测
+        (new WxAPI())->msgCheck($res['clubname']);
 
         $this->getUser();
         Db::startTrans();
@@ -174,10 +193,8 @@ class FansClub extends Base
             FanclubUser::where('user_id', $this->uid)->update([
                 'mass_time' => date('YmdH'),
                 'mass_count' => $coin,
-                'thisweek_hot' => Db::raw('thisweek_hot+' . $coin),
+                'week_hot' => Db::raw('week_hot+' . $coin),
             ]);
-
-            RecTaskfanclub::addRec($fid, [4, 5, 6], $coin);
 
             RecTaskfather::addRec($this->uid, [3, 14, 25, 36]);
 
@@ -221,7 +238,7 @@ class FansClub extends Base
         // 总共的能量
         $res['totalCount'] = FanclubUser::where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->sum('mass_count');
         // 参与集结用户
-        $res['list'] = FanclubUser::with('user')->where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->order('thisweek_count desc')->select();
+        $res['list'] = FanclubUser::with('user')->where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->order('week_count desc')->select();
         // 集结剩余时间
         $res['remainTime'] = strtotime(date('Y-m-d H:00:00', time() + 3600)) - time();
         Common::res(['data' => $res]);
@@ -249,19 +266,10 @@ class FansClub extends Base
         $type = $this->req('type', 'integer', 0); // 0钻石 1积分 2鲜花
         $consume = $this->req('consume', 'integer'); // 消耗
         $people = $this->req('people', 'integer', 10); // 人数
-        $this->getUser();
-        $fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
-
-        Db::startTrans();
-        try {
-            FanclubBox::sendbox($this->uid, $type, $consume, $people);
-            if ($fid) RecTaskfanclub::addRec($fid, [7, 8, 9]);
-
-            Db::commit();
-        } catch (\Exception $e) {
-            Db::rollback();
-            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
-        }
+        
+        $this->getUser();        
+        FanclubBox::sendbox($this->uid, $type, $consume, $people);
+        
         Common::res();
     }
 
@@ -315,5 +323,17 @@ class FansClub extends Base
         Common::res([
             'data' => $earn
         ]);
+    }
+    
+    public function editNotice()
+    {
+        $notice = $this->req('notice', 'require');
+        $fid = $this->req('fid', 'require');
+        
+        (new WxAPI())->msgCheck($notice);
+        
+        $this->getUser();
+        Fanclub::where(['user_id'=>$this->uid,'id'=>$fid])->update(['notice' => $notice]);
+        Common::res();
     }
 }

@@ -7,7 +7,6 @@ use app\api\model\CfgTaskfanclub as TaskModel;
 use app\base\service\Common;
 use think\Db;
 use app\api\model\Fanclub;
-use app\api\model\RecTaskfather;
 
 class FanclubTask
 {
@@ -24,22 +23,18 @@ class FanclubTask
         foreach ($taskList as $key => &$task) {
             // 任务状态 0未完成 1已完成 2已领取
             $task['status'] = 0;
+            
             // 完成次数
-            $task['lastWeek_doneTimes'] = 0;
-            $task['doneTimes'] = 0;
-
+            $done = Fanclub::where('id',$fanclub_id)->field($task['field'].',last'.$task['field'])->find();
+            $task['lastWeek_doneTimes'] = $done['last'.$task['field']];
+            $task['doneTimes'] = $done[$task['field']];
+            
+            //判断任务状态
+            if ($task['lastWeek_doneTimes'] >= $task['times']) $task['status'] = 1;// 已完成
+                
             if (isset($recTask[$task['id']])) {
-                $task['lastWeek_doneTimes'] = $recTask[$task['id']]['lastweek_done_times'];
-                $task['doneTimes'] = $recTask[$task['id']]['done_times'];
-
-                if ($recTask[$task['id']]['is_settle']) {
-                    // 已领取
-                    $task['status'] = 2;
-                } else 
-                    if ($task['lastWeek_doneTimes'] >= $task['times']) {
-                    // 已完成
-                    $task['status'] = 1;
-                }
+                $task['status'] = 1;// 已完成
+                if ($recTask[$task['id']]['is_settle'])  $task['status'] = 2; // 已领取
             }
         }
 
@@ -58,7 +53,7 @@ class FanclubTask
 
         Db::startTrans();
         try {
-            RecTask::settle($fid, $task_id);
+            RecTask::settle($fid, $task_id, $task['type']);
 
             $update = [
                 'coin' => $task['coin'],
@@ -66,7 +61,7 @@ class FanclubTask
                 'stone' => $task['stone'],
                 'trumpet' => $task['trumpet']
             ];
-            (new User())->change($uid, $update, '完成任务');
+            (new User())->change($uid, $update, '粉丝团任务');
 
             Db::commit();
         } catch (\Exception $e) {

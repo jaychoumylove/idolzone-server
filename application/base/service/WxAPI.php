@@ -26,6 +26,7 @@ class WxAPI
 
     public function request($url, $data = null)
     {
+        //var_dump($data);
         $res = Common::request($url, $data);
         if (isset($res['errmsg'])) $errMsg = $res['errmsg'];
         else if (isset($res['errMsg'])) $errMsg = $res['errMsg'];
@@ -297,6 +298,7 @@ class WxAPI
     public function msgCheck($content)
     {
         if (input('platform') == 'MP-QQ') {
+
             $url = 'https://' . $this->apiHost . '/api/json/security/MsgSecCheck?access_token=' . $this->appinfo['access_token'];
             $data = 'content=' . $content;
         } else {
@@ -305,21 +307,36 @@ class WxAPI
                 'content' => $content
             ], JSON_UNESCAPED_UNICODE);
         }
-
         $res = $this->request($url, $data);
-
-        if (isset($res['errcode']) && $res['errcode'] == 87014) Common::res(['code' => 1, 'msg' => '内容被屏蔽']);
-        if (isset($res['errCode']) && $res['errCode'] == 87014) Common::res(['code' => 1, 'msg' => '内容被屏蔽']);
+        //微信
+        if (isset($res['errcode']) && $res['errcode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
+        if (isset($res['errcode']) && $res['errcode']) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
+        //QQ
+        if (isset($res['errCode']) && $res['errCode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
+        if (isset($res['errCode']) && $res['errCode']) Common::res(['code' => 1, 'msg' => $res['errMsg']]);
     }
 
     /**校验一张图片是否含有违法违规内容 */
     public function imgCheck($filePath)
     {
-        $url = 'https://' . $this->apiHost . '/wxa/img_sec_check?access_token=' . $this->appinfo['access_token'];
-
-        $data = ['media' => new \CURLFile($filePath, false, false)];
-
-        return $this->request($url, $data);
+        if (input('platform') == 'MP-QQ') {
+            
+            $url = 'https://' . $this->apiHost . '/api/json/security/ImgSecCheck?access_token=' . $this->appinfo['access_token'];
+        } else {
+            
+            $url = 'https://' . $this->apiHost . '/wxa/img_sec_check?access_token=' . $this->appinfo['access_token'];
+        }
+        
+        $data['media'] = new \CURLFile($filePath, false, false);
+        $res = $this->request($url, $data);
+        
+        //微信
+        if (isset($res['errcode']) && $res['errcode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
+        if (isset($res['errcode']) && $res['errcode']) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
+        //QQ
+        if (isset($res['errCode']) && $res['errCode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
+        if (isset($res['errCode']) && $res['errCode']) Common::res(['code' => 1, 'msg' => $res['errMsg']]);
+    
     }
 
     /**

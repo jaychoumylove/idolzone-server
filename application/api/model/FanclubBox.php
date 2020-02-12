@@ -57,8 +57,21 @@ class FanclubBox extends Base
                 (new User)->change($uid, ['flower' => -$consume], '鲜花发宝箱');
             }
 
-            $fid = FanclubUser::where('user_id', $uid)->value('fanclub_id');
+            $fid = FanclubUser::where('user_id', $uid)->value('fanclub_id');            
             self::create(['user_id' => $uid, 'fanclub_id' => $fid, 'coin' => $coin, 'people' => $people]);
+            
+            if($fid){
+                FanclubUser::where([
+                    'user_id' => $uid,
+                    'fanclub_id' => $fid
+                ])->update([
+                    'weekbox_count' => Db::raw('weekbox_count+1')
+                ]);
+                
+                Fanclub::where('id',$fid)->update([
+                    'weekbox_count' => Db::raw('weekbox_count+1')
+                ]);
+            }
 
             Db::commit();
         } catch (\Exception $e) {

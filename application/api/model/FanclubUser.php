@@ -29,16 +29,16 @@ class FanclubUser extends Base
     public static function getMyRankInfo($uid, $fid, $field)
     {
         $where = $fid ? ['user_id' => $uid, 'fanclub_id' => $fid] : ['user_id' => $uid];
-        $res = self::where($where)->field('user_id,'.$field)->find();
-        
-        $res['score'] = $res[$field];
-        
+        if($field =='thisweek_count')  $res = self::where($where)->field('user_id,thisweek_count as score')->find();
+        else $res = self::where($where)->field('user_id,last'.$field.' as lastweek_score,'.$field.' as score')->find();
+                
         if ($res['score']) {
+            
              $where = $fid ? ['fanclub_id' => $fid] : '1=1';
              $res['rank'] = self::where($where)->where($field, '>', $res['score'])->count() + 1;
-        } else {
-            $res['rank'] = '未上榜';
-        }        
+        } 
+        else $res['rank'] = 'no';
+        
         $res['hasExited'] = Db::name('fanclub_user')->where('user_id', $uid)->where('delete_time','NOT NULL')->value('delete_time');
             
         // 等级
