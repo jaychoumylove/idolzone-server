@@ -110,8 +110,10 @@ class Family extends Base
     public static function exitFamily($operater, $uid, $force = false)
     {
         $familyUser = FamilyUser::where('user_id', $uid)->field('family_id,thisweek_count')->find();
-        $isLeader = FamilyUser::isLeader($operater);
+        if(!isset($familyUser['family_id'])) return;
         
+        $isLeader = FamilyUser::isLeader($operater);
+            
         if ($operater != $uid && ! $isLeader) {
             Common::res([
                 'code' => 1,

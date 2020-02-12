@@ -165,6 +165,6 @@ class Father extends Base
     public static function exit($son_uid)
     {
         self::where('son_uid', $son_uid)->delete(true);
-        FatherEarn::where('user_id', $son_uid)->destroy();
+        FatherEarn::destroy(['user_id' => $son_uid]);
     }
 }

@@ -234,14 +234,14 @@ class UserStar extends Base
             //删除粉丝团相关,用团长的身份踢出，才不扣钻石
             $fanclub_id = FanclubUser::where('user_id',$uid)->value('fanclub_id');
             if($fanclub_id) $fanLeader = Fanclub::where('id',$fanclub_id)->value('user_id');
-            if($fanLeader) Fanclub::exitFanclub($fanLeader,$uid);
+            if(isset($fanLeader) && $fanLeader) Fanclub::exitFanclub($fanLeader,$uid);
     
             //退出家族
             Family::exitFamily($uid,$uid);
     
             //退出师徒
-            if(ModelFather::where('father_uid',$uid)->count()) Common::res(['code' => 1, 'msg' => '你还有师徒关系未解除，不能退圈']);
-            ModelFather::exit();
+            if(ModelFather::where('father_uid',$uid)->count()) Common::res(['code' => 1, 'msg' => '你还有徒弟未解除，不能退圈']);
+            ModelFather::exit($uid);
     
             Db::commit();
         } catch (\Exception $e) {
