@@ -57,6 +57,7 @@ class Ext extends Base
     public function activeList()
     {
         $list = CfgActive::all();
+        if(input('platform')=='MP-QQ') $list = CfgActive::where(['id'=>1])->select();
         $starid = $this->req('starid', 'integer');
 
         foreach ($list as &$value) {
