@@ -29,8 +29,7 @@ class FanclubUser extends Base
     public static function getMyRankInfo($uid, $fid, $field)
     {
         $where = $fid ? ['user_id' => $uid, 'fanclub_id' => $fid] : ['user_id' => $uid];
-        if($field =='thisweek_count')  $res = self::where($where)->field('user_id,thisweek_count as score')->find();
-        else $res = self::where($where)->field('user_id,last'.$field.' as lastweek_score,'.$field.' as score')->find();
+        $res = self::where($where)->field('user_id,last'.$field.' as lastweek_score,'.$field.' as score')->find();
                 
         if ($res['score']) {
             

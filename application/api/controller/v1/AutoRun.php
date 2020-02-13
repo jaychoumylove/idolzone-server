@@ -24,6 +24,7 @@ use app\api\model\RecTaskfanclub;
 use app\api\model\StarRankHistoryTmp;
 use app\api\model\Family;
 use app\api\model\FamilyUser;
+use app\base\model\Appinfo;
 
 class AutoRun extends Base
 {
@@ -49,6 +50,11 @@ class AutoRun extends Base
         
         Db::startTrans();
         try {
+            // 重置公众号可用状态
+            Appinfo::where('1=1')->update([
+                'status' => 0
+            ]);
+            
             // 转存历史排名_活动期间
             $rankListFlower = StarRank::getRankList(1, 10, 'day_hot_flower');
             StarRankHistoryTmp::create([

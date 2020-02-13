@@ -17,6 +17,7 @@ use app\api\model\GuideCron;
 use app\api\model\GzhUserPush;
 use app\api\service\User;
 use app\api\model\UserExt;
+use app\base\model\Appinfo;
 
 class Ext extends Base
 {
@@ -146,14 +147,28 @@ class Ext extends Base
             (new WxAPI())->imgCheck($realPath);
             
             // 上传到微信
-            $res = (new WxAPI('gzh'))->uploadimg($realPath);
-            $res['https_url'] = str_replace('http', 'https', $res['url']);
-            unlink($realPath);
-            Common::res(['data' => $res]);
+            $gzh_appid = Appinfo::where(['type' => 'gzh','status'=>0])->value('appid');
+            if(!$gzh_appid) Common::res(['code' => 1, 'msg' => '图片服务器不可用，请联系客服']);          
+            
+            $res = (new WxAPI($gzh_appid))->uploadimg($realPath);
+            if (isset($res['errcode']) && $res['errcode'] == 45009){//公众号达到日极限
+                Appinfo::where(['appid' => $gzh_appid])->update(['status'=>-1]);
+                Common::res(['code' => 1, 'msg' => '上传失败，请重试一次']);
+            }
+            
+            //获取到地址才返回
+            if(isset($res['url'])){
+                
+                $res['https_url'] = str_replace('http', 'https', $res['url']);
+                unlink($realPath);
+                Common::res(['data' => $res]);
+                
+            }
+            
+            if (isset($res['errcode']) && $res['errcode'] != 45009) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
+            Common::res(['code' => 1, 'msg' => '上传图片失败，请联系客服']);
         }
     }
-
-
 
     public function log()
     {

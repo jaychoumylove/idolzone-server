@@ -79,24 +79,17 @@ class FansClub extends Base
         $page = $this->req('page', 'integer', 1);
         $field  = input('field');
         $keyword  = input('keyword');
+                
+        $w = $keyword ? ['nickname'=>['like', '%'.$keyword.'%']]:'1=1';
+        $res['list'] = Db::name('fanclub_user')
+            ->alias('f')
+            ->join('user u', 'u.id = f.user_id','LEFT')
+            ->field('avatarurl,nickname,user_id,' . $field . ' as hot,last' . $field . ' as lastweek_hot')
+            ->where($w)
+            ->where('fanclub_id', $fid)
+            ->where('f.delete_time', 'NULL')
+            ->order($field . ' desc')->page($page, 20)->select();
         
-        
-        if(!$field){
-            $field = 'thisweek_count';
-            $res['list'] = FanclubUser::with('User')->where('fanclub_id', $fid)->field('user_id,thisweek_count')
-                        ->order('thisweek_count desc')->page($page, 20)->select();
-        }
-        else{
-            $w = $keyword ? ['nickname'=>['like', '%'.$keyword.'%']]:'1=1';
-            $res['list'] = Db::name('fanclub_user')
-                ->alias('f')
-                ->join('user u', 'u.id = f.user_id','LEFT')
-                ->field('avatarurl,nickname,user_id,' . $field . ' as hot,last' . $field . ' as lastweek_hot')
-                ->where($w)
-                ->where('fanclub_id', $fid)
-                ->where('f.delete_time', 'NULL')
-                ->order($field . ' desc')->page($page, 20)->select();
-        }
         foreach ($res['list'] as &$value){
             $value['level'] = CfgUserLevel::getLevel($value['user_id']);
         }
