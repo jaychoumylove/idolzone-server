@@ -23,7 +23,7 @@ class RecPayOrder extends Base
         ], '充值到账，付款人：' . User::where('id', $pay_uid)->value('nickname'));
 
         RecTask::addRec($uid, 7);
-        if($pay_uid!=$uid) Rec::addRec(['user_id' => $pay_uid,'content' => '帮好友：' . User::where('id', $uid)->value('nickname') . '代充值￥'.$order['total_fee']]);
+        if($pay_uid!=$uid) Rec::addRec(['user_id' => $pay_uid,'content' => '帮 ' . User::where('id', $uid)->value('nickname') . ' 充值成功']);
         
     }
 }
