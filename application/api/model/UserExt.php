@@ -137,13 +137,15 @@ class UserExt extends Base
         $msg .= '，钻石+' . $update['stone'];
         $update['flower'] = 150000;
         $msg .= '，鲜花+' . $update['flower'];
-        (new User)->change($uid, $update, '①数据回档任务等补偿');
+        (new User)->change($uid, $update, '①数据回档任务等补偿');        
+        $msg .= "\n";
         
         $sprite = UserSprite::getInfo($uid);
         $update2['coin'] = $sprite['total_speed_coin']*3600*48/100;
         $msg .= '②农场补偿48小时:';
-        $msg .= '，金豆+' . $update2['coin'];
+        $msg .= '金豆+' . $update2['coin'];
         (new User)->change($uid, $update2, '②数据回档农场补偿');
+        $msg .= "\n";
 
         UserExt::where('user_id', $uid)->update(['redress_time' => time()]);
 
