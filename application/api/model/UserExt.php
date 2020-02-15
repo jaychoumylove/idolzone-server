@@ -133,7 +133,7 @@ class UserExt extends Base
         $sprite = UserSprite::getInfo($uid);        
         $update['coin'] = $sprite['total_speed_coin']*3600*24/100;
         $msg .= '，金豆+' . $update['coin'];
-        $update['stone'] = 50;
+        $update['stone'] = 100;
         $msg .= '，钻石+' . $update['stone'];
 
         (new User)->change($uid, $update, '数据回退补偿');

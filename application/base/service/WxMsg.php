@@ -118,7 +118,7 @@ class WxMsg
         $content = '欢迎！';
         if ($msg['MsgType'] == 'text') {
             // 文本消息
-            if ($msg['Content'] == '农场补偿' || $msg['Content'] == 2 || $msg['Content'] == '2019') {
+            if ($msg['Content'] == '农场补偿' || $msg['Content'] == 2) {
                 // 补偿
                 if (!$user_id) {
                     $content = '未找到用户，可能是因为您还未进入应用游玩';
