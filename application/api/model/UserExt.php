@@ -6,7 +6,6 @@ use app\base\model\Base;
 use app\base\service\Common;
 use think\Db;
 use app\api\service\User;
-use think\Log;
 
 class UserExt extends Base
 {
@@ -58,21 +57,30 @@ class UserExt extends Base
         // 随机一个奖品
         $lottery = Common::lottery(CfgLottery::all());
 
-        // 扣除金豆增加今日抽奖次数
-        self::where('user_id', $uid)->update([
-            'lottery_count' => Db::raw('lottery_count-1'),
-            'lottery_times' => Db::raw('lottery_times+1'),
-        ]);
+        Db::startTrans();
+        try {
+            
+            // 扣除金豆增加今日抽奖次数
+            self::where('user_id', $uid)->update([
+                'lottery_count' => Db::raw('lottery_count-1'),
+                'lottery_times' => Db::raw('lottery_times+1'),
+            ]);
+    
+            RecTask::addRec($uid, [5, 6]);
+            RecTaskfather::addRec($uid, [4, 15, 26, 37]);
+    
+            // if ($lottery['id'] == 3 || $lottery['id'] == 6) {
+            //     // 抽中宝箱
+            //     $lottery['rec_lottery_id'] = (int) RecLottery::create(['user_id' => $uid, 'lottery_id' => $lottery['id']])['id'];
+            // }
+    
+            self::grant($uid, $lottery);
 
-        RecTask::addRec($uid, [5, 6]);
-        RecTaskfather::addRec($uid, [4, 15, 26, 37]);
-
-        // if ($lottery['id'] == 3 || $lottery['id'] == 6) {
-        //     // 抽中宝箱
-        //     $lottery['rec_lottery_id'] = (int) RecLottery::create(['user_id' => $uid, 'lottery_id' => $lottery['id']])['id'];
-        // }
-
-        self::grant($uid, $lottery);
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
 
         return $lottery;
     }
