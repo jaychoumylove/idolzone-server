@@ -130,12 +130,13 @@ class UserExt extends Base
         if (time() > strtotime($redressDate[1])) return '补偿已过期';
 
         $msg = '领取成功';
-        $update['coin'] = 300000;
+        $sprite = UserSprite::getInfo($uid);        
+        $update['coin'] = $sprite['total_speed_coin']*3600*24/100;
         $msg .= '，金豆+' . $update['coin'];
-        $update['stone'] = 20;
+        $update['stone'] = 50;
         $msg .= '，钻石+' . $update['stone'];
 
-        (new User)->change($uid, $update, '年终感恩回馈');
+        (new User)->change($uid, $update, '数据回退补偿');
 
         UserExt::where('user_id', $uid)->update(['redress_time' => time()]);
 
