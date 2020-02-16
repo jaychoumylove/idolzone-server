@@ -79,8 +79,8 @@ class FarmHelp extends Base
     public static function helpstart($uid)
     {
         // 今日是否已加速
-        $leastSpeedEnd = UserSprite::where('user_id', $uid)->value('speed_end');
-        if (date('Ymd', $leastSpeedEnd) == date('Ymd')) Common::res(['code' => 1, 'msg' => '今日已加速，请明天再来']);
+        $leastSpeedEnd = UserSprite::where('user_id', $uid)->whereTime('speed_end','d')->count();
+        if ($leastSpeedEnd) Common::res(['code' => 1, 'msg' => '今日已加速，请明天再来']);
 
         // 2个好友以上才能开启加速
         $helperCount = FarmHelp::where('user_id', $uid)->whereTime('create_time', 'd')->count();
@@ -95,12 +95,14 @@ class FarmHelp extends Base
 
         Db::startTrans();
         try {
-            (new User)->change($uid, ['coin' => $count], '农场加速');
-
-            UserSprite::where('user_id', $uid)->update([
+            $isDone = UserSprite::where('user_id', $uid)->whereTime('speed_end','<', 'today')->update([
                 'speed_end' => time()
             ]);
-
+            
+            if(!$isDone) Common::res(['code' => 1, 'msg' => '今日已加速，请明天再来']);
+            
+            (new User)->change($uid, ['coin' => $count], '农场加速');
+            
             RecTaskfather::addRec($uid, [6, 17, 28, 39]);
 
             Db::commit();

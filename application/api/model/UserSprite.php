@@ -79,19 +79,31 @@ class UserSprite extends Base
 
         Db::startTrans();
         try {
+            
             if ($data['mode'] == 1) {
+                
+                //兼容主从不同步的情况，被重复领取
+                $isDone = self::where('user_id', $uid)->where(time().'-settle_time>'.$offlineSplitTime)->update([
+                    'settle_time' => time(),
+                ]);
+                if (!$isDone) Common::res();
+                
                 (new User)->change($uid, [
                     'coin' => $data['earn']
                 ], '离线收益');
+                
             } else {
+                
+                //兼容主从不同步的情况，被重复领取
+                $isDone = self::where('user_id', $uid)->where(time().'-settle_time>'.$spaceTime * 0.8)->update([
+                    'settle_time' => time(),
+                ]);
+                if (!$isDone) Common::res();
+                
                 (new User)->change($uid, [
                     'coin' => $data['earn']
                 ]);
             }
-
-            self::where('user_id', $uid)->update([
-                'settle_time' => time(),
-            ]);
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();

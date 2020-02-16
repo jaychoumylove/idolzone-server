@@ -77,7 +77,7 @@ class Lottery extends Base
         $res['coin'] = Rec::where('content', '幸运抽奖')->where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('coin');
         $res['flower'] = Rec::where('content', '幸运抽奖')->where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('flower');
         $res['stone'] = Rec::where('content', '幸运抽奖')->where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('stone');
-        $res['times'] = UserExt::where('user_id', $this->uid)->value('lottery_times');
+        $res['times'] = 100-UserExt::where('user_id', $this->uid)->value('lottery_times');
         Common::res(['data' => $res]);
     }
 

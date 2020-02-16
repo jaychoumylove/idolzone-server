@@ -52,7 +52,7 @@ class UserExt extends Base
     {
         $data = self::where('user_id', $uid)->field('lottery_count,lottery_time,lottery_times')->find();
         if ($data['lottery_count'] <= 0) Common::res(['code' => 1, 'msg' => '没有抽奖次数了']);
-        if ($data['lottery_times'] >= 100) Common::res(['code' => 1, 'msg' => '今天已经抽了100次了']);
+        if ($data['lottery_times'] <=0) Common::res(['code' => 1, 'msg' => '今天已经抽了100次了']);
 
         // 随机一个奖品
         $lottery = Common::lottery(CfgLottery::all());
@@ -63,7 +63,7 @@ class UserExt extends Base
             // 扣除金豆增加今日抽奖次数
             self::where('user_id', $uid)->update([
                 'lottery_count' => Db::raw('lottery_count-1'),
-                'lottery_times' => Db::raw('lottery_times+1'),
+                'lottery_times' => Db::raw('lottery_times-1'),
             ]);
     
             RecTask::addRec($uid, [5, 6]);
