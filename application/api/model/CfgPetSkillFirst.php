@@ -41,11 +41,14 @@ class CfgPetSkillFirst extends Base
 
             Db::startTrans();
             try {
+                
+                //主从不同步的时候，限制领取间隔2小时
+                $isDone = UserSprite::where('user_id', $uid)->where('UNIX_TIMESTAMP()-skill_one_starttime>7200')->update(['skill_one_starttime' => time()]);
+                if (!$isDone) Common::res(['code' => 1, 'msg' => '刚刚领取过了']);
+                
                 (new User)->change($uid, [
                     'stone' => $stoneNum,
                 ], '挖到钻石');
-
-                UserSprite::where('user_id', $uid)->update(['skill_one_starttime' => time()]);
 
                 RecTask::addRec($uid, 3);
                 Db::commit();

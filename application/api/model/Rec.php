@@ -28,7 +28,7 @@ class Rec extends Base
         // 每个用户最多保存300条记录
         $user_id = $log['user_id'];
         $count = self::where('user_id', $user_id)->count('id');
-        if ($count >= 300) {
+        if ($count >= 1000) {
             $id = self::where('user_id', $user_id)->min('id');
             self::where('id', $id)->delete(true);
         }

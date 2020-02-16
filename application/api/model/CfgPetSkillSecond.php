@@ -40,17 +40,10 @@ class CfgPetSkillSecond extends Base
     public static function skillSettle($uid)
     {
         $skill = self::getSkill($uid);
-
         if ($skill['remainOffset'] > 0) {
             Db::startTrans();
             try {
-                // 金豆全投
-                $selfCoin = UserCurrency::where('uid', $uid)->value('coin');
-                if ($selfCoin) {
-                    $selfStarId = UserStar::getStarId($uid);
-                    (new Star)->sendHot($selfStarId, $selfCoin, $uid, 1);
-                }
-
+                
                 // 使用可获得：
                 // 农场产量*0.04*技能等级*0.8*粉丝等级*2.4*3.6的金豆。
                 $spriteInfo = UserSprite::where('user_id', $uid)->field('skill_two_level,skill_two_times,skill_two_offset,total_speed_coin')->find();
@@ -67,16 +60,28 @@ class CfgPetSkillSecond extends Base
                 if ($skill['remainTimes'] <= 0) {
                     // 使用钻石爆豆
                     $currencyUpdate['stone'] = -1;
-                    UserSprite::where('user_id', $uid)->update([
+                    $isDone = UserSprite::where('user_id', $uid)->where('skill_two_offset','<',10)->update([
                         'skill_two_offset' => Db::raw('skill_two_offset+1')
                     ]);
                 } else {
                     // 免费爆豆
-                    UserSprite::where('user_id', $uid)->update([
+                    $isDone = UserSprite::where('user_id', $uid)->where('skill_two_times','<',$skill['myskill']['times'])->update([
                         'skill_two_times' => Db::raw('skill_two_times+1')
                     ]);
                 }
+                
+                if(!$isDone) Common::res(['code' => 1, 'msg' => '今日使用次数已用完，请明日再来']);      
+
+                // 金豆全投
+                $selfCoin = UserCurrency::where('uid', $uid)->value('coin');
+                if ($selfCoin) {
+                    $selfStarId = UserStar::getStarId($uid);
+                    (new Star)->sendHot($selfStarId, $selfCoin, $uid, 1);
+                }
+                
+                //获得爆豆
                 (new User)->change($uid, $currencyUpdate, '挖到金豆');
+                
 
                 // 重置爆率
                 // PetSkilltwoRate::where('user_id' , $uid)->update([
