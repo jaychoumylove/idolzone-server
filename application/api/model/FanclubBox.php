@@ -19,7 +19,7 @@ class FanclubBox extends Base
     public static function getBoxList($fid, $uid)
     {
         $res['list'] = self::with('user')->where('fanclub_id', $fid)->where('open_people<people')->whereTime('create_time', '>', time() - 3600 * 24)->order('id desc')->limit(9)->select();
-        if(!$res['list']) $res['list'] += self::with('user')->where('fanclub_id', $fid)->whereTime('create_time', '>', time() - 3600 * 24)->order('id desc')->limit(9)->select();
+        if(count($res['list'])<9) $res['list'] += self::with('user')->where('fanclub_id', $fid)->where('open_people>=people')->whereTime('create_time', '>', time() - 3600 * 24)->order('id desc')->limit(10-count($res['list']))->select();
 
         $res['can_settle'] = 0;
         foreach ($res['list'] as &$value) {
