@@ -92,7 +92,7 @@ class AutoRun extends Base
             // 重置 抽奖次数 每日点赞次数
             UserExt::where('1=1')->update([
                 'lottery_count' => 0,
-                'lottery_times' => 100,
+                'lottery_times' => 0,
                 'thisday_like' => 0
             ]);
             // 给今日生日明星粉丝上周贡献前100名52000鲜花

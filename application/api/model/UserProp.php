@@ -119,7 +119,8 @@ class UserProp extends Base
                         'coin' => $awards[mt_rand(0, 3)],
                     ], '使用金豆福袋');
 
-                    self::where('id', $userprop_id)->update(['status' => 1]);
+                    $isDone = self::where('id', $userprop_id)->where('status', 0)->update(['status' => 1]);
+                    if(!$isDone) Common::res(['code' => 1, 'msg' => '操作失败']);
 
                     break;
                     

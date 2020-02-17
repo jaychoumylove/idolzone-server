@@ -119,10 +119,11 @@ class User
             $res = UserRelation::where([
                 'rer_user_id' => $uid,
                 'ral_user_id' => $ral_user_id,
+                'status' => 1,
             ])->update([
                 'status' => 2,
-            ]);
-            if (!$res) Common::res(['code' => 1]);
+            ]);            
+            if (!$res) Common::res(['code' => 1,'msg'=>'你已经领取过了，不能重复领取']);
 
             $this->change($uid, Cfg::getCfg('invitAward'), '拉新奖励');
 

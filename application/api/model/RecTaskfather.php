@@ -16,20 +16,28 @@ class RecTaskfather extends Base
      */
     public static function addRec($user_id, $task_ids, $times = 1)
     {
-        if (gettype($task_ids) == 'integer' || gettype($task_ids) == 'string') {
-            $task_ids = [$task_ids];
-        }
-
-        foreach ($task_ids as $task_id) {
-            $isDone = self::where('user_id', $user_id)->where('task_id', $task_id)
-                ->update(['done_times' => Db::raw('done_times+' . $times)]);
-
-            if (!$isDone) {
-                self::create([
-                    'user_id' => $user_id,
-                    'task_id' => $task_id,
-                    'done_times' => $times,
-                ]);
+        //只有加入了师徒的用户才记录
+        if(Father::where('son_uid',$user_id)->count()){
+            
+            if (gettype($task_ids) == 'integer' || gettype($task_ids) == 'string') {
+                $task_ids = [$task_ids];
+            }
+    
+            foreach ($task_ids as $task_id) {
+                $isDone = self::where('user_id', $user_id)->where('task_id', $task_id)
+                    ->update(['done_times' => Db::raw('done_times+' . $times)]);
+    
+                if (!$isDone) {
+                    try {
+                        
+                        self::create([
+                            'user_id' => $user_id,
+                            'task_id' => $task_id,
+                            'done_times' => $times,
+                        ]);
+                        
+                    } catch (\Exception $e) {}
+                }
             }
         }
     }
@@ -57,14 +65,17 @@ class RecTaskfather extends Base
 
     /**每日签到 */
     public static function checkIn($uid)
-    {
-        $taskIds = [1, 12, 23, 34];
-
-        foreach ($taskIds as $taskId) {
-            $c = self::where('task_id', $taskId)->where('user_id', $uid)->whereTime('update_time', 'd')->count();
-
-            if (!$c) {
-                self::addRec($uid, $taskId, 1);
+    {   
+        if(Father::where('son_uid',$uid)->count()){
+            
+            $taskIds = [1, 12, 23, 34];
+    
+            foreach ($taskIds as $taskId) {
+                $c = self::where('task_id', $taskId)->where('user_id', $uid)->whereTime('update_time', 'd')->count();
+    
+                if (!$c) {
+                    self::addRec($uid, $taskId, 1);
+                }
             }
         }
     }

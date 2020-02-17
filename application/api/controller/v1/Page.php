@@ -35,6 +35,7 @@ use app\api\model\RecPayOrder;
 use app\api\model\FanclubUser;
 use app\api\model\CfgShare;
 use app\api\model\RecTaskfather;
+use app\api\model\Father;
 
 class Page extends Base
 {

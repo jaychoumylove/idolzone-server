@@ -170,7 +170,7 @@ class FansClub extends Base
         $self_fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         if ($self_fid != $fid) Common::res(['code' => 1, 'msg' => '未加入该粉丝团']);
         $self_massTime = Db::name('fanclub_user')->where('user_id', $this->uid)->order('mass_time desc')->value('mass_time');
-        if (date('YmdH') == $self_massTime) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下次再来']);
+        if (date('YmdH') == $self_massTime) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下一个小时再来']);
 
         if ($type == 0) {
             $coin = 100;
@@ -181,17 +181,18 @@ class FansClub extends Base
         try {
 
             // 热度+
-            Fanclub::where('id', $fid)->update(['week_hot' => Db::raw('week_hot+' . $coin)]);
-
-            FanclubUser::where('user_id', $this->uid)->update([
+            $isDone =FanclubUser::where('mass_time IS NULL OR mass_time < '.date('YmdH'))->where('user_id', $this->uid)->where('fanclub_id', $fid)->update([
                 'mass_time' => date('YmdH'),
                 'mass_count' => $coin,
                 'week_hot' => Db::raw('week_hot+' . $coin),
             ]);
+            if (!$isDone) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下一个小时再来2']);
+            
+            Fanclub::where('id', $fid)->update(['week_hot' => Db::raw('week_hot+' . $coin)]);
 
             RecTaskfather::addRec($this->uid, [3, 14, 25, 36]);
 
-            (new User)->change($this->uid, ['coin' => $coin, 'point' => $coin], '粉丝团集结');
+            (new User)->change($this->uid, ['coin' => $coin, 'point' => $coin], '集结');
             UserStar::changeHandle($this->uid, 'mass');
 
             Db::commit();

@@ -50,17 +50,24 @@ class RecTaskfanclub extends Base
     /**将任务进度设置为已领取 */
     public static function settle($fanclub_id, $task_id, $task_type)
     {
-        $isDone = self::where('fanclub_id', $fanclub_id)->where('task_id', $task_id)->update(['is_settle' => 1,'settle_time' => date('Y-m-d H:i:s')]);
+        $isDone = self::where('fanclub_id', $fanclub_id)->where('task_id', $task_id)->where('is_settle', 0)->update(['is_settle' => 1,'settle_time' => date('Y-m-d H:i:s')]);
         
-        if (!$isDone)
-        $isDone = self::create([
-                'fanclub_id' => $fanclub_id,
-                'task_id' => $task_id,
-                'task_type' => $task_type,
-                'is_settle' => 1,
-                'settle_time' => date('Y-m-d H:i:s'),
-            ]);
+        if (!$isDone){
+            try {
+                
+                self::create([
+                    'fanclub_id' => $fanclub_id,
+                    'task_id' => $task_id,
+                    'task_type' => $task_type,
+                    'is_settle' => 1,
+                    'settle_time' => date('Y-m-d H:i:s'),
+                ]);
+                
+            } catch (\Exception $e) {
+                
+                Common::res(['code' => 1, 'msg' => '上周奖励已领取过了，请到日志中查看']);
+            }
             
-        if (!$isDone) Common::res(['code' => 1, 'msg' => '任务领取失败！']);
+        }
     }
 }

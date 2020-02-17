@@ -70,8 +70,8 @@ class RecTask extends Base
                 self::where('user_id', $uid)->where('task_id', $task_id)->update(['is_settle' => 1]);
             }
         } else {
-            $isDone = self::where('user_id', $uid)->where('task_id', $task_id)->update(['is_settle' => 1]);
-            if (!$isDone) Common::res(['code' => 1, 'msg' => '任务领取失败！']);
+            $isDone = self::where('user_id', $uid)->where('task_id', $task_id)->where('is_settle', 0)->update(['is_settle' => 1]);
+            if (!$isDone) Common::res(['code' => 1, 'msg' => '你已经领取过了，不能重复领取']);
         }
     }
 

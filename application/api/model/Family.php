@@ -188,29 +188,16 @@ class Family extends Base
     {
         $family_switch = Cfg::where('key', 'family_switch')->value('value');
         $family_switch = json_decode($family_switch, true);
-        if (time() > $family_switch['reback_end_time'])
-            Common::res([
-                'code' => 1,
-                'msg' => '活动已结束'
-            ]);
+        if (time() > $family_switch['reback_end_time'])  Common::res(['code' => 1,'msg' => '活动已结束']);
         
-        if (FamilyUser::where('user_id', $uid)->whereTime('settle_time', 'week')->value('count(1)'))
-            Common::res([
-                'code' => 1,
-                'msg' => '本周已领取'
-            ]);
+        if (FamilyUser::where('user_id', $uid)->whereTime('settle_time', 'week')->count()) Common::res(['code' => 1,'msg' => '上周奖励已领取过了，请到日志中查看']);
             
             // 计算出排名
         $user = FamilyUser::where('user_id', $uid)->field('family_id,lastweek_count')->find();
         $lastweek_count = Family::where('id', $user['family_id'])->value('lastweek_count');
         $lastweek_rank = Family::where('lastweek_count', '>', $lastweek_count)->count() + 1;
-        $lastweek_rank = $lastweek_rank > 11 ? 11 : $lastweek_rank;
-        
-        if (! $user['lastweek_count'] || ! $lastweek_count)
-            Common::res([
-                'code' => 1,
-                'msg' => '上周无贡献，无法领取'
-            ]);
+        $lastweek_rank = $lastweek_rank > 11 ? 11 : $lastweek_rank;        
+        if (! $user['lastweek_count'] || ! $lastweek_count)  Common::res(['code' => 1,'msg' => '上周无贡献，无法领取']);
             
             // 计算出收益
         $cfgEarn = CfgFamily::where('id', $lastweek_rank)->field('name,coin,stone')->find();
@@ -220,19 +207,18 @@ class Family extends Base
         Db::startTrans();
         try {
             
-            FamilyUser::where('user_id', $uid)->update([
+            $week_star = date('Y-m-d',strtotime('this week'));
+            $isDone = FamilyUser::where('settle_time IS NULL OR settle_time < "'.$week_star.'"')->where('user_id', $uid)->update([
                 'settle_time' => date('Y-m-d H:i:s')
             ]);
+            if (!$isDone) Common::res(['code' => 1,'msg' => '上周奖励已领取过了，请到日志中查看']);
             
             (new UserService())->change($uid, $earn, $cfgEarn['name']);
             
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
-            Common::res([
-                'code' => 400,
-                'msg' => $e->getMessage()
-            ]);
+            Common::res(['code' => 400,'msg' => $e->getMessage()]);
         }
         
         return $earn;

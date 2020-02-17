@@ -179,8 +179,19 @@ class FamilyClub extends Base
         $isDone = FamilyApplyUser::where($res)->update([
             'status' => 1
         ]);
-        if (! $isDone)
-            FamilyApplyUser::create($res);
+        if (! $isDone){
+            try {
+                
+                FamilyApplyUser::create($res);
+                
+            } catch (\Exception $e) {
+                
+                Common::res([
+                    'code' => 1,
+                    'msg' => '已经在申请中，请等待族长审核'
+                ]);
+            }
+        }
         
         Common::res();
     }
