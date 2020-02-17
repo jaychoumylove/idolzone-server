@@ -248,9 +248,9 @@ class FansClub extends Base
         $res['noticeId'] = 12;
         $res['isJoinFanclub'] = FanclubUser::where('user_id', $this->uid)->value('id');
 
-        $taskGiftCategory = CfgTaskgiftCategory::getCategoryMore($this->uid);
-        $res['signGift_title'] = $taskGiftCategory['all_title'];
-        $res['signGift_tips'] = $taskGiftCategory['all_tips'];
+        //$taskGiftCategory = CfgTaskgiftCategory::getCategoryMore($this->uid);
+        $res['signGift_title'] = '新人礼包';//$taskGiftCategory['all_title'];
+        $res['signGift_tips'] = '';//$taskGiftCategory['all_tips'];
         Common::res(['data' => $res]);
     }
 
