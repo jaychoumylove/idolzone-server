@@ -42,6 +42,12 @@ class FanclubBoxUser extends Base
 
         Db::startTrans();
         try {
+            
+            $isDone = FanclubBox::where('open_people < people')->update([
+                'open_people' => Db::raw('open_people+1'),
+            ]);
+            if(!$isDone) return;
+            
             self::create([
                 'box_id' => $box_id,
                 'user_id' => $uid,
