@@ -38,7 +38,7 @@ class FanclubUser extends Base
         } 
         else $res['rank'] = 'no';
         
-        $res['hasExited'] = Db::name('fanclub_user')->where('user_id', $uid)->where('delete_time','NOT NULL')->value('delete_time');
+        $res['hasExited'] = '';//Db::name('fanclub_user')->where('user_id', $uid)->where('delete_time','NOT NULL')->value('delete_time');
             
         // 等级
         $res['level'] = CfgUserLevel::getLevel($uid);

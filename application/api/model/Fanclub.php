@@ -142,9 +142,9 @@ class Fanclub extends Base
             ]);
         }
         
-        $hasExited = Db::name('fanclub_user')->where('user_id', $uid)
-            ->order('delete_time desc')
-            ->value('delete_time');
+//         $hasExited = Db::name('fanclub_user')->where('user_id', $uid)
+//             ->order('delete_time desc')
+//             ->value('delete_time');
         // if (strtotime($delete_time) > time() - 3600 * 24 * 3) {
         // Common::res(['code' => 1, 'msg' => '三天之内不能再次退出粉丝团']);
         // }
@@ -177,8 +177,8 @@ class Fanclub extends Base
                 }
 
                 // 退过的需要100钻石
-                if ($operater==$uid && $hasExited)
-                    (new UserService())->change($uid, ['stone' => - 100], '超过1次退出粉丝团');
+//                 if ($operater==$uid && $hasExited)
+//                     (new UserService())->change($uid, ['stone' => - 100], '超过1次退出粉丝团');
                 
                 Db::commit();
             } catch (\Exception $e) {
