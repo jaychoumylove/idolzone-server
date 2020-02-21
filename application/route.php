@@ -172,6 +172,7 @@ Route::rule('api/:version/ext/gzhPushSubscribe', 'api/v1.Ext/gzhPushSubscribe');
 
 Route::rule('api/:version/uploadIndex', 'api/v1.Ext/uploadIndex');// 文件上传
 Route::rule('api/:version/upload', 'api/v1.Ext/upload');// 文件上传
+Route::rule('api/:version/ragreement', 'api/v1.Ext/rAgreement');// 文件上传
 
 // FansClub
 Route::rule('api/:version/fans/create', 'api/v1.FansClub/create');// 创建粉丝团

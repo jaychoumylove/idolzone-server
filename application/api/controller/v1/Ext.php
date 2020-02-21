@@ -118,6 +118,11 @@ class Ext extends Base
     {
         return view('upload');
     }
+    
+    public function rAgreement(){
+
+        return view('ragreement');
+    }
 
     /**文件上传 */
     public function upload()
