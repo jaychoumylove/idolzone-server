@@ -130,7 +130,7 @@ class Pk extends Base
                 ->join('user u', 'u.id = pk.uid')
 
                 ->where(['pk.pk_time' => $pkTime, 'pk.pk_type' => $type, 'pk.star_id' => $mid])
-                ->order('pk.send_hot desc,pk.id desc')->page($page, 10)
+                ->order('pk.send_hot desc,pk.update_time desc')->page($page, 10)
                 ->field('pk.*,u.avatarurl,u.nickname as name')->select();
             foreach ($data['userList'] as &$value) {
                 $value['level'] = CfgUserLevel::getLevel($value['uid']);

@@ -192,14 +192,17 @@ class User extends Base
     {
         $content = $this->req('content', 'require');
         $this->getUser();
+        $user = UserModel::where('id', $this->uid)->field('type,nickname,avatarurl')->find();
+        
+        //禁言
+        if ($user['type'] == 2) return;
+        
         // 格式化发言内容
         RecStarChart::verifyWord($content);
         // 扣除喇叭
         (new UserService())->change($this->uid, [
             'trumpet' => -1
         ], '喊话');
-
-        $user = UserModel::where('id', $this->uid)->field('nickname,avatarurl')->find();
         // 推送socket消息
         Gateway::sendToAll(json_encode([
             'type' => 'sayworld',
