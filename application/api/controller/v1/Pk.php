@@ -297,7 +297,7 @@ class Pk extends Base
                         foreach ($star_ids as $rank => $star_id) {
                             // 奖励数额
                             $awards = Db::name('cfg_pk_awards')->where(['rank' => ['<=', $rank + 1], 'type' => $pk_type])->order('rank desc')->find();
-                            $uids = Db::name('pk_user')->where(['pk_time' => $pk_time, 'pk_type' => $pk_type, 'star_id' => $star_id])->order('send_hot desc,id desc')->column('uid');
+                            $uids = Db::name('pk_user')->where(['pk_time' => $pk_time, 'pk_type' => $pk_type, 'star_id' => $star_id])->order('send_hot desc,update_time desc')->column('uid');
 
                             if ($uids) {
                                 // 发奖牌
