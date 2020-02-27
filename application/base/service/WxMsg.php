@@ -163,10 +163,10 @@ class WxMsg
         $content .= "\n你可能对以下内容感兴趣：";
         // $content .= "\n回复“2019”领取年终福利";
         $content .= "\n回复“签到”领取每日签到奖励";
-        $content .= "\n<a href='https://idolzone.cyoor.com/#/pages/charge/charge'>鲜花充值</a>";
+//         $content .= "\n<a href='https://idolzone.cyoor.com/#/pages/charge/charge'>鲜花充值</a>";
         $content .= "\n<a href='http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=100000649&idx=1&sn=38d263825275b1051d539344692e15b7&chksm=4ef49c1d7983150b7b486381a147b972bf9c674d5683cc76d9455c718eb468c184453f7dbbde#rd'>榜单福利</a>";
-        $content .= "\n<a href='http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=100000654&idx=1&sn=ec592eb867cc5c0f2aa40f9e3f4a6cc4&chksm=4ef49c1a7983150c37bd65374e1c7d63b26957d9fda988536b749aff92894e309501a0289d77#rd'>打榜攻略</a>";
-        $content .= "\n<a href='http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=100000658&idx=1&sn=b064e45ac6b95604988f22dac343de58&chksm=4ef49c0679831510e51750ae994b8ff5b5e5052978fcd2a0449f8b9e9557fa24011fb9cc22da#rd'>充值优惠</a>";
+//         $content .= "\n<a href='http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=100000654&idx=1&sn=ec592eb867cc5c0f2aa40f9e3f4a6cc4&chksm=4ef49c1a7983150c37bd65374e1c7d63b26957d9fda988536b749aff92894e309501a0289d77#rd'>打榜攻略</a>";
+//         $content .= "\n<a href='http://mp.weixin.qq.com/s?__biz=Mzg3MjAwODQ0Mw==&mid=100000658&idx=1&sn=b064e45ac6b95604988f22dac343de58&chksm=4ef49c0679831510e51750ae994b8ff5b5e5052978fcd2a0449f8b9e9557fa24011fb9cc22da#rd'>充值优惠</a>";
 
         // 关注/取关
         $subscribe = (int) !($msg['MsgType'] == 'event' && $msg['Event'] == 'unsubscribe');
