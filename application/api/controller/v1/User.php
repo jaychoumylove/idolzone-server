@@ -187,7 +187,7 @@ class User extends Base
         }
         Common::res(['data' => $leftTime]);
     }
-
+    
     public function sayworld()
     {
         $content = $this->req('content', 'require');
@@ -197,8 +197,19 @@ class User extends Base
         //禁言
         if ($user['type'] == 2) return;
         
-        // 格式化发言内容
+        // 检测发言内容
         RecStarChart::verifyWord($content);
+        
+        //记录喊话
+        $starid = UserStar::where('user_id', $this->uid)->value('star_id');
+        RecStarChart::create([
+            'user_id' => $this->uid,
+            'star_id' => $starid,
+            'content' => $content,
+            'type' => 1,
+            'create_time' => time(),
+        ]);        
+        
         // 扣除喇叭
         (new UserService())->change($this->uid, [
             'trumpet' => -1

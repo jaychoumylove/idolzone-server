@@ -19,14 +19,14 @@ class RecStarChart extends Base
     {
         return $this->belongsTo('Star', 'star_id', 'id');
     }
-
-    public static function getLeastChart($starid)
+    
+    public static function getLeastChart($starid,$type=0)
     {
         $list = self::with(['User' => [
             'UserStar' => function ($query) {
                 $query->field('user_id,total_count,captain');
             }
-        ]])->where(['star_id' => $starid])->order('id desc')->limit(10)->select();
+        ]])->where(['star_id' => $starid,'type' => $type])->order('id desc')->limit(10)->select();
 
 
         $list = json_decode(json_encode($list, JSON_UNESCAPED_UNICODE), true);
@@ -53,7 +53,7 @@ class RecStarChart extends Base
     {
        (new WxAPI())->msgCheck($text);
     }
-
+    
     /**留言 */
     public static function sendMsg($uid, $starid, $content)
     {
