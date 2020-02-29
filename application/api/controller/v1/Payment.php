@@ -45,12 +45,12 @@ class Payment extends Base
         if ($type == 'stone') {
             $rate = Cfg::getCfg('recharge_rate')['stone'];
             $totalFee = $count * $rate;
-            if ($count < 10) Common::res(['code' => 1, 'msg' => '数值过小，需大于10颗']);
+            if ($count < 100) Common::res(['code' => 1, 'msg' => '数值过小，需大于100颗']);
             $count *= $discount['increase'];
         } else if ($type == 'flower') {
             $rate = Cfg::getCfg('recharge_rate')['flower'];
             $totalFee = $count * $rate;
-            if ($count < 100000) Common::res(['code' => 1, 'msg' => '数值过小，需大于10万']);
+            if ($count < 1000000) Common::res(['code' => 1, 'msg' => '数值过小，需大于100万']);
             $count *= $discount['increase'];
         }
 
