@@ -146,6 +146,17 @@ class Common
         }
         return $str;
     }
+    
+    /**产生随机字符串 */
+    public static function getRandNumber($len = 4)
+    {
+        $chars = "0123456789";
+        $str = "";
+        for ($i = 0; $i < $len; $i++) {
+            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        }
+        return $str;
+    }
 
     /**
      * 获取微信APP信息

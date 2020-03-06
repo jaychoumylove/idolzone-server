@@ -37,7 +37,8 @@ class Family extends Base
         // 字段排序
         $list = self::with('star')->where($w)
             ->whereOr('clubname', 'like', '%' . $keyword . '%')
-            ->order('thisweek_count desc')
+            ->field('id,avatar,clubname,mem_count,user_id,'.$field.' as hot')
+            ->order($field.' desc')
             ->page($page, $size)
             ->select();
         return $list;
@@ -163,11 +164,13 @@ class Family extends Base
             Db::startTrans();
             try {
                 self::where('id', $fid)->update([
-                    'thisweek_count' => Db::raw('thisweek_count+' . $hot)
+                    'day_count' => Db::raw('day_count+' . $hot),
+                    'week_count' => Db::raw('week_count+' . $hot)
                 ]);
                 
                 FamilyUser::where('user_id', $uid)->update([
-                    'thisweek_count' => Db::raw('thisweek_count+' . $hot)
+                    'day_count' => Db::raw('day_count+' . $hot),
+                    'week_count' => Db::raw('week_count+' . $hot)
                 ]);
                 
                 Db::commit();
@@ -190,28 +193,28 @@ class Family extends Base
         $family_switch = json_decode($family_switch, true);
         if (time() > $family_switch['reback_end_time'])  Common::res(['code' => 1,'msg' => '活动已结束']);
         
-        if (FamilyUser::where('user_id', $uid)->whereTime('settle_time', 'week')->count()) Common::res(['code' => 1,'msg' => '上周奖励已领取过了，请到日志中查看']);
+        $whereTime = $family_switch['field'] == 'day_count' ? 'today' : 'week';
+        if (FamilyUser::where('user_id', $uid)->whereTime('settle_time', $whereTime)->count()) Common::res(['code' => 1,'msg' => $family_switch['field_lastname'].'奖励已领取过了，请到日志中查看']);
             
             // 计算出排名
-        $user = FamilyUser::where('user_id', $uid)->field('family_id,lastweek_count')->find();
-        $lastweek_count = Family::where('id', $user['family_id'])->value('lastweek_count');
-        $lastweek_rank = Family::where('lastweek_count', '>', $lastweek_count)->count() + 1;
-        $lastweek_rank = $lastweek_rank > 11 ? 11 : $lastweek_rank;        
-        if (! $user['lastweek_count'] || ! $lastweek_count)  Common::res(['code' => 1,'msg' => '上周无贡献，无法领取']);
+        $user = FamilyUser::where('user_id', $uid)->field('family_id,last'.$family_switch['field'].' as hot')->find();
+        $lastHot = Family::where('id', $user['family_id'])->value('last'.$family_switch['field']);   
+        if (! $user['hot'] || ! $lastHot)  Common::res(['code' => 1,'msg' => $family_switch['field_lastname'].'无贡献，无法领取']);
             
             // 计算出收益
-        $cfgEarn = CfgFamily::where('id', $lastweek_rank)->field('name,coin,stone')->find();
-        $earn['coin'] = ceil($user['lastweek_count'] * $cfgEarn['coin']);
+        $lastRank = Family::where('last'.$family_switch['field'], '>', $lastHot)->count() + 1;
+        $cfgEarn = CfgFamily::where('field',$family_switch['field'])->where('rank','<=', $lastRank)->order('rank desc')->field('name,coin,stone')->find();
+        $earn['coin'] = ceil($user['hot'] * $cfgEarn['coin']);
         $earn['stone'] = $cfgEarn['stone'];
         
         Db::startTrans();
         try {
             
-            $week_star = date('Y-m-d',strtotime('this week'));
-            $isDone = FamilyUser::where('settle_time IS NULL OR settle_time < "'.$week_star.'"')->where('user_id', $uid)->update([
+            $settle_time = $family_switch['field'] == 'day_count' ? date('Y-m-d',strtotime('today')) : date('Y-m-d',strtotime('this week'));
+            $isDone = FamilyUser::where('settle_time IS NULL OR settle_time < "'.$settle_time.'"')->where('user_id', $uid)->update([
                 'settle_time' => date('Y-m-d H:i:s')
             ]);
-            if (!$isDone) Common::res(['code' => 1,'msg' => '上周奖励已领取过了，请到日志中查看']);
+            if (!$isDone) Common::res(['code' => 1,'msg' => $family_switch['field_lastname'].'奖励已领取过了，请到日志中查看']);
             
             (new UserService())->change($uid, $earn, $cfgEarn['name']);
             

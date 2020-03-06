@@ -35,7 +35,7 @@ use app\api\model\RecPayOrder;
 use app\api\model\FanclubUser;
 use app\api\model\CfgShare;
 use app\api\model\RecTaskfather;
-use app\api\model\Father;
+use app\api\service\Sms;
 
 class Page extends Base
 {
@@ -57,7 +57,7 @@ class Page extends Base
 
         $res['userInfo'] = User::where([
             'id' => $this->uid
-        ])->field('id,nickname,avatarurl,type')->find();
+        ])->field('id,nickname,avatarurl,type,phoneNumber')->find();
         $res['userCurrency'] = UserCurrency::getCurrency($this->uid);
         $res['userExt'] = UserExt::where('user_id', $this->uid)->find();
         $res['userExt']['totalCount'] = UserStar::where('user_id', $this->uid)->max('total_count');
@@ -125,10 +125,14 @@ class Page extends Base
         if (!$res['userRank']) $res['userRank'] = UserStar::getRank($starid, 'total_count', 1, 6);
 
         $res['captain'] = UserStar::where('user_id', $this->uid)->value('captain');
-        // 聊天内容
-        $res['chartList'] = RecStarChart::getLeastChart($starid);
-        // 加入聊天室
-        Gateway::joinGroup($client_id, 'star_' . $starid);
+        
+        if(!$res['starInfo']['chat_off']){
+            // 聊天内容
+            $res['chartList'] = RecStarChart::getLeastChart($starid);
+            // 加入聊天室
+            Gateway::joinGroup($client_id, 'star_' . $starid);
+        }
+        
         $res['disLeastCount'] = StarModel::disLeastCount($starid);
 
         // $res['mass'] = ShareMass::getMass($this->uid);
@@ -363,4 +367,26 @@ class Page extends Base
 
         Common::res(['data' => $res]);
     }
+    
+    /*
+     * 发送短信
+     * */
+    public function sendSms()
+    {
+
+        $phoneNumber = input('phoneNumber',0);
+        $this->getUser();
+        
+        $phoneNumber = strpos($phoneNumber,'86')!==false && strpos($phoneNumber,'86')==0 ? substr($phoneNumber, -11) : $phoneNumber;
+        $hasExist = User::where('phoneNumber',$phoneNumber)->count();
+        if($hasExist) Common::res(['code' => 1, 'msg' => '该号码已被占用']);
+        
+        $sms = json_decode(UserExt::where('user_id',$this->uid)->value('sms'),true);
+        if(isset($sms['phoneNumber']) && time()-$sms['sms_time']<=24*3600 && $sms['phoneNumber']==$phoneNumber ) Common::res(['code' => 1, 'msg' => '验证码已发送，1天只能发送一次']);
+        
+        $content = (new Sms())->send($phoneNumber);
+        UserExt::where('user_id',$this->uid)->update(['sms'=>json_encode($content)]);
+        if($content['Code'] != 'OK') Common::res(['code' => 1, 'msg' => $content['Message']]);
+        Common::res();
+    }    
 }

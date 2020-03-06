@@ -47,26 +47,68 @@ class User extends Base
         Common::res(['msg' => '登录成功', 'data' => ['token' => $token, 'package' => $res]]);
     }
 
+    /**保存用户手机号 */
+    public function savePhone()
+    {
+        $this->getUser();
+        $encryptedData = input('encryptedData','');
+        $iv = input('iv','');
+
+        $phoneNumber = input('phoneNumber',0);
+        $phoneCode = input('phoneCode',0);
+        
+        if($encryptedData && $iv){//微信获得电话号码
+            
+            $appid = (new WxAPI())->appinfo['appid'];
+            $sessionKey = UserModel::where('id', $this->uid)->value('session_key');
+            // 解密encryptedData
+            $res = Common::wxDecrypt($appid, $sessionKey, $encryptedData, $iv);
+            if ($res['errcode']) Common::res(['code' => 1, 'msg' => $res['data']]);
+            
+        }else{
+            
+            $sms = json_decode(UserExt::where('user_id',$this->uid)->value('sms'),true);
+            $phoneNumber = strpos($phoneNumber,'86')!==false && strpos($phoneNumber,'86')==0 ? substr($phoneNumber, -11) : $phoneNumber;
+            if(isset($sms['phoneNumber']) && time()-$sms['sms_time']<=24*3600 && $sms['sms_code']==$phoneCode && $sms['phoneNumber']==$phoneNumber ){
+                $res['data']['phoneNumber'] = $phoneNumber;
+                
+            } else Common::res(['code' => 1, 'msg' => '验证码不正确']);
+        }
+        
+        Db::startTrans();
+        try {
+            UserModel::where('id',$this->uid)->update(['phoneNumber'=>$res['data']['phoneNumber']]);
+        
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 1, 'msg' => '该手机号码已存在']);
+        }
+        
+        Common::res(['data' => ['phoneNumber' => $res['data']['phoneNumber']]]);
+    }
+    
+
     /**授权&保存用户信息 */
     public function saveInfo()
     {
         $type = $this->req('type', 'require', 0);
-
+    
         if ($type == 0) {
             // 小程序授权
             // 解密形式
             $encryptedData = $this->req('encryptedData', 'require');
             $iv = $this->req('iv', 'require');
-
+    
             $this->getUser();
-
+    
             $appid = (new WxAPI())->appinfo['appid'];
             $sessionKey = UserModel::where('id', $this->uid)->value('session_key');
-
+    
             // 解密encryptedData
             $res = Common::wxDecrypt($appid, $sessionKey, $encryptedData, $iv);
             if ($res['errcode']) Common::res(['code' => 1, 'msg' => $res['data']]);
-
+    
             // 保存
             foreach ($res['data'] as $key => $value) {
                 $saveData[strtolower($key)] = $value;
@@ -78,14 +120,14 @@ class User extends Base
             $access_token = $this->req('access_token', 'require');
             $res = (new WxAPI())->getUserInfo($openid, $access_token);
             if (isset($res['errcode'])) Common::res(['code' => 1, 'msg' => $res]);
-            
+    
             $saveData = $res;
             $saveData['avatarurl'] = $res['headimgurl'];
             $saveData['gender'] = $res['sex'];
         }
-
+    
         $saveData['platform'] = $this->req('platform', 'require', 'MP-WEIXIN'); // 平台
-        
+    
         // 包含用户信息和unionid的数据集合
         $data = UserModel::saveUserInfo($saveData);
         $token = Common::setSession($data['id']);
@@ -96,7 +138,7 @@ class User extends Base
     {
         $uid = $this->req('user_id', 'integer');
 
-        $res = UserModel::where('id', $uid)->field('id,nickname,avatarurl,type')->find();
+        $res = UserModel::where('id', $uid)->field('id,nickname,avatarurl,type,phoneNumber')->find();
 
         // 粉丝团
         $res['fanclub'] = FanclubUser::with('fanclub')->where('user_id', $uid)->find()['fanclub'];

@@ -95,6 +95,18 @@ class AutoRun extends Base
                 'lottery_times' => 0,
                 'thisday_like' => 0
             ]);
+            
+            // 家族贡献重置
+            Family::where('1=1')->update([
+                'day_count' => Db::raw('day_count'),
+                'day_count' => 0,
+            ]);
+            
+            FamilyUser::where('1=1')->update([
+                'day_count' => Db::raw('day_count'),
+                'day_count' => 0,
+            ]);
+            
             // 给今日生日明星粉丝上周贡献前100名52000鲜花
             StarBirthRank::grantBirthAward();
             // 周末抽奖双倍
@@ -207,13 +219,13 @@ class AutoRun extends Base
             
             // 家族贡献重置
             Family::where('1=1')->update([
-                'lastweek_count' => Db::raw('thisweek_count'),
-                'thisweek_count' => 0,
+                'week_count' => Db::raw('week_count'),
+                'week_count' => 0,
             ]);
             
             FamilyUser::where('1=1')->update([
-                'lastweek_count' => Db::raw('thisweek_count'),
-                'thisweek_count' => 0,
+                'week_count' => Db::raw('week_count'),
+                'week_count' => 0,
             ]);
             
             Db::commit();

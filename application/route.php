@@ -77,6 +77,7 @@ Route::rule('api/:version/user/login', 'api/v1.User/login');// 登录
 Route::rule('api/:version/user/login_app', 'api/v1.User/login_app');// 登录
 
 Route::rule('api/:version/user/saveinfo', 'api/v1.User/saveInfo');// 保存用户详细信息
+Route::rule('api/:version/user/savephone', 'api/v1.User/savePhone');// 保存用户详细信息
 Route::rule('api/:version/user/edit', 'api/v1.User/edit');// 修改用户头像和昵称
 Route::rule('api/:version/user/info', 'api/v1.User/getInfo');// 获取用户详细信息
 Route::rule('api/:version/user/currency', 'api/v1.User/getCurrency');// 获取用户货币
@@ -187,6 +188,10 @@ Route::rule('api/:version/fans/member', 'api/v1.FansClub/member');// 粉丝团�
 Route::rule('api/:version/fans/task', 'api/v1.FansClub/task');// 粉丝团任务
 Route::rule('api/:version/fans/tasksettle', 'api/v1.FansClub/settle');// 粉丝团任务结算
 Route::rule('api/:version/fans/editNotice', 'api/v1.FansClub/editNotice');// 修改公告
+Route::rule('api/:version/fans/apply', 'api/v1.FansClub/apply');// 申请加入
+Route::rule('api/:version/fans/applylist', 'api/v1.FansClub/applylist');// 申请列表
+Route::rule('api/:version/fans/applydeal', 'api/v1.FansClub/applydeal');// 申请处理
+Route::rule('api/:version/fans/enter', 'api/v1.FansClub/enter');// 邀请页面
 
 Route::rule('api/:version/fans/mybox', 'api/v1.FansClub/mybox');// 粉丝团宝箱
 Route::rule('api/:version/fans/sendbox', 'api/v1.FansClub/sendbox');// 发粉丝团宝箱
@@ -226,6 +231,8 @@ Route::rule('api/:version/page/prop', 'api/v1.Page/prop');//兑换列表
 Route::rule('api/:version/page/myprop', 'api/v1.Page/myprop');//我的卡券
 Route::rule('api/:version/page/propexchange', 'api/v1.Page/propExchange');//积分兑换
 Route::rule('api/:version/page/propuse', 'api/v1.Page/propUse');//使用道具
+
+Route::rule('api/:version/page/sendSms', 'api/v1.Page/sendSms');//使用道具
 
 // Open 
 Route::rule('api/:version/open/upload', 'api/v1.Open/upload');// 上传开屏

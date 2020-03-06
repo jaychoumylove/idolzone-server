@@ -16,6 +16,7 @@ use app\api\service\FanclubTask;
 use app\api\model\RecTaskfather;
 use app\api\model\CfgUserLevel;
 use app\base\service\WxAPI;
+use app\api\model\FanclubApplyUser;
 
 class FansClub extends Base
 {
@@ -67,6 +68,7 @@ class FansClub extends Base
         $res['mass_user'] = FanclubUser::with('user')->where('fanclub_id', $fid)->where('mass_time', date('YmdH'))->field('user_id')->limit(5)->select();
         $res['new_user'] = FanclubUser::with('user')->where('fanclub_id', $fid)->whereTime('create_time', 'Today')->field('user_id')->limit(5)->select();
         $res['new_people'] = count($res['new_user']);
+        $res['apply_count'] = FanclubApplyUser::where('fanclub_id', $fid)->where('status', 1)->count();
 
         $res['leader'] = FanclubUser::isLeader($this->uid);
 
@@ -101,20 +103,28 @@ class FansClub extends Base
 
         Common::res(['data' => $res]);
     }
-
+    
     public function list()
     {
-    $page = $this->req('page', 'integer', 1);
-    $size = $this->req('size', 'integer', 10);
-    $keyword = $this->req('keyword');
-    $field = $this->req('field', 'require');
-    
-    $list = Fanclub::getList($keyword, $field, $page, $size);
-    
-    Common::res([
-        'data' => $list
-    ]);
-}
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+        $keyword = $this->req('keyword');
+        $field = $this->req('field', 'require');
+        $this->getUser();
+        
+        $list = Fanclub::getList($keyword, $field, $page, $size);
+        
+        foreach ($list as &$value) {
+            $value['mystatus'] = FanclubApplyUser::where([
+                        'fanclub_id' => $value['id'],
+                        'user_id' => $this->uid
+                    ])->value('status');
+        }
+        
+        Common::res([
+            'data' => $list
+        ]);
+    }
 
     public function join()
     {
@@ -329,5 +339,136 @@ class FansClub extends Base
         $this->getUser();
         Fanclub::where(['user_id'=>$this->uid,'id'=>$fid])->update(['notice' => $notice]);
         Common::res();
+    }
+    
+
+    public function apply()
+    {
+        $f_id = $this->req('id', 'integer');
+        $this->getUser();
+        
+        $hasJoined = FanclubUser::where('user_id', $this->uid)->count();
+        if ($hasJoined)
+            Common::res([
+                'code' => 1,
+                'msg' => '你已经粉丝团成员'
+            ]);
+    
+        $apply_count = FanclubApplyUser::where('user_id',$this->uid)->count();
+        if ($apply_count >= 2)
+            Common::res([
+                'code' => 1,
+                'msg' => '申请数不能超过2个'
+            ]);
+    
+            $res['fanclub_id'] = $f_id;
+            $res['user_id'] = $this->uid;
+            
+            $isDone = FanclubApplyUser::where($res)->update([
+                'status' => 1
+            ]);
+            if (! $isDone){
+                try {
+
+                    FanclubApplyUser::create($res);
+
+                } catch (\Exception $e) {
+
+                    Common::res([
+                        'code' => 1,
+                        'msg' => '已经在申请中，请等待团长审核'
+                    ]);
+                }
+            }
+
+            Common::res();
+    }
+    
+    public function applylist()
+    {
+        $this->getUser();
+    
+        $f_id = Fanclub::where('user_id', $this->uid)->value('id');
+        $list = FanclubApplyUser::with('user')->where([
+            'fanclub_id' => $f_id,
+            'status' => 1
+        ])->select();
+    
+        foreach ($list as &$value) {
+            $value['user_level'] = CfgUserLevel::getLevel($value['user_id']);
+        }
+        
+        Common::res([
+            'data' => $list
+        ]);
+    }
+    
+    public function applydeal()
+    {
+        $f_id = $this->req('fid', 'integer');
+        $uid = $this->req('uid', 'integer');
+        $status = $this->req('status', 'integer');
+        $this->getUser();
+    
+        $leader = Fanclub::where('id', $f_id)->value('user_id');
+        if ($leader != $this->uid)
+            Common::res([
+                'code' => 1,
+                'msg' => '没有权限'
+            ]);
+    
+            if ($status == - 1) // 拒绝
+                FanclubApplyUser::where([
+                    'fanclub_id' => $f_id,
+                    'user_id' => $uid
+                ])->update([
+                    'status' => $status
+                ]);
+    
+                elseif ($status == 2) { // 允许
+    
+                    Db::startTrans();
+                    try {
+    
+                        FanclubApplyUser::where([
+                            'fanclub_id' => $f_id,
+                            'user_id' => $uid
+                        ])->delete();
+                        Fanclub::joinFanclub($uid, $f_id);
+    
+                        Db::commit();
+                    } catch (\Exception $e) {
+                        Db::rollback();
+                        Common::res([
+                            'code' => 400,
+                            'msg' => $e->getMessage()
+                        ]);
+                    }
+                }
+                Common::res();
+    }
+    
+    public function enter()
+    {
+        $user_id = $this->req('user_id', 'integer', 0);
+        
+        $fid = FanclubUser::where('user_id', $user_id)->value('fanclub_id');
+        if (! $fid)
+            Common::res([
+                'data' => [
+                    'redirect' => true
+                ]
+            ]);
+    
+        $res = Fanclub::with('star')->where('id', $fid)->find();
+        $res['users'] = FanclubUser::with('User')->where('fanclub_id', $fid)
+            ->field('user_id')
+            ->order('week_hot desc')
+            ->limit(6)
+            ->select();
+
+        Common::res([
+            'data' => $res
+        ]);
     }
 }

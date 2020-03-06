@@ -154,6 +154,7 @@ class Fanclub extends Base
             try {
                 // 用户退出
                 FanclubUser::destroy(['user_id' => $uid]);
+                FanclubApplyUser::where(['user_id' => $uid])->delete();
                     
                 self::where('id', $fanclubUser['fanclub_id'])->update([
                     'mem_count' => Db::raw('mem_count-1'),

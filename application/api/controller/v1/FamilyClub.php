@@ -57,9 +57,12 @@ class FamilyClub extends Base
 
     public function info()
     {
-        $fid = $this->req('fid', 'integer', 0);
-        
+        $fid = $this->req('fid', 'integer', 0);        
         $this->getUser();
+
+        $family_switch = Cfg::where('key', 'family_switch')->value('value');
+        $family_switch = json_decode($family_switch, true);
+        
         if (! $fid)
             $fid = FamilyUser::where('user_id', $this->uid)->value('family_id');
         if (! $fid)
@@ -70,14 +73,14 @@ class FamilyClub extends Base
             ]);
         
         $res = Family::with('star')->where('id', $fid)->find();
-        $res['week_rank'] = Family::where('thisweek_count', '>', $res['thisweek_count'])->count() + 1;
+        $res['rank'] = Family::where($family_switch['field'], '>', $res[$family_switch['field']])->count() + 1;
         $res['leader'] = FamilyUser::isLeader($this->uid);
         $res['allow_count'] = Family::getMaxMen($fid);
+        $res['hot'] = $res[$family_switch['field']];
         
         // 判断是否可领取
-        $family_switch = Cfg::where('key', 'family_switch')->value('value');
-        $family_switch = json_decode($family_switch, true);
-        $res['cansettle'] = (time() <= $family_switch['reback_end_time']) && $res['lastweek_count'] && FamilyUser::where('user_id', $this->uid)->value('lastweek_count') && ! FamilyUser::where('user_id', $this->uid)->whereTime('settle_time', 'week')->count();
+        $whereTime = $family_switch['field'] == 'day_count' ? 'today' : 'week';
+        $res['cansettle'] = (time() <= $family_switch['reback_end_time']) && $res['last'.$family_switch['field']] && FamilyUser::where('user_id', $this->uid)->value('last'.$family_switch['field']) && ! FamilyUser::where('user_id', $this->uid)->whereTime('settle_time', $whereTime)->count();
         
         Common::res([
             'data' => $res
@@ -112,9 +115,12 @@ class FamilyClub extends Base
         $fid = $this->req('fid', 'integer');
         $page = $this->req('page', 'integer', 1);
         
+        $family_switch = Cfg::where('key', 'family_switch')->value('value');
+        $family_switch = json_decode($family_switch, true);
+        
         $res['list'] = FamilyUser::with('User')->where('family_id', $fid)
-            ->field('user_id,thisweek_count as hot')
-            ->order('thisweek_count desc')
+            ->field('user_id,'.$family_switch['field'].' as hot')
+            ->order($family_switch['field'].' desc')
             ->page($page, 10)
             ->select();
         foreach ($res['list'] as &$value) {
@@ -207,7 +213,7 @@ class FamilyClub extends Base
         ])->select();
         
         foreach ($list as &$value) {
-            $value['level'] = CfgUserLevel::getLevel($value['user_id']);
+            $value['user_level'] = CfgUserLevel::getLevel($value['user_id']);
         }
         
         Common::res([
