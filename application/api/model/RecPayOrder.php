@@ -15,6 +15,8 @@ class RecPayOrder extends Base
         $pay_uid = $order['user_id'];
         // 目标人
         $uid = $order['tar_user_id'];
+        
+        if(!$uid) $uid=$pay_uid;
 
         (new UserService)->change($uid, [
             'flower' => isset($goodsInfo['flower']) ? $goodsInfo['flower'] : 0,
