@@ -60,7 +60,7 @@ class FanclubBox extends Base
             }
 
             $fid = FanclubUser::where('user_id', $uid)->value('fanclub_id');            
-            self::create(['user_id' => $uid, 'fanclub_id' => $fid, 'coin' => $coin, 'people' => $people]);
+            $box = self::create(['user_id' => $uid, 'fanclub_id' => $fid, 'coin' => $coin, 'people' => $people]);
             
             if($fid){
                 FanclubUser::where([
@@ -73,6 +73,20 @@ class FanclubBox extends Base
                 Fanclub::where('id',$fid)->update([
                     'weekbox_count' => Db::raw('weekbox_count+1')
                 ]);
+                
+                $awardNum = 0;$remainSum = $coin;
+                for ($i=0; $i<$people; $i++){
+                    $remainSum = $remainSum - $awardNum;
+                    $awardNum = self::getAward($remainSum, $people-$i);
+                    $list[] = [
+                        'box_id' => $box['id'],
+                        'count' => $awardNum,
+                        'user_id' => $i+1,
+                        'delete_time' => date('Y-m-d H:i:s'),
+                    ];
+                    
+                }
+                (new FanclubBoxUser())->insertAll($list);
             }
 
             Db::commit();
@@ -80,5 +94,25 @@ class FanclubBox extends Base
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
+    }
+    
+    /**
+     * 获取一个红包的奖金金额
+     * @param int $remainSum 剩余奖金
+     * @param int $remainCount 剩余个数
+     */
+    protected  static function getAward($remainSum, $remainCount)
+    {
+        if ($remainCount == 1) {
+            // 最后一个红包，奖金全部给TA
+            $award = $remainSum;
+        } else {
+            // 奖金额度 = 奖金 / 红包个数 * 随机0.50-1.49倍
+            do {
+                $award = round($remainSum / $remainCount * mt_rand(50, 149) / 100);
+            } while ($award >= $remainSum);
+        }
+    
+        return $award;
     }
 }

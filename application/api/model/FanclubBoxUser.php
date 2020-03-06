@@ -20,41 +20,28 @@ class FanclubBoxUser extends Base
     {
         $isExist = self::where('box_id', $box_id)->where('user_id', $uid)->value('id');
         if ($isExist) return;
-
-        // 宝箱信息
-        $boxInfo = FanclubBox::where('id', $box_id)->find();
-
-        // 红包总个数
-        $totalCount = $boxInfo['people'];
-        $count = self::where('box_id', $box_id)->count('id');
-        // 剩余个数
-        $remainCount = $totalCount - $count;
-        if ($remainCount <= 0) return;
-
-        // 总奖金
-        $totalSum = $boxInfo['coin'];
-        $sum = self::where('box_id', $box_id)->sum('count');
-        // 剩余奖金
-        $remainSum = $totalSum - $sum;
-        if ($remainSum <= 0) return;
-        // 给予奖励数额
-        $awardNum = self::getAward($remainSum, $remainCount);
-
+        
+        $boxUser = Db::name('fanclub_box_user')->where('box_id', $box_id)->where('delete_time IS NOT NULL')->limit(1)->find();
+        
         Db::startTrans();
         try {
+            //是不是已经领完了
             $isDone = FanclubBox::where('id',$box_id)->where('open_people < people')->update([
                 'open_people' => Db::raw('open_people+1'),
             ]);
             if(!$isDone) return;
             
-            self::create([
-                'box_id' => $box_id,
+            //确定其他人没有比我先抢到
+            $isDone = Db::name('fanclub_box_user')->where('id', $boxUser['id'])->where('delete_time IS NOT NULL')->update([
+                'delete_time' => NULL,
                 'user_id' => $uid,
-                'count' => $awardNum
             ]);
+            if(!$isDone) return;
 
-            (new UserService)->change($uid, ['coin' => $awardNum], '粉丝团宝箱奖励');
+            //更新我的货币，且写入日志
+            (new UserService)->change($uid, ['coin' => $boxUser['count']], '粉丝团宝箱奖励');
 
+            //完成师徒任务
             RecTaskfather::addRec($uid, [8, 19, 30, 41]);
 
             Db::commit();
@@ -62,25 +49,5 @@ class FanclubBoxUser extends Base
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
-    }
-
-    /**
-     * 获取一个红包的奖金金额
-     * @param int $total 奖金
-     * @param int $count 剩余个数
-     */
-    public static function getAward($total, $count)
-    {
-        if ($count == 1) {
-            // 最后一个红包，奖金全部给TA
-            $award = $total;
-        } else {
-            // 奖金额度 = 奖金 / 红包个数 * 随机0.50-1.49倍
-            do {
-                $award = round($total / $count * mt_rand(50, 149) / 100);
-            } while ($award >= $total);
-        }
-
-        return $award;
     }
 }

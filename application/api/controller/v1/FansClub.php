@@ -270,6 +270,7 @@ class FansClub extends Base
         $type = $this->req('type', 'integer', 0); // 0钻石 1积分 2鲜花
         $consume = $this->req('consume', 'integer'); // 消耗
         $people = $this->req('people', 'integer', 10); // 人数
+        if($people>50) Common::res(['code' => 1, 'msg' => '不能超过50人']);
         
         $this->getUser();        
         FanclubBox::sendbox($this->uid, $type, $consume, $people);
