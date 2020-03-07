@@ -126,15 +126,6 @@ class FansClub extends Base
         ]);
     }
 
-    public function join()
-    {
-        $f_id = $this->req('id', 'integer');
-        $this->getUser();
-
-        Fanclub::joinFanclub($this->uid, $f_id);
-        Common::res();
-    }
-
     public function exit()
     {
         $this->getUser();

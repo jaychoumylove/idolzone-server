@@ -179,7 +179,6 @@ Route::rule('api/:version/ragreement', 'api/v1.Ext/rAgreement');// 文件上传
 Route::rule('api/:version/fans/create', 'api/v1.FansClub/create');// 创建粉丝团
 Route::rule('api/:version/fans/edit','api/v1.FansClub/edit');// 修改粉丝团
 Route::rule('api/:version/fans/list', 'api/v1.FansClub/list');// 粉丝团列表
-Route::rule('api/:version/fans/join', 'api/v1.FansClub/join');// 加入粉丝团
 Route::rule('api/:version/fans/exit', 'api/v1.FansClub/exit');// 退出粉丝团
 Route::rule('api/:version/fans/info', 'api/v1.FansClub/info');// 我加入的粉丝团
 Route::rule('api/:version/fans/mass', 'api/v1.FansClub/mass');// 粉丝团集结
@@ -188,6 +187,7 @@ Route::rule('api/:version/fans/member', 'api/v1.FansClub/member');// 粉丝团�
 Route::rule('api/:version/fans/task', 'api/v1.FansClub/task');// 粉丝团任务
 Route::rule('api/:version/fans/tasksettle', 'api/v1.FansClub/settle');// 粉丝团任务结算
 Route::rule('api/:version/fans/editNotice', 'api/v1.FansClub/editNotice');// 修改公告
+Route::rule('api/:version/fans/join', 'api/v1.FansClub/apply');// 加入粉丝团
 Route::rule('api/:version/fans/apply', 'api/v1.FansClub/apply');// 申请加入
 Route::rule('api/:version/fans/applylist', 'api/v1.FansClub/applylist');// 申请列表
 Route::rule('api/:version/fans/applydeal', 'api/v1.FansClub/applydeal');// 申请处理
