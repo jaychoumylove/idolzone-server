@@ -149,6 +149,7 @@ class Ext extends Base
             }
         }
         if ($realPath) {
+            if (IsAnimatedGif($realPath)) Common::res(['code' => 1, 'msg' => '不支持动态图片']);            
             //违规检测
             (new WxAPI())->imgCheck($realPath);
             

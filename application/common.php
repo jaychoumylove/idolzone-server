@@ -18,6 +18,15 @@ function test($a)
     echo input('a');
 }
 
+//检查动图
+function IsAnimatedGif($filename)
+{
+    $fp = fopen($filename, 'rb');
+    $filecontent = fread($fp, filesize($filename));
+    fclose($fp);
+    return strpos($filecontent,chr(0x21).chr(0xff).chr(0x0b).'NETSCAPE2.0') === FALSE?0:1;
+}
+
 function get_onlineip()
 {
     $my_curl = curl_init();
