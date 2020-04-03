@@ -61,6 +61,9 @@ class UserStar extends Base
             if ($value > 0) {
                 // 增加
                 $value = '+' . $value;
+            } else if ($value < 0) {
+                //减少
+                
             } else {
                 continue;
             }
