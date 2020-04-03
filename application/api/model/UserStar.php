@@ -224,7 +224,7 @@ class UserStar extends Base
             Db::name('user_star_bakup')->insert($user);
     
             //删除圈子相关徽章
-            BadgeUser::where(['uid' => $uid])->where('badge_id', 'in', [1, 2, 3, 5, 6, 8])->delete();
+            BadgeUser::where(['uid' => $uid])->where('stype', 'in', [1, 2, 3, 5, 6, 8])->delete();
     
             //删除pk相关
             Db::name('pk_user_rank')->where(['uid' => $uid])->delete();
