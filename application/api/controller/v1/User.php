@@ -353,16 +353,35 @@ class User extends Base
         Common::res();
     }
 
+//    public function forbidden()
+//    {
+//        $user_id = $this->req('user_id', 'integer');
+//        $this->getUser();
+//        if (UserStar::getStarId($user_id) != UserStar::getStarId($this->uid)) Common::res(['code' => 1]);
+//
+//        $type = 2;
+//
+//        UserModel::where('id', $user_id)->update(['type' => $type]);
+//        Common::res();
+//    }
+/** 禁言时间加载*/
+    public function biddenTime(){
+        $res=Db::name('cfg_forbidden')->where('delete_time','null')->select();
+        Common::res(['data'=>$res]);
+    }
+    /**禁言 */
     public function forbidden()
     {
         $user_id = $this->req('user_id', 'integer');
+        $time = input('time', 0);
+        $times=time()+$time;
         $this->getUser();
         if (UserStar::getStarId($user_id) != UserStar::getStarId($this->uid)) Common::res(['code' => 1]);
 
-        $type = 2;
+        // 封禁
+        $isDone = Db::name('user_star')->where('user_id', $user_id)->update(['open_time' => $times]);
+        if($isDone) Common::res(['msg' => '封禁成功']);
 
-        UserModel::where('id', $user_id)->update(['type' => $type]);
-        Common::res();
     }
 
     /**团战积分 */

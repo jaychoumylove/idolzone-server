@@ -71,6 +71,7 @@ class FansClub extends Base
         $res['apply_count'] = FanclubApplyUser::where('fanclub_id', $fid)->where('status', 1)->count();
 
         $res['leader'] = FanclubUser::isLeader($this->uid);
+        $res['admin'] = FanclubUser::isAdmin($this->uid);
 
         Common::res(['data' => $res]);
     }
@@ -86,7 +87,7 @@ class FansClub extends Base
         $res['list'] = Db::name('fanclub_user')
             ->alias('f')
             ->join('user u', 'u.id = f.user_id','LEFT')
-            ->field('avatarurl,nickname,user_id,' . $field . ' as hot,last' . $field . ' as lastweek_hot')
+            ->field('avatarurl,nickname,user_id,admin,' . $field . ' as hot,last' . $field . ' as lastweek_hot')
             ->where($w)
             ->where('fanclub_id', $fid)
             ->where('f.delete_time', 'NULL')
@@ -97,7 +98,7 @@ class FansClub extends Base
         }
 
         $res['leader_uid'] = Fanclub::where('id', $fid)->value('user_id');
-
+        $res['admin']=FanclubUser::isAdmin($this->uid);
         $this->getUser();
         $res['my'] = FanclubUser::getMyRankInfo($this->uid, $fid, $field);
 
@@ -133,6 +134,13 @@ class FansClub extends Base
 
         Fanclub::exitFanclub($this->uid,$uid);
         Common::res();
+    }
+    public function upAdmin(){
+        $this->getUser();
+        $uid= $this->req('user_id','integer');
+        $admin= $this->req('admin','integer');
+        $res=Fanclub::upAdmin($this->uid,$uid,$admin);
+        if($res) Common::res(['msg'=>'操作成功']);
     }
 
     public function edit()
@@ -379,17 +387,17 @@ class FansClub extends Base
     public function applylist()
     {
         $this->getUser();
-    
-        $f_id = Fanclub::where('user_id', $this->uid)->value('id');
+        $f_id=input('fid');
+//        $f_id = Fanclub::where('user_id', $this->uid)->value('id');
         $list = FanclubApplyUser::with('user')->where([
             'fanclub_id' => $f_id,
             'status' => 1
         ])->select();
-    
+//        echo FanclubApplyUser::getLastSql();
         foreach ($list as &$value) {
             $value['user_level'] = CfgUserLevel::getLevel($value['user_id']);
         }
-        
+
         Common::res([
             'data' => $list
         ]);
@@ -403,7 +411,8 @@ class FansClub extends Base
         $this->getUser();
     
         $leader = Fanclub::where('id', $f_id)->value('user_id');
-        if ($leader != $this->uid)
+        $admin=FanclubUser::isAdmin($this->uid);
+        if ($leader != $this->uid && !$admin)
             Common::res([
                 'code' => 1,
                 'msg' => '没有权限'

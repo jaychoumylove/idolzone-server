@@ -107,6 +107,7 @@ Route::rule('api/:version/user/recharge', 'api/v1.User/recharge');// 礼物兑�
 Route::rule('api/:version/user/addFriend', 'api/v1.User/addFriend');// 加好友
 Route::rule('api/:version/user/delFriend', 'api/v1.User/delFriend');// 删好友
 Route::rule('api/:version/user/sendToOther', 'api/v1.User/sendToOther');// 送给别人
+Route::rule('api/:version/user/biddenTime', 'api/v1.User/biddenTime');// 时间
 Route::rule('api/:version/user/forbidden', 'api/v1.User/forbidden');// 禁言
 Route::rule('api/:version/user/extraCurrency', 'api/v1.User/extraCurrency');// 团战积分 喇叭
 Route::rule('api/:version/user/like', 'api/v1.User/like');// 点赞
@@ -192,6 +193,7 @@ Route::rule('api/:version/fans/apply', 'api/v1.FansClub/apply');// 申请加入
 Route::rule('api/:version/fans/applylist', 'api/v1.FansClub/applylist');// 申请列表
 Route::rule('api/:version/fans/applydeal', 'api/v1.FansClub/applydeal');// 申请处理
 Route::rule('api/:version/fans/enter', 'api/v1.FansClub/enter');// 邀请页面
+Route::rule('api/:version/fans/upAdmin', 'api/v1.FansClub/upAdmin');// 提/降管理员
 
 Route::rule('api/:version/fans/mybox', 'api/v1.FansClub/mybox');// 粉丝团宝箱
 Route::rule('api/:version/fans/sendbox', 'api/v1.FansClub/sendbox');// 发粉丝团宝箱

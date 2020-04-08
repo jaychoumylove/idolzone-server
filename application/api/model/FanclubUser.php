@@ -24,6 +24,16 @@ class FanclubUser extends Base
         $f_user = Fanclub::where('id', $fid)->value('user_id');
         return $f_user == $uid;
     }
+    /**是否管理员 */
+    public static function isAdmin($uid)
+    {
+        $fid = self::where('user_id', $uid)->value('admin');
+        if($fid===0){
+            return false;
+        }else{
+            return true;
+        }
+    }
     
     /**我在圈子里的排名信息 */
     public static function getMyRankInfo($uid, $fid, $field)

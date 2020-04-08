@@ -126,7 +126,23 @@ class Fanclub extends Base
             ]);
         }
     }
+    /**
+     * 提/降管理员
+     */
+    public static function upAdmin($operater,$uid,$admin=0){
+        $fanclubId=FanclubUser::where('user_id', $uid)->value('fanclub_id');
+        $isLeader = FanclubUser::isLeader($operater);
+        if ($operater != $uid && ! $isLeader) {
+            Common::res(['code' => 1, 'msg' => '没有权限']);
+        }
+        if($admin==1){
+            $adminCount=FanclubUser::where(['fanclub_id'=>$fanclubId,'admin'=>1])->count();
+            if($adminCount >=2) Common::res(['msg'=>'只可设置两个管理员']);
+        }
 
+        $res=FanclubUser::where('user_id',$uid)->update(['admin'=>$admin]);
+        return $res;
+    }
     /**
      * 退出粉丝团
      */
@@ -134,8 +150,8 @@ class Fanclub extends Base
     {
         $fanclubUser = FanclubUser::where('user_id', $uid)->field('fanclub_id,week_count,week_hot,weekmem_count,weekbox_count')->find();
         $isLeader = FanclubUser::isLeader($operater);
-        
-        if ($operater != $uid && ! $isLeader) {
+        $isAdmin= FanclubUser::isAdmin($operater);
+        if (($isLeader || $isAdmin  )==false && ($operater != $uid)==false) {
             Common::res([
                 'code' => 1,
                 'msg' => '没有权限'
