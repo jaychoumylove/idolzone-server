@@ -85,10 +85,10 @@ class RecStarChart extends Base
             $res['user']['isLeader'] = FanclubUser::isLeader($uid);
             $res['user']['userBadge'] = BadgeUser::getUse($uid);
 
-//            if ($res['user']['type'] == 2) {
-//                Db::rollback();
-//                Common::res(['code' => 1, 'msg' => '你已被禁言']);
-//            }
+            if ($res['user']['type'] == 2) {
+                Db::rollback();
+                Common::res(['code' => 1, 'msg' => '你已被禁言']);
+            }
             $openTime=UserStar::where('user_id',$uid)->value('open_time');
             if ($openTime && $openTime > time()){
                 Db::rollback();
