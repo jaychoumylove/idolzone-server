@@ -151,7 +151,7 @@ class Fanclub extends Base
         $fanclubUser = FanclubUser::where('user_id', $uid)->field('fanclub_id,week_count,week_hot,weekmem_count,weekbox_count')->find();
         $isLeader = FanclubUser::isLeader($operater);
         $isAdmin= FanclubUser::isAdmin($operater);
-        if (($isLeader || $isAdmin  )==false && ($operater != $uid)==false) {
+        if (($isLeader || $isAdmin  )==false && $operater != $uid) {
             Common::res([
                 'code' => 1,
                 'msg' => '没有权限'
