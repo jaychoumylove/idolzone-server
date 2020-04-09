@@ -30,7 +30,7 @@ class FansClub extends Base
         $res['clubname'] = $this->req('clubname', 'require');
         $res['wx'] = $this->req('wx', 'require');
         $this->getUser();
-        
+
         if(CfgUserLevel::getLevel($this->uid)<9) Common::res(['code' => 1, 'msg' => '粉丝等级需达到9级']);
         
         (new WxAPI())->msgCheck($res['clubname']);
@@ -354,7 +354,7 @@ class FansClub extends Base
                 'msg' => '你已经粉丝团成员'
             ]);
     
-        $apply_count = FanclubApplyUser::where('user_id',$this->uid)->count();
+        $apply_count = FanclubApplyUser::where('user_id',$this->uid)->where('status','1')->count();
         if ($apply_count >= 2)
             Common::res([
                 'code' => 1,
@@ -387,8 +387,9 @@ class FansClub extends Base
     public function applylist()
     {
         $this->getUser();
-        $f_id=input('fid');
-//        $f_id = Fanclub::where('user_id', $this->uid)->value('id');
+//        $f_id=input('fid');
+
+        $f_id = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         $list = FanclubApplyUser::with('user')->where([
             'fanclub_id' => $f_id,
             'status' => 1
