@@ -26,12 +26,11 @@ class WxAPI
 
     public function request($url, $data = null)
     {
-        //var_dump($data);
         $res = Common::request($url, $data);
         if (isset($res['errmsg'])) $errMsg = $res['errmsg'];
         else if (isset($res['errMsg'])) $errMsg = $res['errMsg'];
 
-        if (isset($errMsg) && strpos($errMsg, 'access_token') !== false) {
+        if (isset($errMsg) && (strpos($errMsg, 'token') !== false || strpos($errMsg, '错误') !== false)) {
             // 更新access_token
             $oldAccessToken = $this->appinfo['access_token'];
             $this->getAccessToken();
