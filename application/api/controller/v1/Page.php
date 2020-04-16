@@ -80,6 +80,7 @@ class Page extends Base
         $userTotalPay = RecPayOrder::where('tar_user_id', $this->uid)->where('pay_time', 'not null')->sum('total_fee');
         if ($res['userStar'] && $res['userStar']['birthday'] == (int) date('md') && $res['userStar']['open_img']) {
             // 生日弹框条件
+            $res['config']['index_open']['img'] = $res['userStar']['open_img'];
             $res['config']['isBirthday']=1;
         } else if ($userTotalPay < Cfg::getCfg('open_img_show_charge')) {
             // 充值小于n元的用户隐藏首页弹图
