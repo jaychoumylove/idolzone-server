@@ -78,6 +78,7 @@ class FansClub extends Base
 
     public function member()
     {
+        $this->getUser();
         $fid = $this->req('fid', 'integer');
         $page = $this->req('page', 'integer', 1);
         $field  = input('field');
