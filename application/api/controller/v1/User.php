@@ -418,6 +418,7 @@ class User extends Base
     public function edit()
     {
         $this->getUser();
+        if(UserModel::where('id', $this->uid)->value('type')==3) Common::res(['code' => 1, 'msg' => '暂停修改用户信息，钻石未扣除']);
         $res['avatarurl'] = $this->req('avatar', 'require');
         $res['nickname'] = $this->req('nickname', 'require');
         (new WxAPI())->msgCheck($res['nickname']);//非法词检测
