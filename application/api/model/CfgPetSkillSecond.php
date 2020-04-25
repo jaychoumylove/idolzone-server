@@ -40,7 +40,7 @@ class CfgPetSkillSecond extends Base
     public static function skillSettle($uid)
     {
         $skill = self::getSkill($uid);
-        if ($skill['remainOffset'] > 0) {
+        if ($skill['remainTimes'] > 0 || $skill['remainOffset'] > 0) {
             Db::startTrans();
             try {
                 
