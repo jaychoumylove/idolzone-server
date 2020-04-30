@@ -37,7 +37,7 @@ class Family extends Base
         // 字段排序
         $list = self::with('star')->where($w)
             ->whereOr('clubname', 'like', '%' . $keyword . '%')
-            ->field('id,avatar,clubname,mem_count,user_id,'.$field.' as hot')
+            ->field('id,avatar,clubname,mem_count,star_id,user_id,'.$field.' as hot')
             ->order($field.' desc')
             ->page($page, $size)
             ->select();
