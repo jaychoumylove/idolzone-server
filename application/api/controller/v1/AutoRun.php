@@ -98,12 +98,12 @@ class AutoRun extends Base
             
             // 家族贡献重置
             Family::where('1=1')->update([
-                'day_count' => Db::raw('day_count'),
+                'lastday_count' => Db::raw('day_count'),
                 'day_count' => 0,
             ]);
             
             FamilyUser::where('1=1')->update([
-                'day_count' => Db::raw('day_count'),
+                'lastday_count' => Db::raw('day_count'),
                 'day_count' => 0,
             ]);
             
@@ -219,12 +219,12 @@ class AutoRun extends Base
             
             // 家族贡献重置
             Family::where('1=1')->update([
-                'week_count' => Db::raw('week_count'),
+                'lastweek_count' => Db::raw('week_count'),
                 'week_count' => 0,
             ]);
             
             FamilyUser::where('1=1')->update([
-                'week_count' => Db::raw('week_count'),
+                'lastweek_count' => Db::raw('week_count'),
                 'week_count' => 0,
             ]);
             
