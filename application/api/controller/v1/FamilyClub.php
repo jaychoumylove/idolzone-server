@@ -73,7 +73,7 @@ class FamilyClub extends Base
             ]);
         
         $res = Family::with('star')->where('id', $fid)->find();
-        $res['rank'] = Family::where($family_switch['field'], '>', $res[$family_switch['field']])->count() + 1;
+        $res['rank'] = Family::where('last'.$family_switch['field'], '>', $res['last'.$family_switch['field']])->count() + 1;
         $res['leader'] = FamilyUser::isLeader($this->uid);
         $res['allow_count'] = Family::getMaxMen($fid);
         $res['hot'] = $res[$family_switch['field']];
