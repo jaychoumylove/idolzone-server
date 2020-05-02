@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\CfgActiveReplace;
 use app\base\controller\Base;
 use app\api\model\RecUserFormid;
 use app\base\service\Common;
@@ -60,7 +61,10 @@ class Ext extends Base
         if(input('platform')=='MP-QQ') $list = CfgActive::limit(1)->select();
         $starid = $this->req('starid', 'integer');
 
-        foreach ($list as &$value) {
+        foreach ($list as $key => &$value) {
+            $tmp = CfgActiveReplace::where('id',$value['id'])->where('ex_star_id',$starid)->find();
+            if($tmp) $list[$key] = $tmp;
+
             // 离活动结束还剩
             $value['active_end'] = strtotime(json_decode($value['active_date'], true)[1]) - time();
             $value['progress'] = RecActive::getProgress($starid, $value['id'], $value['min_days']);

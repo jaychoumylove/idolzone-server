@@ -292,6 +292,11 @@ class UserStar extends Base
     {
         // 活动信息
         $res = CfgActive::get($active_id);
+        if(!$res) Common::res(['code' => 1, 'msg' => '参数错误']);
+
+        $tmp = CfgActiveReplace::where('id',$active_id)->where('ex_star_id',$starid)->find();
+        if($tmp) $res = $tmp;
+
         // 离活动结束还剩
         $res['active_end'] = strtotime(json_decode($res['active_date'], true)[1]) - time();
         // 活动说明
@@ -318,6 +323,7 @@ class UserStar extends Base
         // 我的打卡信息
         $myCardInfo = RecActive::getOneInfo($uid, $starid, $active_id);
         if ($myCardInfo['is_card_today']) Common::res(['code' => 1, 'msg' => '你今天已经打卡了哦']);
+        if ($myCardInfo['card_need_userlevel']) Common::res(['code' => 1, 'msg' => "打卡资源有限\n用户等级需要达到".$myCardInfo['card_need_userlevel']."级\n请先为爱豆冲榜提升等级"]);
 
         // 打卡数+1
         RecActive::addClock($uid, $starid, $active_id);

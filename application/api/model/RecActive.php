@@ -19,6 +19,15 @@ class RecActive extends Base
         $data = self::where('user_id', $uid)->where('star_id', $starid)->where('active_id', $active_id)->find();
         // 今日是否已打卡
         $data['is_card_today'] = date('Ymd', strtotime($data['update_time'])) == date('Ymd');
+
+        //用户等级是否达标，1天1级
+        $userLevel = CfgUserLevel::getLevel($uid);
+        $minDays = CfgActive::where('id',$active_id)->value('min_days');
+
+        //最后一天的打卡时，用户等级N级以下提示需要升级
+        $data['card_need_userlevel'] = Cfg::where('key','card_need_userlevel')->value('value');
+        $data['card_need_userlevel'] = isset($data['total_clocks']) && $data['total_clocks']==$minDays-1 && $userLevel<$data['card_need_userlevel'] ? $data['card_need_userlevel'] : 0;
+
         return $data;
     }
 
