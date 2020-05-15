@@ -149,6 +149,7 @@ class AutoRun extends Base
             
             // 用户周贡献清零
             UserStar::where('1=1')->update([
+                'weekend_total_count' => Db::raw('total_count'),//每周日统计的总贡献（活动时要用）
                 'lastweek_count' => Db::raw('thisweek_count'),
                 'thisweek_count' => 0
             ]);
