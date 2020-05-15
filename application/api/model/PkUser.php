@@ -56,9 +56,23 @@ class PkUser extends Base
             // 正在团战
             $pkTime = date('Y-m-d', time()) . ' ' . $pk['timeSpace']['start_time'] . ':00';
             $pkUser = Db::name('pk_user')->where(['pk_time' => $pkTime, 'uid' => $uid])->find();
-
+            
             if ($pkUser) {
                 // 该用户参加了本场团战
+                //临时活动,520表白节pk榜                
+                if (Cfg::isPkactiveStart()){
+                    
+                    $isDone = StarRankPkactive::where(['star_id'=>$mid])->update([
+                        'pkactive_hot' => Db::raw('pkactive_hot+' . $hot)
+                    ]);
+                    
+                    if(!$isDone) StarRankPkactive::create([
+                        'star_id' => $mid,
+                        'pkactive_hot' => $hot,
+                    ]);
+                }
+                
+                //
                 Db::name('pk_user')->where(['id' => $pkUser['id']])->update([
                     'send_hot' => Db::raw('send_hot+' . $hot),
                 ]);

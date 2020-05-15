@@ -33,6 +33,9 @@ class StarRank extends Base
             $list = json_decode(StarRankHistoryTmp::where('field', 'day_hot_flower')->order('id desc')->value('value'), true);
         } else if ($rankField == 'last_week_hot_flower') {
             $list = json_decode(StarRankHistoryTmp::where('field', 'week_hot_flower')->order('id desc')->value('value'), true);
+        } else if ($rankField == 'last_pkactive_hot') {
+            //历史：告白活动积分排名
+            $list = json_decode(StarRankHistoryTmp::where('field', 'pkactive_hot')->order('id desc')->value('value'), true);
         } else if ($rankField == 'tiegan') {
             // 铁杆粉丝榜
 
@@ -40,6 +43,11 @@ class StarRank extends Base
             // 占领封面榜 （风云榜）
             // 小时贡献榜
             $list = RecHour::getRankList($page, $size);
+            
+        } else if ($rankField == 'pkactive_hot') {
+            // 告白活动 pk积分榜
+            $list = StarRankPkactive::getRankList($page, $size);
+            
         } else {
             // 本周本月的记录
             $list = self::with('star')->where($w)->field('*,' . $rankField . ' as hot')->order($rankField . ' desc,id asc')

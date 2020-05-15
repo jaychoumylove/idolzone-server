@@ -29,4 +29,9 @@ class Cfg extends Base
 
         return $res;
     }
+    
+    public static function isPkactiveStart(){
+        $pkactiveDate = self::getCfg('pkactive_date');        
+        return  (time() > strtotime($pkactiveDate[0]) && time() < strtotime($pkactiveDate[1]));
+    }
 }

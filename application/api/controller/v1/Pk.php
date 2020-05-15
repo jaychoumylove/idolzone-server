@@ -15,6 +15,7 @@ use app\base\service\Common;
 use app\api\model\BadgeUser;
 use app\api\model\RecTaskfather;
 use think\Db;
+use app\api\model\CfgPkactive;
 
 class Pk extends Base
 {
@@ -288,6 +289,7 @@ class Pk extends Base
                 // $week = date('oW', time());
                 // 发放上一场次奖励
                 $noSettleTimeList = Db::name('pk_settle')->where(['is_settle' => 0])->where('pk_time', '<>', $pkTime)->column('pk_time');
+
                 foreach ($noSettleTimeList as $pk_time) {
                     for ($i = 0; $i < 2; $i++) {
                         $pk_type = $i;
@@ -300,6 +302,10 @@ class Pk extends Base
                             $uids = Db::name('pk_user')->where(['pk_time' => $pk_time, 'pk_type' => $pk_type, 'star_id' => $star_id])->order('send_hot desc,update_time desc')->column('uid');
 
                             if ($uids) {
+                                
+                                //520告白临时活动
+                                CfgPkactive::settle($star_id,$rank+1);
+                                
                                 // 发奖牌
                                 if ($rank + 1 == 1) {
                                     $paizi = 'gold';
