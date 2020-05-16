@@ -38,7 +38,7 @@ class Payment extends Base
     {
         $this->getUser();
         $type = $this->req('type', 'require');
-        $user_id = $this->req('user_id', 'require');
+        $user_id = $this->req('user_id', 'require',0);
         $count = $this->req('count', 'integer'); // 数目
 
         $discount = PayGoods::getMyDiscount($this->uid);
