@@ -51,6 +51,10 @@ class AutoRun extends Base
         
         Db::startTrans();
         try {
+
+            //清空抽奖记录表
+            Db::execute('truncate table f_rec_lottery;');
+
             // 重置公众号可用状态
             Appinfo::where('1=1')->update([
                 'status' => 0
