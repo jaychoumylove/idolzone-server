@@ -28,16 +28,16 @@ class LotteryBox extends Base
         $remainCount = $totalCount - $count;
         if ($remainCount <= 0) return;
 
-        $recLottery = RecLottery::with(['lottery'])->where('id', $rec_lottery_id)->find();
+        $recLotteryBox = RecLotteryBox::with(['lottery'])->where('id', $rec_lottery_id)->find();
         // 总奖金
-        $totalSum = $recLottery['lottery']['num'];
+        $totalSum = $recLotteryBox['lottery']['num'];
         $sum = self::where('rec_lottery_id', $rec_lottery_id)->sum('earn');
         // 剩余奖金
         $remainSum = $totalSum - $sum;
         if ($remainSum <= 0) return;
         // 给予奖励数额
         $awardNum = self::getAward($remainSum, $remainCount);
-        $recLottery['lottery']['num'] = $awardNum;
+        $recLotteryBox['lottery']['num'] = $awardNum;
 
         Db::startTrans();
         try {
@@ -47,7 +47,7 @@ class LotteryBox extends Base
                 'earn' => $awardNum
             ]);
 
-            UserExt::grant($uid, $recLottery['lottery']);
+            UserExt::grant($uid, $recLotteryBox['lottery']);
 
             Db::commit();
         } catch (\Exception $e) {

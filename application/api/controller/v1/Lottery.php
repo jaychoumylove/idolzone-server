@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\RecLotteryBox;
 use app\base\controller\Base;
 use app\base\service\Common;
 use app\api\model\UserExt;
@@ -12,6 +13,7 @@ use app\api\model\RecLottery;
 
 class Lottery extends Base
 {
+    /*抽奖-自动回血*/
     public function addCount()
     {
         $this->getUser();
@@ -36,6 +38,7 @@ class Lottery extends Base
         Common::res(['data' => $remainCount]);
     }
 
+    /*抽奖*/
     public function start()
     {
         $this->getUser();
@@ -43,51 +46,26 @@ class Lottery extends Base
         Common::res(['data' => $res]);
     }
 
-    public function getBox()
-    {
-        $rec_lottery_id = $this->req('rec_lottery_id', 'integer');
-
-        $data = RecLottery::with(['user', 'lottery'])->where('id', $rec_lottery_id)->find();
-        Common::res(['data' => $data]);
-    }
-
-    public function getBoxOpen()
-    {
-        $rec_lottery_id = $this->req('rec_lottery_id', 'integer');
-        $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 10);
-
-        $this->getUser();
-        LotteryBox::openBox($this->uid, $rec_lottery_id);
-
-        $res['self'] = LotteryBox::with('user')->where('rec_lottery_id', $rec_lottery_id)->where('user_id', $this->uid)->find();
-        $res['list'] = LotteryBox::with('user')->where('rec_lottery_id', $rec_lottery_id)->page($page, $size)->select();
-        // 手气最佳
-        $res['lucky_boy'] = LotteryBox::where('rec_lottery_id', $rec_lottery_id)->order('earn desc')->value('user_id');
-        // 奖品type 1coin
-        $res['award_type'] = RecLottery::with(['lottery'])->where('id', $rec_lottery_id)->find()['lottery']['type'];
-
-        Common::res(['data' => $res]);
-    }
-
+    /*每日抽奖所得*/
     public function dayEarn()
     {
         $this->getUser();
 
-        $res['coin'] = Rec::where('content', '幸运抽奖')->where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('coin');
-        $res['flower'] = Rec::where('content', '幸运抽奖')->where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('flower');
-        $res['stone'] = Rec::where('content', '幸运抽奖')->where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('stone');
+        $res['coin'] = RecLottery::where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('coin');
+        $res['flower'] = RecLottery::where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('flower');
+        $res['stone'] = RecLottery::where('user_id', $this->uid)->whereTime('create_time', 'd')->sum('stone');
         $res['times'] = UserExt::where('user_id', $this->uid)->value('lottery_times');
         Common::res(['data' => $res]);
     }
 
+    /*每日抽奖日志*/
     public function log()
     {
         $this->getUser();
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 10);
 
-        $logList = Rec::where('user_id', $this->uid)->where('content', '幸运抽奖')->whereTime('create_time', 'd')->order('id desc')->page($page, $size)->select();
+        $logList = RecLottery::where('user_id', $this->uid)->whereTime('create_time', 'd')->order('id desc')->page($page, $size)->select();
 
         Common::res(['data' => $logList]);
     }
@@ -112,5 +90,34 @@ class Lottery extends Base
         //     'trumpet' => $latest['trumpet'] * 2,
         // ]);
         // Common::res();
+    }
+
+    /*宝箱信息*/
+    public function getBox()
+    {
+        $rec_lottery_id = $this->req('rec_lottery_id', 'integer');
+
+        $data = RecLotteryBox::with(['user'])->where('id', $rec_lottery_id)->find();
+        Common::res(['data' => $data]);
+    }
+
+    /*开宝箱*/
+    public function getBoxOpen()
+    {
+        $rec_lottery_id = $this->req('rec_lottery_id', 'integer');
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+
+        $this->getUser();
+        LotteryBox::openBox($this->uid, $rec_lottery_id);
+
+        $res['self'] = LotteryBox::with('user')->where('rec_lottery_id', $rec_lottery_id)->where('user_id', $this->uid)->find();
+        $res['list'] = LotteryBox::with('user')->where('rec_lottery_id', $rec_lottery_id)->page($page, $size)->select();
+        // 手气最佳
+        $res['lucky_boy'] = LotteryBox::where('rec_lottery_id', $rec_lottery_id)->order('earn desc')->value('user_id');
+        // 奖品type 1coin
+        $res['award_type'] = RecLottery::with(['lottery'])->where('id', $rec_lottery_id)->find()['lottery']['type'];
+
+        Common::res(['data' => $res]);
     }
 }

@@ -65,11 +65,11 @@ class UserExt extends Base
                 'lottery_count' => Db::raw('lottery_count-1'),
                 'lottery_times' => Db::raw('lottery_times+1'),
             ]);
-            if(!$isDone) Common::res(['code' => 1, 'msg' => '今天已经抽了100次了2']);
+            if(!$isDone) Common::res(['code' => 1, 'msg' => '今天已经抽了100次了']);
     
             RecTask::addRec($uid, [5, 6]);
             RecTaskfather::addRec($uid, [4, 15, 26, 37]);
-    
+
             // if ($lottery['id'] == 3 || $lottery['id'] == 6) {
             //     // 抽中宝箱
             //     $lottery['rec_lottery_id'] = (int) RecLottery::create(['user_id' => $uid, 'lottery_id' => $lottery['id']])['id'];
@@ -97,6 +97,13 @@ class UserExt extends Base
         (new User())->change($uid, [
             $type => $lottery['num']
         ], '幸运抽奖');
+
+        //抽奖记录另存到一个表
+        RecLottery::create([
+            'user_id' => $uid,
+            'lottery_id' => $lottery['id'],
+            $type => $lottery['num']
+        ]);
     }
 
     /**点赞 */

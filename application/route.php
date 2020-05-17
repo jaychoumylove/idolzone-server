@@ -201,13 +201,12 @@ Route::rule('api/:version/fans/getBox', 'api/v1.FansClub/getBox');// 发粉丝�
 
 // lottery
 Route::rule('api/:version/lottery/addCount', 'api/v1.Lottery/addCount');// 增加抽奖次数
-Route::rule('api/:version/lottery/settle', 'api/v1.Lottery/settle');// 寻宝结算
 Route::rule('api/:version/lottery/start', 'api/v1.Lottery/start');// 抽奖
-Route::rule('api/:version/lottery/getBox', 'api/v1.Lottery/getBox');// 抽奖宝箱信息
-Route::rule('api/:version/lottery/getBoxOpen', 'api/v1.Lottery/getBoxOpen');// 抽奖宝箱信息
 Route::rule('api/:version/lottery/dayEarn', 'api/v1.Lottery/dayEarn');// 抽奖今日获得
 Route::rule('api/:version/lottery/log', 'api/v1.Lottery/log');// 抽奖今日明细
 Route::rule('api/:version/lottery/double', 'api/v1.Lottery/double');// 双倍领取奖励
+Route::rule('api/:version/lottery/getBox', 'api/v1.Lottery/getBox');// 宝箱信息
+Route::rule('api/:version/lottery/getBoxOpen', 'api/v1.Lottery/getBoxOpen');// 抽奖宝箱信息
 
 // Article
 Route::rule('api/:version/article', 'api/v1.Article/getArticle');// 获取文章
