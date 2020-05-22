@@ -61,18 +61,13 @@ class RecTask extends Base
             self::addRec($uid, $task_id);
 
             // 最多完成的次数
-            $maxTimes = Task::where('id', $task_id)->value('times');
-            // 已完成的次数
-            $doneTimes = self::where('user_id', $uid)->where('task_id', $task_id)->value('done_times');
-
-            if ($doneTimes >= $maxTimes) {
-                // 设置为已完成 不可继续完成
-                self::where('user_id', $uid)->where('task_id', $task_id)->update(['is_settle' => 1]);
-            }
+            $maxTimes = Task::where('id', $task_id)->value('times');            
+            $isDone = self::where('user_id', $uid)->where('task_id', $task_id)->where('done_times','>=', $maxTimes)->where('is_settle', 0)->update(['is_settle' => 1]);
+            
         } else {
             $isDone = self::where('user_id', $uid)->where('task_id', $task_id)->where('is_settle', 0)->update(['is_settle' => 1]);
-            if (!$isDone) Common::res(['code' => 1, 'msg' => '你已经领取过了，不能重复领取']);
         }
+        if (!$isDone) Common::res(['code' => 1, 'msg' => '你已经领取过了，不能重复领取']);
     }
 
     /**每日签到 */
