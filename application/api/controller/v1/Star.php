@@ -95,9 +95,14 @@ class Star extends Base
     public function follow()
     {
         $starid = $this->req('starid', 'integer');
+        $platform = $this->req('platform', 'require', 'MP-WEIXIN'); // 平台
+        if (! $starid)
+            Common::res([
+                'code' => 100
+            ]);
         $this->getUser();
 
-        $uid = UserStar::joinNew($starid, $this->uid);
+        $uid = UserStar::joinNew($starid, $this->uid,$platform);
         UserRelation::join($starid, $uid);
         
         Common::res();

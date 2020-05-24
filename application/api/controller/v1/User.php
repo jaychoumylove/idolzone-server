@@ -136,7 +136,11 @@ class User extends Base
 
     public function getInfo()
     {
-        $uid = $this->req('user_id', 'integer');
+        $uid = input('user_id', null);
+        if (!$uid) {
+            $this->getUser();
+            $uid = $this->uid;
+        }
 
         $res = UserModel::where('id', $uid)->field('id,nickname,avatarurl,type,phoneNumber')->find();
 

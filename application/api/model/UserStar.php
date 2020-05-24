@@ -134,28 +134,26 @@ class UserStar extends Base
 
 
     /**加入爱豆圈子 */
-    public static function joinNew($starid, $uid)
+    public static function joinNew($starid, $uid,$platform)
     {
         Db::startTrans();
         try {
             $userType = User::where('id', $uid)->value('type');
             if ($userType == 1) {
                 // 管理员
-                $uid = self::getVirtualUser($starid, $uid);
+                $uid = self::getVirtualUser($starid, $uid,$platform);
             }
 
-            $isExist = Db::name('user_star')->where('user_id', $uid)->where('star_id', $starid)->find();
-            if (!$isExist) {
-                // 创建
-                self::create(['user_id' => $uid, 'star_id' => $starid]);
-            } else {
-                // 恢复
-                Db::name('user_star')->where('user_id', $uid)->where('star_id', $starid)->update(['delete_time' => null]);
+            if (!self::get(['user_id' => $uid, 'star_id' => $starid])) {
+                // Common::res(['code' => 302]);
+                self::create([
+                    'user_id' => $uid, 'star_id' => $starid
+                ]);
             }
             Db::commit();
         } catch (\Exception $e) {
             Db::rollBack();
-            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+            Common::res(['code' => 400, 'data' => $e->getMessage()]);
         }
         return $uid;
     }
@@ -165,7 +163,7 @@ class UserStar extends Base
      * @param mixed $uid 管理员uid
      * @return mixed 虚拟用户uid
      */
-    public static function getVirtualUser($starid, $uid)
+    public static function getVirtualUser($starid, $uid,$platform)
     {
         $user = User::where('id', $uid)->find();
         if (strpos($user['openid'], '@') !== false) {
@@ -176,20 +174,23 @@ class UserStar extends Base
         // 旧 带上oldStarid后缀
         User::where('id', $uid)->update([
             'openid' => $user['openid'] . '@' . $oldStarid,
-            'unionid' => $user['unionid'] . '@' . $oldStarid
+            'unionid' => $user['unionid'] . '@' . $oldStarid,
+            'phoneNumber' => $user['phoneNumber'] ? $user['phoneNumber'] . '@' . $oldStarid : $user['openid'] . '@' . $oldStarid
         ]);
 
         // 新的角色
         $virtualUid = User::where(['openid' => $user['openid'] . '@' . $starid])->value('id');
         if (!$virtualUid) {
             $virtualUid = User::createVirtualUser([
+                'platform' => $platform,
                 'openid' => $user['openid'],
                 'unionid' => $user['unionid'],
             ]);
         } else {
             User::where(['openid' => $user['openid'] . '@' . $starid])->update([
                 'openid' => $user['openid'],
-                'unionid' => $user['unionid']
+                'unionid' => $user['unionid'],
+                'phoneNumber' => $user['phoneNumber']
             ]);
         }
 

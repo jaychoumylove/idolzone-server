@@ -348,37 +348,4 @@ class AutoRun extends Base
             }
         }
     }
-    
-    /*
-     * 520表白活动结束后，积分兑换周榜人气
-     * */
-    public function settlePkactive()
-    {
-        $pkactive = StarRankPkactive::where('score','>',0)->where('settle_time',0)->field('star_id,score')->select();        
-        
-        $star_ids = "";
-        $updateSql = "UPDATE f_star_rank set week_hot = CASE star_id ";
-        foreach ($pkactive as $value){
-            $updateSql .= " WHEN ".$value['star_id']." THEN ".$value['score']*100*10000; //每个积分*100万
-            $star_ids .= $star_ids ? ','.$value['star_id'] : $value['star_id'];
-        }
-        $updateSql .= " END WHERE star_id IN (".$star_ids.")";
-        
-        Db::startTrans();
-        try {
-           (new StarRank())->query($updateSql);           
-           StarRankPkactive::where('1=1')->update([
-                'settle_time' => time()
-            ]);
-        
-            Db::commit();
-        } catch (\Exception $e) {
-            Db::rollback();
-            Common::res([
-                'code' => 400,
-                'msg' => $e->getMessage()
-            ]);
-        }
-        
-    }
 }

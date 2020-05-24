@@ -53,8 +53,8 @@ class User extends Base
                 $currency = [
                     'uid' => $user['id'],
                 ];
-                if (isset($data['type']) && $data['type'] != 0) {
-                    // 0 普通用户
+                if (isset($data['type']) && $data['type'] == 1) {
+                    // 1管理员
                     $currency['coin'] =  100000;
                     $currency['flower'] =  10000;
                     $currency['stone'] =  300;
@@ -153,6 +153,7 @@ class User extends Base
         $vrAvatar = OtherFakeUser::where('1=1')->orderRaw('rand()')->value('avatar');
 
         return self::searchUser([
+            'platform' => $data['platform'],
             'openid' => $data['openid'],
             'unionid' => $data['unionid'],
             'nickname' => $vrNickname,
