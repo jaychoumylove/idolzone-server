@@ -217,7 +217,7 @@ class Notify extends Base
     private function getUserId($msg)
     {
         $wxApi = new WxAPI(input('appid'));
-        $res = $wxApi->getUserInfo($msg['FromUserName'],$wxApi->appinfo['access_token']);
+        $res = $wxApi->getUserInfocgi($wxApi->appinfo['access_token'],$msg['FromUserName']);
         $user_id = isset($res['unionid']) ? UserModel::where(['unionid' => $res['unionid']])->value('id') : NULL;
         $subscribe = (int) !($msg['MsgType'] == 'event' && $msg['Event'] == 'unsubscribe');//关注还是取关
         GzhUser::gzhSubscribe(input('appid'), $user_id, $msg['FromUserName'], $subscribe);

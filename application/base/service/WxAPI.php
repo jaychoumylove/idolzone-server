@@ -124,12 +124,16 @@ class WxAPI
     }
 
     /**
-     * 获取用户基本信息(需要用户关注公众号)
+     * 公众号授权
+     * 拉取用户信息
+     * @param string $accessToken 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
      * @param string $openid 用户的唯一标识
      */
-    public function getUserInfocgi($openid)
+    public function getUserInfocgi($accessToken, $openid)
     {
-        $url = 'https://' . $this->apiHost . '/cgi-bin/user/info?access_token=' . $this->appinfo['access_token'] . '&openid=' . $openid . '&lang=zh_CN';
+        $url = 'https://' . $this->apiHost . '/cgi-bin/user/info?access_token=' . $this->appinfo['access_token'] . '&openid=OPENID&lang=zh_CN';
+
+        $url = str_replace('OPENID', $openid, $url);
 
         return $this->request($url);
     }
