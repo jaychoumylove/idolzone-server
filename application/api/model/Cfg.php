@@ -34,4 +34,13 @@ class Cfg extends Base
         $pkactiveDate = self::getCfg('pkactive_date');        
         return  (time() > strtotime($pkactiveDate[0]) && time() < strtotime($pkactiveDate[1]));
     }
+
+    /*活动起止时间
+     * cfg表中的配置
+     * 类似 biaobai_date	["2020-05-21 00:00:00","2020-05-21 00:00:00"]
+     * */
+    public static function getStatus($key){
+        $res = self::getCfg($key);
+        return  (time() > strtotime($res[0]) && time() < strtotime($res[1]));
+    }
 }

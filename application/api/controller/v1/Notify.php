@@ -14,7 +14,7 @@ use app\api\service\User as UserService;
 use app\base\service\WxMsg;
 use app\base\controller\Base;
 use app\base\service\WxAPI;
-use app\api\model\starRank;
+use app\api\model\StarRank;
 use think\Db;
 
 class Notify extends Base
@@ -140,7 +140,7 @@ class Notify extends Base
             $update['week_hot'] = $score*100*10000;
 
             //增加爱豆周榜人气，并记录到日志
-            starRank::where('star_id',$star_id)->update($update);
+            StarRank::where('star_id',$star_id)->update($update);
             Rec::addRec([
                 'user_id' => $user_id,
                 'content' => "兑换告白积分，爱豆周榜人气+{$update['week_hot']}"
