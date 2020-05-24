@@ -16,6 +16,7 @@ use app\base\controller\Base;
 use app\base\service\WxAPI;
 use app\api\model\StarRank;
 use think\Db;
+use think\Log;
 
 class Notify extends Base
 {
@@ -216,7 +217,7 @@ class Notify extends Base
     private function getUserId($msg)
     {
         $wxApi = new WxAPI(input('appid'));
-        $res = $wxApi->getUserInfo($wxApi->appinfo['access_token'], $msg['FromUserName']);
+        $res = $wxApi->getUserInfo($msg['FromUserName'],$wxApi->appinfo['access_token']);
         $user_id = isset($res['unionid']) ? UserModel::where(['unionid' => $res['unionid']])->value('id') : NULL;
         $subscribe = (int) !($msg['MsgType'] == 'event' && $msg['Event'] == 'unsubscribe');//关注还是取关
         GzhUser::gzhSubscribe(input('appid'), $user_id, $msg['FromUserName'], $subscribe);
