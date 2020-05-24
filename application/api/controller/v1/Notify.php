@@ -98,7 +98,7 @@ class Notify extends Base
         } elseif (isset($msg['Event']) && $msg['Event'] == 'CLICK' && $msg['EventKey'] == 'CLICK_lianxi') { //按钮操作
             $Content .= " 【商务合作】\n寻求合作及赞助可发送邮件：alben.liu@qq.com\n请一定注明公司、姓名、以及合作内容、品牌，否则可能会被忽略哦！";
 
-        } elseif (isset($msg['Event']) && $msg['Event'] == 'subscribe' || $msg['Event'] == 'unsubscribe') { //关注取关
+        } elseif (isset($msg['Event']) && ($msg['Event'] == 'subscribe' || $msg['Event'] == 'unsubscribe')) { //关注取关
             $this->getUserId($msg);
         }
 

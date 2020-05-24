@@ -11,7 +11,7 @@ use think\Log;
 
 class WxMsg
 {
-    private $appinfo;
+    public $appinfo;
     public function __construct($w = null)
     {
         $this->appinfo = Common::getAppinfo($w);
