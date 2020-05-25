@@ -141,7 +141,7 @@ class Notify extends Base
             $update['week_hot'] = $score*100*10000;
 
             //增加爱豆周榜人气，并记录到日志
-            StarRank::where('star_id',$star_id)->update($update);
+            StarRank::where('star_id',$star_id)->update(['week_hot'=>Db::raw('week_hot+' . $update['week_hot'])]);
             Rec::addRec([
                 'user_id' => $user_id,
                 'content' => "兑换告白积分，爱豆周榜人气+{$update['week_hot']}"
