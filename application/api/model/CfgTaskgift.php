@@ -52,7 +52,7 @@ class CfgTaskgift extends Base
             case 3:
                 $userPayed = self::userPayed($cid, $uid)['fee'];
                 $userPayed = $userPayed ? $userPayed : 0;
-                $status = !(!$userPayed || $userPayed < self::where('id', $task_id)->value('count'));
+                $status = $userPayed >= self::where('id', $task_id)->value('count');
                 $btn_text = $status ? '领取' : '去充值';
                 $name_addon = $status ? '' : round($userPayed, 2) . '/' . self::where('id', $task_id)->value('count');
                 break;
