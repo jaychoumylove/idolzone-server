@@ -2,12 +2,7 @@
 
 namespace app\base\service;
 
-use app\api\model\GzhTemplate;
-use app\api\model\GzhUser;
-use app\api\model\User;
-use app\api\model\UserExt;
 use app\api\model\WxImg;
-use think\Log;
 
 class WxMsg
 {

@@ -5,7 +5,7 @@ namespace app\api\model;
 use think\Model;
 use app\base\model\Base;
 
-class StarRankHistoryTmp extends Base
+class StarRankHistoryExt extends Base
 {
     //
 

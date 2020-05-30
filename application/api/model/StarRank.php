@@ -30,12 +30,12 @@ class StarRank extends Base
         } else if ($rankField == 'last_month_hot_coin') {
             $list = json_decode(StarRankHistory::where('field', 'month_hot_coin')->order('id desc')->value('value'), true);
         } else if ($rankField == 'last_day_hot_flower') {
-            $list = json_decode(StarRankHistoryTmp::where('field', 'day_hot_flower')->order('id desc')->value('value'), true);
+            $list = json_decode(StarRankHistoryExt::where('field', 'day_hot_flower')->order('id desc')->value('value'), true);
         } else if ($rankField == 'last_week_hot_flower') {
-            $list = json_decode(StarRankHistoryTmp::where('field', 'week_hot_flower')->order('id desc')->value('value'), true);
+            $list = json_decode(StarRankHistoryExt::where('field', 'week_hot_flower')->order('id desc')->value('value'), true);
         } else if ($rankField == 'last_pkactive_hot') {
             //历史：告白活动积分排名
-            $list = json_decode(StarRankHistoryTmp::where('field', 'pkactive_hot')->order('id desc')->value('value'), true);
+            $list = json_decode(StarRankHistoryExt::where('field', 'pkactive_hot')->order('id desc')->value('value'), true);
         } else if ($rankField == 'tiegan') {
             // 铁杆粉丝榜
 

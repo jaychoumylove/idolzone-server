@@ -21,11 +21,10 @@ use app\api\model\UserSprite;
 use app\api\service\User;
 use app\base\service\Common;
 use app\api\model\RecTaskfanclub;
-use app\api\model\StarRankHistoryTmp;
+use app\api\model\StarRankHistoryExt;
 use app\api\model\Family;
 use app\api\model\FamilyUser;
 use app\base\model\Appinfo;
-use app\api\model\StarRankPkactive;
 
 class AutoRun extends Base
 {
@@ -62,7 +61,7 @@ class AutoRun extends Base
             
             // 转存历史排名_活动期间
             $rankListFlower = StarRank::getRankList(1, 10, 'day_hot_flower');
-            StarRankHistoryTmp::create([
+            StarRankHistoryExt::create([
                 'date' => date('Ymd', time() - 3600),
                 'value' => json_encode($rankListFlower, JSON_UNESCAPED_UNICODE),
                 'field' => 'day_hot_flower'
@@ -168,7 +167,7 @@ class AutoRun extends Base
             
             // 转存历史排名_活动期间
             $rankListFlower = StarRank::getRankList(1, 10, 'week_hot_flower');
-            StarRankHistoryTmp::create([
+            StarRankHistoryExt::create([
                 'date' => date('oW', time() - 3600),
                 'value' => json_encode($rankListFlower, JSON_UNESCAPED_UNICODE),
                 'field' => 'week_hot_flower'

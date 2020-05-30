@@ -59,19 +59,19 @@ class UserProp extends Base
     {
         $prop = Prop::get($id);
         if (!$prop || $prop['delete_time'] != NULL) Common::res(['code' => 3, 'msg' => '奖品无法兑换']);
-
+        
         $res = [];
-        $status = 0;
+        $status = 0;        
+        $prop_badge = Cfg::getCfg('prop_badge');
         Db::startTrans();
         try {
-            if (in_array($id, [11, 12, 13,14])) { //冬至，圣诞，元旦徽章,春节徽章
+            if (in_array($id, array_keys($prop_badge))) { //徽章
                 $count = 1;  //只能买一个
-                $badge = [11 => 55, 12 => 56, 13 => 57, 14 => 59];
                 $status = 1;  //已使用
-                if (BadgeUser::where(['uid' => $uid])->where('badge_id', 'in', $badge[$id])->value('count(1)'))
+                if (BadgeUser::where(['uid' => $uid])->where('badge_id', 'in', $prop_badge[$id])->value('count(1)'))
                     Common::res(['code' => 3, 'msg' => '你已经兑换过了']);
 
-                BadgeUser::addRec($uid, 0, 1, $badge[$id]); //增加徽章
+                BadgeUser::addRec($uid, 0, 1, $prop_badge[$id]); //增加徽章
             }
 
             for ($i = 1; $i <= $count; $i++) {
@@ -123,15 +123,13 @@ class UserProp extends Base
                     if(!$isDone) Common::res(['code' => 1, 'msg' => '操作失败']);
 
                     break;
+
+                default://兑换徽章
                     
-                case 14: //兑换春节徽章
-                    BadgeUser::addRec($uid, 7, 1, 59);//兑换春节徽章
-                    
+                    $prop_badge = Cfg::getCfg('prop_badge');
+                    BadgeUser::addRec($uid, 7, 1, $prop_badge[$userProp['prop_id']]);//兑换徽章                    
                     self::where('id', $userprop_id)->update(['status' => 1]);
                     
-                    break;
-
-                default:
                     break;
             }
             Db::commit();
