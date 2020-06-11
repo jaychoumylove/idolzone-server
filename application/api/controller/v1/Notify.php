@@ -90,6 +90,9 @@ class Notify extends Base
         if ($msg['MsgType'] == 'text' && isset($msg['Content']) && ($msg['Content'] == '1' || $msg['Content'] == '签到')) {
             $Content .= $this->signDay($msg);
 
+        } elseif ($msg['MsgType'] == 'text' && isset($msg['Content']) && ($msg['Content'] == '618' || $msg['Content'] == '618活动')) {
+            $Content .= $this->getGift618($msg);
+
         } elseif ($msg['MsgType'] == 'text' && isset($msg['Content']) && $msg['Content'] == '兑换告白积分') {
             $Content .= $this->settlePkactive($msg);
 
@@ -185,6 +188,32 @@ class Notify extends Base
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
+    }
+
+    /**
+     * 获取618福利
+     */
+    private function getGift618($msg)
+    {
+        $user_id = $this->getUserId($msg);
+        if(!$user_id) return "没有关联到用户，请先到小程序打榜！\n<a data-miniprogram-appid=\"wx3a69eb5e1b2a7fa9\" data-miniprogram-path=\"/pages/index/index\">点击此链接去打榜吧~</a>\n----------------------------\n\n";
+
+        $isGetGift = UserExt::where('user_id', $user_id)->value('is_blessing_gifts');
+        if ($isGetGift>0) return "您已经领取过了！\n----------------------------\n\n";
+        // 增加货币
+        $update = ['coin'=>10000,'stone'=>2,'trumpet'=>3];
+        Db::startTrans();
+        try {
+            (new UserService)->change($user_id, $update,'618福利领取');
+            UserExt::where('user_id', $user_id)->update(['blessing_num' => Db::raw('blessing_num+1'),'is_blessing_gifts' =>1]);
+            Db::commit();
+            return "签到成功，金豆+{$update['coin']}，钻石+{$update['stone']}\n----------------------------\n\n";
+
+        } catch (\Exception $e) {
+            Db::rollBack();
+            return 'rollBack:' . $e->getMessage();
+        }
+
     }
 
     /**
