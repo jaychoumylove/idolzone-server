@@ -2,13 +2,16 @@
 
 namespace app\api\model;
 
+use app\api\service\Star as StarService;
 use app\base\model\Base;
 use app\base\service\Common;
+use app\api\model\User as UserModel;
 use think\Db;
 use app\api\service\User;
 
 class UserExt extends Base
 {
+
     public static function setTime($uid, $index)
     {
         $item = self::get(['user_id' => $uid]);
@@ -123,5 +126,93 @@ class UserExt extends Base
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
+    }
+
+    /**增加福袋幸运值 */
+    public static function addLucky($uid,$num,$task_id)
+    {
+
+        Db::startTrans();
+        try {
+            self::where('user_id', $uid)->update([
+                'lucky_value' => Db::raw('lucky_value+'.$num),
+                'blessing_num' => Db::raw('blessing_num+'.$num)
+            ]);
+            RecTaskactivity618::where(['user_id'=>$uid,'task_id'=>$task_id])->update([
+                'is_settle_times'=> Db::raw('is_settle_times+'.$num)
+            ]);
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    /**618活动福气榜列表 */
+    public static function blessingList($uid,$page,$size)
+    {
+        $list['list']=self::field('send_blessing_num,user_id')->order('send_blessing_num desc')
+            ->page($page, $size)->select();
+        $list['myinfo'] = [];
+        foreach ($list['list'] as $key=>$value){
+
+            $user=UserModel::where('id',$value['user_id'])->field('id,nickname,avatarurl')->find();
+            $headwear=HeadwearUser::getUse($value['user_id']);
+            $level = CfgUserLevel::getLevel($uid);
+            $list['list'][$key]['user']=$user?$user:[];
+            $list['list'][$key]['user']['headwear'] = $headwear?$headwear:[];
+            $list['list'][$key]['user']['level'] = $level?$level:'';
+
+            if($value['user_id']==$uid){
+                $list['myinfo']=$value;
+                $list['myinfo']['rank']=$key+1;
+            }
+        }
+
+        return $list;
+    }
+
+    /**使用福袋幸运值 */
+    public static function useBlessingBag($starid, $hot, $uid, $type, $danmaku)
+    {
+        $myblessinginfo = self::where('user_id', $uid)->field('blessing_num,lucky_value')->find();
+        if ($myblessinginfo['blessing_num'] == 0) Common::res(['code' => 1, 'msg' => '你暂时没有福袋了,快做任务获取吧']);
+        $data=[
+            ['id'=>1,'chance'=>50,'value'=>'6.18'],
+            ['id'=>2,'chance'=>30,'value'=>'6.66'],
+            ['id'=>3,'chance'=>20,'value'=>'8.88'],
+            ['id'=>4,'chance'=>$myblessinginfo['lucky_value'],'value'=>'18']
+        ];
+
+        // 随机一个奖品
+        if($myblessinginfo['lucky_value']==100){
+            $lottery =['id'=>4,'chance'=>$myblessinginfo['lucky_value'],'value'=>'18'];
+        }else{
+            $lottery = Common::lottery($data);
+        }
+
+        $extraAdd = ceil(($lottery['value']*$hot)/100);
+        if ($extraAdd <= 0) Common::res(['code' => 1, 'msg' => '网络错误']);
+
+        Db::startTrans();
+        try {
+
+            self::where('user_id', $uid)->update([
+                'blessing_num' => Db::raw('blessing_num-1')
+            ]);
+
+            (new StarService())->sendHot($starid, $extraAdd, $uid, $type, $danmaku,true);
+
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+
+
+        return [
+            'addNum'=>$extraAdd,
+            'value'=>$lottery['value'],
+        ];
     }
 }

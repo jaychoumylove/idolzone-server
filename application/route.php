@@ -81,6 +81,7 @@ Route::rule('api/:version/user/savephone', 'api/v1.User/savePhone');// 保存用
 Route::rule('api/:version/user/edit', 'api/v1.User/edit');// 修改用户头像和昵称
 Route::rule('api/:version/user/info', 'api/v1.User/getInfo');// 获取用户详细信息
 Route::rule('api/:version/user/currency', 'api/v1.User/getCurrency');// 获取用户货币
+Route::rule('api/:version/user/userBlessingBag', 'api/v1.User/getBlessingBag');// 获取用户福袋信息
 Route::rule('api/:version/user/item', 'api/v1.User/getItem');// 获取用户道具
 
 Route::rule('api/:version/user/star', 'api/v1.User/getStar');// 用户加入的爱豆
@@ -280,7 +281,11 @@ Route::rule('api/:version/badge/rank', 'api/v1.Badge/getRank');// 圈内排行
 // Active
 Route::rule('api/:version/active/laren', 'api/v1.Active/laren');// 活动
 Route::rule('api/:version/active/sendAixin', 'api/v1.Active/sendAixin');// 送爱心
-
+//618
+Route::rule('api/:version/active/blessingTaskList', 'api/v1.Active/blessingTaskList');// 618活动任务列表
+Route::rule('api/:version/active/blessingList', 'api/v1.Active/blessingList');// 618活动福气榜列表
+Route::rule('api/:version/active/getBlessingBag', 'api/v1.Active/getBlessingBag');// 618活动福气领取
+Route::rule('api/:version/active/useBlessingBag', 'api/v1.Active/useBlessingBag');// 618活动福袋使用
 
 // Father
 Route::rule('api/:version/father/info', 'api/v1.Father/info');// 师徒

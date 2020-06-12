@@ -45,7 +45,7 @@ class Star
      * @param integer $type 打榜类型：1送金豆 2送鲜花 3送旧豆
      * @param boolean $danmaku 是否推送打榜弹幕
      */
-    public function sendHot($starid, $hot, $uid, $type, $danmaku = true)
+    public function sendHot($starid, $hot, $uid, $type, $danmaku = true, $is_blessing_bag = false)
     {
         if (date('H') == 0 && date('i') == 0 && date('s') < 5) {
             Common::res(['code' => 1, 'msg' => '打榜请稍后再试']);
@@ -68,10 +68,12 @@ class Star
             else if ($type == 2) $update = ['flower' => -$hot, 'point' => $hot];
             else if ($type == 3) $update = ['old_coin' => -$hot, 'point' => $hot];
 
-            if ($type == 3) {
-                (new UserService)->change($uid, $update, '为爱豆打榜，旧豆-' . $hot);
-            } else {
-                (new UserService)->change($uid, $update, '为爱豆打榜');
+            if($is_blessing_bag==false){
+                if ($type == 3) {
+                    (new UserService)->change($uid, $update, '为爱豆打榜，旧豆-' . $hot);
+                } else {
+                    (new UserService)->change($uid, $update, '为爱豆打榜');
+                }
             }
 
             $myStarId = UserStar::getStarId($uid);

@@ -160,6 +160,17 @@ class User extends Base
         Common::res(['data' => $res]);
     }
 
+    /**
+     * 获取用户福袋信息
+     */
+    public function getBlessingBag()
+    {
+        $this->getUser();
+        $res = UserExt::where('user_id',$this->uid)->field('blessing_num,lucky_value')->find();
+
+        Common::res(['data' => $res]);
+    }
+
     public function getStar()
     {
         $this->getUser();
