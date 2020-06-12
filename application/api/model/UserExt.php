@@ -138,9 +138,7 @@ class UserExt extends Base
                 'lucky_value' => Db::raw('lucky_value+'.$num),
                 'blessing_num' => Db::raw('blessing_num+'.$num)
             ]);
-            RecTaskactivity618::where(['user_id'=>$uid,'task_id'=>$task_id])->update([
-                'is_settle_times'=> Db::raw('is_settle_times+'.$num)
-            ]);
+            $result=RecTaskactivity618::addOrEdit();
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();

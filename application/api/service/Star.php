@@ -2,6 +2,7 @@
 
 namespace app\api\service;
 
+use app\api\model\RecTaskactivity618;
 use app\api\model\StarRank as StarRankModel;
 use think\Db;
 use app\api\model\UserStar;
@@ -96,6 +97,8 @@ class Star
 
                 // 宝箱
             }
+
+            RecTaskactivity618::addOrEdit($uid, 7, $hot);
 
             RecTask::addRec($uid, [14, 15, 16, 17, 18], $hot);
             // 明星增加人气
