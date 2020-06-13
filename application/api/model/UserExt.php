@@ -202,7 +202,9 @@ class UserExt extends Base
         try {
 
             self::where('user_id', $uid)->update([
-                'blessing_num' => Db::raw('blessing_num-1')
+                'blessing_num' => Db::raw('blessing_num-1'),
+                'send_blessing_num' => Db::raw('send_blessing_num+'.$extraAdd),
+
             ]);
 
             (new StarService())->sendHot($starid, $extraAdd, $uid, $type, $danmaku,true);
