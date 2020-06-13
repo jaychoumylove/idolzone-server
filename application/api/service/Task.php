@@ -5,6 +5,7 @@ namespace app\api\service;
 use app\api\model\Cfg;
 use app\api\model\CfgTaskfather;
 use app\api\model\RecTask;
+use app\api\model\RecTaskactivity618;
 use app\api\model\Task as TaskModel;
 use think\Db;
 use app\base\service\Common;
@@ -190,6 +191,8 @@ class Task
             ]);
 
             RecTask::addRec($uid, $task_id);
+
+            RecTaskactivity618::addOrEdit($uid, $task_id);//8,9
         }
     }
 

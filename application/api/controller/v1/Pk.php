@@ -307,11 +307,6 @@ class Pk extends Base
                                 //520告白临时活动
                                 CfgPkactive::settle($star_id,$rank+1);
 
-                                if ($rank + 1 <= 5) {
-                                    foreach ($uids as $key => $uid) {
-                                        RecTaskactivity618::addOrEdit($uid, 1, 1);
-                                    }
-                                }
 
                                 // 发奖牌
                                 if ($rank + 1 == 1) {
