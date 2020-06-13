@@ -161,6 +161,10 @@ class UserExt extends Base
         foreach ($list['list'] as $key=>$value){
 
             $user=UserModel::where('id',$value['user_id'])->field('id,nickname,avatarurl')->find();
+            if(!$user){
+                unset($list['list'][$key]);
+                continue;
+            }
             $headwear=HeadwearUser::getUse($value['user_id']);
             $level = CfgUserLevel::getLevel($uid);
             $list['list'][$key]['user']=$user?$user:[];

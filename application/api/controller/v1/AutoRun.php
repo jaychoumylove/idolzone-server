@@ -2,6 +2,7 @@
 namespace app\api\controller\v1;
 
 use app\api\model\CfgLottery;
+use app\api\model\RecTaskactivity618;
 use app\base\controller\Base;
 use app\api\model\StarRank;
 use think\Db;
@@ -109,6 +110,11 @@ class AutoRun extends Base
             FamilyUser::where('1=1')->update([
                 'lastday_count' => Db::raw('day_count'),
                 'day_count' => 0,
+            ]);
+
+            RecTaskactivity618::where('task_id','in',[4,8,9])->update([
+                'done_times'=>0,
+                'is_settle_times'=>0,
             ]);
             
             // 给今日生日明星粉丝上周贡献前100名52000鲜花
