@@ -88,12 +88,15 @@ class Active extends Base
         }
         $rectask=RecTaskactivity618::where(['user_id'=>$this->uid,'task_id'=>$task_id])->find();
 
-        $num=($rectask['done_times']-$task['times']*$rectask['is_settle_times'])/$task['times'];
-        $addnum=floor($num);
+        if($rectask && $task_id!=4){
 
-        if($addnum>0){
-            UserExt::addLucky($this->uid,$addnum,$task_id);
+            $num=($rectask['done_times']-$task['times']*$rectask['is_settle_times'])/$task['times'];
+            $addnum=floor($num);
+
+        }else{
+            $addnum=1;
         }
+        UserExt::addLucky($this->uid,$addnum,$task_id);
 
         $res=[
             "blessing_num"=>$addnum,

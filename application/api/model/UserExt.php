@@ -139,7 +139,11 @@ class UserExt extends Base
                 'blessing_num' => Db::raw('blessing_num+'.$num)
             ]);
 
-            RecTaskactivity618::addOrEdit($uid, $task_id, $num, $num);
+            if($task_id==4){
+                RecTaskactivity618::addOrEdit($uid, $task_id, $num, $num);
+            }else{
+                RecTaskactivity618::addOrEdit($uid, $task_id, 0, $num);
+            }
 
             Db::commit();
         } catch (\Exception $e) {

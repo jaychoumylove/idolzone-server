@@ -10,6 +10,7 @@ class RecTaskactivity618 extends Base
     //根据任务id插入或更新任务日志
     public static function addOrEdit($uid, $task_id,$done_times=1,$is_settle_times=0)
     {
+        if(Cfg::is618activeStart()==false)return;
         $check = self::where(['user_id' => $uid, 'task_id' => $task_id])
             ->update([
                 'done_times' => Db::raw('done_times+'.$done_times),

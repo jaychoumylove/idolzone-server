@@ -126,7 +126,8 @@ class Page extends Base
         if (!$res['userRank']) $res['userRank'] = UserStar::getRank($starid, 'total_count', 1, 6);
 
         $res['captain'] = UserStar::where('user_id', $this->uid)->value('captain');
-        
+
+        $res['is_blessing_gifts'] = UserExt::where('user_id', $this->uid)->value('is_blessing_gifts');
         if(!$res['starInfo']['chat_off']){
             // 聊天内容
             $res['chartList'] = RecStarChart::getLeastChart($starid);

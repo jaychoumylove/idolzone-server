@@ -1,6 +1,7 @@
 <?php
 namespace app\api\controller\v1;
 
+use app\api\model\RecTaskactivity618;
 use app\base\controller\Base;
 use app\base\service\Common;
 use app\api\model\UserStar;
@@ -199,6 +200,8 @@ class FansClub extends Base
             if (!$isDone) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下一个小时再来2']);
             
             Fanclub::where('id', $fid)->update(['week_hot' => Db::raw('week_hot+' . $coin)]);
+
+            RecTaskactivity618::addOrEdit($this->uid, 3,1);
 
             RecTaskfather::addRec($this->uid, [3, 14, 25, 36]);
 

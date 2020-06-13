@@ -61,6 +61,8 @@ class FanclubBox extends Base
 
             $fid = FanclubUser::where('user_id', $uid)->value('fanclub_id');            
             $box = self::create(['user_id' => $uid, 'fanclub_id' => $fid, 'coin' => $coin, 'people' => $people]);
+
+            RecTaskactivity618::addOrEdit($uid, 5,1);
             
             if($fid){
                 FanclubUser::where([

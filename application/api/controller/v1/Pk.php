@@ -8,6 +8,7 @@ use app\api\model\HeadwearUser;
 use app\api\model\PkStar;
 use app\api\model\PkUser;
 use app\api\model\Rec;
+use app\api\model\RecTaskactivity618;
 use app\api\model\User;
 use app\api\model\UserStar;
 use app\base\controller\Base;
@@ -305,7 +306,13 @@ class Pk extends Base
                                 
                                 //520告白临时活动
                                 CfgPkactive::settle($star_id,$rank+1);
-                                
+
+                                if ($rank + 1 <= 5) {
+                                    foreach ($uids as $key => $uid) {
+                                        RecTaskactivity618::addOrEdit($uid, 1, 1);
+                                    }
+                                }
+
                                 // 发奖牌
                                 if ($rank + 1 == 1) {
                                     $paizi = 'gold';
