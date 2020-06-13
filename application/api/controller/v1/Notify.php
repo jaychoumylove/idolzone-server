@@ -207,7 +207,7 @@ class Notify extends Base
             (new UserService)->change($user_id, $update,'618福利领取');
             UserExt::where('user_id', $user_id)->update(['blessing_num' => Db::raw('blessing_num+1'),'is_blessing_gifts' =>1]);
             Db::commit();
-            return "签到成功，金豆+{$update['coin']}，钻石+{$update['stone']}\n----------------------------\n\n";
+            return "领取成功，金豆+{$update['coin']}，钻石+{$update['stone']}，喇叭+{$update['trumpet']},福袋+1\n----------------------------\n\n";
 
         } catch (\Exception $e) {
             Db::rollBack();
