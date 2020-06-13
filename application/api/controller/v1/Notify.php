@@ -204,8 +204,9 @@ class Notify extends Base
         $update = ['coin'=>10000,'stone'=>2,'trumpet'=>3];
         Db::startTrans();
         try {
+            $isDone = UserExt::where('user_id', $user_id)->where('is_blessing_gifts', 0)->update(['blessing_num' => Db::raw('blessing_num+1'),'is_blessing_gifts' =>1]);
+            if(!$isDone) return "你已经领取过618礼包了\n----------------------------\n\n";
             (new UserService)->change($user_id, $update,'618福利领取');
-            UserExt::where('user_id', $user_id)->update(['blessing_num' => Db::raw('blessing_num+1'),'is_blessing_gifts' =>1]);
             Db::commit();
             return "领取成功，金豆+{$update['coin']}，钻石+{$update['stone']}，喇叭+{$update['trumpet']},福袋+1\n----------------------------\n\n";
 
