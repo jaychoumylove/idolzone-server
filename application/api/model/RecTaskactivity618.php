@@ -20,6 +20,15 @@ class RecTaskactivity618 extends Base
             self::create(['user_id' => $uid, 'task_id' => $task_id, 'done_times' => $done_times, 'is_settle_times' => $is_settle_times]);
         }
 
+        if($is_settle_times>0){
+            RecActivity618::addRec([
+                'user_id' => $uid,
+                'content' => '恭喜你获得了'.$is_settle_times.'个福袋和'.$is_settle_times.'点幸运值',
+                'blessing_num' => $is_settle_times,
+                'lucky_value' => $is_settle_times,
+            ]);
+        }
+
     }
 
 

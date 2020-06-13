@@ -211,7 +211,14 @@ class UserExt extends Base
 
             ]);
 
+            RecActivity618::addRec([
+                'user_id' => $uid,
+                'content' => '你使用了1个福袋',
+                'blessing_num' => -1,
+            ]);
+
             (new StarService())->sendHot($starid, $extraAdd, $uid, $type, $danmaku,true);
+
 
             Db::commit();
         } catch (\Exception $e) {

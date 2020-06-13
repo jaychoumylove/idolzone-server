@@ -286,6 +286,7 @@ Route::rule('api/:version/active/blessingTaskList', 'api/v1.Active/blessingTaskL
 Route::rule('api/:version/active/blessingList', 'api/v1.Active/blessingList');// 618活动福气榜列表
 Route::rule('api/:version/active/getBlessingBag', 'api/v1.Active/getBlessingBag');// 618活动福气领取
 Route::rule('api/:version/active/useBlessingBag', 'api/v1.Active/useBlessingBag');// 618活动福袋使用
+Route::rule('api/:version/active/logBlessingBag', 'api/v1.Active/logBlessingBag');// 618活动福袋日志
 
 // Father
 Route::rule('api/:version/father/info', 'api/v1.Father/info');// 师徒

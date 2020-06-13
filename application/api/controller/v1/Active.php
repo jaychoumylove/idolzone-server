@@ -3,9 +3,11 @@ namespace app\api\controller\v1;
 
 use app\api\model\ActiveLaren;
 use app\api\model\CfgTaskactivity618;
+use app\api\model\FanclubUser;
 use app\api\model\LarenStar;
 use app\api\model\LarenUser;
 use app\api\model\Rec;
+use app\api\model\RecActivity618;
 use app\api\model\RecTaskactivity618;
 use app\api\model\UserExt;
 use app\base\controller\Base;
@@ -59,6 +61,8 @@ class Active extends Base
         $res['myinfo'] = UserExt::where('user_id', $this->uid)->field('blessing_num,lucky_value')->find();
         // 任务列表
         $res['list'] = (new CfgTaskactivity618())->getList($this->uid);
+
+        $res['fanclub_id'] = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
 
 
         Common::res(['data' => $res]);
@@ -123,6 +127,18 @@ class Active extends Base
         $res = UserExt::useBlessingBag($starid, $hot, $this->uid, $type, $danmaku);
 
         Common::res(['data' => $res]);
+    }
+
+    /**618活动福袋日志*/
+    public function logBlessingBag(){
+
+        $this->getUser();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+        $filter = $this->req('filter');
+        $logList = RecActivity618::getList($this->uid, $page, $size, $filter);
+
+        Common::res(['data' => $logList]);
     }
 
 }

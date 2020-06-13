@@ -17,7 +17,7 @@ class CfgTaskactivity618 extends Base
                 if(($value['id']==4 || $value['id']==8 || $value['id']==9) && $rectask['is_settle_times']>=1){
                     $list[$key]['status']=2;
                 }else{
-                    if($rectask['done_times']>=$value['times']&&$rectask['done_times']>=$value['times']*$rectask['is_settle_times']){
+                    if($rectask['done_times']>=$value['times'] && $rectask['done_times']/$value['times']-$rectask['is_settle_times']>=1 ){
                         $list[$key]['status']=1;
                     }else{
                         $list[$key]['status']=0;

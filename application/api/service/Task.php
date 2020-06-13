@@ -192,7 +192,7 @@ class Task
 
             RecTask::addRec($uid, $task_id);
 
-            RecTaskactivity618::addOrEdit($uid, $task_id);//8,9
+            RecTaskactivity618::addOrEdit($uid, $task_id,1);//8,9
         }
     }
 
