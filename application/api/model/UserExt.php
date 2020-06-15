@@ -164,29 +164,38 @@ class UserExt extends Base
     /**618活动福气榜列表 */
     public static function blessingList($uid,$page,$size)
     {
-        $list['list']=self::field('send_blessing_num,user_id')->order('send_blessing_num desc')
+        $list=self::field('send_blessing_num,user_id')->order('send_blessing_num desc')
             ->page($page, $size)->select();
-        $list['myinfo'] = [];
-        foreach ($list['list'] as $key=>$value){
+
+        foreach ($list as $key=>$value){
 
             $user=UserModel::where('id',$value['user_id'])->field('id,nickname,avatarurl')->find();
             if(!$user){
-                unset($list['list'][$key]);
+                unset($list[$key]);
                 continue;
             }
             $headwear=HeadwearUser::getUse($value['user_id']);
             $level = CfgUserLevel::getLevel($uid);
-            $list['list'][$key]['user']=$user?$user:[];
-            $list['list'][$key]['user']['headwear'] = $headwear?$headwear:[];
-            $list['list'][$key]['user']['level'] = $level?$level:'';
+            $list[$key]['user']=$user?$user:[];
+            $list[$key]['user']['headwear'] = $headwear?$headwear:[];
+            $list[$key]['user']['level'] = $level?$level:'';
 
-            if($value['user_id']==$uid){
-                $list['myinfo']=$value;
-                $list['myinfo']['rank']=$key+1;
-            }
         }
 
-        return $list;
+        $result['list']=array_values($list);
+
+        $my_send_blessing_info=self::where('user_id',$uid)->field('send_blessing_num,user_id')->find();
+        $my=UserModel::where('id',$my_send_blessing_info['user_id'])->field('id,nickname,avatarurl')->find();
+        $myheadwear=HeadwearUser::getUse($my_send_blessing_info['user_id']);
+        $mylevel = CfgUserLevel::getLevel($uid);
+        $my_send_blessing_info['user']=$my?$my:[];
+        $my_send_blessing_info['headwear'] = $myheadwear?$myheadwear:[];
+        $my_send_blessing_info['level'] = $mylevel?$mylevel:'';
+        $send_blessing_nums=self::column('send_blessing_num');
+        $result['myinfo']=$my_send_blessing_info;
+        $result['myinfo']['rank']=array_search($my_send_blessing_info['send_blessing_num'],$send_blessing_nums);
+
+        return $result;
     }
 
     /**使用福袋幸运值 */
