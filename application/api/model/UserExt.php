@@ -134,10 +134,19 @@ class UserExt extends Base
 
         Db::startTrans();
         try {
-            self::where('user_id', $uid)->update([
-                'lucky_value' => Db::raw('lucky_value+'.$num),
-                'blessing_num' => Db::raw('blessing_num+'.$num)
-            ]);
+            $lucky_value=self::where('user_id', $uid)->value('lucky_value');
+
+            if($lucky_value>=100 || $lucky_value+$num>=100){
+                self::where('user_id', $uid)->update([
+                    'lucky_value' => 100,
+                    'blessing_num' => Db::raw('blessing_num+'.$num)
+                ]);
+            }else{
+                self::where('user_id', $uid)->update([
+                    'lucky_value' => Db::raw('lucky_value+'.$num),
+                    'blessing_num' => Db::raw('blessing_num+'.$num)
+                ]);
+            }
 
             if($task_id==4){
                 RecTaskactivity618::addOrEdit($uid, $task_id, $num, $num);
