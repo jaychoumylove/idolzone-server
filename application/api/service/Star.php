@@ -2,6 +2,7 @@
 
 namespace app\api\service;
 
+use app\api\model\Rec;
 use app\api\model\RecTaskactivity618;
 use app\api\model\StarRank as StarRankModel;
 use think\Db;
@@ -75,6 +76,11 @@ class Star
                 } else {
                     (new UserService)->change($uid, $update, '为爱豆打榜');
                 }
+            }else{
+                Rec::addRec([
+                    'user_id' => $uid,
+                    'content' => '使用福袋爱豆人气+'.$hot
+                ]);
             }
 
             $myStarId = UserStar::getStarId($uid);
