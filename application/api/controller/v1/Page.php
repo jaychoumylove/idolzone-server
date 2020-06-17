@@ -128,6 +128,9 @@ class Page extends Base
         $res['captain'] = UserStar::where('user_id', $this->uid)->value('captain');
 
         $res['is_blessing_gifts'] = UserExt::where('user_id', $this->uid)->value('is_blessing_gifts');
+        if(input('platform')!='MP-WEIXIN'){
+            $res['is_blessing_gifts']=1;
+        }
         if(!$res['starInfo']['chat_off']){
             // 聊天内容
             $res['chartList'] = RecStarChart::getLeastChart($starid);
