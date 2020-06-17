@@ -73,7 +73,7 @@ class Active extends Base
     {
         $this->getUser();
         $page = input('page', 1);
-        $size = input('size', 10);
+        $size = input('size', 15);
 
         // 618所赠福气豆列表
         $res = UserExt::blessingList($this->uid,$page,$size);
