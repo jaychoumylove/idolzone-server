@@ -164,16 +164,17 @@ class UserExt extends Base
     /**618活动福气榜列表 */
     public static function blessingList($uid,$page,$size)
     {
-        $result['list']=self::field('send_blessing_num,user_id')->order('send_blessing_num desc')
+        $list=self::field('send_blessing_num,user_id')->order('send_blessing_num desc')
             ->page($page, $size)->select();
-        foreach ($result['list'] as $key=>$value){
+        $list = json_decode(json_encode($list),TRUE);
 
-            $value['user']=UserModel::where('id',$value['user_id'])->field('nickname,avatarurl')->find();
-            $value['headwear']=HeadwearUser::getUse($value['user_id']);
-            $value['level'] = CfgUserLevel::getLevel($uid);
-
-            $result['list'][$key]=$value;
+        foreach ($list as &$value){
+            $value['user']=UserModel::where('id',$value['user_id'])->field('id,nickname,avatarurl')->find();
+            $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
+            $value['user']['level'] = CfgUserLevel::getLevel($uid);
         }
+
+        $result['list']=$list;
 
         $my_send_blessing_info=self::where('user_id',$uid)->field('send_blessing_num,user_id')->find();
         $my_send_blessing_info['user']=UserModel::where('id',$my_send_blessing_info['user_id'])->field('id,nickname,avatarurl')->find();
