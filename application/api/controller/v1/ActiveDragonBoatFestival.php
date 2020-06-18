@@ -13,13 +13,13 @@ class ActiveDragonBoatFestival extends Base
     {
         $this->getUser();
 
-        $res['list'] = (new ActiveDragonBoatFestivalModel())->getList();
+        $res = (new ActiveDragonBoatFestivalModel())->getList();
 
         Common::res(['data' => $res]);
     }
 
     /**端午活动粉丝团列表*/
-    public function funclubList()
+    public function fanclubList()
     {
         $this->getUser();
         $page = input('page', 1);
@@ -32,7 +32,7 @@ class ActiveDragonBoatFestival extends Base
     }
 
     /**端午活动粉丝团用户列表*/
-    public function funclubUserList()
+    public function fanclubUserList()
     {
         $this->getUser();
         $page = input('page', 1);

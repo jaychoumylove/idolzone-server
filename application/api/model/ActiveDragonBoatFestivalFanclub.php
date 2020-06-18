@@ -4,7 +4,7 @@ namespace app\api\model;
 
 use app\base\model\Base;
 
-class ActiveDragonBoatFestivalFunsclub extends Base
+class ActiveDragonBoatFestivalFanclub extends Base
 {
     public static function getList()
     {
