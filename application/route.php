@@ -289,6 +289,10 @@ Route::rule('api/:version/active/getBlessingBag', 'api/v1.Active/getBlessingBag'
 Route::rule('api/:version/active/useBlessingBag', 'api/v1.Active/useBlessingBag');// 618活动福袋使用
 Route::rule('api/:version/active/logBlessingBag', 'api/v1.Active/logBlessingBag');// 618活动福袋日志
 
+Route::rule('api/:version/active/dragon_boat_festival', 'api/v1.ActiveDragonBoatFestival/index');// 端午活动列表
+Route::rule('api/:version/active/dragon_boat_festival_funclub', 'api/v1.ActiveDragonBoatFestival/funclubList');// 端午活动粉丝团列表
+Route::rule('api/:version/active/dragon_boat_festival_funclub_user', 'api/v1.ActiveDragonBoatFestival/funclubUserList');// 端午活动粉丝团用户列表
+
 // Father
 Route::rule('api/:version/father/info', 'api/v1.Father/info');// 师徒
 Route::rule('api/:version/father/fatherList', 'api/v1.Father/fatherList');// 师父列表
