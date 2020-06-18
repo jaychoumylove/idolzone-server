@@ -159,6 +159,7 @@ Route::rule('api/:version/task/taskGiftSettle', 'api/v1.Task/taskGiftSettle');//
 
 // Ext
 Route::rule('api/:version/config', 'api/v1.Ext/config');// 配置信息
+Route::rule('api/:version/config/btn_cfg_group', 'api/v1.Ext/btn_cfg_group');// 圈子活动配置信息
 
 Route::rule('api/:version/active/info', 'api/v1.Ext/getActiveInfo');// 活动信息
 Route::rule('api/:version/active/card', 'api/v1.Ext/setCard');// 打卡

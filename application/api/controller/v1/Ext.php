@@ -55,6 +55,43 @@ class Ext extends Base
         Common::res(['data' => $res]);
     }
 
+
+    public function btn_cfg_group(){
+
+        $this->getUser();
+        $btn_cfg=Cfg::getCfg('btn_cfg');
+        $btn_cfg = json_decode(json_encode($btn_cfg),TRUE);
+
+        $is_blessing_gifts = UserExt::where('user_id', $this->uid)->value('is_blessing_gifts');
+        $user_starid=UserStar::where('user_id', $this->uid)->value('star_id');
+        $groupList=$btn_cfg['group'];
+        $is_open_blessing=0;
+        $modal='';
+        if(count($groupList)>0){
+            foreach ($groupList as $key=>$value){
+                if($value['start_time'] && $value['end_time']){
+                    $start_time = strtotime($value['start_time']);
+                    $end_time = strtotime($value['end_time']);
+                    $status = $value['status'];
+
+                    if ($status == 1 && $end_time > time() && $start_time < time()) {
+                        if ($value['path'] == '/pages/active/active618') {
+                            $is_open_blessing = 1;
+                            if ($is_blessing_gifts == 0 && $user_starid) {
+                                $modal = 'activity618';
+                            }
+                        }
+
+                    } else {
+                        unset($groupList[$key]);
+                    }
+                }
+            }
+        }
+        Common::res(['data' => ['btn_cfg'=>$btn_cfg,'groupList'=>$groupList,'is_open_blessing'=>$is_open_blessing,'modal'=>$modal]]);
+
+    }
+
     public function activeList()
     {
         $list = CfgActive::all();
