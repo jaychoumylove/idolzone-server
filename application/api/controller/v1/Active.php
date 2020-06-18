@@ -93,12 +93,14 @@ class Active extends Base
         $rectask=RecTaskactivity618::where(['user_id'=>$this->uid,'task_id'=>$task_id])->find();
 
         if($rectask){
-            if(($task_id==4 || $task_id==8 || $task_id==9) && $rectask['is_settle_times']>=1){
-                Common::res(['code' => 1, 'msg' => '该任务已经领取过了']);
-            }
-
-            if($rectask['done_times']<$task['times'] || $rectask['done_times']/$task['times']-$rectask['is_settle_times']<1 ){
-                Common::res(['code' => 1, 'msg' => '该任务还不能领取']);
+            if($task_id==4 || $task_id==8 || $task_id==9){
+                if($rectask['is_settle_times']>=1 && $rectask['done_times']>=1){
+                    Common::res(['code' => 1, 'msg' => '该任务已经领取过了']);
+                }
+            }else{
+                if($rectask['done_times']<$task['times'] || $rectask['done_times']/$task['times']-$rectask['is_settle_times']<1 ){
+                    Common::res(['code' => 1, 'msg' => '该任务还不能领取']);
+                }
             }
         }
 
