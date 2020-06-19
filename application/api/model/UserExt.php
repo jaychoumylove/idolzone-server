@@ -171,7 +171,7 @@ class UserExt extends Base
         foreach ($list as &$value){
             $value['user']=UserModel::where('id',$value['user_id'])->field('id,nickname,avatarurl')->find();
             $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
-            $value['user']['level'] = CfgUserLevel::getLevel($uid);
+            $value['user']['level'] = CfgUserLevel::getLevel($value['user_id']);
         }
 
         $result['list']=$list;
