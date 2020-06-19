@@ -50,6 +50,21 @@ class Cfg extends Base
         return $result;
     }
 
+    public static function isActiveDragonBoatFestivalStart(){
+        $btnCfgDate = self::getCfg('btn_cfg');
+        $result = false;
+        if(count($btnCfgDate['group'])>0){
+            foreach ($btnCfgDate['group'] as $value){
+                if($value['path']=='/pages/active/dragon_boat_festival'){
+                    if(time() > strtotime($value['start_time']) && time() < strtotime($value['end_time']) && $value['status']!=0){
+                        $result = true;
+                    }
+                }
+            }
+        }
+        return $result;
+    }
+
     /*活动起止时间
      * cfg表中的配置
      * 类似 biaobai_date	["2020-05-21 00:00:00","2020-05-21 00:00:00"]

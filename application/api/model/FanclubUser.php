@@ -54,4 +54,16 @@ class FanclubUser extends Base
         $res['level'] = CfgUserLevel::getLevel($uid);
         return $res;
     }
+
+    public static function addActiveDragonBoatFestivalHot($uid,$addHot){
+        if(Cfg::isActiveDragonBoatFestivalStart()==false)return;
+        $fanclub_id=self::where('user_id',$uid)->value('fanclub_id');
+        if(!$fanclub_id)return;
+        self::where('user_id',$uid)->update([
+            'dragon_boat_festival_hot'=> Db::raw('dragon_boat_festival_hot+'.$addHot),
+        ]);
+        ActiveDragonBoatFestivalFanclub::where('fanclub_id',$fanclub_id)->update([
+            'active_time'=> time(),
+        ]);
+    }
 }

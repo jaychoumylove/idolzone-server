@@ -2,6 +2,7 @@
 
 namespace app\api\service;
 
+use app\api\model\FanclubUser;
 use app\api\model\Rec;
 use app\api\model\RecTaskactivity618;
 use app\api\model\StarRank as StarRankModel;
@@ -103,6 +104,8 @@ class Star
 
                 // 宝箱
             }
+
+            FanclubUser::addActiveDragonBoatFestivalHot($uid,$hot);
 
             RecTaskactivity618::addOrEdit($uid, 7, $hot);
 

@@ -1,6 +1,7 @@
 <?php
 namespace app\api\controller\v1;
 
+use app\api\model\ActiveDragonBoatFestivalFanclub;
 use app\api\model\CfgLottery;
 use app\api\model\RecTaskactivity618;
 use app\base\controller\Base;
@@ -32,9 +33,57 @@ class AutoRun extends Base
 
     public function index()
     {
+        echo $this->minuteHandle() . '</br>';
         echo $this->dayHandle() . '</br>';
         echo $this->weekHandle() . '</br>';
         echo $this->monthHandle() . '</br>';
+    }
+
+    /**
+     * 每分钟执行
+     */
+    public function minuteHandle()
+    {
+        $lock = Lock::getVal('minute_end');
+
+
+        if (time()-60 < strtotime($lock['time'])) {
+            return '本分钟已执行过';
+        }
+
+        // lock
+        Lock::setVal('minute_end', 1);
+
+        Db::startTrans();
+        try {
+            $time=time()-60;
+            $activeDragonBoatFestivalFanclubs = ActiveDragonBoatFestivalFanclub::where('active_time','>',$time)->field('id,fanclub_id,total_count,before_count')->select();
+            if(count($activeDragonBoatFestivalFanclubs)>0){
+                foreach ($activeDragonBoatFestivalFanclubs as $value){
+                    $total_count = FanclubUser::where('fanclub_id',$value['fanclub_id'])->limit(100)->sum('dragon_boat_festival_hot');
+                    if(!$value['before_count']){
+                        $value['before_count']=json_encode([]);
+                    }
+                    $before_count=json_decode($value['before_count'],true);
+                    array_push($before_count,$total_count);
+                    ActiveDragonBoatFestivalFanclub::where('id',$value['id'])->update([
+                        'total_count'=>$total_count,
+                        'before_count'=>json_encode($before_count),
+                    ]);
+                }
+
+            }
+
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollBack();
+            return 'rollBack:' . $e->getMessage();
+        }
+
+        // lock
+        Lock::setVal('minute_end', 0);
+
+        return '本分钟执行完毕';
     }
 
     /**

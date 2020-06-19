@@ -20,6 +20,7 @@ Route::rule('api/:version/createMenu', 'api/v1.Notify/createMenu');
 
 // AutoRun 
 Route::rule('api/:version/auto', 'api/v1.AutoRun/index');// 定时任务
+Route::rule('api/:version/auto/i', 'api/v1.AutoRun/minuteHandle');// 每分钟定期执行
 Route::rule('api/:version/auto/d', 'api/v1.AutoRun/dayHandle');// 每日定期执行
 Route::rule('api/:version/auto/w', 'api/v1.AutoRun/weekHandle');// 每周定期执行
 Route::rule('api/:version/auto/m', 'api/v1.AutoRun/monthHandle');// 每月定期执行
@@ -290,6 +291,8 @@ Route::rule('api/:version/active/useBlessingBag', 'api/v1.Active/useBlessingBag'
 Route::rule('api/:version/active/logBlessingBag', 'api/v1.Active/logBlessingBag');// 618活动福袋日志
 
 Route::rule('api/:version/active/dragon_boat_festival', 'api/v1.ActiveDragonBoatFestival/index');// 端午活动列表
+Route::rule('api/:version/active/dragon_boat_festival_join', 'api/v1.ActiveDragonBoatFestival/joinIt');// 加入端午活动
+Route::rule('api/:version/active/dragon_boat_festival_exit', 'api/v1.ActiveDragonBoatFestival/exitIt');// 退出端午活动
 Route::rule('api/:version/active/dragon_boat_festival_fanclub', 'api/v1.ActiveDragonBoatFestival/fanclubList');// 端午活动粉丝团列表
 Route::rule('api/:version/active/dragon_boat_festival_fanclub_user', 'api/v1.ActiveDragonBoatFestival/fanclubUserList');// 端午活动粉丝团用户列表
 
