@@ -20,7 +20,7 @@ class ActiveDragonBoatFestival extends Base
         $res['difference_first'] = 0;//距离第一名差值
         $res['join_active_id'] = 0;//加入的场次id
         $res['is_admin'] = 0;//是否团长管理员
-        $res['notice_id']=2;//奖励说明id
+        $res['notice_id']=48;//奖励说明id
         $res['myClubInfo']='';
         $res['list'] = ActiveDragonBoatFestivalModel::getList();//比赛列表
         $res['fanclub_id'] = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
@@ -48,7 +48,7 @@ class ActiveDragonBoatFestival extends Base
         $page = input('page', 1);
         $size = input('size', 15);
         $active_id = $this->req('active_id', 'integer');
-        $res['notice_id']=2;//奖励说明id
+        $res['notice_id']=48;//奖励说明id
         $res['is_exit'] = false;//是否可以退出
         $fanclub_id = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         $is_join= ActiveDragonBoatFestivalFanclub::where('fanclub_id',$fanclub_id)->where('active_id',$active_id)->count();
