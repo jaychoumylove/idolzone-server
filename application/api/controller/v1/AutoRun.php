@@ -58,20 +58,17 @@ class AutoRun extends Base
         try {
             $time=time()-60;
             $activeDragonBoatFestivalFanclubs = ActiveDragonBoatFestivalFanclub::where('active_time','>',$time)->field('id,fanclub_id,total_count,before_count')->select();
-            if(count($activeDragonBoatFestivalFanclubs)>0){
-                foreach ($activeDragonBoatFestivalFanclubs as $value){
-                    $total_count = FanclubUser::where('fanclub_id',$value['fanclub_id'])->limit(100)->sum('dragon_boat_festival_hot');
-                    if(!$value['before_count']){
-                        $value['before_count']=json_encode([]);
-                    }
-                    $before_count=json_decode($value['before_count'],true);
-                    array_push($before_count,$total_count);
-                    ActiveDragonBoatFestivalFanclub::where('id',$value['id'])->update([
-                        'total_count'=>$total_count,
-                        'before_count'=>json_encode($before_count),
-                    ]);
+            foreach ($activeDragonBoatFestivalFanclubs as $value){
+                $total_count = FanclubUser::where('fanclub_id',$value['fanclub_id'])->limit(100)->order('dragon_boat_festival_hot desc,create_time asc')->sum('dragon_boat_festival_hot');
+                if(!$value['before_count']){
+                    $value['before_count']=json_encode([]);
                 }
-
+                $before_count=json_decode($value['before_count'],true);
+                array_push($before_count,$total_count);
+                ActiveDragonBoatFestivalFanclub::where('id',$value['id'])->update([
+                    'total_count'=>$total_count,
+                    'before_count'=>json_encode($before_count),
+                ]);
             }
 
             Db::commit();
