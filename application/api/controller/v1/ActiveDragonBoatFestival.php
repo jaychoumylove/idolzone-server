@@ -4,6 +4,7 @@ namespace app\api\controller\v1;
 use app\api\model\ActiveDragonBoatFestival as ActiveDragonBoatFestivalModel;
 use app\api\model\ActiveDragonBoatFestivalFanclub;
 use app\api\model\Cfg;
+use app\api\model\Fanclub;
 use app\api\model\FanclubUser;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -20,18 +21,17 @@ class ActiveDragonBoatFestival extends Base
         $res['join_active_id'] = 0;//加入的场次id
         $res['is_admin'] = 0;//是否团长管理员
         $res['notice_id']=2;//奖励说明id
+        $res['myClubInfo']='';
         $res['list'] = ActiveDragonBoatFestivalModel::getList();//比赛列表
         $res['fanclub_id'] = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         $res['time_text'] = $this->timeText('/pages/active/dragon_boat_festival');//起始结束时间文本
 
-        if($res['fanclub_id'] ){
+        if($res['fanclub_id']){
             $res['join_active_id']= ActiveDragonBoatFestivalFanclub::where('fanclub_id',$res['fanclub_id'])->value('active_id');
             $isLeader = FanclubUser::isLeader($this->uid);
             $isAdmin = FanclubUser::isAdmin($this->uid);
             if($res['join_active_id']!=0){
-                $first_total_count= ActiveDragonBoatFestivalFanclub::order('total_count','desc')->value('total_count');
-                $myclub_total_count= ActiveDragonBoatFestivalFanclub::where('fanclub_id',$res['fanclub_id'])->value('total_count');
-                $res['difference_first'] = $first_total_count-$myclub_total_count>0?($first_total_count-$myclub_total_count):0;
+                $res['myClubInfo']= $this->myClubInfo($res['fanclub_id'],$res['join_active_id']);
             }
             if($isLeader || $isAdmin){
                 $res['is_admin'] = 1;
@@ -41,22 +41,6 @@ class ActiveDragonBoatFestival extends Base
         Common::res(['data' => $res]);
     }
 
-    public function timeText($path){
-        $btn_cfg=Cfg::getCfg('btn_cfg');
-        $groupList=$btn_cfg['group'];
-        $text='';
-        foreach ($groupList as $value){
-            if($value['path']==$path){
-                $start_date=date("m-d",strtotime($value['start_time']));
-                $start_date_arr=explode("-",$start_date);
-                $end_date=date("m-d",strtotime($value['end_time']));
-                $end_date_arr=explode("-",$end_date);
-                $text=$start_date_arr[0].'月'.$start_date_arr[1].'日-'.$end_date_arr[0].'月'.$end_date_arr[1].'日';
-            }
-        }
-        return $text;
-    }
-
     /**端午活动粉丝团列表*/
     public function fanclubList()
     {
@@ -64,8 +48,8 @@ class ActiveDragonBoatFestival extends Base
         $page = input('page', 1);
         $size = input('size', 15);
         $active_id = $this->req('active_id', 'integer');
-
-        $res['is_exit'] = false;//是否显示退出按钮
+        $res['notice_id']=2;//奖励说明id
+        $res['is_exit'] = false;//是否可以退出
         $fanclub_id = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         $is_join= ActiveDragonBoatFestivalFanclub::where('fanclub_id',$fanclub_id)->where('active_id',$active_id)->count();
         if($is_join){
@@ -74,6 +58,7 @@ class ActiveDragonBoatFestival extends Base
             if($isLeader || $isAdmin){
                 $res['is_exit'] = true;
             }
+            $res['myClubInfo']= $this->myClubInfo($fanclub_id,$active_id);
         }
 
         $res['active_info'] = ActiveDragonBoatFestivalModel::get($active_id);
@@ -168,5 +153,36 @@ class ActiveDragonBoatFestival extends Base
             if(!$isLeader && !$isAdmin) Common::res(['code' => 1, 'msg' => '只有团长和管理员才能退出活动']);
         }
 
+    }
+
+    public function myClubInfo($fanclub_id,$active_id){
+
+        $first_total_count= ActiveDragonBoatFestivalFanclub::where('active_id',$active_id)->order('total_count desc,create_time asc')->value('total_count');
+        $myclub_total_count= ActiveDragonBoatFestivalFanclub::where('active_id',$active_id)->where('fanclub_id',$fanclub_id)->value('total_count');
+        $star_info= Fanclub::with('star')->where('id',$fanclub_id)->field('star_id')->find();
+
+        $myClubInfo= ActiveDragonBoatFestivalFanclub::where('fanclub_id',$fanclub_id)->field('id,fanclub_id,fanclub_name,fanclub_avatar,total_count,active_id')->find();
+        $myClubInfo['difference_first'] = $first_total_count-$myclub_total_count>0?($first_total_count-$myclub_total_count):0;
+        $myClubInfo['star_name']=$star_info['star']['name'];
+        $active_fanclubs= ActiveDragonBoatFestivalFanclub::where('active_id',$active_id)->order('total_count desc,create_time asc')->column('fanclub_id');
+        $myClubInfo['rank']=array_search($fanclub_id,$active_fanclubs)+1;
+
+        return $myClubInfo;
+    }
+
+    public function timeText($path){
+        $btn_cfg=Cfg::getCfg('btn_cfg');
+        $groupList=$btn_cfg['group'];
+        $text='';
+        foreach ($groupList as $value){
+            if($value['path']==$path){
+                $start_date=date("m-d",strtotime($value['start_time']));
+                $start_date_arr=explode("-",$start_date);
+                $end_date=date("m-d",strtotime($value['end_time']));
+                $end_date_arr=explode("-",$end_date);
+                $text=$start_date_arr[0].'月'.$start_date_arr[1].'日-'.$end_date_arr[0].'月'.$end_date_arr[1].'日';
+            }
+        }
+        return $text;
     }
 }
