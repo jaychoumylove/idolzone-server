@@ -12,6 +12,8 @@ use think\Db;
 
 class ActiveDragonBoatFestival extends Base
 {
+    protected $tips = ['排名数据每分钟更新','排名依据：粉丝团成员TOP100人气PK'];
+    protected $notice_id = 48;
 
     /**端午活动列表*/
     public function index()
@@ -20,8 +22,8 @@ class ActiveDragonBoatFestival extends Base
         $res['difference_first'] = 0;//距离第一名差值
         $res['join_active_id'] = 0;//加入的场次id
         $res['is_admin'] = 0;//是否团长管理员
-        $res['notice_id']=48;//奖励说明id
-        $res['tips']='排名数据每分钟更新一次';//活动说明
+        $res['notice_id']=$this->notice_id;//奖励说明id
+        $res['tips']=$this->tips;//活动说明
         $res['myClubInfo']='';
         $res['list'] = ActiveDragonBoatFestivalModel::getList();//比赛列表
         $res['fanclub_id'] = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
@@ -49,15 +51,14 @@ class ActiveDragonBoatFestival extends Base
         $page = input('page', 1);
         $size = input('size', 15);
         $active_id = $this->req('active_id', 'integer');
-        $res['notice_id']=48;//奖励说明id
-        $res['tips']='排名数据每分钟更新一次';//活动说明
+        $res['notice_id']=$this->notice_id;//奖励说明id
+        $res['tips']=$this->tips;//活动说明
         $res['is_exit'] = false;//是否可以退出
         $fanclub_id = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         $is_join= ActiveDragonBoatFestivalFanclub::where('fanclub_id',$fanclub_id)->where('active_id',$active_id)->count();
         if($is_join){
             $isLeader = FanclubUser::isLeader($this->uid);
-            $isAdmin = FanclubUser::isAdmin($this->uid);
-            if($isLeader || $isAdmin){
+            if($isLeader){
                 $res['is_exit'] = true;
             }
             $res['myClubInfo']= $this->myClubInfo($fanclub_id,$active_id);
@@ -152,7 +153,7 @@ class ActiveDragonBoatFestival extends Base
             if(!$isLeader && !$isAdmin) Common::res(['code' => 1, 'msg' => '只有团长和管理员才能加入活动']);
         }else if($type=='exit'){
             if(!$is_join)Common::res(['code' => 1, 'msg' => '请先参加活动']);
-            if(!$isLeader && !$isAdmin) Common::res(['code' => 1, 'msg' => '只有团长和管理员才能退出活动']);
+            if(!$isLeader) Common::res(['code' => 1, 'msg' => '只有团长才能退出活动']);
         }
 
     }
