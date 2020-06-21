@@ -54,6 +54,7 @@ class ActiveDragonBoatFestival extends Base
         $res['notice_id']=$this->notice_id;//奖励说明id
         $res['tips']=$this->tips;//活动说明
         $res['is_exit'] = false;//是否可以退出
+        $res['myClubInfo']='';
         $fanclub_id = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
         $is_join= ActiveDragonBoatFestivalFanclub::where('fanclub_id',$fanclub_id)->where('active_id',$active_id)->count();
         if($is_join){
