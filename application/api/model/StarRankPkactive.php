@@ -14,7 +14,7 @@ class StarRankPkactive extends Base
 
     public static function getRankList($page, $size)
     {
-        return self::with('star')->field('*,pkactive_hot as hot')->order('score desc,pkactive_hot desc,id asc')
+        return self::with('star')->field('*,pkactive_hot as hot')->order('pkactive_hot desc,score desc,update_time asc')
                 ->page($page, $size)->select();
     }
 }

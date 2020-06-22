@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\Cfg;
 use app\api\model\CfgPkTime;
 use app\api\model\CfgUserLevel;
 use app\api\model\HeadwearUser;
@@ -196,6 +197,7 @@ class Pk extends Base
         $rankCurrent = input('rankCurrent', 0);
         $pkStatus = $this->getPkStatus();
         $data['curPkTime'] = $pkStatus['timeSpace'];
+        $data['pk_active_enable'] = Cfg::getStatus('pkactive_date');//520告白活动是否开启
 
         $week = 0;
         // 粉丝排名
@@ -211,7 +213,7 @@ class Pk extends Base
             $data['userList'] = Db::name('pk_user_rank')->alias('pk')
                 ->join('user u', 'u.id = pk.uid')
                 ->where('pk.last_pk_time', $lastPkTime)
-                ->order('pk.last_pk_count desc')->page($page, 10)
+                ->order('pk.last_pk_count desc,pk.update_time asc')->page($page, 10)
                 ->field('pk.*,u.avatarurl,u.nickname as name')->select();
 
             // 分享信息
@@ -223,10 +225,12 @@ class Pk extends Base
             }
         } else {
             // 总共用户贡献排名
+            if($rankCurrent == 1) $order = 'pk.total_count desc,pk.update_time asc';
+            elseif($rankCurrent == 2)$order = 'pk.pkactive_count desc,pk.pkactive_score desc,pk.update_time asc';
             $data['userList'] = Db::name('pk_user_rank')->alias('pk')
                 ->join('user u', 'u.id = pk.uid')
                 ->where('pk.week', $week)
-                ->order('pk.total_count desc')->page($page, 10)
+                ->order($order)->page($page, 10)
                 ->field('pk.*,u.avatarurl,u.nickname as name')->select();
         }
 
@@ -292,6 +296,10 @@ class Pk extends Base
                 $noSettleTimeList = Db::name('pk_settle')->where(['is_settle' => 0])->where('pk_time', '<>', $pkTime)->column('pk_time');
 
                 foreach ($noSettleTimeList as $pk_time) {
+
+                    //520告白临时活动
+                    CfgPkactive::settle($pk_time);
+
                     for ($i = 0; $i < 2; $i++) {
                         $pk_type = $i;
 
@@ -303,10 +311,6 @@ class Pk extends Base
                             $uids = Db::name('pk_user')->where(['pk_time' => $pk_time, 'pk_type' => $pk_type, 'star_id' => $star_id])->order('send_hot desc,update_time desc')->column('uid');
 
                             if ($uids) {
-                                
-                                //520告白临时活动
-                                CfgPkactive::settle($star_id,$rank+1);
-
 
                                 // 发奖牌
                                 if ($rank + 1 == 1) {

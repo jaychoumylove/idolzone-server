@@ -60,8 +60,9 @@ class PkUser extends Base
             if ($pkUser) {
                 // 该用户参加了本场团战
                 //临时活动,520表白节pk榜                
-                if (Cfg::isPkactiveStart()){
-                    
+                if (Cfg::getStatus('pkactive_date')){
+
+                    //数据加入爱豆排行表
                     $isDone = StarRankPkactive::where(['star_id'=>$mid])->update([
                         'pkactive_hot' => Db::raw('pkactive_hot+' . $hot)
                     ]);
@@ -70,6 +71,8 @@ class PkUser extends Base
                         'star_id' => $mid,
                         'pkactive_hot' => $hot,
                     ]);
+
+                    //加入个人PK贡献
                 }
                 
                 //
@@ -90,6 +93,7 @@ class PkUser extends Base
 
                         'last_pk_time' => $pkTime,
                         'last_pk_medal' => '',
+                        'pkactive_count' => Cfg::getStatus('pkactive_date') ? Db::raw('pkactive_count+' . $hot) : Db::raw('pkactive_count'),
                     ];
                     if ($pkRank['last_pk_time'] != $pkTime) {
                         $pkUpdateData['last_pk_count'] = $hot;
@@ -111,6 +115,7 @@ class PkUser extends Base
                         'last_pk_time' => $pkTime,
                         'last_pk_medal' => '',
                         'last_pk_count' => $hot,
+                        'pkactive_count' => Cfg::getStatus('pkactive_date') ? $hot : 0,
                     ]);
                 }
             }

@@ -90,10 +90,10 @@ class Notify extends Base
         if ($msg['MsgType'] == 'text' && isset($msg['Content']) && ($msg['Content'] == '1' || $msg['Content'] == '签到')) {
             $Content .= $this->signDay($msg);
 
-        } elseif ($msg['MsgType'] == 'text' && isset($msg['Content']) && ($msg['Content'] == '618' || $msg['Content'] == '618活动')) {
-            $Content .= $this->getGift618($msg);
+//        } elseif ($msg['MsgType'] == 'text' && isset($msg['Content']) && ($msg['Content'] == '618' || $msg['Content'] == '618活动')) {
+//            $Content .= $this->getGift618($msg);
 
-        } elseif ($msg['MsgType'] == 'text' && isset($msg['Content']) && $msg['Content'] == '兑换告白积分') {
+        } elseif ($msg['MsgType'] == 'text' && isset($msg['Content']) && $msg['Content'] == '兑换粽子') {
             $Content .= $this->settlePkactive($msg);
 
         } elseif (isset($msg['Event']) && $msg['Event'] == 'CLICK' && $msg['EventKey'] == 'CLICK_kefu') { //按钮操作
@@ -137,9 +137,9 @@ class Notify extends Base
 
             //更新pkactive表的结算时间
             $isDone = StarRankPkactive::where('star_id',$star_id)->where('settle_time',0)->update(['settle_time'=>time(),'settle_uid'=>$user_id]);
-            if(!$isDone) return "告白积分已经兑换过了！\n----------------------------\n\n";
+            if(!$isDone) return "粽子已经兑换过了！\n----------------------------\n\n";
 
-            //查出告白积分
+            //查出粽子
             $score = StarRankPkactive::where('star_id',$star_id)->value('score');
             $update['week_hot'] = $score*100*10000;
 
@@ -147,11 +147,11 @@ class Notify extends Base
             StarRank::where('star_id',$star_id)->update(['week_hot'=>Db::raw('week_hot+' . $update['week_hot'])]);
             Rec::addRec([
                 'user_id' => $user_id,
-                'content' => "兑换告白积分，爱豆周榜人气+{$update['week_hot']}"
+                'content' => "兑换粽子，爱豆周榜人气+{$update['week_hot']}"
             ]);
 
             Db::commit();
-            return "兑换告白积分成功，爱豆周榜人气+{$update['week_hot']}\n----------------------------\n\n";
+            return "兑换粽子成功，爱豆周榜人气+{$update['week_hot']}\n----------------------------\n\n";
 
         } catch (\Exception $e) {
             Db::rollBack();

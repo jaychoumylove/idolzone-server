@@ -21,6 +21,7 @@ use app\api\model\PkUser;
 use app\api\model\RecTask;
 use app\api\model\BadgeUser;
 use app\api\model\FanclubUser;
+use app\api\model\RecPayOrder;
 
 class Test extends Base
 {
@@ -37,7 +38,7 @@ class Test extends Base
     
     public function index()
     {
-        
+        RecPayOrder::where('tar_user_id',0)->update(['tar_user_id'=>Db::raw('user_id')]);
     }
     
     public function reback(){
