@@ -93,6 +93,7 @@ class PkUser extends Base
 
                         'last_pk_time' => $pkTime,
                         'last_pk_medal' => '',
+                        'orderupdate_time' => date('Y-m-d H:i:s'),
                         'pkactive_count' => Cfg::getStatus('pkactive_date') ? Db::raw('pkactive_count+' . $hot) : Db::raw('pkactive_count'),
                     ];
                     if ($pkRank['last_pk_time'] != $pkTime) {

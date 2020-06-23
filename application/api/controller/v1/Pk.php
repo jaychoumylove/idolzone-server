@@ -119,7 +119,7 @@ class Pk extends Base
             $data['starList'] = Db::name('pk_star')->alias('pk')
                 ->join('star m', 'm.id = pk.star_id')
                 ->where(['pk.pk_time' => $pkTime, 'pk.pk_type' => $type])
-                ->order('pk.hot desc,pk.id desc')->page($page, 10)
+                ->order('pk.hot desc,pk.update_time asc')->page($page, 10)
                 ->field('pk.*,m.name,m.head_img_s as avatarurl')->select();
             $data['sAdm'] = Db::name('user')->where(['id' => $this->uid])->value('type');
         }
@@ -133,7 +133,7 @@ class Pk extends Base
                 ->join('user u', 'u.id = pk.uid')
 
                 ->where(['pk.pk_time' => $pkTime, 'pk.pk_type' => $type, 'pk.star_id' => $mid])
-                ->order('pk.send_hot desc,pk.update_time desc')->page($page, 10)
+                ->order('pk.send_hot desc,pk.update_time asc')->page($page, 10)
                 ->field('pk.*,u.avatarurl,u.nickname as name')->select();
             foreach ($data['userList'] as &$value) {
                 $value['level'] = CfgUserLevel::getLevel($value['uid']);
@@ -211,9 +211,9 @@ class Pk extends Base
                 $lastPkTime = date('Y-m-d', time()) . ' ' . $pkStatus['timeSpace']['start_time'] . ':00';
             }
             $data['userList'] = Db::name('pk_user_rank')->alias('pk')
-                ->join('user u', 'u.id = pk.uid')
+                ->join('user u', 'u.id = pk.uid','LEFT')
                 ->where('pk.last_pk_time', $lastPkTime)
-                ->order('pk.last_pk_count desc,pk.update_time asc')->page($page, 10)
+                ->order('pk.last_pk_count desc,pk.orderupdate_time asc')->page($page, 10)
                 ->field('pk.*,u.avatarurl,u.nickname as name')->select();
 
             // 分享信息
@@ -225,8 +225,8 @@ class Pk extends Base
             }
         } else {
             // 总共用户贡献排名
-            if($rankCurrent == 1) $order = 'pk.total_count desc,pk.update_time asc';
-            elseif($rankCurrent == 2)$order = 'pk.pkactive_count desc,pk.pkactive_score desc,pk.update_time asc';
+            if($rankCurrent == 1) $order = 'pk.total_count desc,pk.orderupdate_time asc';
+            elseif($rankCurrent == 2)$order = 'pk.pkactive_count desc,pk.pkactive_score desc,pk.orderupdate_time asc';
             $data['userList'] = Db::name('pk_user_rank')->alias('pk')
                 ->join('user u', 'u.id = pk.uid')
                 ->where('pk.week', $week)
