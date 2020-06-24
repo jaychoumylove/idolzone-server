@@ -129,11 +129,13 @@ class Pk extends Base
                 $mid = Db::name('user_star')->where(['user_id' => $this->uid])->value('star_id');
             }
             // 用户排名
+            if($pkStatus == 1) $order = 'pk.update_time desc'; //报名中
+            else $order = 'pk.update_time asc';//pk中或者pk结束，用户排名
             $data['userList'] = Db::name('pk_user')->alias('pk')
                 ->join('user u', 'u.id = pk.uid')
 
                 ->where(['pk.pk_time' => $pkTime, 'pk.pk_type' => $type, 'pk.star_id' => $mid])
-                ->order('pk.send_hot desc,pk.update_time asc')->page($page, 10)
+                ->order('pk.send_hot desc,'.$order)->page($page, 10)
                 ->field('pk.*,u.avatarurl,u.nickname as name')->select();
             foreach ($data['userList'] as &$value) {
                 $value['level'] = CfgUserLevel::getLevel($value['uid']);
