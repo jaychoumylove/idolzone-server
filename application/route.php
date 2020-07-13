@@ -241,6 +241,8 @@ Route::rule('api/:version/page/sendSms', 'api/v1.Page/sendSms');//使用道具
 // Open 
 Route::rule('api/:version/open/upload', 'api/v1.Open/upload');// 上传开屏
 Route::rule('api/:version/open/select', 'api/v1.Open/select');// 开屏图列表
+Route::rule('api/:version/open/rank', 'api/v1.Open/userRank');// 助力用户排名
+Route::rule('api/:version/open/sendhot', 'api/v1.Open/sendHot');// 助力开屏
 Route::rule('api/:version/open/settle', 'api/v1.Open/settle');// 开屏图数据结算
 Route::rule('api/:version/open/today', 'api/v1.Open/today');// 今日当前开屏
 

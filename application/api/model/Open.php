@@ -9,7 +9,8 @@ use think\Model;
 
 class Open extends Base
 {
-    //
+    const NORMAL = 'normal'; // 正常开屏活动
+    const SOLDIER81 = '81soldier';// 81建军节开屏
 
     public function Star()
     {
@@ -17,9 +18,13 @@ class Open extends Base
     }
 
     /**获取开屏图 */
-    public static function getRankList($page, $size, $sort)
+    public static function getRankList($map = [], $page, $size, $sort)
     {
-        $list = self::with('Star')->where('1=1')->order('hot desc,id desc')->page($page, $size)->select();
+        $list = self::with('Star')
+            ->where($map)
+            ->order('hot desc,id desc')
+            ->page($page, $size)
+            ->select();
         return $list;
     }
 
@@ -58,5 +63,11 @@ class Open extends Base
         OpenRank::where('1=1')->update(['count' => 0]);
 
         // if ($res) Common::res();
+    }
+
+    public static function checkSoldier81()
+    {
+        // 7月26号24:00前有效
+        return date ('Y-m-d') < '2020-07-27';
     }
 }
