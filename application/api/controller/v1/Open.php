@@ -106,7 +106,7 @@ class Open extends Base
         if (empty($info)) {
             Common::res (['data' => ['redirect' => true]]);
         }
-        $info['rank'] = OpenModel::where('hot', '>', $info['hot'])->count ();
+        $info['rank'] = OpenModel::supportRank ($info['hot'], $info['id']);
         $list = OpenRank::getPager ($map, $page, $size);
 
         Common::res (['data' => compact ('info', 'list')]);
