@@ -3,9 +3,7 @@
 namespace app\api\model;
 
 use app\base\model\Base;
-use app\base\service\Common;
 use think\Db;
-use think\Model;
 
 class Open extends Base
 {
@@ -85,5 +83,25 @@ class Open extends Base
     {
         // 7月26号24:00前有效
         return date ('Y-m-d') < '2020-07-27';
+    }
+
+    /**
+     * 补充排名
+     *
+     * @param $hot
+     * @param $id
+     * @return mixed
+     * @throws \think\Exception
+     */
+    public static function supportRank($hot, $id)
+    {
+        $rank = self::where('hot', '>', $hot)->count ();
+        $sql = "SELECT id,hot,@curRank := @curRank + 1 AS rank FROM f_open p, (SELECT @curRank := 0) q where hot = $hot ORDER BY id asc";
+        $sameRank = Db::query ($sql);
+        $sameRankDict = array_column ($sameRank, 'rank', 'id');
+        if (array_key_exists ($id, $sameRankDict)) {
+            $rank += bcsub ($sameRankDict[$id], 1);
+        }
+        return $rank;
     }
 }

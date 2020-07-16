@@ -123,7 +123,7 @@ class Open extends Base
             Common::res (['redirect' => true]);
         }
 
-        $info['rank'] = OpenModel::where('hot', '>', $info['hot'])->count ();
+        $info['rank'] = OpenModel::supportRank ($info['hot'], $info['id']);
 
         Common::res (['data' => compact ('info')]);
     }
@@ -178,7 +178,14 @@ class Open extends Base
         if (is_object ($list)) $list = $list->toArray ();
         $newList = [];
         foreach ($list as $index => $item) {
-            $item['rank'] = OpenModel::where('hot', '>', $item['hot'])->count ();
+            if ($type == 'rank') {
+                $offset = $index;
+                $left = bcmul (bcsub ($page, 1), $size);
+
+                $item['rank'] = bcadd ($offset, $left);
+            } else {
+                $item['rank'] = OpenModel::supportRank ($item['hot'], $item['id']);
+            }
 
             if (is_object ($item['open_rank'])) $item['open_rank'] = $item['open_rank']->toArray();
 
