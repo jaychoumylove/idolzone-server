@@ -10,6 +10,7 @@ use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
 use think\Db;
+use think\Exception;
 
 class Open extends Base
 {
@@ -138,8 +139,21 @@ class Open extends Base
                 Common::res (['code' => 1, 'msg' => "你无权访问"]);
             }
 
-            $res = OpenModel::destroy ($open, true);
-            if (empty($res)) {
+            Db::startTrans ();
+            try {
+                $res = OpenModel::destroy ($open, true);
+
+                if (empty($res)) {
+                    throw new Exception('删除失败');
+                }
+
+                $res = OpenRank::destroy (['open_id' => $open], true);
+                if (empty($res)) {
+                    throw new Exception('删除失败');
+                }
+                Db::commit ();
+            } catch (\Throwable $throwable) {
+                Db::rollback ();
                 Common::res (['code' => 1, 'msg' => "删除图片失败，请稍后再试"]);
             }
         }
@@ -173,9 +187,7 @@ class Open extends Base
         if (is_object ($list)) $list = $list->toArray ();
         $newList = [];
         foreach ($list as $index => $item) {
-            if ($type != 'rank') {
-                $item['rank'] = OpenModel::where('hot', '>', $item['hot'])->count ();
-            }
+            $item['rank'] = OpenModel::where('hot', '>', $item['hot'])->count ();
 
             if (is_object ($item['open_rank'])) $item['open_rank'] = $item['open_rank']->toArray();
 
