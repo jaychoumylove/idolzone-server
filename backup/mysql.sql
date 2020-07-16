@@ -237,7 +237,7 @@ alter table f_user_sprite
 -- end
 
 
--- start 八一建军节开屏活动
+-- start 八一建军节开屏活动 2020-07-14 16:56:23
 
 alter table f_open
 	add type enum('normal', '81soldier') default 'normal' not null after hot;
@@ -250,5 +250,10 @@ create index f_open_type_index
 
 create index f_open_user_id_index
 	on f_open (user_id);
+
+create index f_open_hot_index
+	on f_open (hot);
+
+INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('开屏活动配置', 'open', '{\"current\":\"81soldier\",\"content\":{\"81soldier\":{\"banner\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GT2o2aCDJf7rjLOUlbtTERziauZWDgQPHRlOiac7NsMqj5Bbz1VfzicVr9BqhXgVmBmOA2AuE7ZnMbA/0\",\"help\":{\"article\":1,\"label\":\"活动说明\"},\"time\":{\"end\":\"2020-07-27\"}}}}', 1, '2020-07-16 09:55:05', '2020-07-16 15:24:51', NULL);
 
 --- end
