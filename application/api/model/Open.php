@@ -81,8 +81,11 @@ class Open extends Base
 
     public static function checkSoldier81()
     {
-        // 7月26号24:00前有效
-        return date ('Y-m-d') < '2020-07-27';
+        // xxxx年xx月xx号24:00前有效
+        $config = Cfg::getCfg ('open');
+        $content = $config['content'][self::SOLDIER81];
+
+        return date ('Y-m-d') < $content['time']['end'];
     }
 
     /**

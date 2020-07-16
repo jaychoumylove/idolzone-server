@@ -10,7 +10,6 @@ use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
 use think\Db;
-use think\Exception;
 
 class Open extends Base
 {
@@ -42,7 +41,7 @@ class Open extends Base
         if ($type == OpenModel::SOLDIER81) {
             $status = OpenModel::checkSoldier81 ();
             if (empty($status)) {
-                Common::res (['msg' => '活动已结束']);
+                Common::res (['msg' => '活动已结束', 'code' => 1]);
             }
         }
     }
@@ -159,7 +158,7 @@ class Open extends Base
         $type = input ('type', OpenModel::NORMAL);
         $rankType = input ('rank', 'rank');
 
-        $this->checkType ($type);
+//        $this->checkType ($type);
         $map = compact ('type');
         if ($rankType == 'my') {
             $this->getUser ();
