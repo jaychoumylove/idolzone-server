@@ -235,3 +235,20 @@ COMMIT;
 alter table f_user_sprite
 	add skill_four_level int default 0 not null comment '宠物4技能等级';
 -- end
+
+
+-- start 八一建军节开屏活动
+
+alter table f_open
+	add type enum('normal', '81soldier') default 'normal' not null after hot;
+
+create index f_open_star_index
+	on f_open (star_id);
+
+create index f_open_type_index
+	on f_open (type);
+
+create index f_open_user_id_index
+	on f_open (user_id);
+
+--- end
