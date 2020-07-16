@@ -78,7 +78,6 @@ class Open extends Base
             if (empty($updated)) {
                 Common::res (['code' => 1, 'msg' => "助力失败,请稍后再试"]);
             }
-            (new \app\api\service\User())->change ($this->uid, ['flower' => -$hot], '【最美军装】开屏鲜花助力');
             (new \app\api\service\Star())->sendHot ($starId, $hot, $this->uid, 2);
             Db::commit ();
         } catch (\Throwable $throwable) {
@@ -141,16 +140,8 @@ class Open extends Base
 
             Db::startTrans ();
             try {
-                $res = OpenModel::destroy ($open, true);
-
-                if (empty($res)) {
-                    throw new Exception('删除失败');
-                }
-
-                $res = OpenRank::destroy (['open_id' => $open], true);
-                if (empty($res)) {
-                    throw new Exception('删除失败');
-                }
+                OpenModel::destroy ($open, true);
+                OpenRank::destroy (['open_id' => $open], true);
                 Db::commit ();
             } catch (\Throwable $throwable) {
                 Db::rollback ();
