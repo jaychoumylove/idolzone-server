@@ -11,6 +11,11 @@ class OpenRank extends Base
     {
         return $this->belongsTo('User', 'user_id', 'id')->field('id,nickname,avatarurl');
     }
+
+    public function UserInfo()
+    {
+        return $this->hasOne('User', 'id', 'user_id');
+    }
     //
     public static function assist($open_id, $user_id, $flower)
     {

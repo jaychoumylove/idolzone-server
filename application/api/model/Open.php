@@ -17,12 +17,28 @@ class Open extends Base
         return $this->belongsTo('Star', 'star_id', 'id')->field('id,name');
     }
 
+    public function uploader()
+    {
+        return $this->hasOne ('User', 'id', 'user_id')->field ('id,nickname,avatarurl');
+    }
+
+    public function openRank()
+    {
+        return $this->hasMany ('OpenRank', 'open_id', 'id');
+    }
+
     /**获取开屏图 */
     public static function getRankList($map = [], $page, $size, $sort)
     {
-        $list = self::with('Star')
+        $list = self::with(['Star', 'uploader', 'openRank' => function ($query) {
+            $query->with('UserInfo')
+                ->order([
+                    'count' => 'desc',
+                    'create_time' => 'asc'
+                ]);
+        }])
             ->where($map)
-            ->order('hot desc,id desc')
+            ->order('hot desc,id asc')
             ->page($page, $size)
             ->select();
         return $list;

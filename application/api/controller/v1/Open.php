@@ -22,10 +22,8 @@ class Open extends Base
         $starId = UserStar::getStarId ($this->uid);
         if (!$starId) Common::res (['code' => 1, 'msg' => '请先加入一个圈子']);
 
-        $todayDone = OpenModel::where ('user_id', $this->uid)
-            ->whereTime ('create_time', 'd')
-            ->value ('id');
-        if ($todayDone) Common::res (['code' => 1, 'msg' => '每日只可上传一张']);
+        $count = OpenModel::where ('user_id', $this->uid)->count ();
+        if ($count >= 5) Common::res (['code' => 1, 'msg' => '最多只可以上传5张图片哦']);
 
         $data = [
             'type'    => $type,
@@ -33,9 +31,9 @@ class Open extends Base
             'star_id' => $starId,
             'img_url' => $imgUrl
         ];
-        OpenModel::create ($data);
+        $info = OpenModel::create ($data);
 
-        Common::res ();
+        Common::res (['data' => ['id' => $info['id']]]);
     }
 
     protected function checkType($type)
@@ -73,7 +71,14 @@ class Open extends Base
         Db::startTrans ();
         try {
             OpenRank::assist ($id, $this->uid, $hot);
+            $updated = OpenModel::where('id', $id)->where('hot', $open['hot'])->update([
+                'hot' => bcadd ($open['hot'], $hot)
+            ]);
+            if (empty($updated)) {
+                Common::res (['code' => 1, 'msg' => "助力失败,请稍后再试"]);
+            }
             (new \app\api\service\User())->change ($this->uid, ['flower' => -$hot], '【最美军装】开屏鲜花助力');
+            (new \app\api\service\Star())->sendHot ($starId, $hot, $this->uid, 2);
             Db::commit ();
         } catch (\Throwable $throwable) {
             Db::rollback ();
@@ -88,19 +93,58 @@ class Open extends Base
         $open = $this->req ('open_id', 'integer', 0);
         $page = $this->req ('page', 'integer', 1);
         $size = $this->req ('size', 'integer', 10);
-        $type = input ('type', OpenModel::NORMAL);
         $this->getUser ();
         if (empty($open)) {
             Common::res (['code' => 1, 'msg' => '请选择开屏图']);
         }
 
         $map = [
-            'type' => $type,
             'open_id' => $open
         ];
+
+        $info = OpenModel::with(['Star', 'uploader'])->where('id', $open)->find ();
+        if (is_object ($info)) $info = $info->toArray ();
+        if (empty($info)) {
+            Common::res (['data' => ['redirect' => true]]);
+        }
+        $info['rank'] = OpenModel::where('hot', '>', $info['hot'])->count ();
         $list = OpenRank::getPager ($map, $page, $size);
 
-        Common::res (['data' => $list]);
+        Common::res (['data' => compact ('info', 'list')]);
+    }
+
+    public function info()
+    {
+        $open = $this->req ('open_id', 'integer', 0);
+        $map = ['id' => $open];
+        $info = OpenModel::with('Star')->where($map)->order ('id', 'asc')->find ();
+        if (is_object ($info)) $info = $info->toArray ();
+        if (empty($info)) {
+            Common::res (['redirect' => true]);
+        }
+
+        $info['rank'] = OpenModel::where('hot', '>', $info['hot'])->count ();
+
+        Common::res (['data' => compact ('info')]);
+    }
+
+    public function remove()
+    {
+        $open = $this->req ('open_id', 'integer', 0);
+        $info = OpenModel::get ($open);
+        if ($info) {
+            $this->getUser ();
+            if ($info['user_id'] != $this->uid) {
+                Common::res (['code' => 1, 'msg' => "你无权访问"]);
+            }
+
+            $res = OpenModel::destroy ($open, true);
+            if (empty($res)) {
+                Common::res (['code' => 1, 'msg' => "删除图片失败，请稍后再试"]);
+            }
+        }
+
+        Common::res (['msg' => '图片已删除']);
     }
 
     public function select()
@@ -108,13 +152,43 @@ class Open extends Base
         $page = $this->req ('page', 'integer', 1);
         $size = $this->req ('size', 'integer', 10);
         $type = input ('type', OpenModel::NORMAL);
-        $this->getUser ();
+        $rankType = input ('rank', 'rank');
+
         $this->checkType ($type);
         $map = compact ('type');
+        if ($rankType == 'my') {
+            $this->getUser ();
+            $map['user_id'] = $this->uid;
+        }
+        if ($rankType == 'star') {
+            $this->getUser ();
+            $star_id = UserStar::getStarId ($this->uid);
+            if (empty($star_id)) {
+                Common::res (['code' => 1, 'msg' => "请先加入圈子"]);
+            }
+            $map['star_id'] = $star_id;
+        }
         // 列表
-        $res['list'] = OpenModel::getRankList ($map, $page, $size, 0);
+        $list = OpenModel::getRankList ($map, $page, $size, 0);
+        if (is_object ($list)) $list = $list->toArray ();
+        $newList = [];
+        foreach ($list as $index => $item) {
+            if ($type != 'rank') {
+                $item['rank'] = OpenModel::where('hot', '>', $item['hot'])->count ();
+            }
 
-        Common::res (['data' => $res]);
+            if (is_object ($item['open_rank'])) $item['open_rank'] = $item['open_rank']->toArray();
+
+            if (count($item['open_rank']) > 3) {
+                $item['open_rank'] = array_filter ($item['open_rank'], function($key) {
+                    return $key < 3;
+                }, ARRAY_FILTER_USE_KEY);
+            }
+
+            $newList[$index] = $item;
+        }
+
+        Common::res (['data' => ['list' => $newList]]);
     }
 
     public function settle()
