@@ -57,8 +57,9 @@ class Open extends Base
     {
         $id  = $this->req ('id', 'integer', 1);
         $hot = $this->req ('hot', 'integer', 1);
+        $current = $this->req ('current', 'integer', 0);
         if (empty($hot)) {
-            Common::res (['code' => 1, 'msg' => '请选择赠送鲜花数目']);
+            Common::res (['code' => 1, 'msg' => '请选择赠送数目']);
         }
         $type = input ('type', OpenModel::NORMAL);
         $this->checkType ($type);
@@ -84,7 +85,7 @@ class Open extends Base
             if (empty($updated)) {
                 Common::res (['code' => 1, 'msg' => "助力失败,请稍后再试"]);
             }
-            (new \app\api\service\Star())->sendHot ($starId, $hot, $this->uid, 2);
+            (new \app\api\service\Star())->sendHot ($starId, $hot, $this->uid, bcadd ($current, 1));
             Db::commit ();
         } catch (\Throwable $throwable) {
             Db::rollback ();
