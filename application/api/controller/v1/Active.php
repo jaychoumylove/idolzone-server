@@ -164,7 +164,7 @@ class Active extends Base
         // 我的福袋幸运值
         $res['myinfo'] = UserExt::where('user_id', $this->uid)->field('bag_num,lucky')->find();
         // 任务列表
-        $res['list'] = (new CfgTaskactivity618())->getList($this->uid);
+        $res['list'] = (new CfgWealActivityTask())->getList($this->uid);
 
         $res['fanclub_id'] = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
 

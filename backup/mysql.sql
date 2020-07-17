@@ -270,12 +270,7 @@ CREATE TABLE `f_cfg_weal_activity_task` (
   `name` varchar(255) DEFAULT NULL,
   `icon` varchar(255) DEFAULT NULL,
   `desc` varchar(255) DEFAULT NULL COMMENT '描述',
-  `limit_times` int(11) DEFAULT NULL COMMENT '完成任务次数上限',
-  `done` int(11) DEFAULT NULL COMMENT '完成任务需要的数值',
-  `reward` varchar(255) DEFAULT NULL COMMENT '奖励',
   `sort` int(11) DEFAULT '0' COMMENT '排序',
-  `key` varchar(255) DEFAULT NULL COMMENT '任务key',
-  `type` enum('SUM','DAY') DEFAULT 'SUM' COMMENT '任务类型，每日任务，累计任务',
   `btn_text` varchar(255) DEFAULT '' COMMENT '未完成时的按钮文字',
   `gopage` varchar(255) DEFAULT NULL COMMENT '未完成时的跳转页面',
   `open_type` varchar(255) DEFAULT NULL COMMENT '调用button组件的open-type',
@@ -283,10 +278,8 @@ CREATE TABLE `f_cfg_weal_activity_task` (
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `delete_time` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `type` (`type`),
-  KEY `key` (`key`(191))
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='福利活动任务配置';
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COMMENT='任务-福袋活动';
 
 -- ----------------------------
 -- Table structure for f_rec_weal_activity
@@ -326,14 +319,38 @@ CREATE TABLE `f_rec_weal_activity_task` (
 
 UPDATE `f_cfg` SET `value` = '{\"farm\":[{\"name\":\"\",\"path\":\"\",\"icon\":\"\"}],\"group\":[{\"name\":\"618狂欢\",\"path\":\"/pages/active/active618\",\"icon\":\"/static/image/activity/activity_item.png\",\"start_time\":\"2020/06/07 00:00:00\",\"end_time\":\"2020/06/23 00:00:00\",\"status\":1},{\"name\":\"夏日福袋\",\"path\":\"/pages/active/weal\",\"icon\":\"/static/image/activity/activity_item.png\",\"start_time\":\"2020/07/07 00:00:00\",\"end_time\":\"2020/08/23 00:00:00\",\"status\":1},{\"name\":\"最美军装\",\"path\":\"/pages/open/rank\",\"icon\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GCJoNu16zcgxj3gUbIRdCyP8Rw0OUdaBvy1DrAkiaP2T6NwUyAtbyXib6ZiaYTTc6DicWIcQKibGmT2QA/0\",\"start_time\":\"2020/07/01 00:00:00\",\"end_time\":\"2020/07/27 00:00:00\",\"status\":1}],\"user\":[{\"name\":\"任务\",\"path\":\"/pages/task/task\",\"icon\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EqVxh70XuVn1VhJLyPnEbxg8poPGbPbBhXGBtzqccQicFtFiaMzq8O2yB0fVKsIziaJNSFR5c56g8lw/0\"}]}' WHERE `key` = 'btn_cfg';
 
+alter table f_cfg_weal_activity_task
+	add done bigint default 0 not null comment '完成任务所需要的数值' after sort;
+
+alter table f_cfg_weal_activity_task
+	add limit_times int default 0 not null comment '完成任务的每天的上限' after done;
+
+alter table f_cfg_weal_activity_task
+	add `key` varchar(255) null comment '任务key' after limit_times;
+
+alter table f_cfg_weal_activity_task
+	add reward float(13,2) default 0.10 not null comment '奖励' after `key`;
+
+alter table f_cfg_weal_activity_task
+	add type enum('SUM', 'DAY') default 'SUM' not null comment '累计任务
+每日任务' after reward;
+
+create index f_cfg_weal_activity_task_key_index
+	on f_cfg_weal_activity_task (`key`);
+
+create index f_cfg_weal_activity_task_type_index
+	on f_cfg_weal_activity_task (type);
+
 ALTER TABLE `f_user_ext`
 ADD COLUMN `bag_num` int(10) NOT NULL DEFAULT 0 COMMENT '福袋数量' AFTER `delete_time`,
 ADD COLUMN `lucky` int(10) NOT NULL DEFAULT 5 COMMENT '幸运值' AFTER `bag_num`,
 ADD COLUMN `send_hot` bigint(20) NOT NULL DEFAULT 0 COMMENT '使用福袋额外获得的hot' AFTER `lucky`,
 ADD COLUMN `is_receive` tinyint(3) NOT NULL DEFAULT 0 COMMENT '是否领取了公众号福利' AFTER `send_hot`;
+
 ALTER TABLE `f_rec_weal_activity`
 CHANGE COLUMN `blessing_num` `bag_num` bigint(20) NULL DEFAULT 0 COMMENT '增加福袋' AFTER `content`,
 CHANGE COLUMN `lucky_value` `lucky` bigint(20) NULL DEFAULT 0 COMMENT '增加幸运值' AFTER `bag_num`;
+
 ALTER TABLE `f_user_ext`
 CHANGE COLUMN `send_hot` `send_weal_hot` bigint(20) NOT NULL DEFAULT 0 COMMENT '使用福袋额外获得的hot' AFTER `lucky`,
 CHANGE COLUMN `is_receive` `weal_receive` tinyint(3) NOT NULL DEFAULT 0 COMMENT '是否领取了公众号福利' AFTER `send_weal_hot`;
