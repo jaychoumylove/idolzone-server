@@ -19,16 +19,23 @@ class Open extends Base
         $type   = input ('type', OpenModel::NORMAL);
         $this->checkType ($type);
         $this->getUser ();
-        $starId = UserStar::getStarId ($this->uid);
-        if (!$starId) Common::res (['code' => 1, 'msg' => '请先加入一个圈子']);
+
+        $userStar = UserStar::get (['user_id' => $this->uid]);
+        if (empty($userStar)) {
+            Common::res (['code' => 1, 'msg' => '请先加入一个圈子']);
+        }
+
+        if ((int)$userStar['captain'] != 1) {
+            Common::res (['code' => 1, 'msg' => '只有领袖粉可以上传哦']);
+        }
 
         $count = OpenModel::where ('user_id', $this->uid)->count ();
-        if ($count >= 5) Common::res (['code' => 1, 'msg' => '最多只可以上传5张图片哦']);
+        if ($count >= 1) Common::res (['code' => 1, 'msg' => '每人只可以上传1张图片哦']);
 
         $data = [
             'type'    => $type,
             'user_id' => $this->uid,
-            'star_id' => $starId,
+            'star_id' => $userStar['star_id'],
             'img_url' => $imgUrl
         ];
         $info = OpenModel::create ($data);
