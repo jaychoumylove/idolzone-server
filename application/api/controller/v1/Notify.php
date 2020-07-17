@@ -93,6 +93,9 @@ class Notify extends Base
 //        } elseif ($msg['MsgType'] == 'text' && isset($msg['Content']) && ($msg['Content'] == '618' || $msg['Content'] == '618活动')) {
 //            $Content .= $this->getGift618($msg);
 
+//        } elseif ($msg['MsgType'] == 'text' && isset($msg['Content']) && ($msg['Content'] == '夏日福利')) {
+//            $Content .= $this->getWealGift($msg);
+
         } elseif ($msg['MsgType'] == 'text' && isset($msg['Content']) && $msg['Content'] == '兑换粽子') {
             $Content .= $this->settlePkactive($msg);
 
@@ -214,7 +217,32 @@ class Notify extends Base
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
+    }
+    /**
+     * 获取夏日福利
+     */
+    private function getWealGift($msg)
+    {
+        $user_id = $this->getUserId($msg);
+        if(!$user_id) return "没有关联到用户，请先到小程序打榜！\n<a data-miniprogram-appid=\"wx3a69eb5e1b2a7fa9\" data-miniprogram-path=\"/pages/index/index\">点击此链接去打榜吧~</a>\n----------------------------\n\n";
 
+        $isGetGift = UserExt::where('user_id', $user_id)->value('weal_receive');
+        if ($isGetGift>0) return "您已经领取过了！\n----------------------------\n\n";
+        // 增加货币
+        $update = ['coin'=>10000,'stone'=>2,'trumpet'=>3];
+        Db::startTrans();
+        try {
+            $isDone = UserExt::where('user_id', $user_id)->where('is_blessing_gifts', 0)->update(['bag_num' => Db::raw('bag_num+1'),'weal_receive' =>1]);
+            if(!$isDone) {
+                return "你已经领取过618礼包了\n----------------------------\n\n";
+            }
+            (new UserService)->change($user_id, $update,'618福利领取');
+            Db::commit();
+            return "领取成功，金豆+{$update['coin']}，钻石+{$update['stone']}，喇叭+{$update['trumpet']},福袋+1\n----------------------------\n\n";
+        } catch (\Exception $e) {
+            Db::rollBack();
+            return 'rollBack:' . $e->getMessage();
+        }
     }
 
     /**

@@ -50,6 +50,24 @@ class Cfg extends Base
         return $result;
     }
 
+    /**
+     * @return bool
+     */
+    public static function checkWealActive()
+    {
+        $btnCfgDate = self::getCfg('btn_cfg');
+
+        foreach ($btnCfgDate['group'] as $value){
+            if($value['path']=='/pages/active/weal'){
+                if(time() > strtotime($value['start_time']) && time() < strtotime($value['end_time']) && $value['status']!=0){
+                    $result = true;
+                }
+            }
+        }
+
+        return isset($result) ? $result: false;
+    }
+
     public static function isActiveDragonBoatFestivalStart(){
         $btnCfgDate = self::getCfg('btn_cfg');
         $result = false;

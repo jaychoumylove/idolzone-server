@@ -290,6 +290,13 @@ Route::rule('api/:version/active/getBlessingBag', 'api/v1.Active/getBlessingBag'
 Route::rule('api/:version/active/useBlessingBag', 'api/v1.Active/useBlessingBag');// 618活动福袋使用
 Route::rule('api/:version/active/logBlessingBag', 'api/v1.Active/logBlessingBag');// 618活动福袋日志
 
+//夏日福袋
+Route::rule('api/:version/active/wealtask', 'api/v1.Active/wealTask');// 活动任务列表
+Route::rule('api/:version/active/weallist', 'api/v1.Active/wealList');// 活动福气榜列表
+Route::rule('api/:version/active/getwealbag', 'api/v1.Active/getWealBag');// 活动福气领取
+Route::rule('api/:version/active/usewealbag', 'api/v1.Active/useWealBag');// 活动福袋使用
+Route::rule('api/:version/active/weallog', 'api/v1.Active/wealLog');// 活动福袋日志
+
 Route::rule('api/:version/active/dragon_boat_festival', 'api/v1.ActiveDragonBoatFestival/index');// 端午活动列表
 Route::rule('api/:version/active/dragon_boat_festival_join', 'api/v1.ActiveDragonBoatFestival/joinIt');// 加入端午活动
 Route::rule('api/:version/active/dragon_boat_festival_exit', 'api/v1.ActiveDragonBoatFestival/exitIt');// 退出端午活动

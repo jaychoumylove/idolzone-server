@@ -63,9 +63,11 @@ class Ext extends Base
         $btn_cfg = json_decode(json_encode($btn_cfg),TRUE);
 
         $is_blessing_gifts = UserExt::where('user_id', $this->uid)->value('is_blessing_gifts');
+        $wealReceive = UserExt::where('user_id', $this->uid)->value('weal_receive');
         $user_starid=UserStar::where('user_id', $this->uid)->value('star_id');
         $groupList=$btn_cfg['group'];
         $is_open_blessing=0;
+        $is_open_weal = 0;
         $modal='';
         if(count($groupList)>0){
             foreach ($groupList as $key=>$value){
@@ -81,6 +83,12 @@ class Ext extends Base
                                 $modal = 'activity618';
                             }
                         }
+                        if ($value['path'] == '/pages/active/weal') {
+                            $is_open_weal = 1;
+                            if ($wealReceive == 0 && $user_starid) {
+                                $modal = 'activity_weal';
+                            }
+                        }
 
                     } else {
                         unset($groupList[$key]);
@@ -88,7 +96,8 @@ class Ext extends Base
                 }
             }
         }
-        Common::res(['data' => ['btn_cfg'=>$btn_cfg,'groupList'=>$groupList,'is_open_blessing'=>$is_open_blessing,'modal'=>$modal]]);
+
+        Common::res(['data' => ['btn_cfg'=>$btn_cfg,'groupList'=>$groupList,'is_open_blessing'=>$is_open_blessing,'is_open_weal'=>$is_open_weal,'modal'=>$modal]]);
 
     }
 

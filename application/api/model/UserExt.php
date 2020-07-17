@@ -239,4 +239,114 @@ class UserExt extends Base
             'value'=>$lottery['value'],
         ];
     }
+
+    /**增加福袋幸运值 */
+    public static function luckyChange($uid,$num,$task_id)
+    {
+
+        Db::startTrans();
+        try {
+            $lucky=self::where('user_id', $uid)->value('lucky');
+
+            if($lucky>=100 || $lucky+$num>=100){
+                self::where('user_id', $uid)->update([
+                    'lucky' => 100,
+                    'bag_num' => Db::raw('bag_num+'.$num)
+                ]);
+            }else{
+                self::where('user_id', $uid)->update([
+                    'lucky' => Db::raw('lucky+'.$num),
+                    'bag_num' => Db::raw('blessing_num+'.$num)
+                ]);
+            }
+
+            if($task_id==4){
+                RecWealActivityTask::addOrEdit($uid, $task_id, $num, $num);
+            }else{
+                RecWealActivityTask::addOrEdit($uid, $task_id, 0, $num);
+            }
+
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    /**618活动福气榜列表 */
+    public static function luckyRank($uid,$page,$size)
+    {
+        $list=self::field('send_weal_hot,user_id')->order('send_weal_hot desc')
+            ->page($page, $size)->select();
+        $list = json_decode(json_encode($list),TRUE);
+
+        foreach ($list as &$value){
+            $value['user']=UserModel::where('id',$value['user_id'])->field('id,nickname,avatarurl')->find();
+            $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
+            $value['user']['level'] = CfgUserLevel::getLevel($value['user_id']);
+        }
+
+        $result['list']=$list;
+
+        $my_send_blessing_info=self::where('user_id',$uid)->field('send_weal_hot,user_id')->find();
+        $my_send_blessing_info['user']=UserModel::where('id',$my_send_blessing_info['user_id'])->field('id,nickname,avatarurl')->find();
+        $my_send_blessing_info['headwear'] = HeadwearUser::getUse($my_send_blessing_info['user_id']);
+        $my_send_blessing_info['level'] = CfgUserLevel::getLevel($uid);
+        $send_blessing_members=self::order('send_weal_hot desc')->column('user_id');
+        $result['myinfo']=$my_send_blessing_info;
+        $result['myinfo']['rank']=array_search($uid,$send_blessing_members)+1;
+
+        return $result;
+    }
+
+    /**使用福袋幸运值 */
+    public static function useWealBag($starid, $hot, $uid, $type, $danmaku)
+    {
+        $myblessinginfo = self::where('user_id', $uid)->field('bag_num,lucky')->find();
+        if ($myblessinginfo['bag_num'] == 0) Common::res(['code' => 1, 'msg' => '你暂时没有福袋了,快做任务获取吧']);
+        $data=[
+            ['id'=>1,'chance'=>50,'value'=>'6.18'],
+            ['id'=>2,'chance'=>30,'value'=>'6.66'],
+            ['id'=>3,'chance'=>20,'value'=>'8.88'],
+            ['id'=>4,'chance'=>$myblessinginfo['lucky'],'value'=>'18']
+        ];
+
+        // 随机一个奖品
+        if($myblessinginfo['lucky']==100){
+            $lottery =['id'=>4,'chance'=>$myblessinginfo['lucky'],'value'=>'18'];
+        }else{
+            $lottery = Common::lottery($data);
+        }
+
+        $extraAdd = ceil(($lottery['value']*$hot)/100);
+        if ($extraAdd <= 0) Common::res(['code' => 1, 'msg' => '网络错误']);
+
+        Db::startTrans();
+        try {
+
+            self::where('user_id', $uid)->update([
+                'bag_num' => Db::raw('bag_num-1'),
+                'send_bag_num' => Db::raw('send_weal_hot+'.$extraAdd),
+
+            ]);
+
+            RecWealActivity::addRec([
+                'user_id' => $uid,
+                'content' => '你使用了1个福袋',
+                'bag_num' => -1,
+            ]);
+
+            (new StarService())->sendHot($starid, $extraAdd, $uid, $type, $danmaku,true);
+
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+
+        return [
+            'addNum'=>$extraAdd,
+            'value'=>$lottery['value'],
+        ];
+    }
 }
