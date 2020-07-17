@@ -58,6 +58,7 @@ class Open extends Base
         $id  = $this->req ('id', 'integer', 1);
         $hot = $this->req ('hot', 'integer', 1);
         $current = $this->req ('current', 'integer', 0);
+        $danmaku = $this->req('danmaku', 'integer', 1); // 是否推送打榜弹幕
         if (empty($hot)) {
             Common::res (['code' => 1, 'msg' => '请选择赠送数目']);
         }
@@ -85,7 +86,7 @@ class Open extends Base
             if (empty($updated)) {
                 Common::res (['code' => 1, 'msg' => "助力失败,请稍后再试"]);
             }
-            (new \app\api\service\Star())->sendHot ($starId, $hot, $this->uid, bcadd ($current, 1));
+            (new \app\api\service\Star())->sendHot ($starId, $hot, $this->uid, bcadd ($current, 1), (bool)$danmaku);
             Db::commit ();
         } catch (\Throwable $throwable) {
             Db::rollback ();
