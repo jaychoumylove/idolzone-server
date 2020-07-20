@@ -359,4 +359,6 @@ alter table f_user_ext modify lucky float(3,2) default 0 not null;
 
 alter table f_rec_weal_activity modify lucky float(3,2) default 0 null comment '增加幸运值';
 
+alter table f_user_ext modify send_weal_hot bigint default 0 not null comment '使用福袋额外获得的hot';
+
 -- end
