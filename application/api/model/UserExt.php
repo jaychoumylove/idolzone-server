@@ -246,7 +246,7 @@ class UserExt extends Base
     {
         $lucky=self::where('user_id', $uid)->value('lucky');
 
-        $sum = bcadd ($lucky, $num);
+        $sum = bcadd ($lucky, $num, 2);
         $sum = $sum > 100 ? 100: $sum;
 
         $updated = self::where([

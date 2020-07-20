@@ -75,11 +75,11 @@ class RecWealActivityTask extends Base
                 throw new Exception('未达到完成任务要求', 3);
             }
 
-            $earn = $isSum ? bcmul ($num, $task['reward']): $task['reward'];
+            $earn = $isSum ? bcmul ($num, $task['reward'], 2): $task['reward'];
 
             $res = UserExt::luckyChange ($uid, $earn);
             if (empty($res)) {
-                throw new Exception('更新幸运值失败');
+                throw new Exception('更新幸运值失败', 3);
             }
 
             RecWealActivity::addRec([
