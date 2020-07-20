@@ -8,6 +8,7 @@ use app\base\service\Common;
 use app\api\model\User as UserModel;
 use think\Db;
 use app\api\service\User;
+use think\Exception;
 
 class UserExt extends Base
 {
@@ -241,36 +242,19 @@ class UserExt extends Base
     }
 
     /**增加福袋幸运值 */
-    public static function luckyChange($uid,$num,$task_id)
+    public static function luckyChange($uid,$num)
     {
+        $lucky=self::where('user_id', $uid)->value('lucky');
 
-        Db::startTrans();
-        try {
-            $lucky=self::where('user_id', $uid)->value('lucky');
+        $sum = bcadd ($lucky, $num);
+        $sum = $sum > 100 ? 100: $sum;
 
-            if($lucky>=100 || $lucky+$num>=100){
-                self::where('user_id', $uid)->update([
-                    'lucky' => 100,
-                    'bag_num' => Db::raw('bag_num+'.$num)
-                ]);
-            }else{
-                self::where('user_id', $uid)->update([
-                    'lucky' => Db::raw('lucky+'.$num),
-                    'bag_num' => Db::raw('blessing_num+'.$num)
-                ]);
-            }
+        $updated = self::where([
+            'user_id' => $uid,
+            'lucky' => $lucky
+        ])->update(['lucky' => $sum]);
 
-            if($task_id==4){
-                RecWealActivityTask::addOrEdit($uid, $task_id, $num, $num);
-            }else{
-                RecWealActivityTask::addOrEdit($uid, $task_id, 0, $num);
-            }
-
-            Db::commit();
-        } catch (\Exception $e) {
-            Db::rollback();
-            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
-        }
+        return (bool)$updated;
     }
 
     /**618活动福气榜列表 */

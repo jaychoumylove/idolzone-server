@@ -195,53 +195,13 @@ class Active extends Base
         }
         $rectask=RecWealActivityTask::where(['user_id'=>$this->uid,'task_id'=>$task_id])->find();
 
-        if($rectask){
-            if($task_id==4 || $task_id==8 || $task_id==9){
-                if($rectask['is_settle_times']>=1 && $rectask['done_times']>=1){
-                    Common::res(['code' => 1, 'msg' => '该任务已经领取过了']);
-                }
-            }else{
-                if($rectask['done_times']<$task['times'] || $rectask['done_times']/$task['times']-$rectask['is_settle_times']<1 ){
-                    Common::res(['code' => 1, 'msg' => '该任务还不能领取']);
-                }
-            }
+        if (empty($rectask)) {
+            Common::res (['code' => 1, 'msg' => "还未完成该任务哦"]);
         }
 
-        if($rectask && $task_id!=4){
+        $earn = (new RecWealActivityTask())->settle ($task_id, $this->uid);
 
-            $num=($rectask['done_times']-$task['times']*$rectask['is_settle_times'])/$task['times'];
-            $addnum=floor($num);
-
-        }else{
-            $addnum=1;
-        }
-        UserExt::luckyChange($this->uid,$addnum,$task_id);
-
-        $res=[
-            "bag_num"=>$addnum,
-            "lucky"=>$addnum,
-        ];
-        Common::res(['data' => $res]);
-    }
-
-    /**活动福袋使用*/
-    public function useWealBag(){
-
-        $this->getUser();
-        $starid = $this->req('starid', 'integer');
-        // 1金豆 2鲜花
-        $type = $this->req('type', 'integer', 0);
-        $danmaku = $this->req('danmaku', 'integer', 1); // 是否推送打榜弹幕
-
-        $rec = Rec::where('user_id',$this->uid)->where('content','为爱豆打榜')->order('create_time desc')->find();
-        if(0-$rec['coin']>0){
-            $hot=-$rec['coin'];
-        }elseif(0-$rec['flower']>0){
-            $hot=-$rec['flower'];
-        }
-        $res = UserExt::useWealBag($starid, $hot, $this->uid, $type, $danmaku);
-
-        Common::res(['data' => $res]);
+        Common::res(['data' => $earn]);
     }
 
     /**活动福袋日志*/
