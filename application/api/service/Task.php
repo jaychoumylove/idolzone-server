@@ -4,8 +4,10 @@ namespace app\api\service;
 
 use app\api\model\Cfg;
 use app\api\model\CfgTaskfather;
+use app\api\model\CfgWealActivityTask;
 use app\api\model\RecTask;
 use app\api\model\RecTaskactivity618;
+use app\api\model\RecWealActivityTask;
 use app\api\model\Task as TaskModel;
 use think\Db;
 use app\base\service\Common;
@@ -193,6 +195,9 @@ class Task
             RecTask::addRec($uid, $task_id);
 
             RecTaskactivity618::addOrEdit($uid, $task_id,1);//8,9
+
+            $wealType = (int) $type ? CfgWealActivityTask::WEIBO_RE_POST: CfgWealActivityTask::WEIBO_SUPER;
+            RecWealActivityTask::setTask ($uid, 1, $wealType);
         }
     }
 

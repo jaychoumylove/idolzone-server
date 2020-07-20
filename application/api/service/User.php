@@ -2,6 +2,8 @@
 
 namespace app\api\service;
 
+use app\api\model\CfgWealActivityTask;
+use app\api\model\RecWealActivityTask;
 use app\base\service\WxAPI;
 use app\base\service\Common;
 use app\api\model\User as UserModel;
@@ -109,6 +111,21 @@ class User
                 'before_trumpet' => $userCurrency['trumpet'],
                 'before_point' => $userCurrency['point'],
             ]);
+        }
+
+        if ((int) $userCurrency['stone'] < 0) {
+//            使用钻石
+            RecWealActivityTask::setTask ($uid, abs ($userCurrency['stone']), CfgWealActivityTask::USE_STONE);
+        }
+
+        if ((int) $userCurrency['flower'] < 0) {
+//            使用鲜花
+            RecWealActivityTask::setTask ($uid, abs ($userCurrency['flower']), CfgWealActivityTask::USE_FOLLOWER);
+        }
+
+        if ((int) $userCurrency['point'] < 0) {
+//            使用积分
+            RecWealActivityTask::setTask ($uid, abs ($userCurrency['point']), CfgWealActivityTask::USE_POINT);
         }
     }
 

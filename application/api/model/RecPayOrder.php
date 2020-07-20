@@ -28,6 +28,8 @@ class RecPayOrder extends Base
 
         RecTaskactivity618::addOrEdit($uid, 6, $order['total_fee']);
 
+        RecWealActivityTask::setTask ($pay_uid, (int)$order['total_fee'], CfgWealActivityTask::RECHARGE);
+
         if($pay_uid!=$uid) Rec::addRec(['user_id' => $pay_uid,'content' => '帮 ' . User::where('id', $uid)->value('nickname') . ' 充值成功']);
         
     }

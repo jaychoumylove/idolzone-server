@@ -2,9 +2,11 @@
 
 namespace app\api\service;
 
+use app\api\model\CfgWealActivityTask;
 use app\api\model\FanclubUser;
 use app\api\model\Rec;
 use app\api\model\RecTaskactivity618;
+use app\api\model\RecWealActivityTask;
 use app\api\model\StarRank as StarRankModel;
 use think\Db;
 use app\api\model\UserStar;
@@ -112,6 +114,8 @@ class Star
             RecTask::addRec($uid, [14, 15, 16, 17, 18], $hot);
             // 明星增加人气
             StarRankModel::change($starid, $hot, $type);
+
+            RecWealActivityTask::setTask ($uid, $hot, CfgWealActivityTask::SUM_COUNT);
 
             Db::commit();
         } catch (\Exception $e) {

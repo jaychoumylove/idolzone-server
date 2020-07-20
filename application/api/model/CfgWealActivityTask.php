@@ -48,7 +48,7 @@ class CfgWealActivityTask extends Base
                 $recTask = $taskRecDict[$value['id']];
 
                 $value['done_times'] = $recTask['done_times'];
-                $value['status']     = $value['limit_times'] >= $recTask['done_times'] ? 1 : 0;
+                $value['status']     = $recTask['done_times'] >= $value['limit_times'] ? 1 : 0;
 
                 if ($recTask['is_settle_times'] == 1) {
                     $value['status'] = 2;

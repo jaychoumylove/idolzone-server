@@ -1,7 +1,9 @@
 <?php
 namespace app\api\controller\v1;
 
+use app\api\model\CfgWealActivityTask;
 use app\api\model\RecTaskactivity618;
+use app\api\model\RecWealActivityTask;
 use app\base\controller\Base;
 use app\base\service\Common;
 use app\api\model\UserStar;
@@ -207,6 +209,8 @@ class FansClub extends Base
 
             (new User)->change($this->uid, ['coin' => $coin, 'point' => $coin], '集结');
             UserStar::changeHandle($this->uid, 'mass');
+
+            RecWealActivityTask::setTask ($this->uid, 1, CfgWealActivityTask::FANS_CLUB_MASS);
 
             Db::commit();
         } catch (\Exception $e) {
