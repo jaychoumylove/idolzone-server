@@ -63,6 +63,8 @@ Route::rule('api/:version/star/steal', 'api/v1.Star/steal');// 偷花
 Route::rule('api/:version/star/dynamic', 'api/v1.Star/dynamic');// 动态
 Route::rule('api/:version/star/editimg', 'api/v1.Star/editimg');// 修改明星图片
 
+Route::rule('api/:version/star/extrasendhot', 'api/v1.Star/extraSendHot');// 给明星贡献人气
+
 // StarRank
 Route::rule('api/:version/star/rank', 'api/v1.StarRank/getRankList');// 明星排名
 Route::rule('api/:version/star/r', 'api/v1.StarRank/getRank');// 明星排名微博抓取

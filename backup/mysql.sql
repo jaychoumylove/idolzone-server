@@ -357,4 +357,6 @@ CHANGE COLUMN `is_receive` `weal_receive` tinyint(3) NOT NULL DEFAULT 0 COMMENT 
 
 alter table f_user_ext modify lucky float(3,2) default 0 not null;
 
+alter table f_rec_weal_activity modify lucky float(3,2) default 0 null comment '增加幸运值';
+
 -- end
