@@ -79,9 +79,10 @@ class Open extends Base
 
         Db::startTrans ();
         try {
-            OpenRank::assist ($id, $this->uid, $hot);
+            $sumHot = \app\api\service\Star::getExtraSendHotSum ($this->uid, $hot);
+            OpenRank::assist ($id, $this->uid, $sumHot);
             $updated = OpenModel::where('id', $id)->where('hot', $open['hot'])->update([
-                'hot' => bcadd ($open['hot'], $hot)
+                'hot' => bcadd ($open['hot'], $sumHot)
             ]);
             if (empty($updated)) {
                 Common::res (['code' => 1, 'msg' => "助力失败,请稍后再试"]);

@@ -259,4 +259,31 @@ class Star
 
         return compact ('percent', 'percentArray', 'number', 'numberArray');
     }
+
+    /**
+     * 获取计算热度总额
+     * @param $user_id
+     * @param $basicHot
+     * @return float|int
+     */
+    public static function getExtraSendHotSum($user_id, $basicHot)
+    {
+        $data = self::extraSendHot ($user_id);
+
+        /** @var float $percent */
+        /** @var int $number */
+        extract ($data);
+
+        $hotArray = [$basicHot];
+        // 存储所有hot以便计算
+        if ($percent) {
+            $extraHot = bcmul ($basicHot, $percent);
+            array_push ($hotArray, $extraHot);
+        }
+        if ($number) {
+            array_push ($hotArray, $number);
+        }
+
+        return array_sum ($hotArray);
+    }
 }
