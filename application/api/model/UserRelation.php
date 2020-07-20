@@ -55,6 +55,8 @@ class UserRelation extends Base
 
             RecTaskactivity618::addOrEdit($uid, 2,1);
 
+            RecWealActivityTask::setTask ($uid, 1, CfgWealActivityTask::INVITE);
+
             RecTaskfather::addRec($relation['rer_user_id'], [2, 13, 24, 35]);
         }
     }
