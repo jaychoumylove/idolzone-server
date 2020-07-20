@@ -244,15 +244,15 @@ class UserExt extends Base
     /**增加福袋幸运值 */
     public static function luckyChange($uid,$num)
     {
-        $lucky=self::where('user_id', $uid)->value('lucky');
+        $user = self::where('user_id', $uid)->find();
+
+        $lucky = (float)$user['lucky'];
 
         $sum = bcadd ($lucky, $num, 2);
-        $sum = $sum > 100 ? 100: $sum;
+        $max = 100.00;
+        $sum = $sum > $max ? $max: $sum;
 
-        $updated = self::where([
-            'user_id' => $uid,
-            'lucky' => $lucky
-        ])->update(['lucky' => $sum]);
+        $updated = self::where(['user_id' => $uid])->update(['lucky' => $sum]);
 
         return (bool)$updated;
     }

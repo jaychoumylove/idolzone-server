@@ -113,19 +113,18 @@ class User
             ]);
         }
 
-        if ((int) $userCurrency['stone'] < 0) {
-//            使用钻石
-            RecWealActivityTask::setTask ($uid, abs ($userCurrency['stone']), CfgWealActivityTask::USE_STONE);
-        }
-
-        if ((int) $userCurrency['flower'] < 0) {
-//            使用鲜花
-            RecWealActivityTask::setTask ($uid, abs ($userCurrency['flower']), CfgWealActivityTask::USE_FOLLOWER);
-        }
-
-        if ((int) $userCurrency['point'] < 0) {
-//            使用积分
-            RecWealActivityTask::setTask ($uid, abs ($userCurrency['point']), CfgWealActivityTask::USE_POINT);
+        $wealMap = [
+            'stone'  => CfgWealActivityTask::USE_STONE,
+            'flower' => CfgWealActivityTask::USE_FOLLOWER,
+            'point'  => CfgWealActivityTask::USE_POINT,
+        ];
+        foreach ($currency as $key => $value) {
+            if (array_key_exists ($key, $wealMap)) {
+                if ((int)$value < 0) {
+                    $wealType = $wealMap[$key];
+                    RecWealActivityTask::setTask ($uid, abs ($value), $wealType);
+                }
+            }
         }
     }
 

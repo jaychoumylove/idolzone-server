@@ -88,9 +88,12 @@ class RecWealActivityTask extends Base
                 'lucky' => $earn,
             ]);
 
+//            throw new Exception('something was wrong');
+
             Db::commit ();
         }catch (\Throwable $throwable) {
             Db::rollback ();
+//            throw $throwable;
             $msg = "完成失败,请稍后再试";
             if ($throwable->getCode () == 3) $msg = $throwable->getMessage ();
             Common::res (['code' => 1, 'msg' => $msg]);
