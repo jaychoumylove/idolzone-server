@@ -26,6 +26,7 @@ use app\api\model\UserProp;
 use app\api\model\Star as StarModel;
 use app\api\model\StarBirthRank;
 use app\api\model\Family;
+use think\Exception;
 
 class Star
 {
@@ -94,7 +95,8 @@ class Star
             $hotArray = [$basicHot];
             // 存储所有hot以便计算
             if ($extra['percent']) {
-                array_push ($hotArray, bcmul ($basicHot, $extra['percent']));
+                $extraHot = bcmul ($basicHot, $extra['percent']);
+                array_push ($hotArray, $extraHot);
             }
             if ($extra['number']) {
                 array_push ($hotArray, $extra['number']);
@@ -132,6 +134,13 @@ class Star
             StarRankModel::change($starid, $hot, $type);
 
             RecWealActivityTask::setTask ($uid, $hot, CfgWealActivityTask::SUM_COUNT);
+
+            if (isset($extraHot) && !!$extraHot) {
+                $res = UserExt::extraHot ($uid, $extraHot);
+                if (empty($res)) {
+                    throw new Exception('更新失败，请稍后再试');
+                }
+            }
 
             Db::commit();
         } catch (\Exception $e) {
@@ -233,9 +242,10 @@ class Star
         $percentArray = [];
         $numberArray = [];
 
-        $extra = UserExt::get ($user_id);
+        $extra = UserExt::get (['user_id' => $user_id]);
         if ((float)$extra['lucky']) {
-            array_push ($percentArray, (float)$extra['lucky']);
+            $lucky = bcdiv ($extra['lucky'], 100, 4);
+            array_push ($percentArray, $lucky);
         }
 
         $percent = $percentArray ? array_sum ($percentArray): 0;

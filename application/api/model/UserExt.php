@@ -257,6 +257,26 @@ class UserExt extends Base
         return (bool)$updated;
     }
 
+    /**
+     * 更新送出的额外数据
+     *
+     * @param $uid
+     * @param $extraHot
+     * @return bool
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function extraHot($uid, $extraHot)
+    {
+        $userExt = UserExt::where('user_id', $uid)->find ();
+        $sendHot = bcadd ($userExt['send_weal_hot'], $extraHot);
+
+        $updated = UserExt::where('user_id', $uid)->update(['send_weal_hot' => $sendHot]);
+
+        return (bool)$updated;
+    }
+
     /**618活动福气榜列表 */
     public static function luckyRank($uid,$page,$size)
     {
