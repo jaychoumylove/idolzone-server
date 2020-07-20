@@ -211,4 +211,26 @@ class Star
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
     }
+
+    public static function extraSendHot($user_id)
+    {
+        $percentArray = [];
+        $numberArray = [];
+
+        $extra = UserExt::get ($user_id);
+        if ((float)$extra['lucky']) {
+            array_push ($percentArray, (float)$extra['lucky']);
+        }
+
+        $percent = $percentArray ? array_sum ($percentArray): 0;
+        $number = $numberArray ? array_sum ($numberArray): 0;
+
+        $maxPercent = 100;
+        if ($percent > $maxPercent) {
+            // 百分比上限100%
+            $percent = $maxPercent;
+        }
+
+        return compact ('percent', 'percentArray', 'number', 'numberArray');
+    }
 }

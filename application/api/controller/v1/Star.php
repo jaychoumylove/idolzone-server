@@ -175,30 +175,13 @@ class Star extends Base
 
     /**
      * 获取打榜的额外加成数值
-     * @throws \think\exception\DbException
      */
     public function extraSendHot()
     {
         $this->getUser ();
-//        $percent = 0; // 百分比 *
-//        $number = 0; // 额外数值 +
-        $extra = UserExt::get ($this->uid);
-        $percentArray = [];
-        $numberArray = [];
 
-        if ((float)$extra['lucky']) {
-            array_push ($percentArray, (float)$extra['lucky']);
-        }
+        $data = \app\api\service\Star::extraSendHot ($this->uid);
 
-        $percent = $percentArray ? array_sum ($percentArray): 0;
-        $number = $numberArray ? array_sum ($numberArray): 0;
-
-        $maxPercent = 100;
-        if ($percent > $maxPercent) {
-            // 百分比上限100%
-            $percent = $maxPercent;
-        }
-
-        Common::res (['data' => compact ('percent', 'percentArray', 'number', 'numberArray')]);
+        Common::res (compact ('data'));
     }
 }
