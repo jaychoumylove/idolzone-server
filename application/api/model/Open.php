@@ -3,23 +3,42 @@
 namespace app\api\model;
 
 use app\base\model\Base;
-use app\base\service\Common;
 use think\Db;
-use think\Model;
 
 class Open extends Base
 {
-    //
+    const NORMAL = 'normal'; // 正常开屏活动
+    const SOLDIER81 = '81soldier';// 81建军节开屏
 
     public function Star()
     {
         return $this->belongsTo('Star', 'star_id', 'id')->field('id,name');
     }
 
-    /**获取开屏图 */
-    public static function getRankList($page, $size, $sort)
+    public function uploader()
     {
-        $list = self::with('Star')->where('1=1')->order('hot desc,id desc')->page($page, $size)->select();
+        return $this->hasOne ('User', 'id', 'user_id')->field ('id,nickname,avatarurl');
+    }
+
+    public function openRank()
+    {
+        return $this->hasMany ('OpenRank', 'open_id', 'id');
+    }
+
+    /**获取开屏图 */
+    public static function getRankList($map = [], $page, $size, $sort)
+    {
+        $list = self::with(['Star', 'uploader', 'openRank' => function ($query) {
+            $query->with('UserInfo')
+                ->order([
+                    'count' => 'desc',
+                    'create_time' => 'asc'
+                ]);
+        }])
+            ->where($map)
+            ->order('hot desc,id asc')
+            ->page($page, $size)
+            ->select();
         return $list;
     }
 
@@ -58,5 +77,34 @@ class Open extends Base
         OpenRank::where('1=1')->update(['count' => 0]);
 
         // if ($res) Common::res();
+    }
+
+    public static function checkSoldier81()
+    {
+        // xxxx年xx月xx号24:00前有效
+        $config = Cfg::getCfg ('open');
+        $content = $config['content'][self::SOLDIER81];
+
+        return date ('Y-m-d') < $content['time']['end'];
+    }
+
+    /**
+     * 补充排名
+     *
+     * @param $hot
+     * @param $id
+     * @return mixed
+     * @throws \think\Exception
+     */
+    public static function supportRank($hot, $id)
+    {
+        $rank = self::where('hot', '>', $hot)->count ();
+        $sql = "SELECT id,hot,@curRank := @curRank + 1 AS rank FROM f_open p, (SELECT @curRank := 0) q where hot = $hot ORDER BY id asc";
+        $sameRank = Db::query ($sql);
+        $sameRankDict = array_column ($sameRank, 'rank', 'id');
+        if (array_key_exists ($id, $sameRankDict)) {
+            $rank += bcsub ($sameRankDict[$id], 1);
+        }
+        return $rank;
     }
 }

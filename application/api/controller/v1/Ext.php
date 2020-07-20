@@ -190,6 +190,11 @@ class Ext extends Base
             // 上传的文件
             $file = request()->file('file');
             if ($file) {
+                $size = $file->getSize ();
+                $resize = bcdiv ($size, pow (1024, 2), 2);
+                if ($resize > 1) {
+                    Common::res (['code' => 1, 'msg' => "大小超过1mb限制"]);
+                }
                 $info = $file->move(ROOT_PATH . 'public' . DS . 'uploads');
                 $filename = $info->getSaveName();
                 $realPath = ROOT_PATH . 'public' . DS . 'uploads' . DS . $filename;
