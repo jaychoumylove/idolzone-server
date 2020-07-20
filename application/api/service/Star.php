@@ -68,23 +68,39 @@ class Star
 
         Db::startTrans();
         try {
+            // 基础hot即用户送出的hot
+            $basicHot = $hot;
             // 用户货币减少
-            if ($type == 1) $update = ['coin' => -$hot, 'point' => $hot];
-            else if ($type == 2) $update = ['flower' => -$hot, 'point' => $hot];
-            else if ($type == 3) $update = ['old_coin' => -$hot, 'point' => $hot];
+            if ($type == 1) $update = ['coin' => -$basicHot, 'point' => $basicHot];
+            else if ($type == 2) $update = ['flower' => -$basicHot, 'point' => $basicHot];
+            else if ($type == 3) $update = ['old_coin' => -$basicHot, 'point' => $basicHot];
 
             if($is_blessing_bag==false){
                 if ($type == 3) {
-                    (new UserService)->change($uid, $update, '为爱豆打榜，旧豆-' . $hot);
+                    (new UserService)->change($uid, $update, '为爱豆打榜，旧豆-' . $basicHot);
                 } else {
                     (new UserService)->change($uid, $update, '为爱豆打榜');
                 }
             }else{
                 Rec::addRec([
                     'user_id' => $uid,
-                    'content' => '使用福袋爱豆人气+'.$hot
+                    'content' => '使用福袋爱豆人气+'.$basicHot
                 ]);
             }
+
+            // 计算所有额外的hot
+            $extra = self::extraSendHot ($uid);
+
+            $hotArray = [$basicHot];
+            // 存储所有hot以便计算
+            if ($extra['percent']) {
+                array_push ($hotArray, bcmul ($basicHot, $extra['percent']));
+            }
+            if ($extra['number']) {
+                array_push ($hotArray, $extra['number']);
+            }
+
+            $hot = array_sum ($hotArray);
 
             $myStarId = UserStar::getStarId($uid);
             if ($starid != $myStarId) {
