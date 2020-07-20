@@ -5,6 +5,7 @@ use app\api\model\ActiveDragonBoatFestivalFanclub;
 use app\api\model\CfgActive;
 use app\api\model\CfgLottery;
 use app\api\model\RecTaskactivity618;
+use app\api\model\RecWealActivityTask;
 use app\base\controller\Base;
 use app\api\model\StarRank;
 use think\Db;
@@ -170,6 +171,9 @@ class AutoRun extends Base
             CfgLottery::doubleAward();
             // pk表清除
             PkUser::clearPk();
+
+            // 清楚每日任务
+            RecWealActivityTask::cleanDay ();
             
             Db::commit();
         } catch (\Exception $e) {

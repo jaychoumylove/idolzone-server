@@ -35,6 +35,19 @@ class RecWealActivityTask extends Base
         }
     }
 
+    public static function cleanDay()
+    {
+        $dayTask = CfgWealActivityTask::where('type', CfgWealActivityTask::DAY)->select ();
+        if (is_object ($dayTask)) $dayTask = $dayTask->toArray ();
+
+        $dayTaskIds = array_column ($dayTask, 'id');
+
+        self::where('task_id', 'in', $dayTaskIds)->update([
+            'done_times' => 0,
+            'is_settle_times' => 0
+        ]);
+    }
+
     /**
      * 领取任务奖励
      * @param $task_id
