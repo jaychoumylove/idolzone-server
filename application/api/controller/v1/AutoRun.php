@@ -4,6 +4,7 @@ namespace app\api\controller\v1;
 use app\api\model\ActiveDragonBoatFestivalFanclub;
 use app\api\model\CfgActive;
 use app\api\model\CfgLottery;
+use app\api\model\OpenRank;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecWealActivityTask;
 use app\base\controller\Base;
@@ -174,6 +175,22 @@ class AutoRun extends Base
 
             // 清楚每日任务
             RecWealActivityTask::cleanDay ();
+
+            $date = date('Y-m-d');
+            $cleanDay = [
+                '2020-08-01',
+                '2020-08-02',
+                '2020-08-03',
+                '2020-08-04', // 防止多余数据
+            ];
+            if (in_array ($date, $cleanDay)) {
+                \app\api\model\Open::where('hot', '>', 0)
+                    ->where ('type', \app\api\model\Open::SOLDIER81)
+                    ->update(['hot' => 0]);
+
+                OpenRank::where('count', '>', 0)
+                    ->update(['count' => 0]);
+            }
             
             Db::commit();
         } catch (\Exception $e) {
