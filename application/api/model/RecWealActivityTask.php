@@ -87,16 +87,15 @@ class RecWealActivityTask extends Base
                 $earn = $task['reward'];
             }
             if ($isOnce) {
-                $res = $this->settleOnce ($map);
-                if (empty($res)) {
-                    throw new Exception('只能领取一次', 3);
+                $earn = $this->settleOnce ($map, $task['key']);
+                if (empty($earn)) {
+                    throw new Exception('未达到完成任务要求', 3);
                 }
-                $earn = $this->getOnceReward ($uid, $task['key']);
             }
 
             $res = UserExt::luckyChange ($uid, $earn);
             if (empty($res)) {
-                throw new Exception('更新幸运值失败', 3);
+                throw new Exception('重复领取', 3);
             }
 
             RecWealActivity::addRec([
@@ -176,40 +175,36 @@ class RecWealActivityTask extends Base
 
     /**
      * @param $map
+     * @param $key
      * @return bool
      * @throws DataNotFoundException
      * @throws DbException
+     * @throws Exception
      * @throws ModelNotFoundException
      */
-    private function settleOnce($map)
+    private function settleOnce($map, $key)
     {
         $task = self::where($map)->find ();
-        if ($task) return false;
+        $start = $task ? $task['done_times']: 1;
 
-        $data = [
-            'done_times' => CfgUserLevel::getLevel ($map['user_id']),
-            'is_settle_times' => 1
-        ];
-        self::create (array_merge ($data, $map));
+        $reward = 0;
+        if ($key == CfgWealActivityTask::LEVEL) {
+            $level = CfgUserLevel::getLevel($map['user_id']);
+            $typeMap = $this->getLevelRewardMap ();
+            $reward = $this->getRewardByOnce($typeMap, $start, $level);
 
-        return true;
-    }
+            if ($reward) {
+                $data = ['done_times' => $level];
+                if ($task) {
+                    $updated = self::where('id', $task['id'])->update($data);
 
-    /**
-     * 单次任务完成
-     * @param $user_id
-     * @param $taskKey
-     * @return int|mixed
-     */
-    public function getOnceReward($user_id, $taskKey)
-    {
-        switch ($taskKey) {
-            case CfgWealActivityTask::LEVEL:
-                $reward = $this->getLevelReward($user_id);
-                break;
-            default:
-                $reward = 0;
-                break;
+                    if ((bool) $updated == false) {
+                        throw new Exception('重复领取', 3);
+                    }
+                } else {
+                    self::create (array_merge ($data, $map));
+                }
+            }
         }
 
         return $reward;
@@ -218,15 +213,11 @@ class RecWealActivityTask extends Base
     /**
      * 获取等级奖励
      *
-     * @param      $user_id
-     * @param null $level
-     * @return mixed
+     * @return array
      */
-    private function getLevelReward($user_id, $level = null)
+    public static function getLevelRewardMap()
     {
-        if (empty($level)) $level = CfgUserLevel::getLevel($user_id);
-
-        $levelMap = [
+        return [
             0.1,
             0.1,
             0.1,
@@ -245,10 +236,28 @@ class RecWealActivityTask extends Base
             0.5,
             3,
         ];
+    }
 
-        $index = bcsub ($level, 1);
+    /**
+     * 获取once任务奖励
+     *
+     * @param $map
+     * @param $start
+     * @param $number
+     * @return int
+     */
+    public static function getRewardByOnce($map, $start, $number)
+    {
+        $reward = 0;
+        while ($number > $start) {
+            $index = bcsub ($start, 1);
+            if (array_key_exists ($index, $map)) {
+                $reward += $map[$index];
+                $start ++;
+            }
+        }
 
-        return $levelMap[$index];
+        return $reward;
     }
 
     /**

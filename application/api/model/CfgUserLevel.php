@@ -12,4 +12,9 @@ class CfgUserLevel extends Base
         $count = UserStar::where('user_id', $uid)->order('id desc')->value('total_count');
         return self::where('total', '<=', $count)->max('level');
     }
+
+    public static function getMaxLevel()
+    {
+        return self::order ('total', 'desc')->value('level');
+    }
 }

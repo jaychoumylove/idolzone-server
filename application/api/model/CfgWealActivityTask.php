@@ -28,6 +28,7 @@ class CfgWealActivityTask extends Base
 
     //  单次任务
     const LEVEL = 'LEVEL';// 等级任务
+    const BADGE = 'BADGE'; // 徽章任务 key
 
     public static function getTaskByKey($key)
     {
@@ -73,23 +74,42 @@ class CfgWealActivityTask extends Base
 
                 if ($value['type'] == self::ONCE) {
                     if ($value['key'] == self::LEVEL) {
-                        $value['done'] = CfgUserLevel::getLevel ($uid);
-                        $value['reward'] = (new RecWealActivityTask())->getOnceReward ($uid, $value['key']);
+                        $value = self::supportOnceItem ($value, $uid);
                     }
                 }
             } else {
                 if ($value['type'] == self::ONCE) {
-                    if ($value['key'] == self::LEVEL) {
-                        $value['done_times'] = CfgUserLevel::getLevel ($uid);
-                    }
-                    $value['reward'] = (new RecWealActivityTask())->getOnceReward ($uid, $value['key']);
-                    $value['done'] = $value['done_times'];
                     $value['status'] = 1;
+                    if ($value['key'] == self::LEVEL) {
+                        $value = self::supportOnceItem ($value, $uid);
+                    }
                 }
             }
 
             $list[$key] = $value;
         }
         return $list;
+    }
+
+    /**
+     * @param $value
+     * @param $uid
+     * @return mixed
+     */
+    public static function supportOnceItem($value, $uid)
+    {
+        if (empty($value['done_times'])) {
+            $value['done_times'] = 1;
+        }
+        $value['done'] = CfgUserLevel::getMaxLevel();
+        if ((int) $value['done_times'] == (int) $value['done']) {
+            $value['reward'] = 0;
+            $value['status'] = 2;
+        } else {
+            $rewardMap = RecWealActivityTask::getLevelRewardMap ();
+            $value['reward'] = RecWealActivityTask::getRewardByOnce ($rewardMap, $value['done_times'], CfgUserLevel::getLevel ($uid));
+        }
+
+        return $value;
     }
 }

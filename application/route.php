@@ -300,7 +300,6 @@ Route::rule('api/:version/active/logBlessingBag', 'api/v1.Active/logBlessingBag'
 Route::rule('api/:version/active/wealtask', 'api/v1.Active/wealTask');// 活动任务列表
 Route::rule('api/:version/active/weallist', 'api/v1.Active/wealList');// 活动福气榜列表
 Route::rule('api/:version/active/getwealbag', 'api/v1.Active/getWealBag');// 活动福气领取
-Route::rule('api/:version/active/usewealbag', 'api/v1.Active/useWealBag');// 活动福袋使用
 Route::rule('api/:version/active/weallog', 'api/v1.Active/wealLog');// 活动福袋日志
 
 Route::rule('api/:version/active/dragon_boat_festival', 'api/v1.ActiveDragonBoatFestival/index');// 端午活动列表
