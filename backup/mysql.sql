@@ -355,10 +355,10 @@ ALTER TABLE `f_user_ext`
 CHANGE COLUMN `send_hot` `send_weal_hot` bigint(20) NOT NULL DEFAULT 0 COMMENT '使用福袋额外获得的hot' AFTER `lucky`,
 CHANGE COLUMN `is_receive` `weal_receive` tinyint(3) NOT NULL DEFAULT 0 COMMENT '是否领取了公众号福利' AFTER `send_weal_hot`;
 
-alter table f_user_ext modify lucky float(3,2) default 0 not null;
-
-alter table f_rec_weal_activity modify lucky float(3,2) default 0 null comment '增加幸运值';
-
 alter table f_user_ext modify send_weal_hot bigint default 0 not null comment '使用福袋额外获得的hot';
+
+alter table f_user_ext modify lucky float(5,2) default 0.00 not null;
+
+alter table f_rec_weal_activity modify lucky float(5,2) default 0.00 null comment '增加幸运值';
 
 -- end

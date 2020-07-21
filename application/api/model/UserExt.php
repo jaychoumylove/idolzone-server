@@ -247,6 +247,9 @@ class UserExt extends Base
         $user = self::where('user_id', $uid)->find();
 
         $lucky = (float)$user['lucky'];
+        $max = 100.00;
+
+        if ($lucky == $max) return true;
 
         $sum = bcadd ($lucky, $num, 2);
         $max = 100.00;
