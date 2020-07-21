@@ -192,19 +192,26 @@ class RecWealActivityTask extends Base
             $level = CfgUserLevel::getLevel($map['user_id']);
             $typeMap = $this->getLevelRewardMap ();
             $reward = $this->getRewardByOnce($typeMap, $start, $level);
+        }
 
-            if ($reward) {
-                $data = ['done_times' => $level];
-                if ($task) {
-                    $updated = self::where('id', $task['id'])->update($data);
+        if (false !== strpos ($key, CfgWealActivityTask::BADGE)) {
+            $type = CfgWealActivityTask::getBadgeTypeByKey ($key);
+            $badge = BadgeUser::getUserTypeBadgeOffset ($map['user_id'], $type);
+            $typeMap = $this->getBadgeRewardMap ($key);
+            $reward = $this->getRewardByOnce($typeMap, $start, $badge);
+        }
 
-                    if ((bool) $updated == false) {
-                        throw new Exception('重复领取', 3);
-                    }
-                } else {
-                    self::create (array_merge ($data, $map));
-                }
+        if (empty($reward)) return 0;
+
+        $data = ['done_times' => $level];
+        if ($task) {
+            $updated = self::where('id', $task['id'])->update($data);
+
+            if ((bool) $updated == false) {
+                throw new Exception('重复领取', 3);
             }
+        } else {
+            self::create (array_merge ($data, $map));
         }
 
         return $reward;
@@ -237,6 +244,36 @@ class RecWealActivityTask extends Base
             3,
         ];
     }
+
+    /**
+     * 获取等级奖励
+     *
+     * @param $key
+     * @return array
+     */
+    public static function getBadgeRewardMap($key)
+    {
+        $index = CfgWealActivityTask::getBadgeTypeByKey ($key);
+
+        $map = [
+            2 => [
+                0.1,
+                0.1,
+                0.1,
+                0.1,
+                0.1,
+                0.2,
+                0.2,
+                0.6,
+                3,
+            ]
+        ];
+
+        if (array_key_exists ($index, $map)) {
+            return $map[$index];
+        }
+    }
+
 
     /**
      * 获取once任务奖励

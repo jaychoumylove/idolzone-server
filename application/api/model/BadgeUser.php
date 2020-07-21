@@ -184,5 +184,45 @@ class BadgeUser extends Base
         $count = $count ? $count : 0;
         BadgeUser::addRec($uid, 6, $count);
     }
+
+    /**
+     * 获取徽章排名 数字越大排名越高
+     * @param $user_id
+     * @param $type
+     * @return int|string
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function getUserTypeBadgeOffset($user_id, $type)
+    {
+        $userBadges = self::where('stype', $type)
+            ->where('user_id', $user_id)
+            ->select ();
+
+        if (is_object ($userBadges)) $userBadges = $userBadges->toArray ();
+
+        if (empty($userBadges)) {
+            return 0;
+        }
+
+        $userBadgeIds = array_column ($userBadges, 'badge_id');
+
+        $cfgBadge = CfgBadge::where('stype', $type)
+            ->order ('count', 'desc')
+            ->select ();
+
+        if (is_object ($cfgBadge)) $cfgBadge = $cfgBadge->toArray ();
+
+        $count = count($cfgBadge);
+        foreach ($cfgBadge as $key => $value) {
+            if (in_array ($value['id'], $userBadgeIds)) {
+                $maxKey = bcadd ($key, 1);
+                break;
+            }
+        }
+
+        return bcsub ($count, $maxKey);
+    }
     
 }

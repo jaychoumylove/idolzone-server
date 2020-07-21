@@ -35,6 +35,16 @@ class CfgWealActivityTask extends Base
         return self::get (['key' => $key]);
     }
 
+    /**
+     * 获取徽章类型
+     * @param $key
+     * @return int
+     */
+    public static function getBadgeTypeByKey($key)
+    {
+        return (int) filter_var($key, FILTER_SANITIZE_NUMBER_INT);
+    }
+
     public static function getCheckTask($key)
     {
         $info = self::getTaskByKey ($key);
@@ -98,16 +108,32 @@ class CfgWealActivityTask extends Base
      */
     public static function supportOnceItem($value, $uid)
     {
-        if (empty($value['done_times'])) {
-            $value['done_times'] = 1;
+        if ($value['key'] == self::LEVEL) {
+            if (empty($value['done_times'])) {
+                $value['done_times'] = 1;
+            }
+            $value['done'] = CfgUserLevel::getMaxLevel();
         }
-        $value['done'] = CfgUserLevel::getMaxLevel();
+        if (false !== strpos ($value['key'], CfgWealActivityTask::BADGE)) {
+            if (empty($value['done_times'])) {
+                $value['done_times'] = 1;
+            }
+            $stype = CfgWealActivityTask::getBadgeTypeByKey ($value['key']);
+            $value['done'] = CfgBadge::where('stype', $stype)->count ();
+        }
         if ((int) $value['done_times'] == (int) $value['done']) {
             $value['reward'] = 0;
             $value['status'] = 2;
         } else {
-            $rewardMap = RecWealActivityTask::getLevelRewardMap ();
-            $value['reward'] = RecWealActivityTask::getRewardByOnce ($rewardMap, $value['done_times'], CfgUserLevel::getLevel ($uid));
+            if ($value['key'] == self::LEVEL) {
+                $rewardMap = RecWealActivityTask::getLevelRewardMap ();
+                $number = CfgUserLevel::getLevel ($uid);
+            }
+            if (false !== strpos ($value['key'], CfgWealActivityTask::BADGE)) {
+                $rewardMap = RecWealActivityTask::getBadgeRewardMap ($value['key']);
+                $number = BadgeUser::getUserTypeBadgeOffset ($uid, $stype);
+            }
+            $value['reward'] = RecWealActivityTask::getRewardByOnce ($rewardMap, $value['done_times'], $number);
         }
 
         return $value;
