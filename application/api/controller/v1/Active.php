@@ -199,10 +199,12 @@ class Active extends Base
         if(!$task){
             Common::res(['code' => 1, 'msg' => '不存在该任务']);
         }
-        $rectask=RecWealActivityTask::where(['user_id'=>$this->uid,'task_id'=>$task_id])->find();
+        if ($task['type'] != CfgWealActivityTask::ONCE) {
+            $rectask=RecWealActivityTask::where(['user_id'=>$this->uid,'task_id'=>$task_id])->find();
 
-        if (empty($rectask)) {
-            Common::res (['code' => 1, 'msg' => "还未完成该任务哦"]);
+            if (empty($rectask)) {
+                Common::res (['code' => 1, 'msg' => "还未完成该任务哦"]);
+            }
         }
 
         $earn = (new RecWealActivityTask())->settle ($task_id, $this->uid);

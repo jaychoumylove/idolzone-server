@@ -65,17 +65,34 @@ class RecWealActivityTask extends Base
         Db::startTrans ();
         try {
             $isSum = $task['type'] == CfgWealActivityTask::SUM;
+            $isDay = $task['type'] == CfgWealActivityTask::DAY;
+            $isOnce = $task['type'] == CfgWealActivityTask::ONCE;
 
             $map = [
                 'user_id' => $uid,
                 'task_id' => $task_id,
             ];
-            $num = $isSum ? $this->settleSum ($map, $task['done']): $this->settleDay ($map);
-            if (empty($num)) {
-                throw new Exception('未达到完成任务要求', 3);
+            if ($isSum) {
+                $num = $this->settleSum ($map, $task['done']);
+                if (empty($num)) {
+                    throw new Exception('未达到完成任务要求', 3);
+                }
+                $earn = bcmul ($num, $task['reward'], 2);
             }
-
-            $earn = $isSum ? bcmul ($num, $task['reward'], 2): $task['reward'];
+            if ($isDay) {
+                $res = $this->settleDay ($map);
+                if (empty($res)) {
+                    throw new Exception('未达到完成任务要求', 3);
+                }
+                $earn = $task['reward'];
+            }
+            if ($isOnce) {
+                $res = $this->settleOnce ($map);
+                if (empty($res)) {
+                    throw new Exception('只能领取一次', 3);
+                }
+                $earn = $this->getOnceReward ($uid, $task['key']);
+            }
 
             $res = UserExt::luckyChange ($uid, $earn);
             if (empty($res)) {
@@ -118,9 +135,9 @@ class RecWealActivityTask extends Base
         if ((int)$task['is_settle_times'] !== 0) {
             return false;
         }
-        self::where(['id' => $task['id']])->update($data);
+        $updated = self::where(['id' => $task['id']])->update($data);
 
-        return true;
+        return (bool)$updated;
     }
 
 
@@ -150,9 +167,88 @@ class RecWealActivityTask extends Base
         $data = [
             'done_times' => $lastNum,
         ];
-        self::where(['id' => $task['id']])->update($data);
+        $updated = self::where(['id' => $task['id']])->update($data);
+
+        if (empty($updated)) return 0;
 
         return $rewardNum;
+    }
+
+    /**
+     * @param $map
+     * @return bool
+     * @throws DataNotFoundException
+     * @throws DbException
+     * @throws ModelNotFoundException
+     */
+    private function settleOnce($map)
+    {
+        $task = self::where($map)->find ();
+        if ($task) return false;
+
+        $data = [
+            'done_times' => CfgUserLevel::getLevel ($map['user_id']),
+            'is_settle_times' => 1
+        ];
+        self::create (array_merge ($data, $map));
+
+        return true;
+    }
+
+    /**
+     * 单次任务完成
+     * @param $user_id
+     * @param $taskKey
+     * @return int|mixed
+     */
+    public function getOnceReward($user_id, $taskKey)
+    {
+        switch ($taskKey) {
+            case CfgWealActivityTask::LEVEL:
+                $reward = $this->getLevelReward($user_id);
+                break;
+            default:
+                $reward = 0;
+                break;
+        }
+
+        return $reward;
+    }
+
+    /**
+     * 获取等级奖励
+     *
+     * @param      $user_id
+     * @param null $level
+     * @return mixed
+     */
+    private function getLevelReward($user_id, $level = null)
+    {
+        if (empty($level)) $level = CfgUserLevel::getLevel($user_id);
+
+        $levelMap = [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.2,
+            0.2,
+            0.2,
+            0.3,
+            0.5,
+            3,
+        ];
+
+        $index = bcsub ($level, 1);
+
+        return $levelMap[$index];
     }
 
     /**

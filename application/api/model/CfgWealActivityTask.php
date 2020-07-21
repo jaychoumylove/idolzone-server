@@ -8,6 +8,7 @@ class CfgWealActivityTask extends Base
 {
     const DAY = 'DAY';
     const SUM = 'SUM';
+    const ONCE = 'ONCE';
 
     const ON = 'ON';
     const OFF = 'OFF';
@@ -24,6 +25,9 @@ class CfgWealActivityTask extends Base
     // 每日任务
     const WEIBO_SUPER   = 'WEIBO_SUPER'; // 每日微博超话任务key
     const WEIBO_RE_POST = 'WEIBO_RE_POST';// 每日微博转发任务key
+
+    //  单次任务
+    const LEVEL = 'LEVEL';// 等级任务
 
     public static function getTaskByKey($key)
     {
@@ -66,7 +70,24 @@ class CfgWealActivityTask extends Base
                 if ($recTask['is_settle_times'] == 1) {
                     $value['status'] = 2;
                 }
+
+                if ($value['type'] == self::ONCE) {
+                    if ($value['key'] == self::LEVEL) {
+                        $value['done'] = CfgUserLevel::getLevel ($uid);
+                        $value['reward'] = (new RecWealActivityTask())->getOnceReward ($uid, $value['key']);
+                    }
+                }
+            } else {
+                if ($value['type'] == self::ONCE) {
+                    if ($value['key'] == self::LEVEL) {
+                        $value['done_times'] = CfgUserLevel::getLevel ($uid);
+                    }
+                    $value['reward'] = (new RecWealActivityTask())->getOnceReward ($uid, $value['key']);
+                    $value['done'] = $value['done_times'];
+                    $value['status'] = 1;
+                }
             }
+
             $list[$key] = $value;
         }
         return $list;

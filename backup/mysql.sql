@@ -364,4 +364,8 @@ alter table f_rec_weal_activity modify lucky float(5,2) default 0.00 null commen
 alter table f_cfg_weal_activity_task
 	add status enum('ON', 'OFF') default 'ON' not null;
 
+alter table f_cfg_weal_activity_task modify type enum('SUM', 'DAY', 'ONCE') default 'SUM' not null comment '累计任务
+每日任务
+单次任务';
+
 -- end
