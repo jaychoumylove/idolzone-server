@@ -167,7 +167,9 @@ class RecWealActivityTask extends Base
      */
     public static function setTask($uid, $number, $key)
     {
-        $task = CfgWealActivityTask::getTaskByKey ($key);
+        $task = CfgWealActivityTask::getCheckTask ($key);
+
+        if (empty($task)) return;
 
         self::finishTask ($uid, $task['id'], $number, $task['type']);
     }

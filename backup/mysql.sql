@@ -361,4 +361,7 @@ alter table f_user_ext modify lucky float(5,2) default 0.00 not null;
 
 alter table f_rec_weal_activity modify lucky float(5,2) default 0.00 null comment '增加幸运值';
 
+alter table f_cfg_weal_activity_task
+	add status enum('ON', 'OFF') default 'ON' not null;
+
 -- end

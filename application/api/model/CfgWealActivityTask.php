@@ -9,6 +9,9 @@ class CfgWealActivityTask extends Base
     const DAY = 'DAY';
     const SUM = 'SUM';
 
+    const ON = 'ON';
+    const OFF = 'OFF';
+
     // 累计任务
     const SUM_COUNT      = 'SUM_COUNT'; // 累计贡献任务key
     const USE_POINT      = 'USE_POINT'; // 累计使用积分key
@@ -25,6 +28,16 @@ class CfgWealActivityTask extends Base
     public static function getTaskByKey($key)
     {
         return self::get (['key' => $key]);
+    }
+
+    public static function getCheckTask($key)
+    {
+        $info = self::getTaskByKey ($key);
+        if ($info['status'] == self::OFF) {
+            return false;
+        }
+
+        return $info;
     }
 
     public function getList($uid)
