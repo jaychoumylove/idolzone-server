@@ -197,7 +197,7 @@ class BadgeUser extends Base
     public static function getUserTypeBadgeOffset($user_id, $type)
     {
         $userBadges = self::where('stype', $type)
-            ->where('user_id', $user_id)
+            ->where('uid', $user_id)
             ->select ();
 
         if (is_object ($userBadges)) $userBadges = $userBadges->toArray ();
@@ -217,7 +217,7 @@ class BadgeUser extends Base
         $count = count($cfgBadge);
         foreach ($cfgBadge as $key => $value) {
             if (in_array ($value['id'], $userBadgeIds)) {
-                $maxKey = bcadd ($key, 1);
+                $maxKey = $key;
                 break;
             }
         }

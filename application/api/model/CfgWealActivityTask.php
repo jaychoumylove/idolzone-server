@@ -83,16 +83,12 @@ class CfgWealActivityTask extends Base
                 }
 
                 if ($value['type'] == self::ONCE) {
-                    if ($value['key'] == self::LEVEL) {
-                        $value = self::supportOnceItem ($value, $uid);
-                    }
+                    $value = self::supportOnceItem ($value, $uid);
                 }
             } else {
                 if ($value['type'] == self::ONCE) {
                     $value['status'] = 1;
-                    if ($value['key'] == self::LEVEL) {
-                        $value = self::supportOnceItem ($value, $uid);
-                    }
+                    $value = self::supportOnceItem ($value, $uid);
                 }
             }
 
@@ -105,20 +101,26 @@ class CfgWealActivityTask extends Base
      * @param $value
      * @param $uid
      * @return mixed
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public static function supportOnceItem($value, $uid)
     {
         if ($value['key'] == self::LEVEL) {
+            $number = CfgUserLevel::getLevel ($uid);
             if (empty($value['done_times'])) {
-                $value['done_times'] = 1;
+                $value['done_times'] = $number;
             }
             $value['done'] = CfgUserLevel::getMaxLevel();
         }
         if (false !== strpos ($value['key'], CfgWealActivityTask::BADGE)) {
-            if (empty($value['done_times'])) {
-                $value['done_times'] = 1;
-            }
             $stype = CfgWealActivityTask::getBadgeTypeByKey ($value['key']);
+            if (empty($value['done_times'])) {
+                $number = BadgeUser::getUserTypeBadgeOffset ($uid, $stype);
+                $value['done_times'] = $number;
+            }
             $value['done'] = CfgBadge::where('stype', $stype)->count ();
         }
         if ((int) $value['done_times'] == (int) $value['done']) {
@@ -127,11 +129,9 @@ class CfgWealActivityTask extends Base
         } else {
             if ($value['key'] == self::LEVEL) {
                 $rewardMap = RecWealActivityTask::getLevelRewardMap ();
-                $number = CfgUserLevel::getLevel ($uid);
             }
             if (false !== strpos ($value['key'], CfgWealActivityTask::BADGE)) {
                 $rewardMap = RecWealActivityTask::getBadgeRewardMap ($value['key']);
-                $number = BadgeUser::getUserTypeBadgeOffset ($uid, $stype);
             }
             $value['reward'] = RecWealActivityTask::getRewardByOnce ($rewardMap, $value['done_times'], $number);
         }

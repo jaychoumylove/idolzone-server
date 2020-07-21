@@ -188,10 +188,12 @@ class RecWealActivityTask extends Base
         $start = $task ? $task['done_times']: 1;
 
         $reward = 0;
+        $data = [];
         if ($key == CfgWealActivityTask::LEVEL) {
             $level = CfgUserLevel::getLevel($map['user_id']);
             $typeMap = $this->getLevelRewardMap ();
             $reward = $this->getRewardByOnce($typeMap, $start, $level);
+            $data = ['done_times' => $level];
         }
 
         if (false !== strpos ($key, CfgWealActivityTask::BADGE)) {
@@ -199,11 +201,11 @@ class RecWealActivityTask extends Base
             $badge = BadgeUser::getUserTypeBadgeOffset ($map['user_id'], $type);
             $typeMap = $this->getBadgeRewardMap ($key);
             $reward = $this->getRewardByOnce($typeMap, $start, $badge);
+            $data = ['done_times' => $badge];
         }
 
         if (empty($reward)) return 0;
 
-        $data = ['done_times' => $level];
         if ($task) {
             $updated = self::where('id', $task['id'])->update($data);
 
@@ -289,7 +291,7 @@ class RecWealActivityTask extends Base
         while ($number > $start) {
             $index = bcsub ($start, 1);
             if (array_key_exists ($index, $map)) {
-                $reward += $map[$index];
+                $reward = bcadd ($map[$index], $reward, 1);
                 $start ++;
             }
         }
