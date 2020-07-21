@@ -6,6 +6,8 @@ use app\base\model\Base;
 
 class Cfg extends Base
 {
+    const WEAL_ACTIVE_PATH = '/pages/active/weal';
+
     public static function getCfg($key)
     {
         $value = self::where(['key' => $key])->value('value');
@@ -90,5 +92,34 @@ class Cfg extends Base
     public static function getStatus($key){
         $res = self::getCfg($key);
         return  (time() > strtotime($res[0]) && time() < strtotime($res[1]));
+    }
+
+    /**
+     * @param $path
+     * @return bool
+     */
+    public static function checkActiveByPathInBtnGroup($path)
+    {
+        $btnCfgDate = self::getCfg('btn_cfg');
+
+        $group = $btnCfgDate['group'];
+
+        $checkItem = array_filter ($group, function ($item) use ($path) {
+            return $item['path'] == $path;
+        });
+
+        if (empty($checkItem)) return false;
+
+        // timer
+        $currentTime = time ();
+        $currentStrTime = date ('Y-m-d H:i:s');
+
+        $notBefore = $currentStrTime > $checkItem['start_time'];
+        if (empty($notBefore)) return false;
+
+        $notAfter = $currentStrTime < $checkItem['end_time'];
+        if (empty($notAfter)) return false;
+
+        return true;
     }
 }

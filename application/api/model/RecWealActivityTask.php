@@ -167,6 +167,10 @@ class RecWealActivityTask extends Base
      */
     public static function setTask($uid, $number, $key)
     {
+        $status = Cfg::checkActiveByPathInBtnGroup (Cfg::WEAL_ACTIVE_PATH);
+
+        if (empty($status)) return;
+
         $task = CfgWealActivityTask::getCheckTask ($key);
 
         if (empty($task)) return;

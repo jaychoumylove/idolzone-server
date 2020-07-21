@@ -2,6 +2,7 @@
 namespace app\api\controller\v1;
 
 use app\api\model\ActiveLaren;
+use app\api\model\Cfg;
 use app\api\model\CfgTaskactivity618;
 use app\api\model\CfgWealActivityTask;
 use app\api\model\FanclubUser;
@@ -187,6 +188,11 @@ class Active extends Base
     /**活动福气领取*/
     public function getwealbag()
     {
+        // 检测是否开启福袋任务
+        $status = Cfg::checkActiveByPathInBtnGroup (Cfg::WEAL_ACTIVE_PATH);
+        if (empty($status)) {
+            Common::res (['code' => 1, 'msg' => '活动已结束']);
+        }
         $this->getUser();
         $task_id = $this->req('task_id', 'integer');
         $task = (new CfgWealActivityTask())->get($task_id);

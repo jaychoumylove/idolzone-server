@@ -242,10 +242,13 @@ class Star
         $percentArray = [];
         $numberArray = [];
 
-        $extra = UserExt::get (['user_id' => $user_id]);
-        if ((float)$extra['lucky']) {
-            $lucky = bcdiv ($extra['lucky'], 100, 4);
-            array_push ($percentArray, $lucky);
+        $status = Cfg::checkActiveByPathInBtnGroup (Cfg::WEAL_ACTIVE_PATH);
+        if (true == $status) {
+            $extra = UserExt::get (['user_id' => $user_id]);
+            if ((float)$extra['lucky']) {
+                $lucky = bcdiv ($extra['lucky'], 100, 4);
+                array_push ($percentArray, $lucky);
+            }
         }
 
         $percent = $percentArray ? array_sum ($percentArray): 0;
