@@ -110,16 +110,17 @@ class Cfg extends Base
 
         if (empty($checkItem)) return false;
 
+        $check = array_shift ($checkItem);
+
         // timer
         $currentTime = time ();
-        $currentStrTime = date ('Y-m-d H:i:s');
 
-        $notBefore = $currentStrTime > $checkItem['start_time'];
+        $notBefore = $currentTime > strtotime ($check['start_time']);
         if (empty($notBefore)) return false;
 
-        $notAfter = $currentStrTime < $checkItem['end_time'];
+        $notAfter = $currentTime < strtotime ($check['end_time']);
         if (empty($notAfter)) return false;
 
-        return true;
+        return (bool)$check['status'];
     }
 }
