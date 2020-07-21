@@ -108,22 +108,25 @@ class CfgWealActivityTask extends Base
      */
     public static function supportOnceItem($value, $uid)
     {
+        $isNew = false;
         if ($value['key'] == self::LEVEL) {
             $number = CfgUserLevel::getLevel ($uid);
             if (empty($value['done_times'])) {
+                $isNew = true;
                 $value['done_times'] = $number;
             }
             $value['done'] = CfgUserLevel::getMaxLevel();
         }
         if (false !== strpos ($value['key'], CfgWealActivityTask::BADGE)) {
             $stype = CfgWealActivityTask::getBadgeTypeByKey ($value['key']);
+            $number = BadgeUser::getUserTypeBadgeOffset ($uid, $stype);
             if (empty($value['done_times'])) {
-                $number = BadgeUser::getUserTypeBadgeOffset ($uid, $stype);
+                $isNew = true;
                 $value['done_times'] = $number;
             }
             $value['done'] = CfgBadge::where('stype', $stype)->count ();
         }
-        if ((int) $value['done_times'] == (int) $value['done']) {
+        if ((int) $value['done_times'] == (int) $value['done'] && empty($isNew)) {
             $value['reward'] = 0;
             $value['status'] = 2;
         } else {
