@@ -42,7 +42,7 @@ class CfgWealActivityTask extends Base
 
     public function getList($uid)
     {
-        $list = self::order ('sort','asc')->select ();
+        $list = self::where('status', self::ON)->order ('sort','asc')->select ();
         if (is_object ($list)) $list = $list->toArray ();
 
         $taskIds = array_column ($list, 'id');
