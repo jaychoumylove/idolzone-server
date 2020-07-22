@@ -184,12 +184,13 @@ class AutoRun extends Base
                 '2020-08-04', // 防止多余数据
             ];
             if (in_array ($date, $cleanDay)) {
+                \app\api\model\Open::settle ();
+
                 \app\api\model\Open::where('hot', '>', 0)
                     ->where ('type', \app\api\model\Open::SOLDIER81)
                     ->update(['hot' => 0]);
 
-                OpenRank::where('count', '>', 0)
-                    ->update(['count' => 0]);
+                OpenRank::where('count', '>', 0)->delete(true);
             }
             
             Db::commit();

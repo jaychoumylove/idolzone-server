@@ -30,6 +30,7 @@ class Open extends Base
     {
         $list = self::with(['Star', 'uploader', 'openRank' => function ($query) {
             $query->with('UserInfo')
+                ->where('count', '>', 0)
                 ->order([
                     'count' => 'desc',
                     'create_time' => 'asc'
