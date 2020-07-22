@@ -110,7 +110,7 @@ class CfgWealActivityTask extends Base
         $last = $value['done_times'];
         $limit = $value['done'];
         $mul = 0;
-        while ($last > $limit) {
+        while ($last >= $limit) {
             $last -= $limit;
             $mul ++;
         }
