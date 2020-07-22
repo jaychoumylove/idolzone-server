@@ -78,6 +78,10 @@ class CfgWealActivityTask extends Base
                 $value['done_times'] = $recTask['done_times'];
                 $value['status']     = $recTask['done_times'] >= $value['done'] ? 1 : 0;
 
+                if ($value['type'] == CfgWealActivityTask::SUM) {
+                    $value = self::supportSumItem ($value);
+                }
+
                 if ($recTask['is_settle_times'] == 1) {
                     $value['status'] = 2;
                 }
@@ -99,6 +103,25 @@ class CfgWealActivityTask extends Base
 
     /**
      * @param $value
+     * @return mixed
+     */
+    public static function supportSumItem($value)
+    {
+        $last = $value['done_times'];
+        $limit = $value['done'];
+        $mul = 0;
+        while ($last > $limit) {
+            $last -= $limit;
+            $mul ++;
+        }
+
+        if ($mul) $value['reward'] = bcmul ($value['reward'], $mul, 1);
+
+        return $value;
+    }
+
+    /**
+     * @param $value
      * @param $uid
      * @return mixed
      * @throws \think\Exception
@@ -108,37 +131,63 @@ class CfgWealActivityTask extends Base
      */
     public static function supportOnceItem($value, $uid)
     {
-        $isNew = false;
+        // 无记录
+        // 有记录 未达成
+        // 有记录 有达成
+        // 有记录 但是已经顶级
         if ($value['key'] == self::LEVEL) {
             $number = CfgUserLevel::getLevel ($uid);
-            if (empty($value['done_times'])) {
-                $isNew = true;
-                $value['done_times'] = $number;
-            }
-            $value['done'] = CfgUserLevel::getMaxLevel();
+            $rewardMap = RecWealActivityTask::getLevelRewardMap ();
         }
+
         if (false !== strpos ($value['key'], CfgWealActivityTask::BADGE)) {
             $stype = CfgWealActivityTask::getBadgeTypeByKey ($value['key']);
             $number = BadgeUser::getUserTypeBadgeOffset ($uid, $stype);
-            if (empty($value['done_times'])) {
-                $isNew = true;
-                $value['done_times'] = $number;
-            }
-            $value['done'] = CfgBadge::where('stype', $stype)->count ();
-        }
-        if ((int) $value['done_times'] == (int) $value['done'] && empty($isNew)) {
-            $value['reward'] = 0;
-            $value['status'] = 2;
-        } else {
-            if ($value['key'] == self::LEVEL) {
-                $rewardMap = RecWealActivityTask::getLevelRewardMap ();
-            }
-            if (false !== strpos ($value['key'], CfgWealActivityTask::BADGE)) {
-                $rewardMap = RecWealActivityTask::getBadgeRewardMap ($value['key']);
-            }
-            $value['reward'] = RecWealActivityTask::getRewardByOnce ($rewardMap, $value['done_times'], $number);
+            $rewardMap = RecWealActivityTask::getBadgeRewardMap ($value['key']);
         }
 
+        $hasRec = true;
+        if (empty($value['done_times'])) {
+            $hasRec = false;
+        }
+
+        $maxDone = count ($rewardMap);
+        $nowDone = $number;
+        if ($hasRec) {
+            $value['status'] = 0;
+            $start = $value['done_times'];
+            $length = bcsub ($nowDone, $value['done_times']);
+            if ($length) {
+                $value['status'] = 1;
+                $value['done'] = $nowDone;
+                $value['reward'] = RecWealActivityTask::getRewardByOnce ($rewardMap, $start, $length);
+            } else {
+                if ($nowDone == $maxDone) {
+                    $value['status'] = 2;
+                    $value['done'] = $maxDone;
+                    $value['reward'] = 0;
+                } else {
+                    $value['done'] = bcadd ($value['done_times'], 1);
+                    $value['reward'] = RecWealActivityTask::getRewardByOnce ($rewardMap, $start, 1);
+                }
+            }
+        } else {
+            $value['status'] = 1;
+            $value['done'] = $maxDone;
+            $start = 0;
+            $length = $nowDone;
+            if (empty($length)) {
+                // 还没有徽章/等级
+                $value['status'] = 0;
+                $value['done_times'] = 0;
+                $value['done'] = bcadd ($nowDone, 1);
+                $value['reward'] = RecWealActivityTask::getRewardByOnce ($rewardMap, $start, 1);
+            } else {
+                $value['done'] = $nowDone;
+                $value['done_times'] = $nowDone;
+                $value['reward'] = RecWealActivityTask::getRewardByOnce ($rewardMap, $start, $nowDone);
+            }
+        }
         return $value;
     }
 }

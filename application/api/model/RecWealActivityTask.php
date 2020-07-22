@@ -185,14 +185,15 @@ class RecWealActivityTask extends Base
     private function settleOnce($map, $key)
     {
         $task = self::where($map)->find ();
-        $start = $task ? $task['done_times']: 1;
+        $start = $task ? $task['done_times']: 0;
 
         $reward = 0;
         $data = [];
         if ($key == CfgWealActivityTask::LEVEL) {
             $level = CfgUserLevel::getLevel($map['user_id']);
             $typeMap = $this->getLevelRewardMap ();
-            $reward = $this->getRewardByOnce($typeMap, $start, $level);
+            $length = bcsub ($level, $start);
+            $reward = empty($length) ? 0: $this->getRewardByOnce($typeMap, $start, $length);
             $data = ['done_times' => $level];
         }
 
@@ -200,7 +201,8 @@ class RecWealActivityTask extends Base
             $type = CfgWealActivityTask::getBadgeTypeByKey ($key);
             $badge = BadgeUser::getUserTypeBadgeOffset ($map['user_id'], $type);
             $typeMap = $this->getBadgeRewardMap ($key);
-            $reward = $this->getRewardByOnce($typeMap, $start, $badge);
+            $length = bcsub ($badge, $start);
+            $reward = empty($length) ? 0: $this->getRewardByOnce($typeMap, $start, $length);
             $data = ['done_times' => $badge];
         }
 
@@ -282,21 +284,16 @@ class RecWealActivityTask extends Base
      *
      * @param $map
      * @param $start
-     * @param $number
+     * @param $length
      * @return int
      */
-    public static function getRewardByOnce($map, $start, $number)
+    public static function getRewardByOnce($map, $start, $length)
     {
-        $reward = 0;
-        while ($number > $start) {
-            $index = bcsub ($start, 1);
-            if (array_key_exists ($index, $map)) {
-                $reward = bcadd ($map[$index], $reward, 1);
-                $start ++;
-            }
-        }
+        $array = array_slice($map, $start, $length);
 
-        return $reward;
+        $sum = array_sum ($array);
+
+        return number_format ($sum, 1);
     }
 
     /**
