@@ -282,6 +282,8 @@ class UserExt extends Base
         }
 
         self::extraHotLog ($uid, $extraHot);
+
+        return true;
     }
 
     /**

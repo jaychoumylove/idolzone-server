@@ -98,11 +98,11 @@ class Star
                 $extraHot = bcmul ($basicHot, $extra['percent']);
                 array_push ($hotArray, $extraHot);
             }
-            if ($extra['number']) {
+            if ((int)$extra['number']) {
                 array_push ($hotArray, $extra['number']);
             }
 
-            $hot = array_sum ($hotArray);
+            $hot = (int)array_sum ($hotArray);
 
             $myStarId = UserStar::getStarId($uid);
             if ($starid != $myStarId) {
@@ -170,21 +170,21 @@ class Star
                         'data' => [
                             'user' => $user,
                             'type' => $type,
-                            'hot'  => $basicHot
+                            'hot'  => $extraHot
                         ]
                     ], JSON_UNESCAPED_UNICODE));
                 } catch (\Exception $e) {
                 }
             }
 
-            if ($extra['number']) {
+            if ((int)$extra['number']) {
                 try {
                     Gateway::sendToGroup ('star_' . $starid, json_encode ([
                         'type' => 'sendHot',
                         'data' => [
                             'user' => $user,
                             'type' => $type,
-                            'hot'  => $extra['number']
+                            'hot'  => (int)$extra['number']
                         ]
                     ], JSON_UNESCAPED_UNICODE));
                 } catch (\Exception $e) {
@@ -280,7 +280,9 @@ class Star
         }
 
         $percent = $percentArray ? array_sum ($percentArray): 0;
-        $number = $numberArray ? array_sum ($numberArray): 0;
+        $number = $numberArray ? (int)array_sum ($numberArray): 0;
+
+        $percent = number_format ($percent, 4);
 
         $maxPercent = 100;
         if ($percent > $maxPercent) {
