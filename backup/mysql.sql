@@ -386,4 +386,6 @@ alter table f_user_ext alter column lucky set default 0.1;
 alter table f_open_top
     add hot bigint default 0 not null;
 
+alter table f_open_top drop key date;
+
 -- end

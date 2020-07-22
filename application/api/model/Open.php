@@ -89,6 +89,7 @@ class Open extends Base
     public static function overSettle()
     {
         $topOpen = self::where('type', self::SOLDIER81)
+            ->where ('hot', '>', 0)
             ->order('hot desc,id desc')
             ->limit (10)
             ->select();
@@ -96,16 +97,11 @@ class Open extends Base
 
         $inserts = [];
 
-        $starIDS = array_column ($topOpen, 'star_id');
-        $stars = Star::where('id', 'in', $starIDS)->select ();
-        if (is_object ($stars)) $stars = $stars->toArray ();
-
-        $starNameDict = array_column ($stars, 'name', 'id');
-
         foreach ($topOpen as $key => $value) {
-            $starname = $starNameDict[$value['star_id']];
+            $starname = Star::where('id', $value['star_id'])->value('name');
             $userRank = OpenRank::with('User')
-                ->where('open_id', $topOpen['id'])
+                ->where('open_id', $value['id'])
+                ->where ('count', '>', 0)
                 ->limit(3)
                 ->order('count desc,id asc')
                 ->select();
@@ -124,7 +120,7 @@ class Open extends Base
             array_push ($inserts, $item);
         }
 
-        self::insertAll ($inserts);
+        OpenTop::insertAll ($inserts);
     }
 
     public static function checkSoldier81()
