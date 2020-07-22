@@ -80,6 +80,53 @@ class Open extends Base
         // if ($res) Common::res();
     }
 
+    /**
+     * 结算
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function overSettle()
+    {
+        $topOpen = self::where('type', self::SOLDIER81)
+            ->order('hot desc,id desc')
+            ->limit (10)
+            ->select();
+        if (is_object ($topOpen)) $topOpen = $topOpen->toArray ();
+
+        $inserts = [];
+
+        $starIDS = array_column ($topOpen, 'star_id');
+        $stars = Star::where('id', 'in', $starIDS)->select ();
+        if (is_object ($stars)) $stars = $stars->toArray ();
+
+        $starNameDict = array_column ($stars, 'name', 'id');
+
+        foreach ($topOpen as $key => $value) {
+            $starname = $starNameDict[$value['star_id']];
+            $userRank = OpenRank::with('User')
+                ->where('open_id', $topOpen['id'])
+                ->limit(3)
+                ->order('count desc,id asc')
+                ->select();
+
+            if (is_object ($userRank)) $userRank = $userRank->toArray ();
+
+            $item = [
+                'open_id' => $value['id'],
+                'open_img' => $value['img_url'],
+                'hot' => $value['hot'],
+                'starname' => $starname,
+                'user_rank' => json_encode($userRank),
+                'date' => date("Ymd", strtotime("-1 day"))
+            ];
+
+            array_push ($inserts, $item);
+        }
+
+        self::insertAll ($inserts);
+    }
+
     public static function checkSoldier81()
     {
         // xxxx年xx月xx号24:00前有效

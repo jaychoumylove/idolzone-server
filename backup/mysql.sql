@@ -383,5 +383,7 @@ INSERT INTO `f_cfg_weal_activity_task`(`name`, `icon`, `desc`, `sort`, `done`, `
 
 alter table f_user_ext alter column lucky set default 0.1;
 
+alter table f_open_top
+    add hot bigint default 0 not null;
 
 -- end
