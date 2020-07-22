@@ -277,7 +277,50 @@ class UserExt extends Base
 
         $updated = UserExt::where('user_id', $uid)->update(['send_weal_hot' => $sendHot]);
 
-        return (bool)$updated;
+        if (false == (bool) $updated) {
+            return false;
+        }
+
+        self::extraHotLog ($uid, $extraHot);
+    }
+
+    /**
+     * @param $uid
+     * @param $extraHot
+     * @throws Exception
+     * @throws \think\exception\DbException
+     */
+    public static function extraHotLog($uid, $extraHot)
+    {
+        $userCurrency = UserCurrency::get (['uid' => $uid]);
+
+        $update = [
+            'point' => bcadd ($userCurrency['point'], $extraHot)
+        ];
+
+        UserCurrency::where (['uid' => $uid])->update ($update);
+
+        $star = Star::getByUser($uid);
+        if (empty($star)) {
+            throw new Exception('请加入圈子');
+        }
+
+        $insertRec = [
+            'user_id'        => $uid,
+            'content'        => sprintf ('夏日福袋,赠送【%s】额外人气+%s', $star['name'], $extraHot),
+            'coin'           => 0,
+            'flower'         => 0,
+            'stone'          => 0,
+            'trumpet'        => 0,
+            'point'          => $extraHot,
+            'before_coin'    => $userCurrency['coin'],
+            'before_flower'  => $userCurrency['flower'],
+            'before_stone'   => $userCurrency['stone'],
+            'before_trumpet' => $userCurrency['trumpet'],
+            'before_point'   => $userCurrency['point'],
+        ];
+
+        Rec::addRec ($insertRec);
     }
 
     /**618活动福气榜列表 */

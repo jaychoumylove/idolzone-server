@@ -157,10 +157,38 @@ class Star
                     'data' => [
                         'user' => $user,
                         'type' => $type,
-                        'hot' => $hot
+                        'hot' => $basicHot
                     ]
                 ], JSON_UNESCAPED_UNICODE));
             } catch (\Exception $e) {
+            }
+
+            if (isset($extraHot) && !!$extraHot) {
+                try {
+                    Gateway::sendToGroup ('star_' . $starid, json_encode ([
+                        'type' => 'sendHot',
+                        'data' => [
+                            'user' => $user,
+                            'type' => $type,
+                            'hot'  => $basicHot
+                        ]
+                    ], JSON_UNESCAPED_UNICODE));
+                } catch (\Exception $e) {
+                }
+            }
+
+            if ($extra['number']) {
+                try {
+                    Gateway::sendToGroup ('star_' . $starid, json_encode ([
+                        'type' => 'sendHot',
+                        'data' => [
+                            'user' => $user,
+                            'type' => $type,
+                            'hot'  => $extra['number']
+                        ]
+                    ], JSON_UNESCAPED_UNICODE));
+                } catch (\Exception $e) {
+                }
             }
         }
 
