@@ -12,6 +12,8 @@ use think\exception\DbException;
 
 class RecWealActivityTask extends Base
 {
+    const WEAL_ACTIVE_EXTRA_PERCENT = 18; // 夏日福袋加成最大值18%
+
     //根据任务id插入或更新任务日志
     public static function addOrEdit($uid, $task_id,$done_times=1,$is_settle_times=0)
     {

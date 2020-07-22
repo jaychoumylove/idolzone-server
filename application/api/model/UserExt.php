@@ -247,13 +247,11 @@ class UserExt extends Base
         $user = self::where('user_id', $uid)->find();
 
         $lucky = (float)$user['lucky'];
-        $max = 100.00;
+        $max = RecWealActivityTask::WEAL_ACTIVE_EXTRA_PERCENT;
 
-        if ($lucky == $max) return true;
+        if ($lucky >= $max) return true;
 
         $sum = bcadd ($lucky, $num, 2);
-        $max = 100.00;
-        $sum = $sum > $max ? $max: $sum;
 
         $updated = self::where(['user_id' => $uid])->update(['lucky' => $sum]);
 

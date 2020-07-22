@@ -163,7 +163,14 @@ class Active extends Base
         $this->getUser();
 
         // 我的福袋幸运值
-        $res['myinfo'] = UserExt::where('user_id', $this->uid)->field('bag_num,lucky')->find();
+        $lucky = UserExt::where('user_id', $this->uid)->value('lucky');
+        $max = RecWealActivityTask::WEAL_ACTIVE_EXTRA_PERCENT;
+        $lucky = $lucky > $max ? $max: $lucky;
+        $percent = bcdiv ($lucky, $max, 2);
+        $res['myinfo'] = [
+            'lucky' => $lucky,
+            'percent' => bcmul ($percent, 100)
+        ];
         // 任务列表
         $res['list'] = (new CfgWealActivityTask())->getList($this->uid);
 

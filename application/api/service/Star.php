@@ -274,7 +274,9 @@ class Star
         if (true == $status) {
             $extra = UserExt::get (['user_id' => $user_id]);
             if ((float)$extra['lucky']) {
-                $lucky = bcdiv ($extra['lucky'], 100, 4);
+                $max = RecWealActivityTask::WEAL_ACTIVE_EXTRA_PERCENT;
+                $lucky = (float)$extra['lucky'] > $max ? $max: (float)$extra['lucky'];
+                $lucky = bcdiv ($lucky, 100, 4);
                 array_push ($percentArray, $lucky);
             }
         }
