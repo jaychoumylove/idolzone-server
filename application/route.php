@@ -104,6 +104,7 @@ Route::rule('api/:version/user/bind', 'api/v1.User/bindClientId');// 绑定clien
 Route::rule('api/:version/user/saveformid', 'api/v1.Ext/saveFormId');// 保存formId
 
 Route::rule('api/:version/user/exit', 'api/v1.User/exit');// 退出圈子
+Route::rule('api/:version/user/neverquit', 'api/v1.User/neverQuit');// 永不退圈
 Route::rule('api/:version/user/signin', 'api/v1.User/signin');// 连续签到
 
 Route::rule('api/:version/user/recharge', 'api/v1.User/recharge');// 礼物兑换金豆

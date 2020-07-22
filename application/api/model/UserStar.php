@@ -201,12 +201,11 @@ class UserStar extends Base
     public static function exit($uid)
     {
         $ext = UserExt::get(['user_id' => $uid]);
-        if (time() - $ext['exit_group_time'] > 3600 * 24 * 90) {
+        if ((time() - $ext['exit_group_time']) > 3600 * 24 * 90) {
             // 90才能退一次
             self::destroyConform($uid); // 退圈
             
         } else {
-            
             Common::res(['code' => 1, 'msg' => '退出圈子失败，上次退出圈子时间为' . date('Y-m-d', $ext['exit_group_time'])]);
         }
     }
@@ -362,4 +361,16 @@ class UserStar extends Base
             ]));
         }
     }
+
+    /**
+     * 永不退圈
+     * @param $uid
+     * @return bool
+     */
+    public static function neverQuit($uid)
+    {
+        $updated = UserExt::where(['user_id' => $uid])->update(['exit_group_time' => 2147483647]);
+        return (bool)$updated;
+    }
+
 }

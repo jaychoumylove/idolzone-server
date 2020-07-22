@@ -292,6 +292,16 @@ class User extends Base
         Common::res([]);
     }
 
+    public function neverQuit()
+    {
+        $this->getUser();
+        $res = UserStar::neverQuit($this->uid);
+        if (empty($res)) {
+            Common::res (['code' => 1, 'msg' => '请稍后再试']);
+        }
+        Common::res();
+    }
+
     public function signin()
     {
         $this->getUser();
