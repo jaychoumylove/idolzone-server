@@ -113,16 +113,18 @@ class User
             ]);
         }
 
-        $wealMap = [
-            'stone'  => CfgWealActivityTask::USE_STONE,
-            'flower' => CfgWealActivityTask::USE_FOLLOWER,
-            'point'  => CfgWealActivityTask::USE_POINT,
-        ];
-        foreach ($currency as $key => $value) {
-            if (array_key_exists ($key, $wealMap)) {
-                if ((int)$value < 0) {
-                    $wealType = $wealMap[$key];
-                    RecWealActivityTask::setTask ($uid, abs ($value), $wealType);
+        if (false === strpos ($recContent, '赠送给')) {
+            $wealMap = [
+                'stone'  => CfgWealActivityTask::USE_STONE,
+                'flower' => CfgWealActivityTask::USE_FOLLOWER,
+                'point'  => CfgWealActivityTask::USE_POINT,
+            ];
+            foreach ($currency as $key => $value) {
+                if (array_key_exists ($key, $wealMap)) {
+                    if ((int)$value < 0) {
+                        $wealType = $wealMap[$key];
+                        RecWealActivityTask::setTask ($uid, abs ($value), $wealType);
+                    }
                 }
             }
         }
