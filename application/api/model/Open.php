@@ -28,14 +28,7 @@ class Open extends Base
     /**获取开屏图 */
     public static function getRankList($map = [], $page, $size, $sort)
     {
-        $list = self::with(['Star', 'uploader', 'openRank' => function ($query) {
-            $query->with('UserInfo')
-                ->where('count', '>', 0)
-                ->order([
-                    'count' => 'desc',
-                    'create_time' => 'asc'
-                ]);
-        }])
+        $list = self::with(['Star', 'uploader'])
             ->where($map)
             ->order('hot desc,id asc')
             ->page($page, $size)

@@ -196,13 +196,18 @@ class Open extends Base
                 $item['rank'] = OpenModel::supportRank ($item['hot'], $item['id']);
             }
 
-            if (is_object ($item['open_rank'])) $item['open_rank'] = $item['open_rank']->toArray();
+            $openRank = OpenRank::with('UserInfo')
+                ->where ('open_id', $item['id'])
+                ->order ([
+                    'count' => 'desc',
+                    'create_time' => 'desc'
+                ])
+                ->limit (3)
+                ->select ();
 
-            if (count($item['open_rank']) > 3) {
-                $item['open_rank'] = array_filter ($item['open_rank'], function($key) {
-                    return $key < 3;
-                }, ARRAY_FILTER_USE_KEY);
-            }
+            if (is_object ($openRank)) $openRank = $openRank->toArray ();
+
+            $item['open_rank'] = $openRank;
 
             $newList[$index] = $item;
         }
