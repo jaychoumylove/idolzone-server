@@ -200,7 +200,7 @@ class Open extends Base
                 ->where ('open_id', $item['id'])
                 ->order ([
                     'count' => 'desc',
-                    'create_time' => 'desc'
+                    'create_time' => 'asc'
                 ])
                 ->limit (3)
                 ->select ();
