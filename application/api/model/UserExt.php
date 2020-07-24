@@ -330,17 +330,52 @@ class UserExt extends Base
             ->page($page, $size)->select();
         $list = json_decode(json_encode($list),TRUE);
 
+        $userIds = array_column ($list, 'user_id');
+        array_push ($userIds, $uid);
+        $userIds = array_unique ($userIds);
+        $userIds = array_values ($userIds);
+
+        $users = UserModel::where('id', 'in', $userIds)->field('id,nickname,avatarurl')->select();
+        if (is_object ($users)) $users = $users->toArray ();
+        $userDict = array_column ($users, null, 'id');
+
+        $headWears = HeadwearUser::where('uid', 'in', $userIds)
+            ->where('end_time is NULL or end_time>="'.date('Y-m-d H:i:s').'"')
+            ->where('status', 1)
+            ->field('uid,end_time,status')
+            ->select ();;
+        if (is_object ($headWears)) $headWears = $headWears->toArray ();
+
+        $headWearsDict = array_column ($headWears, 'hid', 'uid');
+        $headWearsHids = array_unique ($headWearsDict);
+        $headWearsHids = array_values ($headWearsHids);
+
+        $cfgHeadWears = CfgHeadwear::where('id', 'in', $headWearsHids)->select ();
+        if (is_object ($cfgHeadWears)) $cfgHeadWears = $cfgHeadWears->toArray ();
+
+        $cfgHeadWearDict = array_column ($cfgHeadWears, null, 'id');
+
         foreach ($list as &$value){
-            $value['user']=UserModel::where('id',$value['user_id'])->field('id,nickname,avatarurl')->find();
-            $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
+            $value['user']= array_key_exists ($value['user_id'], $userDict) ? $userDict[$value['user_id']]: null;
+            $value['user']['headwear'] = null;
+            if (array_key_exists ($value['user_id'], $headWearsDict)) {
+                if (array_key_exists ($headWearsDict[$value['user_id']], $cfgHeadWearDict)) {
+                    $value['user']['headwear'] = $cfgHeadWearDict[$headWearsDict[$value['user_id']]];
+                }
+            }
             $value['user']['level'] = CfgUserLevel::getLevel($value['user_id']);
         }
 
         $result['list']=$list;
 
-        $my_send_blessing_info=self::where('user_id',$uid)->field('send_weal_hot,user_id')->find();
-        $my_send_blessing_info['user']=UserModel::where('id',$my_send_blessing_info['user_id'])->field('id,nickname,avatarurl')->find();
-        $my_send_blessing_info['headwear'] = HeadwearUser::getUse($my_send_blessing_info['user_id']);
+        $my_send_blessing_info= self::where ('user_id', $uid)->field('send_weal_hot,user_id')->find ();
+        $my_send_blessing_info['user']= $userDict[$uid];
+        $my_send_blessing_info['headwear'] = null;
+        if (array_key_exists ($uid, $headWearsDict)) {
+            if (array_key_exists ($headWearsDict[$uid], $cfgHeadWearDict)) {
+                $my_send_blessing_info['headwear'] = $cfgHeadWearDict[$headWearsDict[$uid]];
+            }
+        }
         $my_send_blessing_info['level'] = CfgUserLevel::getLevel($uid);
         $send_blessing_members=self::order('send_weal_hot desc')->column('user_id');
         $result['myinfo']=$my_send_blessing_info;
