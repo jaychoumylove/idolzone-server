@@ -389,3 +389,8 @@ alter table f_open_top
 alter table f_open_top drop key date;
 
 -- end
+
+-- start 占领新增占领时间
+alter table f_rec_hour
+	add top_time int default 0 not null;
+-- end
