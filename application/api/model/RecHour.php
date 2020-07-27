@@ -47,9 +47,10 @@ class RecHour extends Base
 
     public static function getRankInfo($user_id, $star_id)
     {
-        $map = compact ('user_id', 'star_id');
+        $time = date('YmdH');
+        $map = compact ('user_id', 'star_id', 'time');
 
-        $info = self::where ($map)->find ();
+        $info = self::where ($map)->value ('count');
 
         if (empty($info)) return false;
 
