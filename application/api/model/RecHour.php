@@ -45,6 +45,17 @@ class RecHour extends Base
         return $list;
     }
 
+    public static function getRankInfo($user_id, $star_id)
+    {
+        $map = compact ('user_id', 'star_id');
+
+        $info = self::where ($map)->find ();
+
+        if (empty($info)) return false;
+
+        return is_object ($info) ? $info->toArray (): $info;
+    }
+
     /**
      * 小时榜用户贡献增加
      *
@@ -61,7 +72,7 @@ class RecHour extends Base
 
         $map = compact ('user_id', 'time');
 
-        $model = self::readMaster ();
+        $model = (new self())->readMaster ();
         $info = $model->where ($map)->find ();
 
         $basicCount = empty($info) ? 0: $info['count'];

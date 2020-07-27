@@ -2,6 +2,8 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\RecHour;
+use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\api\model\StarRank as StarRankModel;
 use app\base\service\Common;
@@ -25,6 +27,17 @@ class StarRank extends Base
         $list = StarRankModel::getRankList($page, $size, $rankField, $keywords);
 
         Common::res(['data' => $list]);
+    }
+
+    public function getMyRank()
+    {
+        $this->getUser ();
+
+        $star_id = UserStar::getStarId ($this->uid);
+
+        $info = RecHour::getRankInfo ($this->uid, $star_id);
+
+        Common::res (['data' => $info]);
     }
 
     public function search()
