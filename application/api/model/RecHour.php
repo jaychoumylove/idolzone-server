@@ -29,10 +29,15 @@ class RecHour extends Base
     /**小时榜排名 */
     public static function getRankList($page = 1, $size = 10)
     {
-        $time = date('YmdH');
+        $currentTime = time ();
+        $time = date('YmdH', $currentTime);
 
         $list = self::with('User,Star')->where('time', $time)->order('count desc,id asc')->page($page, $size)->select();
-        foreach ($list as &$value) {
+        foreach ($list as $key => $value) {
+            if ($page == 1 && $key < 1) {
+                $diffTime = bcsub ($currentTime, $value['top_time']);
+                $value['top_minute'] = bcdiv ($diffTime, 60);
+            }
             $value['user']['level'] = CfgUserLevel::getLevel($value['user']['id']);
             $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
         }
