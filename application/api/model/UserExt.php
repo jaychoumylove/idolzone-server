@@ -263,12 +263,14 @@ class UserExt extends Base
      *
      * @param $uid
      * @param $extraHot
+     * @param $starId
      * @return bool
+     * @throws Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public static function extraHot($uid, $extraHot)
+    public static function extraHot($uid, $extraHot, $starId)
     {
         $userExt = UserExt::where('user_id', $uid)->find ();
         $sendHot = bcadd ($userExt['send_weal_hot'], $extraHot);
@@ -279,7 +281,7 @@ class UserExt extends Base
             return false;
         }
 
-        self::extraHotLog ($uid, $extraHot);
+        self::extraHotLog ($uid, $extraHot, $starId);
 
         return true;
     }
@@ -287,10 +289,11 @@ class UserExt extends Base
     /**
      * @param $uid
      * @param $extraHot
+     * @param $starId
      * @throws Exception
      * @throws \think\exception\DbException
      */
-    public static function extraHotLog($uid, $extraHot)
+    public static function extraHotLog($uid, $extraHot, $starId)
     {
         $userCurrency = UserCurrency::get (['uid' => $uid]);
 
@@ -300,7 +303,11 @@ class UserExt extends Base
 
         UserCurrency::where (['uid' => $uid])->update ($update);
 
-        $star = Star::getByUser($uid);
+        if (empty($starId)) {
+            $star = Star::getByUser($uid);
+        } else {
+            $star = Star::get ($starId);
+        }
         if (empty($star)) {
             throw new Exception('请加入圈子');
         }

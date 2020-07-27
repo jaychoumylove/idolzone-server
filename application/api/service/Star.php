@@ -136,7 +136,7 @@ class Star
             RecWealActivityTask::setTask ($uid, $hot, CfgWealActivityTask::SUM_COUNT);
 
             if (isset($extraHot) && !!$extraHot) {
-                $res = UserExt::extraHot ($uid, $extraHot);
+                $res = UserExt::extraHot ($uid, $extraHot, $starid);
                 if (empty($res)) {
                     throw new Exception('更新失败，请稍后再试');
                 }
