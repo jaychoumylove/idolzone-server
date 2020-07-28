@@ -55,6 +55,13 @@ class Ext extends Base
         Common::res(['data' => $res]);
     }
 
+    public function activeConform()
+    {
+        $data = Cfg::getCfg (Cfg::ACTIVE_CONFORM);
+
+        Common::res (compact ('data'));
+    }
+
 
     public function btn_cfg_group(){
 

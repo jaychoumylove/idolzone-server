@@ -7,6 +7,7 @@ use app\base\model\Base;
 class Cfg extends Base
 {
     const WEAL_ACTIVE_PATH = '/pages/active/weal';
+    const ACTIVE_CONFORM   = 'active_conform';
 
     public static function getCfg($key)
     {
