@@ -67,6 +67,7 @@ Route::rule('api/:version/star/extrasendhot', 'api/v1.Star/extraSendHot');// 给
 
 // StarRank
 Route::rule('api/:version/star/rank', 'api/v1.StarRank/getRankList');// 明星排名
+Route::rule('api/:version/star/myrank', 'api/v1.StarRank/getMyRank');// 明星排名
 Route::rule('api/:version/star/r', 'api/v1.StarRank/getRank');// 明星排名微博抓取
 
 Route::rule('api/:version/star/rank/history', 'api/v1.StarRank/getRankHistory');// 明星排名历史
