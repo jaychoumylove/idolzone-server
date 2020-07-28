@@ -50,11 +50,11 @@ class RecHour extends Base
         $time = date('YmdH');
         $map = compact ('user_id', 'star_id', 'time');
 
-        $info = self::where ($map)->value ('count');
+        $count = self::where ($map)->value ('count');
 
-        if (empty($info)) return false;
+        if (empty($count)) return 0;
 
-        return is_object ($info) ? $info->toArray (): $info;
+        return (int)$count;
     }
 
     /**
