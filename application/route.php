@@ -337,3 +337,10 @@ Route::rule('api/:version/family/info', 'api/v1.FamilyClub/info');// 我加入�
 Route::rule('api/:version/family/member', 'api/v1.FamilyClub/member');// 家族成员
 Route::rule('api/:version/family/enter', 'api/v1.FamilyClub/enter');// 邀请页面
 Route::rule('api/:version/family/settle', 'api/v1.FamilyClub/settle');// 领取奖励
+
+// 福利抽奖页面
+Route::rule('api/:version/user/paid/settle', 'api/v1.UserPaid/settle');// 领取充值福利
+Route::rule('api/:version/user/paid/info', 'api/v1.UserPaid/getPaidInfo');// 获取充值福利信息
+Route::rule('api/:version/lucky/draw/info', 'api/v1.UserLuckyDraw/getLuckyDraw');// 获取抽奖信息
+Route::rule('api/:version/lucky/draw/start', 'api/v1.UserLuckyDraw/startLuckyDraw');// 点击抽奖
+Route::rule('api/:version/lucky/draw/log', 'api/v1.UserLuckyDraw/logPager');// 抽奖记录

@@ -396,3 +396,17 @@ INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`) VALUES ('活动中心
 alter table f_rec_hour
 	add top_time int default 0 not null;
 -- end
+
+--- start 新增道具获取方式
+alter table f_prop
+	add get_type enum('STORE', 'CHARGE', 'TASK') default 'STORE' not null;
+
+create index f_prop_type_index
+	on f_prop (get_type);
+
+alter table f_prop
+    add `key` varchar(150) null
+
+create index f_prop_key_index
+    on f_prop (`key`)
+--- end

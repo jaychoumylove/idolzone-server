@@ -2,6 +2,9 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\Cfg_luckyDraw;
+use app\api\model\CfgLuckyDraw;
+use app\api\model\CfgPaid;
 use app\base\controller\Base;
 use app\api\model\User;
 use app\api\model\UserCurrency;
@@ -197,11 +200,11 @@ class Page extends Base
         $rechargeSwitch = Cfg::getCfg('ios_switch');
         if (input('platform') == 'MP-WEIXIN' && $rechargeSwitch == 3) {
             $propList = Prop::all(function ($query) {
-                $query->where('id', 'not in', [1, 2])->order('point asc');
+                $query->where('get_type', Prop::STORE)->where('id', 'not in', [1, 2])->order('point asc');
             });
         } else {
             $propList = Prop::all(function ($query) {
-                $query->order('point asc');
+                $query->where('get_type', Prop::STORE)->order('point asc');
             });
         }
         // $propList = Prop::all(function ($query) {
