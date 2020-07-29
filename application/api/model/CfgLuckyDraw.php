@@ -50,8 +50,8 @@ class CfgLuckyDraw extends \app\base\model\Base
                 $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet'];
                 $data = [];
                 foreach ($chooseItem as $key => $value) {
-                    if (in_array ($key, $currencyMap)) {
-                        $data[$key] = $value;
+                    if (in_array ($value['key'], $currencyMap)) {
+                        $data[$value['key']] = $value['number'];
                     }
                 }
                 (new \app\api\service\User())->change ($user_id, $data, '幸运抽奖');

@@ -64,14 +64,21 @@ class RecUserPaid extends Base
 
             $map = compact ('user_id', 'paid_type');
             $reward = $paid['reward'];
+
+            $currencyReward = array_filter ($reward, function($item) {
+                return $item['type'] == CfgPaid::CURRENCY;
+            });
+            $propReward = array_filter ($reward, function($item) {
+                return $item['type'] == CfgPaid::PROP;
+            });
+            $earn = [];
             if ($isSum) {
                 $num = $this->settleSum ($map, (float) $paid['count']);
                 if (empty($num)) {
                     throw new Exception('未达到领取要求', 3);
                 }
-                $earn = [];
-                foreach ($reward['currency'] as $key => $value) {
-                    $earn[$key] = bcmul ($value, $num);
+                foreach ($currencyReward as $key => $value) {
+                    $earn[$value['key']] = bcmul ($value['number'], $num);
                 }
             }
             if ($isDay) {
@@ -79,7 +86,9 @@ class RecUserPaid extends Base
                 if (empty($res)) {
                     throw new Exception('未达到领取要求', 3);
                 }
-                $earn = $reward['currency'];
+                foreach ($currencyReward as $key => $value) {
+                    $earn[$value['key']] = $value['number'];
+                }
             }
 
             $typeMsgMap = [
@@ -90,10 +99,10 @@ class RecUserPaid extends Base
 
             (new \app\api\service\User())->change ($user_id, $earn, $msg);
 
-            if (array_key_exists ('item', $reward)) {
+            if ($propReward) {
                 // 新增用户道具
-                foreach ($reward['item'] as $key => $value) {
-                    UserProp::addProp ($user_id, $key, $value);
+                foreach ($propReward as $key => $value) {
+                    UserProp::addProp ($user_id, $value['key'], $value['number']);
                 }
             }
             throw new Exception('something was wrong');
