@@ -55,6 +55,39 @@ class UserPaid extends \app\base\controller\Base
         ];
         $sumPaid = CfgPaid::where($sumMap)->order ('count', 'asc')->select (); // 累计充值
 
+        $myPaid = RecUserPaid::where('user_id', $this->uid)->select ();
+        if (is_object ($myPaid)) $myPaid = $myPaid->toArray ();
+
+        $myDayPaid = null;
+        foreach ($myPaid as $item) {
+            if ($item['paid_type'] == CfgPaid::DAY) {
+                $myDayPaid = $item;
+            }
+
+            if ($item['paid_type'] == CfgPaid::SUM) {
+                $mySumPaid = $item;
+            }
+        }
+
+        $dayPaid['settle_status'] = 0;
+        if (isset($myDayPaid)) {
+            if ($myDayPaid['count'] > $dayPaid['count']) {
+                $dayPaid['settle_status'] = 1;
+            }
+        }
+
+        if (isset($mySumPaid)) {
+            foreach ($sumPaid as $index => $item) {
+                $item['settle_status'] = 0;
+                if ($mySumPaid['count'] > $item['count']) {
+                    $item['settle_status'] = 1;
+                }
+
+                $sumPaid[$index] = $item;
+            }
+        }
+
+
         Common::res (['data' => compact ('sumPaid', 'dayPaid')]);
     }
 }

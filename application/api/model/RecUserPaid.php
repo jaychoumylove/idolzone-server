@@ -69,7 +69,7 @@ class RecUserPaid extends Base
                 }
             }
             if ($isDay) {
-                $res = $this->settleDay ($map);
+                $res = $this->settleDay ($map, (float) $paid['count']);
                 if (empty($res)) {
                     throw new Exception('未达到领取要求', 3);
                 }
@@ -110,15 +110,16 @@ class RecUserPaid extends Base
      * 完成每日任务
      *
      * @param $map
+     * @param $cfgNum
      * @return bool
      * @throws DataNotFoundException
-     * @throws ModelNotFoundException
      * @throws DbException
+     * @throws ModelNotFoundException
      */
-    private function settleDay($map)
+    private function settleDay($map, $cfgNum)
     {
         $paid = self::where($map)->find ();
-        if ((float)$paid['count'] > 35 || $paid['is_settle'] > 0) {
+        if ((float)$paid['count'] > $cfgNum || $paid['is_settle'] > 0) {
             if ((int)$paid['is_settle'] != CfgPaid::DAY_EMPTY) {
                 return false;
             }
