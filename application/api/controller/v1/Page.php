@@ -3,7 +3,9 @@
 namespace app\api\controller\v1;
 
 use app\api\model\Cfg_luckyDraw;
+use app\api\model\CfgScrap;
 use app\api\model\RecLuckyDrawLog;
+use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
 use app\api\model\UserCurrency;
@@ -404,8 +406,29 @@ class Page extends Base
             ->limit (6)
             ->select ();
 
+        $scrap = CfgScrap::where('status', CfgScrap::ON)->select ();
+        if (is_object ($scrap)) $scrap = $scrap->toArray ();
+
+        $scrapIds = array_column ($scrap, 'id');
+
+        $userScraps = UserScrap::where('user_id', $this->uid)
+            ->where('scrap_id', 'in', $scrapIds)
+            ->select ();
+        if (is_object ($userScraps)) $userScraps = $userScraps->toArray ();
+
+        $userScrapDict = array_column ($userScraps, null, 'scrap_id');
+        foreach ($scrap as $index => $item) {
+            $item['has_number'] = 0;
+            $item['has_exchange'] = 0;
+            if (array_key_exists ($item['id'], $userScrapDict)) {
+                $item['has_number'] = $userScrapDict[$item['id']]['number'];
+                $item['has_exchange'] = $userScrapDict[$item['id']]['exchange'];
+            }
+        }
+
         $data[Cfg::RECHARGE_LUCKY] = $config;
         $data['lucky_log'] = $rec;
+        $data['scrap_list'] = $scrap;
         Common::res (compact ('data'));
     }
 }
