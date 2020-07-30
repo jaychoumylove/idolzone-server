@@ -89,7 +89,22 @@ class RecUserPaid extends Base
             if ($propReward) {
                 // 新增用户道具
                 foreach ($propReward as $key => $value) {
-                    UserProp::addProp ($user_id, $value['key'], $value['number']);
+                    $exist = UserProp::where('user_id', $user_id)
+                        ->where ('prop_id', $value['key'])
+                        ->find ();
+
+                    if (empty($exist)) {
+                        // 首次翻倍
+                        $extra = $value['number'];
+                    }
+                    $number = $value['number'];
+                    if ($isSum) {
+                        $number = bcmul ($number, $num);
+                    }
+                    if (isset($extra)) {
+                        $number = bcadd ($number, $extra);
+                    }
+                    UserProp::addProp ($user_id, $value['key'], $number);
                 }
             }
 //            throw new Exception('something was wrong');
