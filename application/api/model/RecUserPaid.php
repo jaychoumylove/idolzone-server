@@ -170,18 +170,14 @@ class RecUserPaid extends Base
      *
      * @param $user_id
      * @param $number
-     * @param $type
      * @throws DataNotFoundException
      * @throws DbException
      * @throws ModelNotFoundException
      */
-    public static function setTask($user_id, $number, $type)
+    public static function setTask($user_id, $number)
     {
-        $check = CfgPaid::getCheckType ($type);
-
-        if (empty($check)) return;
-
-        self::finishTask ($user_id, $number, $type);
+        self::finishTask ($user_id, $number, CfgPaid::DAY);
+        self::finishTask ($user_id, $number, CfgPaid::SUM);
     }
 
     /**
