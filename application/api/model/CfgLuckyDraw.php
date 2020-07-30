@@ -40,7 +40,10 @@ class CfgLuckyDraw extends \app\base\model\Base
         Db::startTrans ();
         try {
             // 消耗抽奖券
-            $updated = UserProp::where('id', $prop['id'])->update(['status' => 1]);
+            $updated = UserProp::where('id', $prop['id'])->update([
+                'status' => 1,
+                'use_time' => time ()
+            ]);
             if (empty($updated)) {
                 Common::res (['code' => 1, 'msg' => '请稍后再试']);
             }

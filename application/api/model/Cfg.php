@@ -8,6 +8,7 @@ class Cfg extends Base
 {
     const WEAL_ACTIVE_PATH = '/pages/active/weal';
     const ACTIVE_CONFORM   = 'active_conform';
+    const RECHARGE_LUCKY   = 'recharge_lucky';
 
     public static function getCfg($key)
     {

@@ -49,13 +49,13 @@ class UserPaid extends \app\base\controller\Base
 
         $dayPaid = CfgPaid::get (['type' => CfgPaid::DAY]); // 每日充值
 
-        $sumMap = [
-            'type' => CfgPaid::SUM,
+        $sumMap  = [
+            'type'   => CfgPaid::SUM,
             'status' => CfgPaid::ON
         ];
-        $sumPaid = CfgPaid::where($sumMap)->order ('count', 'asc')->select (); // 累计充值
+        $sumPaid = CfgPaid::where ($sumMap)->order ('count', 'asc')->select (); // 累计充值
 
-        $myPaid = RecUserPaid::where('user_id', $this->uid)->select ();
+        $myPaid = RecUserPaid::where ('user_id', $this->uid)->select ();
         if (is_object ($myPaid)) $myPaid = $myPaid->toArray ();
 
         $myDayPaid = null;
@@ -90,6 +90,6 @@ class UserPaid extends \app\base\controller\Base
         }
 
 
-        Common::res (['data' => compact ('sumPaid', 'dayPaid')]);
+        Common::res (['data' => compact ('sumPaid', 'dayPaid', 'myDayPaid', 'mySumPaid')]);
     }
 }

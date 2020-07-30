@@ -396,5 +396,11 @@ class Page extends Base
         UserExt::where('user_id',$this->uid)->update(['sms'=>json_encode($content)]);
         if($content['Code'] != 'OK') Common::res(['code' => 1, 'msg' => $content['Message']]);
         Common::res();
-    }    
+    }
+
+    public function luckyCharge()
+    {
+        $data = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+        Common::res (compact ('data'));
+    }
 }
