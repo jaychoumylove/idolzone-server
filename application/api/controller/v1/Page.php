@@ -399,7 +399,8 @@ class Page extends Base
     {
         $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
 
-        $rec = RecLuckyDrawLog::order('create_time', 'desc')
+        $rec = RecLuckyDrawLog::with(['user'])
+            ->order('create_time', 'desc')
             ->limit (6)
             ->select ();
 
