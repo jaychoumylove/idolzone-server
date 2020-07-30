@@ -3,8 +3,7 @@
 namespace app\api\controller\v1;
 
 use app\api\model\Cfg_luckyDraw;
-use app\api\model\CfgLuckyDraw;
-use app\api\model\CfgPaid;
+use app\api\model\RecLuckyDrawLog;
 use app\base\controller\Base;
 use app\api\model\User;
 use app\api\model\UserCurrency;
@@ -13,7 +12,6 @@ use app\api\model\CfgShareTitle;
 use app\api\model\Cfg;
 use app\base\service\Common;
 use app\api\model\UserRelation;
-use app\api\model\ShareMass;
 use app\api\service\Star;
 use app\api\model\Star as StarModel;
 use app\api\model\RecStarChart;
@@ -28,7 +26,6 @@ use app\api\model\Prop;
 use app\api\model\UserProp;
 use app\api\model\UserWxgroup;
 use app\api\model\Wxgroup;
-use app\api\model\WxgroupDynamic;
 use think\Db;
 use app\api\service\User as UserService;
 use app\api\model\BadgeUser;
@@ -400,7 +397,14 @@ class Page extends Base
 
     public function luckyCharge()
     {
-        $data = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+        $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+
+        $rec = RecLuckyDrawLog::order('create_time', 'desc')
+            ->limit (6)
+            ->select ();
+
+        $data[Cfg::RECHARGE_LUCKY] = $config;
+        $data['lucky_log'] = $rec;
         Common::res (compact ('data'));
     }
 }
