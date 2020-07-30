@@ -32,6 +32,17 @@ class UserPaid extends \app\base\controller\Base
         Common::res (['data' => $earn]);
     }
 
+    public function setRecharge()
+    {
+        $this->getUser ();
+
+        $number = input ('number');
+
+        RecUserPaid::setTask ($this->uid, $number);
+
+        Common::res ();
+    }
+
     public function getPaidInfo()
     {
         $this->getUser ();
