@@ -53,4 +53,37 @@ class UserLuckyDraw extends \app\base\controller\Base
 
         Common::res (compact ('data'));
     }
+
+    public function dayEarn()
+    {
+        $this->getUser ();
+
+        $date = date ('Y-m-d') . " 00:00:00";
+        $list = RecLuckyDrawLog::where('user_id', $this->uid)
+            ->where ('create_time', '>', $date)
+            ->order ([
+                'create_time' => "desc",
+                'id' => 'desc'
+            ])
+            ->select ();
+
+        if (is_object ($list)) $list = $list->toArray ();
+
+        $data = [
+            'coin' => 0,
+            'flower' => 0,
+            'stone' => 0,
+            'trumpet' => 0,
+        ];
+
+        $items = array_column ($list, 'item');
+
+        foreach ($items as $item) {
+            if (array_key_exists ($item['key'], $data)) {
+                $data[$item['key']] = bcadd ($data[$item['key']], $item['number']);
+            }
+        }
+
+        Common::res (compact ('data'));
+    }
 }

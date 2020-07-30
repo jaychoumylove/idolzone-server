@@ -345,3 +345,4 @@ Route::rule('api/:version/user/paid/info', 'api/v1.UserPaid/getPaidInfo');// 获
 Route::rule('api/:version/lucky/draw/info', 'api/v1.UserLuckyDraw/getLuckyDraw');// 获取抽奖信息
 Route::rule('api/:version/lucky/draw/start', 'api/v1.UserLuckyDraw/startLuckyDraw');// 点击抽奖
 Route::rule('api/:version/lucky/draw/log', 'api/v1.UserLuckyDraw/logPager');// 抽奖记录
+Route::rule('api/:version/lucky/draw/day/earn', 'api/v1.UserLuckyDraw/dayEarn');// 抽奖记录
