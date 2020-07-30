@@ -17,23 +17,10 @@ class RecUserPaid extends Base
     public static function cleanDay()
     {
         self::where('paid_type', CfgPaid::DAY)
-            ->where ('count', '>', 0)
-            ->update(['count' => 0]);
-    }
-
-    public static function checkDayPaid($user_id)
-    {
-        $map = [
-            'user_id' => $user_id,
-            'type' => CfgPaid::DAY
-        ];
-
-        $paid = self::where($map)->find ();
-
-        if (empty($paid)) return false;
-        if (empty((float)$paid['count'])) return false;
-
-        return true;
+            ->update([
+                'count' => CfgPaid::DAY_EMPTY,
+                'is_settle' => CfgPaid::DAY_EMPTY
+            ]);
     }
 
     /**
@@ -131,13 +118,17 @@ class RecUserPaid extends Base
     private function settleDay($map)
     {
         $paid = self::where($map)->find ();
-        $data = ['count' => 1];
-        if ((int)$paid['count'] > 0) {
-            return false;
-        }
-        $updated = self::where(['id' => $paid['id']])->update($data);
+        if ((float)$paid['count'] > 35 || $paid['is_settle'] > 0) {
+            if ((int)$paid['is_settle'] != CfgPaid::DAY_EMPTY) {
+                return false;
+            }
+            $data = ['is_settle' => CfgPaid::DAY_FINISH];
+            $updated = self::where(['id' => $paid['id']])->update($data);
 
-        return (bool)$updated;
+            return (bool)$updated;
+        }
+
+        return false;
     }
 
 
@@ -232,9 +223,8 @@ class RecUserPaid extends Base
         if (empty($exist)) {
             self::create (array_merge ($data, $map));
         } else {
-            if ($exist['count'] != $number) {
-                self::where('id', $exist['id'])->update($data);
-            }
+            $data = ['count' => bcadd ($exist['count'], $number)];
+            self::where('id', $exist['id'])->update($data);
         }
     }
 

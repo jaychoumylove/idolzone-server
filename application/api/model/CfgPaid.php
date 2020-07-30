@@ -9,6 +9,10 @@ class CfgPaid extends \app\base\model\Base
     const SUM = 'SUM';
     const DAY = 'DAY';
 
+    const DAY_FINISH = 2;
+    const DAY_READY = 1;
+    const DAY_EMPTY = 0;
+
     const ON = 'ON';
     const OFF = 'OFF';
 
