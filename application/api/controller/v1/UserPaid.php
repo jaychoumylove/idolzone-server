@@ -71,8 +71,10 @@ class UserPaid extends \app\base\controller\Base
 
         $dayPaid['settle_status'] = 0;
         if (isset($myDayPaid)) {
-            if ($myDayPaid['count'] > $dayPaid['count']) {
-                $dayPaid['settle_status'] = 1;
+            if (empty($myDayPaid['is_settle'])) {
+                if ($myDayPaid['count'] > $dayPaid['count']) {
+                    $dayPaid['settle_status'] = 1;
+                }
             }
         }
 
