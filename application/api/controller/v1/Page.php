@@ -2,6 +2,10 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\Cfg_luckyDraw;
+use app\api\model\CfgScrap;
+use app\api\model\RecLuckyDrawLog;
+use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
 use app\api\model\UserCurrency;
@@ -10,7 +14,6 @@ use app\api\model\CfgShareTitle;
 use app\api\model\Cfg;
 use app\base\service\Common;
 use app\api\model\UserRelation;
-use app\api\model\ShareMass;
 use app\api\service\Star;
 use app\api\model\Star as StarModel;
 use app\api\model\RecStarChart;
@@ -25,7 +28,6 @@ use app\api\model\Prop;
 use app\api\model\UserProp;
 use app\api\model\UserWxgroup;
 use app\api\model\Wxgroup;
-use app\api\model\WxgroupDynamic;
 use think\Db;
 use app\api\service\User as UserService;
 use app\api\model\BadgeUser;
@@ -197,11 +199,11 @@ class Page extends Base
         $rechargeSwitch = Cfg::getCfg('ios_switch');
         if (input('platform') == 'MP-WEIXIN' && $rechargeSwitch == 3) {
             $propList = Prop::all(function ($query) {
-                $query->where('id', 'not in', [1, 2])->order('point asc');
+                $query->where('get_type', Prop::STORE)->where('id', 'not in', [1, 2])->order('point asc');
             });
         } else {
             $propList = Prop::all(function ($query) {
-                $query->order('point asc');
+                $query->where('get_type', Prop::STORE)->order('point asc');
             });
         }
         // $propList = Prop::all(function ($query) {
@@ -393,5 +395,44 @@ class Page extends Base
         UserExt::where('user_id',$this->uid)->update(['sms'=>json_encode($content)]);
         if($content['Code'] != 'OK') Common::res(['code' => 1, 'msg' => $content['Message']]);
         Common::res();
-    }    
+    }
+
+    public function luckyCharge()
+    {
+        $this->getUser ();
+
+        $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+
+        $rec = RecLuckyDrawLog::with(['user'])
+            ->order('create_time', 'desc')
+            ->limit (6)
+            ->select ();
+
+        $scrap = CfgScrap::where('status', CfgScrap::ON)->select ();
+        if (is_object ($scrap)) $scrap = $scrap->toArray ();
+
+        $scrapIds = array_column ($scrap, 'id');
+
+        $userScraps = UserScrap::where('user_id', $this->uid)
+            ->where('scrap_id', 'in', $scrapIds)
+            ->select ();
+        if (is_object ($userScraps)) $userScraps = $userScraps->toArray ();
+
+        $userScrapDict = array_column ($userScraps, null, 'scrap_id');
+        foreach ($scrap as $index => $item) {
+            $item['has_number'] = 0;
+            $item['has_exchange'] = 0;
+            $item['percent'] = 0;
+            if (array_key_exists ($item['id'], $userScrapDict)) {
+                $item['has_number'] = $userScrapDict[$item['id']]['number'];
+                $item['has_exchange'] = $userScrapDict[$item['id']]['exchange'];
+                $item['percent'] = bcmul (bcdiv ($item['has_number'], $item['count'], 2), 100);
+            }
+        }
+
+        $data[Cfg::RECHARGE_LUCKY] = $config;
+        $data['lucky_log'] = $rec;
+        $data['scrap_list'] = $scrap;
+        Common::res (compact ('data'));
+    }
 }

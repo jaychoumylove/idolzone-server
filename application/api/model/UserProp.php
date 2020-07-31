@@ -34,6 +34,28 @@ class UserProp extends Base
         self::insertAll($insert);
     }
 
+    /**
+     * @param $user_id
+     * @param $prop_id
+     * @return int|string
+     * @throws \think\Exception
+     */
+    public static function getNum($user_id, $prop_id)
+    {
+        return self::where('user_id', $user_id)
+            ->where ('prop_id', $prop_id)
+            ->where ('status', '<', 1)
+            ->count ();
+    }
+
+    public static function getOneProp($user_id, $prop_id)
+    {
+        return self::where('user_id', $user_id)
+            ->where ('prop_id', $prop_id)
+            ->where ('status', '<', 1)
+            ->find ();
+    }
+
     public static function getList($uid, $order = 'id desc', $where = '1=1')
     {
         $list = self::with('Prop')->where('user_id', $uid)->where($where)->where('status=0')->order($order)->select();
