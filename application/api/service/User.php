@@ -3,7 +3,9 @@
 namespace app\api\service;
 
 use app\api\model\CfgWealActivityTask;
+use app\api\model\CfgWelfare;
 use app\api\model\RecWealActivityTask;
+use app\api\model\Welfare;
 use app\base\service\WxAPI;
 use app\base\service\Common;
 use app\api\model\User as UserModel;
@@ -126,6 +128,10 @@ class User
                         RecWealActivityTask::setTask ($uid, abs ($value), $wealType);
                     }
                 }
+            }
+
+            if (array_key_exists ('stone', $currency) && $currency['stone'] < 0) {
+                CfgWelfare::setWelfare ($uid, CfgWelfare::STONE_WELFARE, abs ($currency['stone']));
             }
         }
     }
