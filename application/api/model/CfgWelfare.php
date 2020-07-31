@@ -10,6 +10,16 @@ class CfgWelfare extends \app\base\model\Base
 {
     const STONE_WELFARE = 'STONE_WELFARE';
 
+    public function getExtraAttr($value)
+    {
+        return json_decode ($value, true);
+    }
+
+    public function getNoticeAttr($value)
+    {
+        return json_decode ($value, true);
+    }
+
     public static function setWelfare($user_id, $type, $number)
     {
         $welfare = self::getNormalWelfare ($type);

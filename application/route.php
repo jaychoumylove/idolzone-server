@@ -337,3 +337,4 @@ Route::rule('api/:version/family/enter', 'api/v1.FamilyClub/enter');// 邀请页
 Route::rule('api/:version/family/settle', 'api/v1.FamilyClub/settle');// 领取奖励
 
 Route::rule('api/:version/welfare/info', 'api/v1.Welfare/info'); // 公益打卡信息
+Route::rule('api/:version/welfare/rank', 'api/v1.Welfare/rank'); // 公益打卡信息
