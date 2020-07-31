@@ -98,10 +98,7 @@ class UserLuckyDraw extends \app\base\controller\Base
             Common::res (['code' => 1, 'msg' => '请选择兑换碎片']);
         }
 
-        $res = UserScrap::exchange ($this->uid, $scrap);
-        if (empty($res)) {
-            Common::res (['code' => 1, 'msg' => '请稍后再试']);
-        }
+        UserScrap::exchange ($this->uid, $scrap);
 
         Common::res ();
     }

@@ -5,6 +5,8 @@ namespace app\api\model;
 
 
 use app\base\service\Common;
+use think\Db;
+use think\Exception;
 
 class UserScrap extends \app\base\model\Base
 {
@@ -52,6 +54,12 @@ class UserScrap extends \app\base\model\Base
             Common::res (['code' => 1, 'msg' => '奖品已下架']);
         }
 
+        if ((int)$scrap['limit_exchange']) {
+            if ((int)$scrap['limit_exchange'] <= (int)$scrap['exchange_number']) {
+                Common::res (['code' => 1, 'msg' => "奖品已被兑换完了"]);
+            }
+        }
+
         $diff = bcsub ($exist['number'], $scrap['count']);
         if ($diff < 0) {
             Common::res (['code' => 1, 'msg' => '碎片数量不够哦']);
@@ -63,8 +71,24 @@ class UserScrap extends \app\base\model\Base
             'exchange_time' => time (),
         ];
 
-        $updated = self::where('id', $exist['id'])->update($update);
+        Db::startTrans ();
+        try {
+            $updated = self::where('id', $exist['id'])->update($update);
+            if (empty($updated)) {
+                throw new Exception('更新失败');
+            }
 
-        return (bool)$updated;
+            $updated = CfgScrap::where('id', $scrap_id)->update([
+                'exchange_number' => bcadd ($scrap['exchange_number'], 1)
+            ]);
+
+            if (empty($updated)) {
+                throw new Exception('更新失败');
+            }
+            Db::commit ();
+        } catch (\Throwable $throwable) {
+            Db::rollback ();
+            Common::res (['code' => 1, 'msg' => '兑换失败，请稍后再试']);
+        }
     }
 }
