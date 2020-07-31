@@ -399,6 +399,8 @@ class Page extends Base
 
     public function luckyCharge()
     {
+        $this->getUser ();
+
         $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
 
         $rec = RecLuckyDrawLog::with(['user'])

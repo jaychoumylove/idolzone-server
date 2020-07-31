@@ -6,6 +6,7 @@ namespace app\api\model;
 
 use app\base\service\Common;
 use think\Db;
+use think\Exception;
 
 class CfgLuckyDraw extends \app\base\model\Base
 {
@@ -33,11 +34,19 @@ class CfgLuckyDraw extends \app\base\model\Base
         }
 
         $luckyDraw = self::getLuckyDraw ();
+        if (is_object ($luckyDraw)) $luckyDraw = $luckyDraw->toArray ();
         if (empty($luckyDraw)) {
             Common::res (['code' => 1, 'msg' => '暂未开放']);
         }
 
         $chooseItem = Common::lottery ($luckyDraw['reward'], 'weights');
+
+//        $scrapItem = array_filter ($luckyDraw['reward'], function ($item) {
+//            return  $item['type'] == self::SCRAP;
+//        });
+//
+//        $scrapItem = array_values ($scrapItem);
+//        $chooseItem = $scrapItem[0];
         Db::startTrans ();
         try {
             // 消耗抽奖券
@@ -74,9 +83,12 @@ class CfgLuckyDraw extends \app\base\model\Base
             ];
             RecLuckyDrawLog::create ($log);
 
+//            throw new Exception('something was wrong');
+
             Db::commit ();
         } catch (\Throwable $throwable) {
             Db::rollback ();
+//            throw $throwable;
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
         }
 
