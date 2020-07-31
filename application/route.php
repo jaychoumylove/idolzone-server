@@ -348,3 +348,6 @@ Route::rule('api/:version/lucky/draw/start', 'api/v1.UserLuckyDraw/startLuckyDra
 Route::rule('api/:version/lucky/draw/log', 'api/v1.UserLuckyDraw/logPager');// 抽奖记录
 Route::rule('api/:version/lucky/draw/exchange', 'api/v1.UserLuckyDraw/exchangeScrap');// 兑换碎片
 Route::rule('api/:version/lucky/draw/day/earn', 'api/v1.UserLuckyDraw/dayEarn');// 每日获取
+
+Route::rule('api/:version/welfare/info', 'api/v1.Welfare/info'); // 公益打卡信息
+Route::rule('api/:version/welfare/rank', 'api/v1.Welfare/rank'); // 公益打卡信息
