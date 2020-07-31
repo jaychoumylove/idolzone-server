@@ -10,6 +10,7 @@ use think\Db;
 class CfgLuckyDraw extends \app\base\model\Base
 {
     const CURRENCY = 'currency';
+    const SCRAP = 'scrap';
 
     public function getRewardAttr($value)
     {
@@ -57,6 +58,12 @@ class CfgLuckyDraw extends \app\base\model\Base
                 }
 
                 (new \app\api\service\User())->change ($user_id, $data, '幸运抽奖');
+            }
+
+            // 发放奖励
+            if ($chooseItem['type'] == self::SCRAP) {
+                $added = UserScrap::add($user_id, $chooseItem['key'], $chooseItem['number']);
+                if (empty($added)) Common::res (['code' => 1, 'msg' => '请稍后再试']);
             }
 
             // 记录抽奖信息

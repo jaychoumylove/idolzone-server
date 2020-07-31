@@ -8,6 +8,7 @@ use app\api\model\CfgLuckyDraw;
 use app\api\model\Prop;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\UserProp;
+use app\api\model\UserScrap;
 use app\base\service\Common;
 
 class UserLuckyDraw extends \app\base\controller\Base
@@ -85,5 +86,23 @@ class UserLuckyDraw extends \app\base\controller\Base
         }
 
         Common::res (compact ('data'));
+    }
+
+    public function exchangeScrap()
+    {
+        $this->getUser ();
+
+        $scrap = input ('scrap', false);
+
+        if (empty($scrap)) {
+            Common::res (['code' => 1, 'msg' => '请选择兑换碎片']);
+        }
+
+        $res = UserScrap::exchange ($this->uid, $scrap);
+        if (empty($res)) {
+            Common::res (['code' => 1, 'msg' => '请稍后再试']);
+        }
+
+        Common::res ();
     }
 }
