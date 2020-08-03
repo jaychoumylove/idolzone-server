@@ -98,7 +98,11 @@ class RecUserPaid extends Base
                 }
             }
 
-            RecUserPaidLog::create(array_merge ($logMap, ['item' => $reward]));
+            $logData = [
+                'item' => $reward,
+                'title' => sprintf ('领取%s充值奖励', $typeMsgMap[$paid_type])
+            ];
+            RecUserPaidLog::create(array_merge ($logMap, $logData));
 
             (new \app\api\service\User())->change ($user_id, $earn, $msg);
 
