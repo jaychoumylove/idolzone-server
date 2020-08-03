@@ -58,7 +58,15 @@ class UserPaid extends \app\base\controller\Base
         $myPaid = RecUserPaid::where ('user_id', $this->uid)->select ();
         if (is_object ($myPaid)) $myPaid = $myPaid->toArray ();
 
-        $myDayPaid = null;
+        $myDayPaid = [
+            "user_id"   => $this->uid,
+            'paid_type' => CfgPaid::DAY,
+            'is_settle' => 0,
+            'count'     => 0
+        ];
+
+        $mySumPaid              = $myDayPaid;
+        $mySumPaid['paid_type'] = CfgPaid::SUM;
         foreach ($myPaid as $item) {
             if ($item['paid_type'] == CfgPaid::DAY) {
                 $myDayPaid = $item;
@@ -70,23 +78,19 @@ class UserPaid extends \app\base\controller\Base
         }
 
         $dayPaid['settle_status'] = 0;
-        if (isset($myDayPaid)) {
-            if (empty($myDayPaid['is_settle'])) {
-                if ($myDayPaid['count'] > $dayPaid['count']) {
-                    $dayPaid['settle_status'] = 1;
-                }
+        if (empty($myDayPaid['is_settle'])) {
+            if ($myDayPaid['count'] > $dayPaid['count']) {
+                $dayPaid['settle_status'] = 1;
             }
         }
 
-        if (isset($mySumPaid)) {
-            foreach ($sumPaid as $index => $item) {
-                $item['settle_status'] = 0;
-                if ($mySumPaid['count'] > $item['count']) {
-                    $item['settle_status'] = 1;
-                }
-
-                $sumPaid[$index] = $item;
+        foreach ($sumPaid as $index => $item) {
+            $item['settle_status'] = 0;
+            if ($mySumPaid['count'] > $item['count']) {
+                $item['settle_status'] = 1;
             }
+
+            $sumPaid[$index] = $item;
         }
 
 
