@@ -85,6 +85,36 @@ class UserScrap extends \app\base\model\Base
             if (empty($updated)) {
                 throw new Exception('更新失败');
             }
+            $item = [
+                'name' => "",
+                'number' => 0,
+                'key' => 0,
+                'type' => CfgLuckyDraw::SCRAP
+            ];
+
+            $scrapItem = [
+                'name' => $scrap['name'] . '碎片',
+                'number' => -$scrap['count'],
+                'key' => $scrap_id
+            ];
+            RecLuckyDrawLog::create ([
+                'user_id' => $user_id,
+                'lucky_draw' => 0,
+                'item' => array_merge ($item, $scrapItem),
+            ]);
+
+            $wholeItem = [
+                'name' => $scrap['name'],
+                'number' => 1,
+                'key' => $scrap_id,
+                'type' => RecLuckyDrawLog::SCRAP_L
+            ];
+            RecLuckyDrawLog::create ([
+                'user_id' => $user_id,
+                'lucky_draw' => 0,
+                'item' => array_merge ($item, $wholeItem),
+            ]);
+
             Db::commit ();
         } catch (\Throwable $throwable) {
             Db::rollback ();

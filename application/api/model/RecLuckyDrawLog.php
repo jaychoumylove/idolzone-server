@@ -6,6 +6,8 @@ namespace app\api\model;
 
 class RecLuckyDrawLog extends \app\base\model\Base
 {
+    const SCRAP_L = 'SCRAP_L'; // 碎片成品
+
     public function user()
     {
         return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');

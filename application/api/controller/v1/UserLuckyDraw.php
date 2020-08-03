@@ -63,6 +63,11 @@ class UserLuckyDraw extends \app\base\controller\Base
                 $scrap = CfgScrap::get ($value['item']['key']);
                 $item['image'] = $scrap['image_s'];
             }
+            if ($item['type'] == RecLuckyDrawLog::SCRAP_L)
+            {
+                $scrap = CfgScrap::get ($value['item']['key']);
+                $item['image'] = $scrap['image_l'];
+            }
 
             $currencyMap = [
                 'coin' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FctOFR9uh4qenFtU5NmMB5uWEQk2MTaRfxdveGhfFhS1G5dUIkwlT5fosfMaW0c9aQKy3mH3XAew/0',
