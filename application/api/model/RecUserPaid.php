@@ -164,7 +164,7 @@ class RecUserPaid extends Base
 
         $rewardNum = 0;
         $lastNum = (float)$paid['count'];
-        while ($lastNum >= $cfgNum) {
+        if ($lastNum >= $cfgNum) {
             $lastNum -= $cfgNum;
             $rewardNum ++;
         }
