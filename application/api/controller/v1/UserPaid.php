@@ -6,6 +6,7 @@ namespace app\api\controller\v1;
 
 use app\api\model\CfgPaid;
 use app\api\model\RecUserPaid;
+use app\api\model\RecUserPaidLog;
 use app\base\service\Common;
 
 class UserPaid extends \app\base\controller\Base
