@@ -84,26 +84,33 @@ class RecUserPaid extends Base
             ];
             $msg = sprintf ('领取%s充值奖励', $typeMsgMap[$paid_type]);
 
+            $logMap = [
+                'paid_type' => CfgPaid::SUM,
+                'user_id' => $user_id
+            ];
+            if ($isDay) $logMap['paid_type'] = CfgPaid::DAY;
+            $log = RecUserPaidLog::get ($logMap);
+            $isFirst = empty($log);
+
+            if ($isFirst) {
+                foreach ($earn as $key => $item) {
+                    $earn[$key] = bcmul ($item, 2);
+                }
+            }
+
+            RecUserPaidLog::create(array_merge ($logMap, ['item' => $reward]));
+
             (new \app\api\service\User())->change ($user_id, $earn, $msg);
 
             if ($propReward) {
                 // 新增用户道具
                 foreach ($propReward as $key => $value) {
-                    $exist = UserProp::where('user_id', $user_id)
-                        ->where ('prop_id', $value['key'])
-                        ->find ();
-
-                    if (empty($exist)) {
+                    $num = 1;
+                    if ($isFirst) {
                         // 首次翻倍
-                        $extra = $value['number'];
+                        $num = 2;
                     }
-                    $number = $value['number'];
-                    if ($isSum) {
-                        $number = bcmul ($number, $num);
-                    }
-                    if (isset($extra)) {
-                        $number = bcadd ($number, $extra);
-                    }
+                    $number = bcmul ($value['number'], $num);
                     UserProp::addProp ($user_id, $value['key'], $number);
                 }
             }

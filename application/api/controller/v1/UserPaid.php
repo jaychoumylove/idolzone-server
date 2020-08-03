@@ -96,4 +96,19 @@ class UserPaid extends \app\base\controller\Base
 
         Common::res (['data' => compact ('sumPaid', 'dayPaid', 'myDayPaid', 'mySumPaid')]);
     }
+
+    public function getPaidLogPager()
+    {
+        $this->getUser ();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+
+
+        $list = RecUserPaidLog::with('user')
+            ->where('user_id', $this->uid)
+            ->page($page, $size)
+            ->select();
+
+        Common::res (['data' => $list]);
+    }
 }
