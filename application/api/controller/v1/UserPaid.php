@@ -99,11 +99,11 @@ class UserPaid extends \app\base\controller\Base
             }
         }
 
-        $dayPaid['double'] = array_key_exists ($dayPaid['id'], $paidLogDict);
+        $dayPaid['double'] = !array_key_exists ($dayPaid['id'], $paidLogDict);
 
         foreach ($sumPaid as $index => $item) {
             $item['settle_status'] = 0;
-            $item['double'] = array_key_exists ($item['id'], $paidLogDict);
+            $item['double'] = !array_key_exists ($item['id'], $paidLogDict);
             if ($mySumPaid['count'] > $item['count']) {
                 $item['settle_status'] = 1;
             }
