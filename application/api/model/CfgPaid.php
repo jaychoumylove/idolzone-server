@@ -35,11 +35,6 @@ class CfgPaid extends \app\base\model\Base
                     $reward['image'] = $currencyMap[$reward['key']];
                 }
             }
-            if ($reward['type'] == self::PROP) {
-                if (array_key_exists ('image', $reward) == false) {
-                    $reward['image'] = Prop::where('id', $reward['key'])->value ('img');
-                }
-            }
             $rewards[$key] = $reward;
         }
 

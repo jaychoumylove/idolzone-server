@@ -89,10 +89,15 @@ class RecUserPaid extends Base
                 'user_id' => $user_id
             ];
             if ($isDay) $logMap['paid_type'] = CfgPaid::DAY;
-            $log = RecUserPaidLog::get ($logMap);
-            $isFirst = empty($log);
 
-            if ($isFirst) {
+            $currentTime = date ('Y-m-d') . ' 00:00:00';
+            $log = (new RecUserPaidLog)->readMaster ()
+                ->where ($logMap)
+                ->where ('create_time', '>=', $currentTime)
+                ->find ();
+            $double = empty($log);
+
+            if ($double) {
                 foreach ($earn as $key => $item) {
                     $earn[$key] = bcmul ($item, 2);
                 }
@@ -102,7 +107,7 @@ class RecUserPaid extends Base
                 'item' => $reward,
                 'title' => sprintf ('领取%s充值奖励', $typeMsgMap[$paid_type])
             ];
-            if ($isFirst) {
+            if ($double) {
                 foreach ($logData['item'] as $key => $value) {
                     $value['number'] = bcmul ($value['number'], 2);
 
@@ -117,7 +122,7 @@ class RecUserPaid extends Base
                 // 新增用户道具
                 foreach ($propReward as $key => $value) {
                     $num = 1;
-                    if ($isFirst) {
+                    if ($double) {
                         // 首次翻倍
                         $num = 2;
                     }
@@ -152,7 +157,7 @@ class RecUserPaid extends Base
     private function settleDay($map, $cfgNum)
     {
         $paid = self::where($map)->find ();
-        if ((float)$paid['count'] > $cfgNum || $paid['is_settle'] > 0) {
+        if ((float)$paid['count'] >= $cfgNum || $paid['is_settle'] > 0) {
             if ((int)$paid['is_settle'] != CfgPaid::DAY_EMPTY) {
                 return false;
             }

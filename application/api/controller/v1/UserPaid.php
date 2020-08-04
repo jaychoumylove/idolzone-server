@@ -39,7 +39,7 @@ class UserPaid extends \app\base\controller\Base
 
         $number = input ('number');
 
-        RecUserPaid::setTask ($this->uid, $number);
+        RecUserPaid::setTask ($this->uid, (int)$number);
 
         Common::res ();
     }
@@ -48,13 +48,34 @@ class UserPaid extends \app\base\controller\Base
     {
         $this->getUser ();
 
-        $dayPaid = CfgPaid::get (['type' => CfgPaid::DAY]); // 每日充值
-
         $sumMap  = [
             'type'   => CfgPaid::SUM,
             'status' => CfgPaid::ON
         ];
+        $dayMap = $sumMap;
+        $dayMap['type'] = CfgPaid::DAY;
+        $dayPaid = CfgPaid::get ($dayMap); // 每日充值
         $sumPaid = CfgPaid::where ($sumMap)->order ('count', 'asc')->select (); // 累计充值
+
+        $currentTime = date ('Y-m-d') . ' 00:00:00';
+
+        $hasDayLogMap = [
+            'user_id' => $this->uid,
+            'paid_type' => CfgPaid::DAY,
+        ];
+        $hasDayLog = RecUserPaidLog::where($hasDayLogMap)
+            ->where('create_time', '>=', $currentTime)
+            ->find ();
+
+        $isDayDouble = empty($hasDayLog);
+
+        $hasSumLogMap = $hasDayLogMap;
+        $hasSumLogMap['paid_type'] = CfgPaid::SUM;
+        $hasSumLog = RecUserPaidLog::where($hasSumLogMap)
+            ->where('create_time', '>=', $currentTime)
+            ->find ();
+
+        $isSumDouble = empty($hasSumLog);
 
         $myPaid = RecUserPaid::where ('user_id', $this->uid)->select ();
         if (is_object ($myPaid)) $myPaid = $myPaid->toArray ();
@@ -95,7 +116,12 @@ class UserPaid extends \app\base\controller\Base
         }
 
 
-        Common::res (['data' => compact ('sumPaid', 'dayPaid', 'myDayPaid', 'mySumPaid')]);
+        Common::res (['data' => compact ('sumPaid',
+            'dayPaid',
+            'myDayPaid',
+            'mySumPaid',
+            'isDayDouble',
+            'isSumDouble')]);
     }
 
     public function getPaidLogPager()
@@ -107,6 +133,10 @@ class UserPaid extends \app\base\controller\Base
 
         $list = RecUserPaidLog::with('user')
             ->where('user_id', $this->uid)
+            ->order ([
+                'create_time' => 'desc',
+                'id' => 'desc'
+            ])
             ->page($page, $size)
             ->select();
 
