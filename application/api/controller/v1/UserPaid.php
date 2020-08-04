@@ -123,9 +123,8 @@ class UserPaid extends \app\base\controller\Base
         $page = $this->req ('page', 'integer', 1);
         $size = $this->req ('size', 'integer', 10);
 
-
-        $list = RecUserPaidLog::with ('user')
-            ->where ('user_id', $this->uid)
+        $count = RecUserPaidLog::where ('user_id', $this->uid)->count ();
+        $list = RecUserPaidLog::where ('user_id', $this->uid)
             ->order ([
                 'create_time' => 'desc',
                 'id'          => 'desc'
@@ -133,6 +132,9 @@ class UserPaid extends \app\base\controller\Base
             ->page ($page, $size)
             ->select ();
 
-        Common::res (['data' => $list]);
+        Common::res (['data' => [
+            'list' => $list,
+            'count' => $count
+        ]]);
     }
 }

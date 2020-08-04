@@ -45,6 +45,8 @@ class UserLuckyDraw extends \app\base\controller\Base
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 10);
 
+        $count = RecLuckyDrawLog::where('user_id', $this->uid)->count ();
+
         $list = RecLuckyDrawLog::where('user_id', $this->uid)
             ->order ([
                 'create_time' => "desc",
@@ -54,7 +56,7 @@ class UserLuckyDraw extends \app\base\controller\Base
             ->select ();
         if (is_object ($list)) $list = $list->toArray ();
 
-        $data = [];
+        $newList = [];
         foreach ($list as $key => $value)
         {
             $item = $value['item'];
@@ -79,11 +81,14 @@ class UserLuckyDraw extends \app\base\controller\Base
             }
 
             $value['item'] = $item;
-            array_push ($data, $value);
+            array_push ($newList, $value);
         }
 
+        $data['list'] = $newList;
+        $data['count'] = $count;
 
-        Common::res (compact ('data'));
+
+        Common::res (['data' => $data]);
     }
 
     public function dayEarn()
