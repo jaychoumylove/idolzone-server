@@ -390,8 +390,10 @@ alter table f_open_top drop key date;
 
 -- end
 
--- start active_conform
-INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`) VALUES ('活动中心', 'active_conform', '{\"banner\":[{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fc6k4icARtLOpP2kdnMiaic0oQ1WHvWgXgCwVdUicCm07knFnb0xMPy1VFqAYptzPbiavX9z49wJZ6mKw/0\",\"gopage\":\"pages/task/task\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fc6k4icARtLOpP2kdnMiaic0oGemvqN43zUUia0ftswfBZ0Ch4kjiblryV4BK4Pb8DJBiagibyUWlGtD4BA/0\",\"gopage\":\"pages/task/task\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fc6k4icARtLOpP2kdnMiaic0okiada0VNuHsSRGdnJoQyWbgvicod7pDo2wVjnwkUntbmHnwCAJXHv9ag/0\",\"gopage\":\"pages/task/task\"}],\"active\":[{\"head\":{\"title\":\"每日精彩活动\",\"page_desc\":\"活动说明&nbsp;&nbsp;&nbsp;>\",\"gopage\":\"/pages/task/task\"},\"list\":[{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EGbxgC4CjR5wKtNQuKiaDnrSibVnxo0Xj1f435iaTTmStDN9Roojib89LNwXzqfTeqoicdcEuKPo7ktqg/0\",\"title\":\"团战PK\",\"desc\":\"超多奖励\",\"gopage\":\"/pages/pk/pk_index\",\"shareid\":\"\",\"tip\":\"HOT\",\"status\":\"NORMAL\",\"open_type\":\"\",\"btn_text\":\"立即参与\",\"btn_class\":\"hot btn-s\"},{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EGbxgC4CjR5wKtNQuKiaDnrSibVnxo0Xj1f435iaTTmStDN9Roojib89LNwXzqfTeqoicdcEuKPo7ktqg/0\",\"title\":\"占领封面\",\"desc\":\"助力爱豆\",\"status\":\"NORMAL\",\"gopage\":\"/pages/index/fengyun\",\"shareid\":\"\",\"tip\":\"HOT\",\"open_type\":\"\",\"btn_text\":\"立即参与\",\"btn_class\":\"normal btn-s\"},{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EGbxgC4CjR5wKtNQuKiaDnrSibVnxo0Xj1f435iaTTmStDN9Roojib89LNwXzqfTeqoicdcEuKPo7ktqg/0\",\"title\":\"每日福利\",\"desc\":\"100%中奖\",\"status\":\"NORMAL\",\"gopage\":\"\",\"shareid\":\"\",\"tip\":\"NEW\",\"open_type\":\"\",\"btn_text\":\"立即参与\",\"btn_class\":\"normal btn-s\"},{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EGbxgC4CjR5wKtNQuKiaDnrSibVnxo0Xj1f435iaTTmStDN9Roojib89LNwXzqfTeqoicdcEuKPo7ktqg/0\",\"title\":\"我的道具\",\"status\":\"NORMAL\",\"desc\":\"积分兑换\",\"gopage\":\"\",\"shareid\":\"\",\"tip\":\"NEW\",\"open_type\":\"\",\"btn_text\":\"立即参与\",\"btn_class\":\"normal btn-s\"}],\"type\":\"scroll\"},{\"head\":{\"title\":\"领取更多人气\",\"page_desc\":\"玩法说明&nbsp;&nbsp;&nbsp;>\",\"gopage\":\"/pages/task/task\"},\"list\":[{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EGbxgC4CjR5wKtNQuKiaDnrSibVnxo0Xj1f435iaTTmStDN9Roojib89LNwXzqfTeqoicdcEuKPo7ktqg/0\",\"title\":\"我的农场\",\"desc\":\"大量免费金豆\",\"status\":\"NORMAL\",\"gopage\":\"/pages/farm/farm\",\"shareid\":\"\",\"tip\":\"\",\"open_type\":\"\",\"btn_text\":\"前往领取\"},{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EGbxgC4CjR5wKtNQuKiaDnrSibVnxo0Xj1f435iaTTmStDN9Roojib89LNwXzqfTeqoicdcEuKPo7ktqg/0\",\"title\":\"我的宠物\",\"desc\":\"额外金豆收益\",\"status\":\"WAIT\",\"gopage\":\"\",\"shareid\":\"4\",\"tip\":\"NEW\",\"open_type\":\"\",\"btn_text\":\"敬请期待\"}],\"type\":\"flex\"},{\"head\":{\"title\":\"福利活动\",\"page_desc\":\"往期福利发放&nbsp;&nbsp;&nbsp;>\",\"gopage\":\"/pages/task/task\"},\"list\":[{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EGbxgC4CjR5wKtNQuKiaDnrSibVnxo0Xj1f435iaTTmStDN9Roojib89LNwXzqfTeqoicdcEuKPo7ktqg/0\",\"title\":\"周榜｜月榜福利\",\"desc\":\"大屏+应援金\",\"gopage\":\"\",\"shareid\":\"4\",\"tip\":\"NEW\",\"open_type\":\"\",\"btn_text\":\"查看福利\"},{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EGbxgC4CjR5wKtNQuKiaDnrSibVnxo0Xj1f435iaTTmStDN9Roojib89LNwXzqfTeqoicdcEuKPo7ktqg/0\",\"title\":\"打卡解锁福利\",\"desc\":\"800人解锁500元\",\"gopage\":\"\",\"shareid\":\"\",\"tip\":\"NEW\",\"open_type\":\"\",\"btn_text\":\"立即参与\"}],\"type\":\"flex\"}]}', 1);
+
+
+-------- v3 start
+
 -- start 占领新增占领时间
 alter table f_rec_hour
 	add top_time int default 0 not null;
@@ -410,3 +412,314 @@ alter table f_prop
 create index f_prop_key_index
     on f_prop (`key`)
 --- end
+
+--
+alter table f_user_ext
+	add scrap bigint default 0 not null;
+
+-- 抽奖配置表
+create table f_cfg_lucky_draw
+(
+    id          int auto_increment,
+    title       varchar(255)                        null comment '奖池名称 如第一期奖池',
+    reward      text                                null comment ' [{
+        "flower": 500,
+        "name": "鲜花",
+        "weights": 8,
+        "type": "currery",
+      	"index": 6,
+  }]',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                           null,
+    current     tinyint   default 0                 not null comment '是否当前奖池',
+    draw        varchar(255)                        null comment '抽奖图片uri',
+    constraint f_cfg_lottery_id_uindex
+        unique (id)
+)
+    comment '幸运奖池';
+
+create index f_cfg_lottery_current_index
+    on f_cfg_lucky_draw (current);
+
+alter table f_cfg_lucky_draw
+    add primary key (id);
+
+-- 充值礼包
+create table f_cfg_paid
+(
+    id          int auto_increment,
+    title       varchar(255)                                  null,
+    type        enum ('DAY', 'SUM') default 'SUM'             not null comment '类型',
+    `key`       varchar(150)                                  null comment '方便查找key',
+    count       float(16, 2)        default 0.00              not null comment '达到金额',
+    status      enum ('ON', 'OFF')  default 'ON'              not null,
+    create_time timestamp           default CURRENT_TIMESTAMP not null,
+    update_time timestamp           default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                                     null,
+    reward      text                                          null comment '奖励json',
+    constraint f_cfg_paid_id_uindex
+        unique (id),
+    constraint f_cfg_paid_key_index
+        unique (`key`)
+)
+    comment '用户充值奖励';
+
+create index f_cfg_paid_st_index
+    on f_cfg_paid (status, type);
+
+create index f_cfg_paid_status_index
+    on f_cfg_paid (status);
+
+create index f_cfg_paid_type_index
+    on f_cfg_paid (type);
+
+alter table f_cfg_paid
+    add primary key (id);
+
+-- 公益打卡
+create table f_cfg_welfare
+(
+    id          int auto_increment,
+    title       varchar(255)                        not null,
+    `desc`      varchar(255)                        not null,
+    notice      text                                null,
+    end         int                                 not null comment '结束时间-时间戳',
+    extra       text                                not null comment '附加',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                           null,
+    type        varchar(255)                        null comment '打卡类型',
+    go_notice   int                                 null,
+    constraint f_cfg_welfare_id_uindex
+        unique (id)
+)
+    comment '公益打卡表配置';
+
+create index f_cfg_welfare_end_index
+    on f_cfg_welfare (end);
+
+alter table f_cfg_welfare
+    add primary key (id);
+
+
+create table f_rec_lucky_draw_log
+(
+    id          int auto_increment,
+    lucky_draw  int                                 not null comment '抽奖池id',
+    user_id     int                                 not null,
+    item        text                                null comment '抽取到的奖品',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                           null,
+    constraint f_rec_lucky_draw_log_id_uindex
+        unique (id)
+)
+    comment '抽奖记录';
+
+create index f_rec_lucky_draw_log_u_index
+    on f_rec_lucky_draw_log (user_id);
+
+alter table f_rec_lucky_draw_log
+    add primary key (id);
+
+
+create table f_welfare
+(
+    id          int auto_increment,
+    star_id     int                                 not null,
+    welfare     int                                 not null comment 'cfg_welfare主键',
+    count       bigint    default 0                 not null,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                           null,
+    constraint f_welfare_id_uindex
+        unique (id)
+)
+    comment '公益打榜表';
+
+create index f_welfare_star_index
+    on f_welfare (star_id);
+
+create index f_welfare_sw_index
+    on f_welfare (star_id, welfare);
+
+create index f_welfare_wel_index
+    on f_welfare (welfare);
+
+alter table f_welfare
+    add primary key (id);
+
+create table f_welfare_user
+(
+    id          int auto_increment,
+    user_id     int                                 not null,
+    welfare     int                                 not null comment 'welfare表主键',
+    count       bigint    default 0                 not null,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                           null,
+    constraint f_welfare_user_id_uindex
+        unique (id)
+)
+    comment '打卡用户记录';
+
+create index f_welfare_user_user_index
+    on f_welfare_user (user_id);
+
+create index f_welfare_user_wel_index
+    on f_welfare_user (welfare);
+
+create index f_welfare_user_welus_index
+    on f_welfare_user (user_id, welfare);
+
+alter table f_welfare_user
+    add primary key (id);
+
+create table f_rec_user_paid
+(
+    id          int auto_increment,
+    paid_type   enum ('DAY', 'SUM') default 'SUM'             not null,
+    user_id     int                                           not null,
+    count       float(16, 2)        default 0.00              not null,
+    create_time timestamp           default CURRENT_TIMESTAMP not null,
+    update_time timestamp           default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                                     null,
+    is_settle   int                 default 0                 not null,
+    constraint f_rec_user_paid_id_uindex
+        unique (id)
+)
+    comment '用户记录表';
+
+create index f_rec_user_paid_type_index
+    on f_rec_user_paid (paid_type);
+
+create index f_rec_user_paid_up_index
+    on f_rec_user_paid (user_id, paid_type);
+
+create index f_rec_user_paid_user_index
+    on f_rec_user_paid (user_id);
+
+alter table f_rec_user_paid
+    add primary key (id);
+
+create table f_rec_user_paid_log
+(
+    id          int auto_increment,
+    user_id     int                                           not null,
+    item        text                                          null,
+    create_time timestamp           default CURRENT_TIMESTAMP not null,
+    update_time timestamp           default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                                     null,
+    paid_type   enum ('DAY', 'SUM') default 'SUM'             not null,
+    title       varchar(255)                                  null,
+    paid        int                 default 0                 not null,
+    constraint f_rec_user_paid_log_id_uindex
+        unique (id)
+)
+    comment '领取充值奖励表';
+
+create index f_rec_user_paid_log_opa_index
+    on f_rec_user_paid_log (paid_type);
+
+create index f_rec_user_paid_log_up_index
+    on f_rec_user_paid_log (user_id, paid_type);
+
+create index f_rec_user_paid_loguser_index
+    on f_rec_user_paid_log (user_id);
+
+alter table f_rec_user_paid_log
+    add primary key (id);
+
+
+create table f_user_scrap
+(
+    id            int auto_increment,
+    scrap_id      int                                 not null,
+    user_id       int                                 not null,
+    exchange      int       default 0                 not null,
+    exchange_time int                                 null,
+    create_time   timestamp default CURRENT_TIMESTAMP not null,
+    update_time   timestamp default CURRENT_TIMESTAMP not null,
+    delete_time   timestamp                           null,
+    constraint f_user_scrap_id_uindex
+        unique (id)
+)
+    comment '用户碎片';
+
+create index f_user_scrap_scrap_index
+    on wx_idolzone.f_user_scrap (scrap_id);
+
+create index f_user_scrap_us_index
+    on wx_idolzone.f_user_scrap (user_id, scrap_id);
+
+create index f_user_scrap_user_index
+    on wx_idolzone.f_user_scrap (user_id);
+
+alter table f_user_scrap
+    add primary key (id);
+
+create table wx_idolzone.f_cfg_scrap
+(
+    id              int auto_increment,
+    name            varchar(255)                                   not null,
+    `key`           varchar(150)                                   not null,
+    `desc`          varchar(255)                                   null,
+    count           int                  default 0                 not null comment '需要集齐的数量',
+    limit_exchange  int                  default 0                 not null comment '限制兑换数量
+0 无限制',
+    exchange_number int                  default 0                 not null comment '已兑换的数量',
+    type            enum ('DAY', 'WEEK') default 'WEEK'            not null comment '类型
+day 每日碎片
+week 每周碎片',
+    status          enum ('ON', 'OFF')   default 'ON'              not null comment '状态',
+    image_s         varchar(255)                                   not null comment '碎片图片',
+    image_l         varchar(255)                                   not null comment '碎片合成之后的图片',
+    create_time     timestamp            default CURRENT_TIMESTAMP not null,
+    update_time     timestamp            default CURRENT_TIMESTAMP not null,
+    delete_time     timestamp                                      null,
+    extra           text                                           null,
+    constraint f_cfg_scrap_id_uindex
+        unique (id),
+    constraint f_cfg_scrap_key_index
+        unique (`key`)
+)
+    comment '碎片';
+
+create index f_cfg_scrap_status_index
+    on wx_idolzone.f_cfg_scrap (status);
+
+create index f_cfg_scrap_ts_index
+    on wx_idolzone.f_cfg_scrap (type, status);
+
+create index f_cfg_scrap_type_index
+    on wx_idolzone.f_cfg_scrap (type);
+
+alter table wx_idolzone.f_cfg_scrap
+    add primary key (id);
+
+alter table f_prop
+	add `key` varchar(150) null;
+
+alter table f_prop
+	add get_type enum('STORE', 'CHARGE', 'TASK') default 'STORE' not null;
+
+create index f_prop_key_index
+	on f_prop (`key`);
+
+INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('活动中心', 'active_conform', '{\"banner\":[{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FGIpxZsgiahv3AiauB06MOEqKmDId1DMfYwI9wWLGzUFKpg6KQs0HQCkYd5n6OEPr7fpK4t8ZtRlTg/0\",\"gopage\":\"/pages/welfare/welfare\"}],\"active\":[{\"head\":{\"title\":\"每日精彩活动\",\"page_desc\":\"活动说明>\",\"gopage\":\"/pages/notice/notice?id=1\"},\"list\":[{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FGIpxZsgiahv3AiauB06MOEqIpXObxnKhuMAUWWxjbN4QtJyRiaBhNDicy8e8JiarnYkNXr0K6o3wkOgw/0\",\"title\":\"每日福利\",\"desc\":\"100%中奖\",\"status\":\"NORMAL\",\"gopage\":\"/pages/lucky/lucky\",\"shareid\":\"\",\"tip\":\"NEW\",\"open_type\":\"\",\"btn_text\":\"立即参与\",\"btn_class\":\"hot btn-s\"},{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FGIpxZsgiahv3AiauB06MOEq36rnBbm57KtNWTBQor2vCl7RSocCtb4b59uVzOpjQWLPKRZ4E7ia54g/0\",\"title\":\"占领封面\",\"desc\":\"助力爱豆\",\"status\":\"NORMAL\",\"gopage\":\"/pages/index/fengyun\",\"shareid\":\"\",\"tip\":\"HOT\",\"open_type\":\"\",\"btn_text\":\"立即参与\",\"btn_class\":\"hot btn-s\"},{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EGbxgC4CjR5wKtNQuKiaDnrSibVnxo0Xj1f435iaTTmStDN9Roojib89LNwXzqfTeqoicdcEuKPo7ktqg/0\",\"title\":\"团战PK\",\"desc\":\"超多奖励\",\"gopage\":\"/pages/pk/pk_index\",\"shareid\":\"\",\"tip\":\"HOT\",\"status\":\"NORMAL\",\"open_type\":\"\",\"btn_text\":\"立即参与\",\"btn_class\":\"hot btn-s\"}],\"type\":\"flex\"},{\"head\":{\"title\":\"领取更多人气\",\"page_desc\":\"玩法说明>\",\"gopage\":\"https://mp.weixin.qq.com/s/V-Zw-FDPKLKY4GJfBdZS7w\"},\"list\":[{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FGIpxZsgiahv3AiauB06MOEqjrSzNqo8ib55X0zAQNb3ryGdnGhJhictrcA5LpByI8LqpsLR9xo12teg/0\",\"title\":\"我的农场\",\"desc\":\"大量免费金豆\",\"status\":\"NORMAL\",\"gopage\":\"/pages/farm/farm\",\"shareid\":\"\",\"tip\":\"\",\"open_type\":\"\",\"btn_text\":\"前往领取\",\"btn_class\":\"normal btn-m\"},{\"img\":\"https://mmbiz.qpic.cn/mmbiz_gif/w5pLFvdua9GnD8mrIKwSEItXUhLNibPUxrL7Iia1H7HDGzuIlPlI2FdzzTsxsbYmI6NSibzg6QbO5Ekm3srmD8Ltw/0\",\"title\":\"我的宠物\",\"desc\":\"获取额外收益\",\"status\":\"WAIT\",\"gopage\":\"\",\"shareid\":\"\",\"tip\":\"\",\"open_type\":\"\",\"btn_text\":\"敬请期待\",\"btn_class\":\"normal btn-m\"}],\"type\":\"flex\"},{\"head\":{\"title\":\"福利活动\",\"page_desc\":\"往期福利发放>\",\"gopage\":\"\"},\"list\":[{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9HKFm38Dv98TP2KyPl7wR9Q5CwBdbIkoEf165gd5tWgPOAKFUA0p9PrpEj1WOrsN7FNatXHicHXCaw/0\",\"title\":\"周榜/月榜福利\",\"desc\":\"大屏+应援金\",\"gopage\":\"/pages/notice/notice?id=1\",\"shareid\":\"\",\"tip\":\"NEW\",\"open_type\":\"\",\"btn_text\":\"查看福利\",\"btn_class\":\"normal btn-m\"},{\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9HKFm38Dv98TP2KyPl7wR9QgQEWb4lD0wdklUib37kJMib6g13S2VAmibUzS3FR0vA8KLCsJ4QkPZbZw/0\",\"title\":\"打卡解锁福利\",\"desc\":\"大屏+应援金\",\"gopage\":\"/pages/active_one/active_one_list\",\"shareid\":\"\",\"tip\":\"NEW\",\"open_type\":\"\",\"btn_text\":\"立即参与\",\"btn_class\":\"normal btn-m\"}],\"type\":\"flex\"}]}', 1, '2020-07-28 14:23:17', '2020-08-04 13:49:41', NULL);
+INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('充值福利', 'recharge_lucky', '{\"day_first_charge\":{\"title\":\"每日首次补充鲜花、钻石礼包\",\"desc\":\"补充任意数值（≥35）即可领取超值礼包\",\"btn_text\":\"领取补充鲜花、钻石的礼包\"},\"sum_charge\":{\"title\":\"补充鲜花、钻石领取每日福利\",\"desc\":\"领取每日累计补充鲜花、钻石的奖励，每日首次领取抽奖券x2\",\"lucky\":{\"title\":\"本周奖品\",\"tip\":\"中奖纪录\"}},\"scrap\":{\"title\":\"集齐幸运碎片获得相应的奖品\",\"desc\":\"活动时间：8月10日——8月16日\"}}', 1, '2020-07-30 14:35:35', '2020-08-04 17:01:32', NULL);
+INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('占领封面', 'occupy_notice', '{\"title\":\"活动说明\",\"content\":[\"1、在一小时内，贡献鲜花第一的粉丝可以助力爱豆占领封面\",\"2、鲜花小时榜的贡献值每小时清零，重新计算数值占领封面\",\"3、爱豆首页封面图由各圈领袖粉上传，尺寸649X247\",\"4、无领袖粉请加客服申请\"]}', 1, '2020-08-03 11:44:27', '2020-08-03 11:48:16', NULL);
+
+INSERT INTO `f_cfg_share`(`desc`, `title`, `imageUrl`, `path`, `create_time`, `update_time`, `delete_time`) VALUES ('钻石公益', '快来参加STARNAME100万钻石公益解锁活动', NULL, 'path=/pages/welfare/welfare', '2020-08-04 14:56:29', '2020-08-04 14:56:29', NULL);
+INSERT INTO `f_cfg_welfare`(`title`, `desc`, `notice`, `end`, `extra`, `create_time`, `update_time`, `delete_time`, `type`, `go_notice`) VALUES ('100万钻石公益计划', '100万钻石公益计划', '{\"title\":\"活动说明\",\"content\":[{\"title\":\"活动时间\",\"desc\":\"8月31日结束\"},{\"title\":\"福利获得\",\"desc\":\"活动期间内圈内粉丝累计使用钻石数量达到解锁目标，即可获得福利。\"},{\"title\":\"福利领取\",\"desc\":\"以上奖励不限名次，不限排名，达到即可解锁获得。\"},{\"title\":\"福利说明\",\"desc\":\"目标福利为累计福利，一个爱豆总共可获得以爱豆名义捐赠公益植树、爱心书箱、爱心午餐和小程序开屏3天。\"},{\"title\":\"其他说明\",\"desc\":\"小程序开屏所选日期为：11月01日-11月30日。\"},{\"title\":\"如何领取\",\"desc\":\"达到目标联系客服选择日期和领取公益。\"}]}', 1598803200, '{\"progress\":[{\"step\":1000000,\"reward_desc\":[\"小程序开屏1天\",\"公益植树x10\"]},{\"step\":3000000,\"reward_desc\":[\"小程序开屏1天\",\"爱心书箱x1\"]},{\"step\":6000000,\"reward_desc\":[\"小程序开屏1天\",\"爱心午餐x50\"]}],\"banner\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9HKFm38Dv98TP2KyPl7wR9Q95DeFWWvAmQ4N449lgZs6ficYqiaUbqoDmzHsVHlNujjammIicUq0qVSA/0\",\"share_id\":110}', '2020-07-31 15:48:05', '2020-07-31 15:48:05', NULL, 'STONE_WELFARE', NULL);
+
+INSERT INTO `f_cfg_scrap`(`name`, `key`, `desc`, `count`, `limit_exchange`, `exchange_number`, `type`, `status`, `image_s`, `image_l`, `create_time`, `update_time`, `delete_time`, `extra`) VALUES ('10月25日小程序开屏', 'open_1025', '10月25日小程序开屏', 10, 1, 0, 'WEEK', 'ON', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GqEna3Bu4hOUqY2ruicPUKoOxUXk3YG5KlOA4lYByS7xppcrEwOcJAQeUia6IxKBRicmwBtzgfELQYg/0', '2020-07-30 17:23:33', '2020-07-30 17:23:33', NULL, NULL);
+INSERT INTO `f_cfg_scrap`(`name`, `key`, `desc`, `count`, `limit_exchange`, `exchange_number`, `type`, `status`, `image_s`, `image_l`, `create_time`, `update_time`, `delete_time`, `extra`) VALUES ('10月26日小程序开屏', 'open_1026', '10月26日小程序开屏', 10, 1, 0, 'WEEK', 'ON', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GqEna3Bu4hOUqY2ruicPUKoOxUXk3YG5KlOA4lYByS7xppcrEwOcJAQeUia6IxKBRicmwBtzgfELQYg/0', '2020-07-30 17:23:33', '2020-07-30 17:23:33', NULL, NULL);
+INSERT INTO `f_cfg_scrap`(`name`, `key`, `desc`, `count`, `limit_exchange`, `exchange_number`, `type`, `status`, `image_s`, `image_l`, `create_time`, `update_time`, `delete_time`, `extra`) VALUES ('10月27日小程序开屏', 'open_1027', '10月27日小程序开屏', 10, 1, 0, 'WEEK', 'ON', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GqEna3Bu4hOUqY2ruicPUKoOxUXk3YG5KlOA4lYByS7xppcrEwOcJAQeUia6IxKBRicmwBtzgfELQYg/0', '2020-07-30 17:23:33', '2020-07-30 17:23:33', NULL, NULL);
+INSERT INTO `f_cfg_scrap`(`name`, `key`, `desc`, `count`, `limit_exchange`, `exchange_number`, `type`, `status`, `image_s`, `image_l`, `create_time`, `update_time`, `delete_time`, `extra`) VALUES ('金豆X100万', 'coin', '金豆X100万', 1, 0, 0, 'WEEK', 'ON', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FctOFR9uh4qenFtU5NmMB5uWEQk2MTaRfxdveGhfFhS1G5dUIkwlT5fosfMaW0c9aQKy3mH3XAew/0', '2020-08-04 16:49:43', '2020-08-04 16:49:43', NULL, '{\"number\":1000000,\"person\":30}');
+
+INSERT INTO `f_prop`(`title`, `name`, `img`, `point`, `desc`, `remain`, `create_time`, `update_time`, `delete_time`, `get_type`, `key`) VALUES ('幸运抽奖券', '幸运抽奖券', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GqEna3Bu4hOUqY2ruicPUKo5M09v5iajLMIlAb5MR4ib0kA9OnkhXodC6M6SmjAjmjj7VcwgUYklmfA/0', 0, '使用抽奖券，可获得大量金豆、鲜花、钻石', -1, '2020-07-29 11:34:32', '2020-08-04 11:20:30', NULL, 'CHARGE', 'lucky_draw');
+--
+
+-------- end V3
