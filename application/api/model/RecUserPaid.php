@@ -85,10 +85,9 @@ class RecUserPaid extends Base
             $msg = sprintf ('领取%s充值奖励', $typeMsgMap[$paid_type]);
 
             $logMap = [
-                'paid_type' => CfgPaid::SUM,
+                'paid' => $paid_id,
                 'user_id' => $user_id
             ];
-            if ($isDay) $logMap['paid_type'] = CfgPaid::DAY;
 
             $currentTime = date ('Y-m-d') . ' 00:00:00';
             $log = (new RecUserPaidLog)->readMaster ()
@@ -105,8 +104,11 @@ class RecUserPaid extends Base
 
             $logData = [
                 'item' => $reward,
-                'title' => sprintf ('领取%s充值奖励', $typeMsgMap[$paid_type])
+                'title' => sprintf ('领取%s充值奖励', $typeMsgMap[$paid_type]),
+                'paid_type' => CfgPaid::SUM
             ];
+            if ($isDay) $logMap['paid_type'] = CfgPaid::DAY;
+
             if ($double) {
                 foreach ($logData['item'] as $key => $value) {
                     $value['number'] = bcmul ($value['number'], 2);

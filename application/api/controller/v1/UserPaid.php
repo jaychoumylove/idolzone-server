@@ -48,34 +48,25 @@ class UserPaid extends \app\base\controller\Base
     {
         $this->getUser ();
 
-        $sumMap  = [
+        $sumMap = [
             'type'   => CfgPaid::SUM,
             'status' => CfgPaid::ON
         ];
         $dayMap = $sumMap;
+
         $dayMap['type'] = CfgPaid::DAY;
+
         $dayPaid = CfgPaid::get ($dayMap); // 每日充值
         $sumPaid = CfgPaid::where ($sumMap)->order ('count', 'asc')->select (); // 累计充值
 
         $currentTime = date ('Y-m-d') . ' 00:00:00';
 
-        $hasDayLogMap = [
-            'user_id' => $this->uid,
-            'paid_type' => CfgPaid::DAY,
-        ];
-        $hasDayLog = RecUserPaidLog::where($hasDayLogMap)
-            ->where('create_time', '>=', $currentTime)
-            ->find ();
+        $paidLog = RecUserPaidLog::where ('user_id', $this->uid)
+            ->where ('create_time', '>=', $currentTime)
+            ->select ();
+        if (is_object ($paidLog)) $paidLog = $paidLog->toArray ();
 
-        $isDayDouble = empty($hasDayLog);
-
-        $hasSumLogMap = $hasDayLogMap;
-        $hasSumLogMap['paid_type'] = CfgPaid::SUM;
-        $hasSumLog = RecUserPaidLog::where($hasSumLogMap)
-            ->where('create_time', '>=', $currentTime)
-            ->find ();
-
-        $isSumDouble = empty($hasSumLog);
+        $paidLogDict = array_column ($paidLog, null, 'paid');
 
         $myPaid = RecUserPaid::where ('user_id', $this->uid)->select ();
         if (is_object ($myPaid)) $myPaid = $myPaid->toArray ();
@@ -84,11 +75,13 @@ class UserPaid extends \app\base\controller\Base
             "user_id"   => $this->uid,
             'paid_type' => CfgPaid::DAY,
             'is_settle' => 0,
-            'count'     => 0
+            'count'     => 0,
         ];
 
-        $mySumPaid              = $myDayPaid;
+        $mySumPaid = $myDayPaid;
+
         $mySumPaid['paid_type'] = CfgPaid::SUM;
+
         foreach ($myPaid as $item) {
             if ($item['paid_type'] == CfgPaid::DAY) {
                 $myDayPaid = $item;
@@ -106,8 +99,11 @@ class UserPaid extends \app\base\controller\Base
             }
         }
 
+        $dayPaid['double'] = array_key_exists ($dayPaid['id'], $paidLogDict);
+
         foreach ($sumPaid as $index => $item) {
             $item['settle_status'] = 0;
+            $item['double'] = array_key_exists ($item['id'], $paidLogDict);
             if ($mySumPaid['count'] > $item['count']) {
                 $item['settle_status'] = 1;
             }
@@ -115,30 +111,27 @@ class UserPaid extends \app\base\controller\Base
             $sumPaid[$index] = $item;
         }
 
-
         Common::res (['data' => compact ('sumPaid',
             'dayPaid',
             'myDayPaid',
-            'mySumPaid',
-            'isDayDouble',
-            'isSumDouble')]);
+            'mySumPaid')]);
     }
 
     public function getPaidLogPager()
     {
         $this->getUser ();
-        $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 10);
+        $page = $this->req ('page', 'integer', 1);
+        $size = $this->req ('size', 'integer', 10);
 
 
-        $list = RecUserPaidLog::with('user')
-            ->where('user_id', $this->uid)
+        $list = RecUserPaidLog::with ('user')
+            ->where ('user_id', $this->uid)
             ->order ([
                 'create_time' => 'desc',
-                'id' => 'desc'
+                'id'          => 'desc'
             ])
-            ->page($page, $size)
-            ->select();
+            ->page ($page, $size)
+            ->select ();
 
         Common::res (['data' => $list]);
     }
