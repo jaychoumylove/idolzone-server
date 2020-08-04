@@ -41,7 +41,7 @@ class UserScrap extends \app\base\model\Base
         $map = compact ('user_id', 'scrap_id');
         $exist = self::where($map)->find ();
 
-        $scrapNum = UserExt::where('user_id', $user_id)->value ('scarp');
+        $scrapNum = UserExt::where('user_id', $user_id)->value ('scrap');
         if (empty($scrapNum)) {
             Common::res (['code'=> 1, 'msg' => '你还没有碎片哦']);
         }
@@ -118,6 +118,13 @@ class UserScrap extends \app\base\model\Base
                 'lucky_draw' => 0,
                 'item' => array_merge ($item, $wholeItem),
             ]);
+
+            $updated = UserExt::where('user_id', $user_id)->update([
+                'scrap' => bcsub ($scrapNum, $scrap['count'])
+            ]);
+            if (empty($updated)) {
+                throw new Exception('更新失败');
+            }
 
             Db::commit ();
         } catch (\Throwable $throwable) {
