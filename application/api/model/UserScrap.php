@@ -31,7 +31,7 @@ class UserScrap extends \app\base\model\Base
      *
      * @param $user_id
      * @param $scrap_id
-     * @return bool
+     * @return void
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
@@ -43,7 +43,7 @@ class UserScrap extends \app\base\model\Base
 
         $scrapNum = UserExt::where('user_id', $user_id)->value ('scrap');
         if (empty($scrapNum)) {
-            Common::res (['code'=> 1, 'msg' => '你还没有碎片哦']);
+            Common::res (['code'=> 1, 'msg' => '你还没有幸运碎片哦']);
         }
 
         $scrap = CfgScrap::get ($scrap_id);
@@ -61,9 +61,18 @@ class UserScrap extends \app\base\model\Base
             }
         }
 
-        $diff = bcsub ($scrapNum, $scrap['count']);
-        if ($diff < 0) {
-            Common::res (['code' => 1, 'msg' => '碎片数量不够哦']);
+        if ($scrap['count']) {
+            $diff = bcsub ($scrapNum, $scrap['count']);
+            if ($diff < 0) {
+                Common::res (['code' => 1, 'msg' => '幸运碎片数量不够哦']);
+            }
+        }
+
+        if ($scrap['key'] == CfgScrap::COIN) {
+            $personLimit = $scrap['extra']['person'];
+            if ($personLimit <= $exist['exchange']) {
+                Common::res (['code' => 1, 'msg' => '兑换失败,请联系客服']);
+            }
         }
 
         Db::startTrans ();
@@ -97,7 +106,7 @@ class UserScrap extends \app\base\model\Base
             ];
 
             $scrapItem = [
-                'name' => '碎片',
+                'name' => '幸运碎片',
                 'number' => -$scrap['count'],
                 'key' => $scrap_id
             ];
@@ -126,10 +135,20 @@ class UserScrap extends \app\base\model\Base
                 throw new Exception('更新失败');
             }
 
+            if ($scrap['key'] == CfgScrap::COIN) {
+                (new \app\api\service\User())->change ($user_id, ['coin' => $scrap['extra']['number']], '使用幸运碎片兑换金豆');
+            } else {
+
+            }
+
+//            throw new Exception('something was wrong');
             Db::commit ();
         } catch (\Throwable $throwable) {
             Db::rollback ();
+//            throw $throwable;
             Common::res (['code' => 1, 'msg' => '兑换失败，请稍后再试']);
         }
+
+        return $scrap['key'];
     }
 }

@@ -10,9 +10,10 @@ class CfgScrap extends \app\base\model\Base
     const OFF = 'OFF';
     const DAY = 'DAY';
     const WEEK = 'WEEK';
+    const COIN = 'coin';
 
-    public static function exchange()
+    public function getExtraAttr($value)
     {
-
+        return json_decode ($value, true);
     }
 }

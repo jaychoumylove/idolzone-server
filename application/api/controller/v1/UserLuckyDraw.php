@@ -126,11 +126,16 @@ class UserLuckyDraw extends \app\base\controller\Base
         $scrap = input ('scrap', false);
 
         if (empty($scrap)) {
-            Common::res (['code' => 1, 'msg' => '请选择兑换碎片']);
+            Common::res (['code' => 1, 'msg' => '请选择兑换奖品']);
         }
 
-        UserScrap::exchange ($this->uid, $scrap);
+        $key = UserScrap::exchange ($this->uid, $scrap);
 
-        Common::res ();
+        $msg = '兑换成功';
+//        if (strpos ($key, 'open')) {
+//            $msg = '兑换成功,请联系客服';
+//        }
+
+        Common::res (compact ('msg'));
     }
 }
