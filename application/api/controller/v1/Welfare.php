@@ -46,7 +46,7 @@ class Welfare extends \app\base\controller\Base
         Common::res ([
             'data' => [
                 'welfare' => $welfare,
-                'star' => empty($starWelfare) ? null: $starWelfare,
+                'star' => empty($starWelfare) ? ['star_id' => $starId, 'count' => 0]: $starWelfare,
             ]
         ]);
     }
