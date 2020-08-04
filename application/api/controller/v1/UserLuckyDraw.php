@@ -60,8 +60,7 @@ class UserLuckyDraw extends \app\base\controller\Base
             $item = $value['item'];
             if ($item['type'] == CfgLuckyDraw::SCRAP)
             {
-                $scrap = CfgScrap::get ($value['item']['key']);
-                $item['image'] = $scrap['image_s'];
+                $item['image'] = 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0';
             }
             if ($item['type'] == RecLuckyDrawLog::SCRAP_L)
             {

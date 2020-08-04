@@ -16,11 +16,10 @@ class UserScrap extends \app\base\model\Base
         $map = compact ('user_id', 'scrap_id');
         $exist = self::where($map)->find ();
         if ($exist) {
-            $number = bcadd ($number, $exist['number']);
             $updated = self::where('id', $exist['id'])->update(compact ('number'));
             return (bool) $updated;
         } else {
-            $data = ['number' => $number];
+            $data = ['exchange' => 1];
             self::create (array_merge ($data, $map));
 
             return true;
@@ -41,7 +40,9 @@ class UserScrap extends \app\base\model\Base
     {
         $map = compact ('user_id', 'scrap_id');
         $exist = self::where($map)->find ();
-        if (empty($exist)) {
+
+        $scrapNum = UserExt::where('user_id', $user_id)->value ('scarp');
+        if (empty($scrapNum)) {
             Common::res (['code'=> 1, 'msg' => '你还没有碎片哦']);
         }
 
@@ -60,22 +61,25 @@ class UserScrap extends \app\base\model\Base
             }
         }
 
-        $diff = bcsub ($exist['number'], $scrap['count']);
+        $diff = bcsub ($scrapNum, $scrap['count']);
         if ($diff < 0) {
             Common::res (['code' => 1, 'msg' => '碎片数量不够哦']);
         }
 
-        $update = [
-            'number' => $diff,
-            'exchange' => bcadd ($exist['exchange'], 1),
-            'exchange_time' => time (),
-        ];
-
         Db::startTrans ();
         try {
-            $updated = self::where('id', $exist['id'])->update($update);
-            if (empty($updated)) {
-                throw new Exception('更新失败');
+            if ($exist) {
+                $update = [
+                    'exchange' => bcadd ($exist['exchange'], 1),
+                    'exchange_time' => time (),
+                ];
+                $updated = self::where('id', $exist['id'])->update($update);
+                if (empty($updated)) {
+                    throw new Exception('更新失败');
+                }
+            } else {
+                $data = ['exchange' => 1];
+                self::create (array_merge ($data, $map));
             }
 
             $updated = CfgScrap::where('id', $scrap_id)->update([
@@ -93,7 +97,7 @@ class UserScrap extends \app\base\model\Base
             ];
 
             $scrapItem = [
-                'name' => $scrap['name'] . '碎片',
+                'name' => '碎片',
                 'number' => -$scrap['count'],
                 'key' => $scrap_id
             ];

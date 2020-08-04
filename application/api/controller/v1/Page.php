@@ -422,13 +422,11 @@ class Page extends Base
 
         $userScrapDict = array_column ($userScraps, null, 'scrap_id');
         foreach ($scrap as $index => $item) {
-            $item['has_number'] = 0;
+            $item['has_number'] = $userScrapNum;
             $item['has_exchange'] = 0;
-            $item['percent'] = 0;
+            $item['percent'] = bcmul (bcdiv ($userScrapNum, $item['count'], 2), 100);
             if (array_key_exists ($item['id'], $userScrapDict)) {
-                $item['has_number'] = $userScrapNum;
                 $item['has_exchange'] = $userScrapDict[$item['id']]['exchange'];
-                $item['percent'] = bcmul (bcdiv ($userScrapNum, $item['count'], 2), 100);
             }
         }
 
