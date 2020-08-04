@@ -66,7 +66,7 @@ class CfgLuckyDraw extends \app\base\model\Base
                     $data[$chooseItem['key']] = $chooseItem['number'];
                 }
 
-                (new \app\api\service\User())->change ($user_id, $data, '幸运抽奖');
+                (new \app\api\service\User())->change ($user_id, $data, '使用幸运抽奖券抽奖');
             }
 
             // 发放奖励

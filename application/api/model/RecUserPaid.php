@@ -102,6 +102,13 @@ class RecUserPaid extends Base
                 'item' => $reward,
                 'title' => sprintf ('领取%s充值奖励', $typeMsgMap[$paid_type])
             ];
+            if ($isFirst) {
+                foreach ($logData['item'] as $key => $value) {
+                    $value['number'] = bcmul ($value['number'], 2);
+
+                    $logData['item'][$key] = $value;
+                }
+            }
             RecUserPaidLog::create(array_merge ($logMap, $logData));
 
             (new \app\api\service\User())->change ($user_id, $earn, $msg);
