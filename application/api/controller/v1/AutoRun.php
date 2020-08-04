@@ -7,6 +7,7 @@ use app\api\model\CfgActive;
 use app\api\model\CfgLottery;
 use app\api\model\OpenRank;
 use app\api\model\RecTaskactivity618;
+use app\api\model\RecUserPaid;
 use app\api\model\RecWealActivityTask;
 use app\base\controller\Base;
 use app\api\model\StarRank;
@@ -187,6 +188,10 @@ class AutoRun extends Base
 
                 OpenRank::where('count', '>', 0)->delete(true);
             }
+
+            // 清除用户充值礼包记录
+            RecUserPaid::where('count', '>', 0)
+                ->update(['count' => 0]);
 
             Db::commit();
         } catch (\Exception $e) {
