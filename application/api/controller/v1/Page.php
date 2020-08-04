@@ -413,6 +413,8 @@ class Page extends Base
 
         $scrapIds = array_column ($scrap, 'id');
 
+        $userScrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
+
         $userScraps = UserScrap::where('user_id', $this->uid)
             ->where('scrap_id', 'in', $scrapIds)
             ->select ();
@@ -424,9 +426,9 @@ class Page extends Base
             $item['has_exchange'] = 0;
             $item['percent'] = 0;
             if (array_key_exists ($item['id'], $userScrapDict)) {
-                $item['has_number'] = $userScrapDict[$item['id']]['number'];
+                $item['has_number'] = $userScrapNum;
                 $item['has_exchange'] = $userScrapDict[$item['id']]['exchange'];
-                $item['percent'] = bcmul (bcdiv ($item['has_number'], $item['count'], 2), 100);
+                $item['percent'] = bcmul (bcdiv ($userScrapNum, $item['count'], 2), 100);
             }
         }
 
