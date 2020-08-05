@@ -61,17 +61,21 @@ class UserProp extends Base
      */
     public static function getNum($user_id, $prop_id)
     {
+        $currentTime = date ('Y-m-d H:i:s');
         return self::where('user_id', $user_id)
             ->where ('prop_id', $prop_id)
             ->where ('status', '<', 1)
+            ->where ('end_time', '>', $currentTime)
             ->count ();
     }
 
     public static function getOneProp($user_id, $prop_id)
     {
+        $currentTime = date ('Y-m-d H:i:s');
         return self::where('user_id', $user_id)
             ->where ('prop_id', $prop_id)
             ->where ('status', '<', 1)
+            ->where ('end_time', '>', $currentTime)
             ->find ();
     }
 
