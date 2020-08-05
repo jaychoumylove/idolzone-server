@@ -403,11 +403,13 @@ class Page extends Base
 
         $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
 
-        $rec = [];
-//        $rec = RecLuckyDrawLog::with(['user'])
-//            ->order('create_time', 'desc')
-//            ->limit (6)
-//            ->select ();
+        $forbiddenUser = array_key_exists ('forbidden_user', $config) ? $config['forbidden_user']: [];
+
+        $rec = RecLuckyDrawLog::with(['user'])
+            ->where('user_id', 'not in', $forbiddenUser)
+            ->order('create_time', 'desc')
+            ->limit (6)
+            ->select ();
 
         $scrap = CfgScrap::where('status', CfgScrap::ON)->select ();
         if (is_object ($scrap)) $scrap = $scrap->toArray ();
