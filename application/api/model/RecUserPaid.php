@@ -89,12 +89,15 @@ class RecUserPaid extends Base
                 'user_id' => $user_id
             ];
 
-            $currentTime = date ('Y-m-d') . ' 00:00:00';
-            $log = (new RecUserPaidLog)->readMaster ()
-                ->where ($logMap)
-                ->where ('create_time', '>=', $currentTime)
-                ->find ();
-            $double = empty($log);
+            $double = false;
+            if ($isSum) {
+                $currentTime = date ('Y-m-d') . ' 00:00:00';
+                $log = (new RecUserPaidLog)->readMaster ()
+                    ->where ($logMap)
+                    ->where ('create_time', '>=', $currentTime)
+                    ->find ();
+                $double = empty($log);
+            }
 
             if ($double) {
                 foreach ($earn as $key => $item) {
