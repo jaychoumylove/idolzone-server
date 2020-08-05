@@ -415,7 +415,10 @@ class Page extends Base
         try {
             $currentTime = date ('Y-m-d H:i:s');
 
-            if ($currentTime > $config['scrap_time']['end_time']) {
+            $nbf = $currentTime < $config['scrap_time']['start_time'];
+            $naf = $currentTime > $config['scrap_time']['end_time'];
+
+            if ($naf || $nbf) {
                 // 碎片是否过期
                 $userExt = UserExt::where('user_id', $this->uid)->find ();
                 if (empty($userExt['scrap_time'])) {
