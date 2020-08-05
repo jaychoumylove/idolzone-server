@@ -73,6 +73,9 @@ class CfgLuckyDraw extends \app\base\model\Base
             if ($chooseItem['type'] == self::SCRAP) {
                 $userScrap = UserExt::where('user_id', $user_id)->find ();
                 $userScrapUpdate = ['scrap' => bcadd ($userScrap['scrap'], 1)];
+                if ($userScrap['scrap_time']) {
+                    $userScrapUpdate['scrap_time'] = null;
+                }
                 $added = UserExt::where('id', $userScrap['id'])->update($userScrapUpdate);
                 if (empty($added)) Common::res (['code' => 1, 'msg' => '请稍后再试']);
             }

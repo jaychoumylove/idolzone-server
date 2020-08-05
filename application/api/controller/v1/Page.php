@@ -411,6 +411,27 @@ class Page extends Base
             ->limit (6)
             ->select ();
 
+        // 触发更新用户碎片过期
+        try {
+            $currentTime = date ('Y-m-d H:i:s');
+
+            if ($currentTime > $config['scrap_time']['end_time']) {
+                // 碎片是否过期
+                $userExt = UserExt::where('user_id', $this->uid)->find ();
+                if (empty($userExt['scrap_time'])) {
+                    // 是否更新过
+                    if ($userExt['scrap'] || $userExt['last_scrap']) {
+                        // 是否需要更新
+                        UserExt::where('user_id', $this->uid)->update([
+                            'scrap' => 0,
+                            'last_scrap' => $userExt['scrap'],
+                            'scrap_time' => $currentTime
+                        ]);
+                    }
+                }
+            }
+        }catch (\Throwable $throwable) {}
+
         $scrap = CfgScrap::where('status', CfgScrap::ON)->select ();
         if (is_object ($scrap)) $scrap = $scrap->toArray ();
 

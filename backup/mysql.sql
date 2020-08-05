@@ -1,10 +1,10 @@
 
--- start 2020-07-10 17:22:37
--- 新建狗4数据库以及记录
+--  start 20200710 17:22:37
+--  新建狗4数据库以及记录
 
--- ----------------------------
--- Table structure for f_cfg_pet_skill_four
--- ----------------------------
+ 
+--  Table structure for f_cfg_pet_skill_four
+ 
 DROP TABLE IF EXISTS `f_cfg_pet_skill_four`;
 CREATE TABLE `f_cfg_pet_skill_four` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -22,9 +22,9 @@ CREATE TABLE `f_cfg_pet_skill_four` (
 create index f_cfg_pet_skill_four_lv_index
 	on f_cfg_pet_skill_four (level);
 
--- ----------------------------
--- Records of f_cfg_pet_skill_four
--- ----------------------------
+ 
+--  Records of f_cfg_pet_skill_four
+ 
 BEGIN;
 INSERT INTO `f_cfg_pet_skill_four` (`level` , `percent` , `desc` , `point`) VALUES (0 , 0 , '冲榜增加额外人气0%' , 1000000);
 INSERT INTO `f_cfg_pet_skill_four` (`level` , `percent` , `desc` , `point`) VALUES (1 , 0.001 , '冲榜增加额外人气0.1%' , 1000000);
@@ -229,15 +229,15 @@ INSERT INTO `f_cfg_pet_skill_four` (`level` , `percent` , `desc` , `point`) VALU
 INSERT INTO `f_cfg_pet_skill_four` (`level` , `percent` , `desc` , `point`) VALUES (200 , 0.2 , '冲榜增加额外人气20%' , 10000000);
 COMMIT;
 
--- end
+--  end
 
--- start 用户精灵新增4技能字段 2020-07-10 17:32:47
+--  start 用户精灵新增4技能字段 20200710 17:32:47
 alter table f_user_sprite
 	add skill_four_level int default 0 not null comment '宠物4技能等级';
--- end
+--  end
 
 
--- start 八一建军节开屏活动 2020-07-14 16:56:23
+--  start 八一建军节开屏活动 20200714 16:56:23
 
 alter table f_open
 	add type enum('normal', '81soldier') default 'normal' not null after hot;
@@ -257,13 +257,13 @@ create index f_open_hot_index
 -- vote_end 投票截止时间
 INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`) VALUES ('开屏活动配置', 'open', '{\"current\":\"81soldier\",\"content\":{\"81soldier\":{\"banner\":[{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fc6k4icARtLOpP2kdnMiaic0oQ1WHvWgXgCwVdUicCm07knFnb0xMPy1VFqAYptzPbiavX9z49wJZ6mKw/0\",\"vote_end\":1595399400},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fc6k4icARtLOpP2kdnMiaic0oGemvqN43zUUia0ftswfBZ0Ch4kjiblryV4BK4Pb8DJBiagibyUWlGtD4BA/0\",\"vote_end\":1596297000},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fc6k4icARtLOpP2kdnMiaic0okiada0VNuHsSRGdnJoQyWbgvicod7pDo2wVjnwkUntbmHnwCAJXHv9ag/0\",\"vote_end\":1596384000}],\"help\":{\"article\":1,\"label\":\"活动说明\"},\"time\":{\"end\":\"2020-07-27\"}}}}', 1);
 
---- end
+--  end
 
--- start 福袋活动 2020-07-17 10:07:34
+--  start 福袋活动 20200717 10:07:34
 
--- ----------------------------
--- Table structure for f_cfg_weal_activity_task
--- ----------------------------
+ 
+--  Table structure for f_cfg_weal_activity_task
+ 
 DROP TABLE IF EXISTS `f_cfg_weal_activity_task`;
 CREATE TABLE `f_cfg_weal_activity_task` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -279,11 +279,11 @@ CREATE TABLE `f_cfg_weal_activity_task` (
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `delete_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COMMENT='任务-福袋活动';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COMMENT='任务福袋活动';
 
--- ----------------------------
--- Table structure for f_rec_weal_activity
--- ----------------------------
+ 
+--  Table structure for f_rec_weal_activity
+ 
 DROP TABLE IF EXISTS `f_rec_weal_activity`;
 CREATE TABLE `f_rec_weal_activity` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -300,9 +300,9 @@ CREATE TABLE `f_rec_weal_activity` (
   KEY `content` (`content`(191)) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='日志';
 
--- ----------------------------
--- Table structure for f_rec_weal_activity_task
--- ----------------------------
+ 
+--  Table structure for f_rec_weal_activity_task
+ 
 DROP TABLE IF EXISTS `f_rec_weal_activity_task`;
 CREATE TABLE `f_rec_weal_activity_task` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -388,18 +388,18 @@ alter table f_open_top
 
 alter table f_open_top drop key date;
 
--- end
+--  end
 
 
 
--------- v3 start
+--  v3 start
 
--- start 占领新增占领时间
+--  start 占领新增占领时间
 alter table f_rec_hour
 	add top_time int default 0 not null;
--- end
+--  end
 
---- start 新增道具获取方式
+--  start 新增道具获取方式
 alter table f_prop
 	add get_type enum('STORE', 'CHARGE', 'TASK') default 'STORE' not null;
 
@@ -411,13 +411,13 @@ alter table f_prop
 
 create index f_prop_key_index
     on f_prop (`key`)
---- end
+--  end
 
---
+
 alter table f_user_ext
 	add scrap bigint default 0 not null;
 
--- 抽奖配置表
+--  抽奖配置表
 create table f_cfg_lucky_draw
 (
     id          int auto_increment,
@@ -445,7 +445,7 @@ create index f_cfg_lottery_current_index
 alter table f_cfg_lucky_draw
     add primary key (id);
 
--- 充值礼包
+--  充值礼包
 create table f_cfg_paid
 (
     id          int auto_increment,
@@ -477,7 +477,7 @@ create index f_cfg_paid_type_index
 alter table f_cfg_paid
     add primary key (id);
 
--- 公益打卡
+--  公益打卡
 create table f_cfg_welfare
 (
     id          int auto_increment,
@@ -687,13 +687,13 @@ week 每周碎片',
     comment '碎片';
 
 create index f_cfg_scrap_status_index
-    on wx_idolzone.f_cfg_scrap (status);
+    on f_cfg_scrap (status);
 
 create index f_cfg_scrap_ts_index
-    on wx_idolzone.f_cfg_scrap (type, status);
+    on f_cfg_scrap (type, status);
 
 create index f_cfg_scrap_type_index
-    on wx_idolzone.f_cfg_scrap (type);
+    on f_cfg_scrap (type);
 
 alter table wx_idolzone.f_cfg_scrap
     add primary key (id);
@@ -722,4 +722,10 @@ INSERT INTO `f_cfg_scrap`(`name`, `key`, `desc`, `count`, `limit_exchange`, `exc
 INSERT INTO `f_prop`(`title`, `name`, `img`, `point`, `desc`, `remain`, `create_time`, `update_time`, `delete_time`, `get_type`, `key`) VALUES ('幸运抽奖券', '幸运抽奖券', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GqEna3Bu4hOUqY2ruicPUKo5M09v5iajLMIlAb5MR4ib0kA9OnkhXodC6M6SmjAjmjj7VcwgUYklmfA/0', 0, '使用抽奖券，可获得大量金豆、鲜花、钻石', -1, '2020-07-29 11:34:32', '2020-08-04 11:20:30', NULL, 'CHARGE', 'lucky_draw');
 --
 
--------- end V3
+--  end V3
+
+-- 上次已过期的碎片数
+ALTER TABLE `f_user_ext`
+ADD COLUMN `last_scrap` bigint(20) NULL COMMENT '上次已过期的碎片数' AFTER `scrap`;
+ALTER TABLE `f_user_ext`
+ADD COLUMN `scrap_time` timestamp(0) NULL DEFAULT null COMMENT '上次更新过期时间' AFTER `last_scrap`;

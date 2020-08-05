@@ -125,6 +125,8 @@ class RecUserPaid extends Base
 
             if ($propReward) {
                 // 新增用户道具
+                $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+                $endTime = $config['lucky_draw_time']['end_time'];
                 foreach ($propReward as $key => $value) {
                     $num = 1;
                     if ($double) {
@@ -132,7 +134,7 @@ class RecUserPaid extends Base
                         $num = 2;
                     }
                     $number = bcmul ($value['number'], $num);
-                    UserProp::addProp ($user_id, $value['key'], $number);
+                    UserProp::addPropWithEnd ($user_id, $value['key'], $number, $endTime);
                 }
             }
 //            throw new Exception('something was wrong');

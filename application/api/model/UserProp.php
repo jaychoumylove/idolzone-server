@@ -35,6 +35,25 @@ class UserProp extends Base
     }
 
     /**
+     * 增加道具
+     * @param int $prop_id
+     * @param int $num 增加数量
+     */
+    public static function addPropWithEnd($user_id, $prop_id, $num, $endTime)
+    {
+        $insert = [];
+        for ($i = 0; $i < $num; $i++) {
+            $insert[] = [
+                'user_id' => $user_id,
+                'prop_id' => $prop_id,
+                'end_time' => $endTime
+            ];
+        }
+
+        self::insertAll($insert);
+    }
+
+    /**
      * @param $user_id
      * @param $prop_id
      * @return int|string
