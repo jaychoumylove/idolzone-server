@@ -403,10 +403,11 @@ class Page extends Base
 
         $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
 
-        $rec = RecLuckyDrawLog::with(['user'])
-            ->order('create_time', 'desc')
-            ->limit (6)
-            ->select ();
+        $rec = [];
+//        $rec = RecLuckyDrawLog::with(['user'])
+//            ->order('create_time', 'desc')
+//            ->limit (6)
+//            ->select ();
 
         $scrap = CfgScrap::where('status', CfgScrap::ON)->select ();
         if (is_object ($scrap)) $scrap = $scrap->toArray ();
