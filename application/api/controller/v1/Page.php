@@ -420,7 +420,9 @@ class Page extends Base
 
             if ($naf || $nbf) {
                 // 碎片是否过期
-                $userExt = UserExt::where('user_id', $this->uid)->find ();
+                $userExt = (new UserExt)->readMaster ()
+                    ->where('user_id', $this->uid)
+                    ->find ();
                 if (empty($userExt['scrap_time'])) {
                     // 是否更新过
                     if ($userExt['scrap'] || $userExt['last_scrap']) {
