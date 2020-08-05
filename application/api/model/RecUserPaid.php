@@ -84,25 +84,20 @@ class RecUserPaid extends Base
             ];
             $msg = sprintf ('领取%s充值奖励', $typeMsgMap[$paid_type]);
 
+            $double = false;
             $logMap = [
                 'paid' => $paid_id,
-                'user_id' => $user_id
+                'user_id' => $user_id,
+                'paid_type' => CfgPaid::SUM
             ];
-
-            $double = false;
             if ($isSum) {
                 $currentTime = date ('Y-m-d') . ' 00:00:00';
+
                 $log = (new RecUserPaidLog)->readMaster ()
                     ->where ($logMap)
                     ->where ('create_time', '>=', $currentTime)
                     ->find ();
                 $double = empty($log);
-            }
-
-            if ($double) {
-                foreach ($earn as $key => $item) {
-                    $earn[$key] = bcmul ($item, 2);
-                }
             }
 
             $logData = [
@@ -112,11 +107,12 @@ class RecUserPaid extends Base
             ];
             if ($isDay) $logMap['paid_type'] = CfgPaid::DAY;
 
-            if ($double) {
-                foreach ($logData['item'] as $key => $value) {
-                    $value['number'] = bcmul ($value['number'], 2);
-
-                    $logData['item'][$key] = $value;
+            foreach ($logData['item'] as $key => $value) {
+                if ($double && $value['type'] == CfgPaid::PROP) {
+                    if (array_key_exists ('key_name', $value) && $value['key_name'] == Prop::LUCKY_DRAW) {
+                        $value['number'] = bcmul ($value['number'], 2);
+                        $logData['item'][$key] = $value;
+                    }
                 }
             }
             RecUserPaidLog::create(array_merge ($logMap, $logData));
@@ -127,7 +123,7 @@ class RecUserPaid extends Base
                 // 新增用户道具
                 foreach ($propReward as $key => $value) {
                     $num = 1;
-                    if ($double) {
+                    if ($double && $isSum) {
                         // 首次翻倍
                         $num = 2;
                     }
