@@ -39,6 +39,15 @@ class UserLuckyDraw extends \app\base\controller\Base
         Common::res (compact ('data'));
     }
 
+    public function startLuckyDrawFifty()
+    {
+        $this->getUser ();
+
+        $data = CfgLuckyDraw::startFifty($this->uid);
+
+        Common::res (compact ('data'));
+    }
+
     public function logPager()
     {
         $this->getUser ();

@@ -13,6 +13,126 @@ class CfgLuckyDraw extends \app\base\model\Base
     const CURRENCY = 'currency';
     const SCRAP = 'scrap';
 
+    public static function startFifty($user_id)
+    {
+        $max = 50;
+        $prop_id = Prop::where('key', Prop::LUCKY_DRAW)->value ('id');
+
+        $propsMap = compact ('user_id', 'prop_id');
+        $propNum = (new UserProp())->readMaster ()
+            ->where($propsMap)
+            ->count ();
+        if ($propNum < $max) {
+            Common::res (['code' => 1, 'msg' => '抽奖券不足']);
+        }
+
+        $luckyDraw = self::getLuckyDraw ();
+        if (is_object ($luckyDraw)) $luckyDraw = $luckyDraw->toArray ();
+        if (empty($luckyDraw)) {
+            Common::res (['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        $array = range (0, bcsub ($max, 1));
+        $choose = [];
+        foreach ($array as $item) {
+            $chooseItem = Common::lottery ($luckyDraw['reward'], 'weights');
+            array_push ($choose, $chooseItem);
+        }
+        // 50连抽必中碎片
+        $scrapItems = array_filter ($luckyDraw['reward'], function ($item) {
+            return $item['type'] == CfgLuckyDraw::SCRAP;
+        });
+        $scrapItems = array_values ($scrapItems);
+        $scrapItem = $scrapItems[0];
+
+        $chooseItem = [];
+        foreach ($luckyDraw['reward'] as $key => $value) {
+            $chooseItem[$key] = $value;
+
+            $chooses = array_filter ($choose, function ($item) use($value) {
+                return $item == $value;
+            });
+
+            $chooseItem[$key]['times'] = count ($chooses);
+        }
+
+        Db::startTrans ();
+        try {
+            // 消耗抽奖券
+            $updated = UserProp::where($propsMap)
+                ->limit ($max)
+                ->order ([
+                    'create_time' => 'asc',
+                    'id' => 'asc'
+                ])
+                ->update([
+                    'status' => 1,
+                    'use_time' => time ()
+                ]);
+            if (empty($updated) || $updated < $max) {
+                Common::res (['code' => 1, 'msg' => '请稍后再试']);
+            }
+
+            // 发放奖励
+            $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet'];
+            $earn = [];
+            $scraps = [$scrapItem['number']];
+            foreach ($choose as $item) {
+                if ($item['type'] == self::CURRENCY) {
+                    if (in_array ($item['key'], $currencyMap)) {
+                        if (array_key_exists ($item['key'], $earn)) {
+                            $earn[$item['key']] = bcadd ($earn[$item['key']], $item['number'])
+                        } else {
+                            $earn[$item['ket']] = $item['number'];
+                        }
+                    }
+                }
+
+                if ($item['type'] == self::SCRAP) {
+                    array_push ($scraps, $item['number']);
+                }
+            }
+            if ($earn) {
+                (new \app\api\service\User())->change ($user_id, $earn, '使用抽奖券抽奖');
+            }
+
+            // 发放奖励
+            if ($scraps) {
+                $userScrap = (new UserExt)->readMaster ()->where('user_id', $user_id)->find ();
+                $userScrapUpdate = ['scrap' => bcadd ($userScrap['scrap'], array_sum ($scraps))];
+                if ($userScrap['scrap_time']) {
+                    $userScrapUpdate['scrap_time'] = null;
+                }
+                $added = UserExt::where('id', $userScrap['id'])->update($userScrapUpdate);
+                if (empty($added)) Common::res (['code' => 1, 'msg' => '请稍后再试']);
+            }
+
+            // 记录抽奖信息
+            $insertLog = [];
+            $log = [
+                'user_id' => $user_id,
+                'lucky_draw' => $luckyDraw['id'],
+                'item' => $scrapItem,
+            ];
+            array_push ($insertLog, $log);
+            foreach ($choose as $item) {
+                $log['item'] = $item;
+                array_push ($insertLog, $log);
+            }
+            RecLuckyDrawLog::insertAll ($insertLog);
+
+            throw new Exception('something was wrong');
+
+            Db::commit ();
+        } catch (\Throwable $throwable) {
+            Db::rollback ();
+            throw $throwable;
+            Common::res (['code' => 1, 'msg' => '请稍后再试']);
+        }
+
+        return ['choose' => $chooseItem, 'special' => $scrapItem];
+    }
+
     public function getRewardAttr($value)
     {
         return json_decode ($value, true);

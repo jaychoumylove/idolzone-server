@@ -345,6 +345,7 @@ Route::rule('api/:version/user/paid/settle', 'api/v1.UserPaid/settle');// 领取
 Route::rule('api/:version/user/paid/info', 'api/v1.UserPaid/getPaidInfo');// 获取充值福利信息
 Route::rule('api/:version/lucky/draw/info', 'api/v1.UserLuckyDraw/getLuckyDraw');// 获取抽奖信息
 Route::rule('api/:version/lucky/draw/start', 'api/v1.UserLuckyDraw/startLuckyDraw');// 点击抽奖
+Route::rule('api/:version/lucky/draw/startfifty', 'api/v1.UserLuckyDraw/startLuckyDraw');// 点击抽奖
 Route::rule('api/:version/lucky/draw/log', 'api/v1.UserLuckyDraw/logPager');// 抽奖记录
 Route::rule('api/:version/lucky/draw/exchange', 'api/v1.UserLuckyDraw/exchangeScrap');// 兑换碎片
 Route::rule('api/:version/lucky/draw/day/earn', 'api/v1.UserLuckyDraw/dayEarn');// 每日获取
