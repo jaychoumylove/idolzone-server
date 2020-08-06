@@ -191,7 +191,7 @@ class AutoRun extends Base
 
             // 清除用户充值礼包记录
             RecUserPaid::where('count', '>', 0)
-                ->update(['count' => 0]);
+                ->update(['count' => 0,'is_settle' => 0]);
 
             Db::commit();
         } catch (\Exception $e) {
