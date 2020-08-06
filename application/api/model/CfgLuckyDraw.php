@@ -81,7 +81,7 @@ class CfgLuckyDraw extends \app\base\model\Base
                 if ($item['type'] == self::CURRENCY) {
                     if (in_array ($item['key'], $currencyMap)) {
                         if (array_key_exists ($item['key'], $earn)) {
-                            $earn[$item['key']] = bcadd ($earn[$item['key']], $item['number'])
+                            $earn[$item['key']] = bcadd ($earn[$item['key']], $item['number']);
                         } else {
                             $earn[$item['ket']] = $item['number'];
                         }
