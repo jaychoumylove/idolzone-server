@@ -17,10 +17,10 @@ class CfgLuckyDraw extends \app\base\model\Base
     {
         $max = 50;
         $prop_id = Prop::where('key', Prop::LUCKY_DRAW)->value ('id');
-
         $propsMap = compact ('user_id', 'prop_id');
         $propNum = (new UserProp())->readMaster ()
             ->where($propsMap)
+            ->where('status', 0)
             ->count ();
         if ($propNum < $max) {
             Common::res (['code' => 1, 'msg' => '抽奖券不足']);
@@ -59,7 +59,8 @@ class CfgLuckyDraw extends \app\base\model\Base
         Db::startTrans ();
         try {
             // 消耗抽奖券
-            $updated = UserProp::where($propsMap)
+            $updated = (new UserProp)->where($propsMap)
+                ->where('status', 0)
                 ->limit ($max)
                 ->order ([
                     'create_time' => 'asc',
@@ -69,6 +70,7 @@ class CfgLuckyDraw extends \app\base\model\Base
                     'status' => 1,
                     'use_time' => time ()
                 ]);
+
             if (empty($updated) || $updated < $max) {
                 Common::res (['code' => 1, 'msg' => '请稍后再试']);
             }
@@ -83,7 +85,7 @@ class CfgLuckyDraw extends \app\base\model\Base
                         if (array_key_exists ($item['key'], $earn)) {
                             $earn[$item['key']] = bcadd ($earn[$item['key']], $item['number']);
                         } else {
-                            $earn[$item['ket']] = $item['number'];
+                            $earn[$item['key']] = $item['number'];
                         }
                     }
                 }
@@ -119,9 +121,9 @@ class CfgLuckyDraw extends \app\base\model\Base
                 $log['item'] = $item;
                 array_push ($insertLog, $log);
             }
-            RecLuckyDrawLog::insertAll ($insertLog);
+            (new RecLuckyDrawLog)->saveAll ($insertLog);
 
-            throw new Exception('something was wrong');
+//            throw new Exception('something was wrong');
 
             Db::commit ();
         } catch (\Throwable $throwable) {
