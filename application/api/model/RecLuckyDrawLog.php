@@ -25,6 +25,8 @@ class RecLuckyDrawLog extends \app\base\model\Base
         if (is_object ($list)) $list = $list->toArray ();
 
         $newList = [];
+        $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+        $title = $config['draw_log']['exchange'];
         foreach ($list as $key => $value)
         {
             $item = [];
@@ -35,6 +37,10 @@ class RecLuckyDrawLog extends \app\base\model\Base
             }
             if ($value['type'] == self::SINGLE) {
                 $item = self::supportItem ($value['item']);
+            }
+            if ($value['type'] == self::EXCHANGE) {
+                $rewardName = array_column ($item, 'name')[1];
+                $value['title'] = $title . $rewardName;
             }
             $value['item'] = $item;
             array_push ($newList, $value);
