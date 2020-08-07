@@ -56,7 +56,7 @@ class UserLuckyDraw extends \app\base\controller\Base
 
         $data = RecLuckyDrawLog::getLogPager($this->uid, $page, $size);
 
-        Common::res (compact ($data));
+        Common::res (['data' => $data]);
     }
 
     public function dayEarn()
@@ -84,8 +84,16 @@ class UserLuckyDraw extends \app\base\controller\Base
         $items = array_column ($list, 'item');
 
         foreach ($items as $item) {
-            if (array_key_exists ($item['key'], $data)) {
-                $data[$item['key']] = bcadd ($data[$item['key']], $item['number']);
+            if (array_key_exists ('number', $item)) {
+                if (array_key_exists ($item['key'], $data)) {
+                    $data[$item['key']] = bcadd ($data[$item['key']], (int)$item['number']);
+                }
+            } else {
+                foreach ($item as $key => $value) {
+                    if (array_key_exists ($value['key'], $data)) {
+                        $data[$value['key']] = bcadd ($data[$value['key']], (int)$value['number']);
+                    }
+                }
             }
         }
 

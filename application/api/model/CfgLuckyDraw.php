@@ -117,13 +117,16 @@ class CfgLuckyDraw extends \app\base\model\Base
                 'type' => RecLuckyDrawLog::MULTIPLE
             ];
             foreach ($chooseItem as $item) {
+                $number = bcmul ($item['number'], $item['times']);
                 if (array_key_exists ($item['key'], $insertItems)) {
-                    $insertItems[$item['key']] = bcadd ($item['number'], $insertItems[$item['key']]);
+                    $insertItems[$item['key']]['number'] = bcadd ($number, $insertItems[$item['key']]['number']);
                 } else {
-                    $insertItems[$item['key']] = $item['number'];
+                    $item['number'] = $number;
+                    unset($item['times']);
+                    $insertItems[$item['key']] = $item;
                 }
             }
-
+            $insertItems = array_values ($insertItems);
             $log['item'] = $insertItems;
 
             RecLuckyDrawLog::create ($log);
