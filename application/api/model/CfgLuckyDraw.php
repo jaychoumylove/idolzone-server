@@ -15,7 +15,8 @@ class CfgLuckyDraw extends \app\base\model\Base
 
     public static function startFifty($user_id)
     {
-        $max = 50;
+        $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+        $max = $config['multiple_draw']['multiple'];
         $prop_id = Prop::where('key', Prop::LUCKY_DRAW)->value ('id');
         $propsMap = compact ('user_id', 'prop_id');
         $propNum = (new UserProp())->readMaster ()
