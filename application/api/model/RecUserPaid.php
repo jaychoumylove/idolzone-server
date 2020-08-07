@@ -42,6 +42,10 @@ class RecUserPaid extends Base
             Common::res (['code' => 1, 'msg' => '福利已关闭']);
         }
 
+        if (Lock::getVal('week_end')['value'] == 1) {
+            Common::res(['code' => 1, 'msg' => '金豆结算中，请稍后再试！']);
+        }
+
         $paid_type = $paid['type'];
 
         Db::startTrans ();

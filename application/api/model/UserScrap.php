@@ -73,6 +73,10 @@ class UserScrap extends \app\base\model\Base
             if ($personLimit <= $exist['exchange']) {
                 Common::res (['code' => 1, 'msg' => '兑换失败,请联系客服']);
             }
+
+            if (Lock::getVal('week_end')['value'] == 1) {
+                Common::res(['code' => 1, 'msg' => '金豆结算中，请稍后再试！']);
+            }
         }
 
         Db::startTrans ();

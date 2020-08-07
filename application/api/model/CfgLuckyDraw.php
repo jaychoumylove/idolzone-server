@@ -15,14 +15,21 @@ class CfgLuckyDraw extends \app\base\model\Base
 
     public static function startFifty($user_id)
     {
-        $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
-        $max = $config['multiple_draw']['multiple'];
+        if (Lock::getVal('week_end')['value'] == 1) {
+            Common::res(['code' => 1, 'msg' => '金豆结算中，请稍后再试！']);
+        }
+
         $prop_id = Prop::where('key', Prop::LUCKY_DRAW)->value ('id');
+
         $propsMap = compact ('user_id', 'prop_id');
         $propNum = (new UserProp())->readMaster ()
             ->where($propsMap)
             ->where('status', 0)
             ->count ();
+
+        $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+        $max = $config['multiple_draw']['multiple'];
+
         if ($propNum < $max) {
             Common::res (['code' => 1, 'msg' => '抽奖券不足']);
         }
@@ -155,6 +162,10 @@ class CfgLuckyDraw extends \app\base\model\Base
 
     public static function start($user_id)
     {
+        if (Lock::getVal('week_end')['value'] == 1) {
+            Common::res(['code' => 1, 'msg' => '金豆结算中，请稍后再试！']);
+        }
+
         $luckyDrawTrick = Prop::where('key', Prop::LUCKY_DRAW)->value ('id');
 
         $prop = UserProp::getOneProp ($user_id, $luckyDrawTrick);
