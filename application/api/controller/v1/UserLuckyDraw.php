@@ -54,50 +54,9 @@ class UserLuckyDraw extends \app\base\controller\Base
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 10);
 
-        $count = RecLuckyDrawLog::where('user_id', $this->uid)->count ();
+        $data = RecLuckyDrawLog::getLogPager($this->uid, $page, $size);
 
-        $list = RecLuckyDrawLog::where('user_id', $this->uid)
-            ->order ([
-                'create_time' => "desc",
-                'id' => 'desc'
-            ])
-            ->page ($page, $size)
-            ->select ();
-        if (is_object ($list)) $list = $list->toArray ();
-
-        $newList = [];
-        foreach ($list as $key => $value)
-        {
-            $item = $value['item'];
-            if ($item['type'] == CfgLuckyDraw::SCRAP)
-            {
-                $item['image'] = 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0';
-            }
-            if ($item['type'] == RecLuckyDrawLog::SCRAP_L)
-            {
-                $scrap = CfgScrap::get ($value['item']['key']);
-                $item['image'] = $scrap['image_l'];
-            }
-
-            $currencyMap = [
-                'coin' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FctOFR9uh4qenFtU5NmMB5uWEQk2MTaRfxdveGhfFhS1G5dUIkwlT5fosfMaW0c9aQKy3mH3XAew/0',
-                'flower' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GT2o2aCDJf7rjLOUlbtTERziauZWDgQPHRlOiac7NsMqj5Bbz1VfzicVr9BqhXgVmBmOA2AuE7ZnMbA/0',
-                'stone' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GT2o2aCDJf7rjLOUlbtTERibO7VvqicUHiaSaSa5xyRcvuiaOibBLgTdh8Mh4csFEWRCbz3VIQw1VKMCQ/0',
-                'trumpet' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Equ3ngUPQiaWPxrVxZhgzk90Xa3b43zE46M8IkUvFyMR5GgfJN52icBqoicfKWfAJS8QXog0PZtgdEQ/0',
-            ];
-            if (array_key_exists ($item['key'], $currencyMap)) {
-                $item['image'] = $currencyMap[$item['key']];
-            }
-
-            $value['item'] = $item;
-            array_push ($newList, $value);
-        }
-
-        $data['list'] = $newList;
-        $data['count'] = $count;
-
-
-        Common::res (['data' => $data]);
+        Common::res (compact ($data));
     }
 
     public function dayEarn()

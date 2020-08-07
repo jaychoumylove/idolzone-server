@@ -406,6 +406,7 @@ class Page extends Base
         $forbiddenUser = array_key_exists ('forbidden_user', $config) ? $config['forbidden_user']: [];
 
         $rec = RecLuckyDrawLog::with(['user'])
+            ->where('type', RecLuckyDrawLog::SINGLE)
             ->where('user_id', 'not in', $forbiddenUser)
             ->order('create_time', 'desc')
             ->limit (6)

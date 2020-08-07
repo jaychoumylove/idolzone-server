@@ -47,13 +47,13 @@ class CfgLuckyDraw extends \app\base\model\Base
 
         $chooseItem = [];
         foreach ($luckyDraw['reward'] as $key => $value) {
-            $chooseItem[$key] = $value;
-
             $chooses = array_filter ($choose, function ($item) use($value) {
                 return $item == $value;
             });
 
-            $chooseItem[$key]['times'] = count ($chooses);
+            if ($chooses) {
+                array_push ($chooseItem, array_merge ($value, ['times' => count ($chooses)]));
+            }
         }
 
         Db::startTrans ();
@@ -110,25 +110,29 @@ class CfgLuckyDraw extends \app\base\model\Base
             }
 
             // 记录抽奖信息
-            $insertLog = [];
+            $insertItems = ['scrap' => $scrapItem];
             $log = [
                 'user_id' => $user_id,
                 'lucky_draw' => $luckyDraw['id'],
-                'item' => $scrapItem,
+                'type' => RecLuckyDrawLog::MULTIPLE
             ];
-            array_push ($insertLog, $log);
-            foreach ($choose as $item) {
-                $log['item'] = $item;
-                array_push ($insertLog, $log);
+            foreach ($chooseItem as $item) {
+                if (array_key_exists ($item['key'], $insertItems)) {
+                    $insertItems[$item['key']] = bcadd ($item['number'], $insertItems[$item['key']]);
+                } else {
+                    $insertItems[$item['key']] = $item['number'];
+                }
             }
-            (new RecLuckyDrawLog)->saveAll ($insertLog);
 
+            $log['item'] = $insertItems;
+
+            RecLuckyDrawLog::create ($log);
 //            throw new Exception('something was wrong');
 
             Db::commit ();
         } catch (\Throwable $throwable) {
             Db::rollback ();
-            throw $throwable;
+//            throw $throwable;
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
         }
 
