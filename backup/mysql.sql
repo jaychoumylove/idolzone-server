@@ -732,7 +732,7 @@ ADD COLUMN `scrap_time` timestamp(0) NULL DEFAULT null COMMENT '上次更新过�
 
 -- 新增type区分多次抽奖和单次抽奖
 alter table f_rec_lucky_draw_log
-	add type enum('SINGLE', 'MULTIPLE') default 'SINGLE' not null;
+	add type enum('SINGLE', 'MULTIPLE', 'EXCHANGE') default 'SINGLE' not null;
 
 create index f_rec_lucky_draw_log_type_index
 	on f_rec_lucky_draw_log (type);

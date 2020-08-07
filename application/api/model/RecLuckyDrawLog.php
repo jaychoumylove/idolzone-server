@@ -9,6 +9,7 @@ class RecLuckyDrawLog extends \app\base\model\Base
     const SCRAP_L = 'SCRAP_L'; // 碎片成品
     const SINGLE = 'SINGLE'; // 碎片成品
     const MULTIPLE = 'MULTIPLE'; // 碎片成品Multiply
+    const EXCHANGE = 'EXCHANGE'; // 兑换
 
     public static function getLogPager($user_id, $page, $size)
     {
@@ -27,7 +28,7 @@ class RecLuckyDrawLog extends \app\base\model\Base
         foreach ($list as $key => $value)
         {
             $item = [];
-            if ($value['type'] == self::MULTIPLE) {
+            if (in_array ($value['type'], [self::MULTIPLE, self::EXCHANGE])) {
                 foreach ($value['item'] as $k => $v) {
                     $item[$k] = self::supportItem ($v);
                 }
@@ -56,7 +57,7 @@ class RecLuckyDrawLog extends \app\base\model\Base
         ];
         if ($item['type'] == RecLuckyDrawLog::SCRAP_L)
         {
-            $scrap = CfgScrap::get ($item['item']['key']);
+            $scrap = CfgScrap::get ($item['key']);
             $item['image'] = $scrap['image_l'];
         }
         if (array_key_exists ($item['key'], $currencyMap)) {
