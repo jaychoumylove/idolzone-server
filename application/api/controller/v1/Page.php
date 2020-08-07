@@ -402,6 +402,7 @@ class Page extends Base
         $this->getUser ();
 
         $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+        $config['multiple_draw']['able'] = Cfg::checkMultipleDrawAble ($config['multiple_draw']);
 
         $forbiddenUser = array_key_exists ('forbidden_user', $config) ? $config['forbidden_user']: [];
 

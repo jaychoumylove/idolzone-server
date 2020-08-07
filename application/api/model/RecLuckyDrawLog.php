@@ -28,7 +28,6 @@ class RecLuckyDrawLog extends \app\base\model\Base
         {
             $item = [];
             if ($value['type'] == self::MULTIPLE) {
-                $value['title'] = '使用五十连抽';
                 foreach ($value['item'] as $k => $v) {
                     $item[$k] = self::supportItem ($v);
                 }

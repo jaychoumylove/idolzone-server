@@ -125,4 +125,53 @@ class Cfg extends Base
 
         return (bool)$check['status'];
     }
+
+    /**
+     * @param array $config
+     * @return bool
+     */
+    public static function checkMultipleDrawAble(array $config)
+    {
+        if (empty($config)) return false;
+
+        $now         = time ();
+
+        if ($now < strtotime ($config['draw_time']['start'])) {
+            return false;
+        }
+        if ($now > strtotime ($config['draw_time']['end'])) {
+            return false;
+        }
+
+        // 没有限制时间区间
+//        $currentDate = [
+//            'fullTime' => $now,
+//            'date'     => date ('Y-m-d H:i:s'),
+//            'hours'    => (int)date ('H', $now),
+//            'minutes'  => (int)date ('i', $now),
+//            'seconds'  => (int)date ('s', $now),
+//        ];
+//        $limitStart = explode (':', $config['limit_time']['start']);
+//        $limitEnd = explode (':', $config['limit_time']['end']);
+//        if ($currentDate['hours'] < (int)$limitStart[0]) {
+//            return false;
+//        }
+//        if ($currentDate['minutes'] < (int)$limitStart[1]) {
+//            return false;
+//        }
+//        if ($currentDate['seconds'] < (int)$limitStart[2]) {
+//            return false;
+//        }
+//        if ($currentDate['hours'] > (int)$limitEnd[0]) {
+//            return false;
+//        }
+//        if ($currentDate['minutes'] > (int)$limitEnd[1]) {
+//            return false;
+//        }
+//        if ($currentDate['seconds'] > (int)$limitEnd[2]) {
+//            return false;
+//        }
+
+        return true;
+    }
 }
