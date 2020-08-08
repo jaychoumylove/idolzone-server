@@ -737,3 +737,36 @@ alter table f_rec_lucky_draw_log
 create index f_rec_lucky_draw_log_type_index
 	on f_rec_lucky_draw_log (type);
 
+-- 新增用户占领记录表
+drop f_user_occupy if exists;
+create table f_user_occupy
+(
+    id           int auto_increment,
+    user_id      int                                                  not null,
+    star_id      int                                                  not null,
+    top_time     int                        default 0                 not null comment '登顶时间',
+    top_status   enum ('CONTINUE', 'BREAK') default 'BREAK'           not null comment '登顶状态
+continue 持续占领中
+break 观望中',
+    day_top_time int                        default 0                 not null comment '每日占领时间',
+    sum_top_time bigint                     default 0                 not null comment '累计占领时间',
+    create_time  timestamp                  default CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
+    update_time  timestamp                  default CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
+    delete_time  timestamp                                            null,
+    constraint f_user_occupy_id_uindex
+        unique (id)
+);
+
+create index f_user_occupy_s_index
+    on wx_idolzone.f_user_occupy (star_id);
+
+create index f_user_occupy_status_index
+    on wx_idolzone.f_user_occupy (top_status);
+
+create index f_user_occupy_u_index
+    on wx_idolzone.f_user_occupy (user_id);
+
+alter table f_user_occupy
+    add primary key (id);
+
+-- END

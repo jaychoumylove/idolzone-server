@@ -9,6 +9,8 @@ class Cfg extends Base
     const WEAL_ACTIVE_PATH = '/pages/active/weal';
     const ACTIVE_CONFORM   = 'active_conform';
     const RECHARGE_LUCKY   = 'recharge_lucky';
+    const ACHIEVEMENT      = 'achievement';
+    const OCCUPY_TIME      = 'occupy_time';
 
     public static function getCfg($key)
     {
@@ -143,34 +145,33 @@ class Cfg extends Base
             return false;
         }
 
-        // 没有限制时间区间
-//        $currentDate = [
-//            'fullTime' => $now,
-//            'date'     => date ('Y-m-d H:i:s'),
-//            'hours'    => (int)date ('H', $now),
-//            'minutes'  => (int)date ('i', $now),
-//            'seconds'  => (int)date ('s', $now),
-//        ];
-//        $limitStart = explode (':', $config['limit_time']['start']);
-//        $limitEnd = explode (':', $config['limit_time']['end']);
-//        if ($currentDate['hours'] < (int)$limitStart[0]) {
+//        $nowTime         = date ('H:i:s', $now);
+//        if ($nowTime < $config['limit_time']['start']) {
 //            return false;
 //        }
-//        if ($currentDate['minutes'] < (int)$limitStart[1]) {
+//        if ($nowTime < $config['limit_time']['end']) {
 //            return false;
 //        }
-//        if ($currentDate['seconds'] < (int)$limitStart[2]) {
-//            return false;
-//        }
-//        if ($currentDate['hours'] > (int)$limitEnd[0]) {
-//            return false;
-//        }
-//        if ($currentDate['minutes'] > (int)$limitEnd[1]) {
-//            return false;
-//        }
-//        if ($currentDate['seconds'] > (int)$limitEnd[2]) {
-//            return false;
-//        }
+
+        return true;
+    }
+
+    /**
+     * 检查占领时间结算
+     * @return bool
+     */
+    public static function checkOccupyTime()
+    {
+        $config = self::getCfg (self::OCCUPY_TIME);
+
+        $limit = $config['time'];
+        $now         = date ('H:i:s');
+        if ($now < $limit['start']) {
+            return false;
+        }
+        if ($now > $limit['end']) {
+            return false;
+        }
 
         return true;
     }

@@ -5,6 +5,7 @@ namespace app\api\controller\v1;
 use app\api\model\Cfg_luckyDraw;
 use app\api\model\CfgScrap;
 use app\api\model\RecLuckyDrawLog;
+use app\api\model\UserOccupy;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
@@ -464,6 +465,42 @@ class Page extends Base
         $data[Cfg::RECHARGE_LUCKY] = $config;
         $data['lucky_log'] = $rec;
         $data['scrap_list'] = $scrap;
+        Common::res (compact ('data'));
+    }
+
+    public function achievement()
+    {
+        $configCheck = input ('config', false);
+
+        $type = input ('type', false);
+        if (false == $type) Common::res (['code' => 1,'msg' => '请选择类别']);
+
+        $rankType = input ('rank_type', false);
+        if (false == $rankType) Common::res (['code' => 1,'msg' => '请选择类别']);
+
+        $config = Cfg::getCfg (Cfg::ACHIEVEMENT);
+
+        if (array_key_exists ($type, $config['btn_group']) == false) {
+            Common::res (['code' => 1,'msg' => '请选择类别']);
+        }
+        $typeField = $config['btn_group'][$type]['value'];
+
+        if (array_key_exists ($rankType ,$config['btn_group'][$type]['btn']) == false) {
+            Common::res (['code' => 1,'msg' => '请选择类别']);
+        }
+        $rankTypeField = $config['btn_group'][$type]['btn'][$rankType]['value'];
+
+        $page = input('page', 1);
+        $size = input('size', 10);
+
+        $list = [];
+        if ($typeField == 'flowerTime') {
+            $star_id = UserStar::getStarId ($this->uid);
+            $list = UserOccupy::getRankByTypeForAchievement ($rankTypeField, $page, $size, compact ('star_id'));
+        }
+
+        $data = $configCheck ? compact ('list', 'config'): compact ('list');
+
         Common::res (compact ('data'));
     }
 }
