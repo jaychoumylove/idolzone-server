@@ -19,14 +19,6 @@ class CfgLuckyDraw extends \app\base\model\Base
             Common::res(['code' => 1, 'msg' => '金豆结算中，请稍后再试！']);
         }
 
-        $prop_id = Prop::where('key', Prop::LUCKY_DRAW)->value ('id');
-
-        $propsMap = compact ('user_id', 'prop_id');
-        $propNum = (new UserProp())->readMaster ()
-            ->where($propsMap)
-            ->where('status', 0)
-            ->count ();
-
         $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
 
         $able = Cfg::checkMultipleDrawAble ($config['multiple_draw']);
@@ -34,6 +26,14 @@ class CfgLuckyDraw extends \app\base\model\Base
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
         }
         $max = $config['multiple_draw']['multiple'];
+
+        $prop_id = Prop::where('key', Prop::LUCKY_DRAW)->value ('id');
+
+        $propsMap = compact ('user_id', 'prop_id');
+        $propNum = (new UserProp())->readMaster ()
+            ->where($propsMap)
+            ->where('status', 0)
+            ->count ();
 
         if ($propNum < $max) {
             Common::res (['code' => 1, 'msg' => '抽奖券不足']);
