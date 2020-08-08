@@ -28,6 +28,11 @@ class CfgLuckyDraw extends \app\base\model\Base
             ->count ();
 
         $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
+
+        $able = Cfg::checkMultipleDrawAble ($config['multiple_draw']);
+        if (empty($able)) {
+            Common::res (['code' => 1, 'msg' => '请稍后再试']);
+        }
         $max = $config['multiple_draw']['multiple'];
 
         if ($propNum < $max) {
