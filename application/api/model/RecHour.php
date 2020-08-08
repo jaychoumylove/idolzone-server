@@ -38,8 +38,12 @@ class RecHour extends Base
                 $diffTime = bcsub ($currentTime, $value['top_time']);
                 $value['top_minute'] = bcdiv ($diffTime, 60);
             }
-            $value['user']['level'] = CfgUserLevel::getLevel($value['user']['id']);
-            $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
+            $user = $value['user'];
+            $user['level'] = CfgUserLevel::getLevel($value['user_id']);
+            $user['headwear'] = HeadwearUser::getUse($value['user_id']);
+
+            $value['user'] = $user;
+            $list[$key] = $value;
         }
 
         return $list;
