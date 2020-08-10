@@ -113,18 +113,40 @@ class UserAchievementHeal extends \app\base\model\Base
             'month'     => 'thismonth_count',
         ];
 
-        $orderField = 'userStar.' . $orderMap[$rankType];
+        $orderField = 'us.' . $orderMap[$rankType];
 
-        return Db::name('user_star')->alias('us')
+        $list = Db::name('user_star')->alias('us')
             ->join('user u', 'u.id = us.user_id')
             ->where('u.create_time', '>', $rankMap[$rankType])
             ->order([
-                'us.'.$orderField  => 'desc',
+                $orderField  => 'desc',
                 'u.id' => 'asc'
             ])
             ->page($page, $size)
             ->field('us.*,u.avatarurl,u.nickname as name')
             ->select();
+        if (is_object ($list)) $list = $list->toArray ();
+
+        $userIds = array_column ($list, 'user_id');
+        $users = User::where('id', 'in', $userIds)->field('id,nickname,avatarurl')->select ();
+        if (is_object ($users)) $users = $users->toArray ();
+        $userDict = array_column ($users, null, 'id');
+
+        $starIds = array_column ($list, 'star_id');
+        $stars = Star::where('id', 'in', $starIds)->select ();
+        if (is_object ($stars)) $stars = $stars->toArray ();
+        $starDict = array_column ($stars, null, 'id');
+        foreach ($list as $index => $item) {
+            $user = array_key_exists ($item['user_id'], $userDict) ? $userDict[$item['user_id']]: null;
+            $star = array_key_exists ($item['star_id'], $starDict) ? $starDict[$item['star_id']]: null;
+            $item['user'] = $user;
+            $item['star'] = $star;
+            $item['count'] = $item[$orderMap[$rankType]];
+
+            $list[$index] = $item;
+        }
+
+        return $list;
     }
 
     private static function getFlowerRankList($rankType, $page, $size, array $extra)
@@ -135,13 +157,20 @@ class UserAchievementHeal extends \app\base\model\Base
         ];
         if (array_key_exists ($rankType, $starListMap)) {
             $whereField = $starListMap[$rankType];
+
+            $order = [
+                $whereField => 'desc'
+            ];
+            if ($rankType == 'today') {
+                $order += ['yesterday_flower' => 'desc'];
+            }
+            $order += [
+                'create_time' => 'asc',
+                'id' => 'asc'
+            ];
             $list = UserStar::with(['User', 'Star', 'achievement'])
                 ->page ($page, $size)
-                ->order ([
-                    $whereField => 'desc',
-                    'create_time' => 'asc',
-                    'id' => 'asc'
-                ])
+                ->order ($order)
                 ->select ();
 
             if (is_object ($list)) $list = $list->toArray ();
@@ -239,13 +268,13 @@ class UserAchievementHeal extends \app\base\model\Base
         foreach ($list as $key => $value) {
             if ($value['top_status'] == self::STATUS_CONTINUE) {
                 $diffTime = self::supportDiffTimer ((int)$value['top_time']);
-                $value['day_time'] = bcsub ((int)$value['day_time'], $diffTime);
-                $value['sum_time'] = bcsub ((int)$value['sum_time'], $diffTime);
-                $value['count_time'] = bcsub ((int)$value['count_time'], $diffTime);
+                $value['day_time'] = bcadd ((int)$value['day_time'], $diffTime);
+                $value['sum_time'] = bcadd ((int)$value['sum_time'], $diffTime);
+                $value['count_time'] = bcadd ((int)$value['count_time'], $diffTime);
             }
 
             $value['count'] = $value['day_time'];
-            $value['num'] = (int)bcdiv ($value['sum_time'], 60*60*24);
+            $value['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
 
             $list[$key] = $value;
         }
@@ -275,9 +304,9 @@ class UserAchievementHeal extends \app\base\model\Base
         $diffTime = self::supportDiffTimer ((int)$stopper['top_time']);
         $updated = [
             'top_status' => self::STATUS_BREAK,
-            'day_time' => bcsub ((int)$stopper['day_time'], $diffTime),
-            'sum_time' => bcsub ((int)$stopper['sum_time'], $diffTime),
-            'count_time' => bcsub ((int)$stopper['count_time'], $diffTime),
+            'day_time' => bcadd ((int)$stopper['day_time'], $diffTime),
+            'sum_time' => bcadd ((int)$stopper['sum_time'], $diffTime),
+            'count_time' => bcadd ((int)$stopper['count_time'], $diffTime),
         ];
 
         $model->where($map)->update($updated);
@@ -294,7 +323,7 @@ class UserAchievementHeal extends \app\base\model\Base
         $endTime = $currentTime;
         if (date ('YmdH', $timer) != date ('YmdH', $currentTime)) {
             // 不在同一个小时内的表示
-            $endTime = (int) strtotime (date ('Y-m-d H', $timer) . ":00:00");
+            $endTime = (int) strtotime (date ('Y-m-d H', $timer) . ":59:59");
         }
 
         return bcsub ($endTime, (int)$timer);
