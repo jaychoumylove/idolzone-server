@@ -106,7 +106,11 @@ class UserStar extends Base
             ];
             //送鲜花
             if ($type == 2) {
-                $changArr += ['total_flower' => $count];
+                $changArr = array_merge ($changArr, [
+                    'total_flower' => $count,
+                    'day_flower' => $count,
+                ]);
+
                 BadgeUser::addRec($uid, 2, $primary['total_flower'] + $count); //stype=2鲜花徽章
             }
 
