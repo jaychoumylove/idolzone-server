@@ -6,8 +6,18 @@ namespace app\api\model;
 
 class UserOccupy extends \app\base\model\Base
 {
-    const STATUS_CONTINUE = 'CONTINUE';
-    const STATUS_BREAK = 'BREAK';
+    const STATUS_CONTINUE = '_CONTINUE';
+    const STATUS_BREAK = '_BREAK';
+
+    public function user()
+    {
+        return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');
+    }
+
+    public function star()
+    {
+        return $this->hasOne('Star', 'id', 'star_id');
+    }
 
     /**
      * @param     $type
@@ -24,7 +34,7 @@ class UserOccupy extends \app\base\model\Base
         switch ($type) {
             case "today":
                 $map = 'day_top_time > 0';
-                $map .= ' or top_status = ' . self::STATUS_CONTINUE;
+                $map .= ' or top_status = "' . self::STATUS_CONTINUE . '"';
                 $order = [
                     'day_top_time' => 'desc',
                     'id' => 'asc'
@@ -32,7 +42,7 @@ class UserOccupy extends \app\base\model\Base
                 break;
             case "star":
                 $map = '(sum_top_time > 0 and star_id = ' . $extra['star_id'] . ')';
-                $map .= " or top_status = " . self::STATUS_CONTINUE;
+                $map .=' or top_status = "' . self::STATUS_CONTINUE . '"';
                 $order = [
                     'sum_top_time' => 'desc',
                     'id' => 'asc'
@@ -40,7 +50,7 @@ class UserOccupy extends \app\base\model\Base
                 break;
             case "all":
                 $map = 'sum_top_time > 0';
-                $map .= " or top_status = " . self::STATUS_CONTINUE;
+                $map .=' or top_status = "' . self::STATUS_CONTINUE . '"';
                 $order = [
                     'sum_top_time' => 'desc',
                     'id' => 'asc'
@@ -54,11 +64,11 @@ class UserOccupy extends \app\base\model\Base
             return [];
         }
 
-        $list = self::where($map)->page ($page, $size)->order ($order)->select ();
+        $list = self::with(['user', 'star'])->where($map)->order ($order)->page ($page, $size)->select ();
         if (is_object ($list)) $list = $list->toArray ();
 
-        $able = Cfg::checkOccupyTime ();
-        if (empty($able)) return $list;
+//        $able = Cfg::checkOccupyTime ();
+//        if (empty($able)) return $list;
 
         foreach ($list as $key => $value) {
             if ($value['top_status'] == self::STATUS_CONTINUE) {
@@ -67,6 +77,9 @@ class UserOccupy extends \app\base\model\Base
                 $value['day_top_time'] = bcsub ((int)$value['day_top_time'], $diffTime);
                 $value['sum_top_time'] = bcsub ((int)$value['sum_top_time'], $diffTime);
             }
+
+            $value['count'] = $value['day_top_time'];
+            $value['num'] = (int)bcdiv ($value['sum_top_time'], 60*60*24);
 
             $list[$key] = $value;
         }
@@ -122,8 +135,8 @@ class UserOccupy extends \app\base\model\Base
      */
     public static function occupyStart($user_id, $star_id = 0)
     {
-        $able = Cfg::checkOccupyTime ();
-        if (empty($able)) return false;
+//        $able = Cfg::checkOccupyTime ();
+//        if (empty($able)) return false;
 
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
 

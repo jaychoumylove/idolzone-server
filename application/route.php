@@ -47,6 +47,7 @@ Route::rule('api/:version/page/groupMass', 'api/v1.Page/groupMass');
 Route::rule('api/:version/page/wxgroup', 'api/v1.Page/wxgroup');// 
 Route::rule('api/:version/page/square', 'api/v1.Page/square');//
 Route::rule('api/:version/page/luckycharge', 'api/v1.Page/luckyCharge');//
+Route::rule('api/:version/page/achievement', 'api/v1.Page/achievement');//
 Route::rule('api/:version/page/gzhSubscribe', 'api/v1.Page/gzhSubscribe');// 公众号订阅推送
 
 // Remote
