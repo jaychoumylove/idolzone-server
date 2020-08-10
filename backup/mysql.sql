@@ -745,11 +745,12 @@ create table f_user_occupy
     user_id      int                                                  not null,
     star_id      int                                                  not null,
     top_time     int                        default 0                 not null comment '登顶时间',
-    top_status   enum ('CONTINUE', 'BREAK') default 'BREAK'           not null comment '登顶状态
+    top_status   enum ('_CONTINUE', '_BREAK') default '_BREAK'           not null comment '登顶状态
 continue 持续占领中
 break 观望中',
     day_top_time int                        default 0                 not null comment '每日占领时间',
     sum_top_time bigint                     default 0                 not null comment '累计占领时间',
+    count_top_time bigint                     default 0                 not null comment '累计占领时间',
     create_time  timestamp                  default CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
     update_time  timestamp                  default CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
     delete_time  timestamp                                            null,
@@ -770,3 +771,10 @@ alter table f_user_occupy
     add primary key (id);
 
 -- END
+
+alter table f_user_star
+	add day_flower bigint default 0 not null comment '每日贡献鲜花值';
+
+alter table f_user_star
+	add yesterday_flower bigint default 0 not null comment '昨日贡献鲜花值';
+

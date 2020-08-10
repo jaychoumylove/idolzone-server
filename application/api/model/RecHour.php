@@ -114,8 +114,8 @@ class RecHour extends Base
         }
 
         if ($becomeTop) {
-            UserOccupy::occupyStop ();
-            UserOccupy::occupyStart ($user_id, $star_id);
+            UserAchievementHeal::occupyStop ();
+            UserAchievementHeal::occupyStart ($user_id, $star_id);
         }
     }
 }

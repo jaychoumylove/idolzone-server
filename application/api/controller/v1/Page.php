@@ -5,7 +5,7 @@ namespace app\api\controller\v1;
 use app\api\model\Cfg_luckyDraw;
 use app\api\model\CfgScrap;
 use app\api\model\RecLuckyDrawLog;
-use app\api\model\UserOccupy;
+use app\api\model\UserAchievementHeal;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
@@ -493,12 +493,13 @@ class Page extends Base
         $page = input('page', 1);
         $size = input('size', 10);
 
-        $list = [];
-        if ($typeField == 'flowerTime') {
+        $extra = [];
+        if ($rankTypeField == 'star') {
             $this->getUser ();
             $star_id = UserStar::getStarId ($this->uid);
-            $list = UserOccupy::getRankByTypeForAchievement ($rankTypeField, $page, $size, ['star_id' => $star_id]);
+            $extra = ['star_id' => $star_id];
         }
+        $list = UserAchievementHeal::getRankByTypeForAchievement ($typeField, $rankTypeField, $page, $size, $extra);
 
         $data = $configCheck ? compact ('list', 'config'): compact ('list');
 

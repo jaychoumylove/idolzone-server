@@ -19,6 +19,11 @@ class UserStar extends Base
         return $this->belongsTo('Star', 'star_id', 'id');
     }
 
+    public function achievement()
+    {
+        return $this->hasOne ('UserAchievementHeal', 'user_id', 'user_id');
+    }
+
     /**获取用户爱豆id */
     public static function getStarId($uid)
     {

@@ -17,6 +17,11 @@ class User extends Base
         return $this->hasOne('UserExt', 'user_id', 'id', [], 'LEFT');
     }
 
+    public function achievement()
+    {
+        return $this->hasOne ('UserAchievementHeal', 'user_id', 'id');
+    }
+
     public function Sprite()
     {
         return $this->hasOne('UserSprite', 'user_id', 'id', [], 'LEFT');
