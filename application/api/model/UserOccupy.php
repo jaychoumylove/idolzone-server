@@ -75,25 +75,32 @@ class UserOccupy extends \app\base\model\Base
     }
 
     /**
+     * 老将退场
+     *
+     * @return bool
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function occupyStop()
+    public static function occupyStop()
     {
-        $able = Cfg::checkOccupyTime ();
-        if (empty($able)) return false;
-
         $model = self::readMaster ();
 
         $map = [
             'top_status' => self::STATUS_CONTINUE
         ];
         $stopper = $model->where($map)->find ();
+        if (empty($stopper)) return false;
 
         $currentTime = time ();
 
-        $diffTime = bcsub ($currentTime, (int)$stopper['top_time']);
+        $endTime = $currentTime;
+        if (date ('YmdH', $stopper['top_time']) != date ('YmdH', $currentTime)) {
+            // 不在同一个小时内的表示
+            $endTime = (int) strtotime (date ('Y-m-d H', $stopper['top_time']) . ":00:00");
+        }
+
+        $diffTime = bcsub ($endTime, (int)$stopper['top_time']);
         $updated = [
             'top_status' => self::STATUS_BREAK,
             'day_top_time' => bcsub ((int)$stopper['day_top_time'], $diffTime),
@@ -101,5 +108,40 @@ class UserOccupy extends \app\base\model\Base
         ];
 
         $model->where($map)->update($updated);
+    }
+
+    /**
+     * 新王登基
+     *
+     * @param     $user_id
+     * @param int $star_id
+     * @return bool
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function occupyStart($user_id, $star_id = 0)
+    {
+        $able = Cfg::checkOccupyTime ();
+        if (empty($able)) return false;
+
+        if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
+
+        $model = self::readMaster ();
+
+        $map = compact ('user_id', 'star_id');
+        $occupier = $model->where ($map)->find ();
+
+        $currentTime = time ();
+
+        $data = [
+            'top_status' => self::STATUS_CONTINUE,
+            'top_time' => $currentTime
+        ];
+        if ($occupier) {
+            $model->where ($map)->update($data);
+        } else {
+            $model::create (array_merge ($data, $map));
+        }
     }
 }

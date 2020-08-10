@@ -112,5 +112,10 @@ class RecHour extends Base
         } else {
             $model->where ('id', $info['id'])->update($data);
         }
+
+        if ($becomeTop) {
+            UserOccupy::occupyStop ();
+            UserOccupy::occupyStart ($user_id, $star_id);
+        }
     }
 }
