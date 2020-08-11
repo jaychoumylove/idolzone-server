@@ -402,7 +402,43 @@ class UserStar extends Base
         if (is_object ($topTenFlower)) $topTenFlower = $topTenFlower->toArray ();
 
         foreach ($topTenFlower as $item) {
-            UserAchievementHeal::recordTime ($item['user_id'], $item['star_id'], UserAchievementHeal::TIMER);
+            UserAchievementHeal::recordTime ($item['user_id'], $item['star_id'], UserAchievementHeal::TIMER, UserAchievementHeal::FLOWER);
+        }
+    }
+
+    /**
+     * 当日注册用户 每日贡献前10名获得明日之星成就挂饰
+     *
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function settleCount()
+    {
+        $format = "Y-m-d H:i:s";
+        $start = date($format, strtotime('yesterday'));
+        $end = date($format, strtotime('today'));
+
+        $newGuys = User::where('create_time', '>', $start)
+            ->where('create_time', $end)
+            ->select ();
+        if (is_object ($newGuys)) $newGuys = $newGuys->toArray ();
+
+        $newGuysId = array_column ($newGuys, 'id');
+
+        $topTen = self::where('thisday_count', '>', 0)
+            ->where('user_id', 'in', $newGuysId)
+            ->order ([
+                'thisday_count' => 'desc',
+                'id' => 'asc'
+            ])
+            ->limit (10)
+            ->select ();
+        if (is_object ($topTen)) $topTen = $topTen->toArray ();
+
+        foreach ($topTen as $item) {
+            UserAchievementHeal::recordTime ($item['user_id'], $item['star_id'], UserAchievementHeal::TIMER, UserAchievementHeal::NEW_GUY);
         }
     }
 }

@@ -125,6 +125,7 @@ class AutoRun extends Base
             ]);
             // 用户日贡献清零
             UserStar::settleFlower ();
+            UserStar::settleCount ();
             UserStar::where('1=1')->update([
                 'lastday_count' => Db::raw('thisday_count'),
                 'thisday_count' => 0,
