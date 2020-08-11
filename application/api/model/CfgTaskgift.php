@@ -11,12 +11,13 @@ class CfgTaskgift extends Base
     public static function listHandle($cid, $list, $uid)
     {
         foreach ($list as &$value) {
-            $value['awards'] = json_decode($value['awards']);
+            $value['awards'] = json_decode($value['awards'], true);
             $isAchievement = (int)$cid == CfgTaskgiftCategory::ACHIEVEMENT_ID;
             $data = $isAchievement ? self::getAchievementStatus ($value['awards'], $uid): self::getSettleStatu($cid, $value['id'], $uid);
             $value['over'] = $data['status'];
             $value['btn_text'] = $data['btn_text'];
             $value['name_addon'] = $data['name_addon'];
+            if ($isAchievement) $value['img'] = $data['img'];
         }
         return $list;
     }
@@ -26,11 +27,15 @@ class CfgTaskgift extends Base
         $btn_text = "未达成";
         $name_addon = '';
 
-        $key = array_keys ($reward)[0];
+        $key = $reward['achievement'];
         $status = (int)UserAchievementHeal::checkStatus ($user_id, $key);
         if ($status) $btn_text = '领取';
 
-        return compact ('status', 'btn_text', 'name_addon');
+        $reward = CfgHeadwear::where('key', UserAchievementHeal::$typeMap[$key])->find ();
+
+        $img = $reward['img'];
+
+        return compact ('status', 'btn_text', 'name_addon', 'img');
     }
 
     public static function getSettleStatu($cid, $task_id, $uid)
