@@ -124,8 +124,12 @@ class AutoRun extends Base
                 'day_hot_flower' => 1000
             ]);
             // 用户日贡献清零
+            UserStar::settleFlower ();
             UserStar::where('1=1')->update([
-                'thisday_count' => 0
+                'lastday_count' => Db::raw('thisday_count'),
+                'thisday_count' => 0,
+                'yesterday_flower' => Db::raw('day_flower'),
+                'day_flower' => 0,
             ]);
             // 每日任务进度清零
             RecTask::where('task_type', 1)->update([

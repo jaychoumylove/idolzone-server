@@ -382,8 +382,27 @@ class UserStar extends Base
         return (bool)$updated;
     }
 
-    public static function Flower()
+    /**
+     * 每日鲜花贡献前10名获得花神成就挂饰
+     *
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function settleFlower()
     {
+        $topTenFlower = self::where('day_flower', '>', 0)
+            ->order ([
+                'day_flower' => 'desc',
+                'id' => 'asc'
+            ])
+            ->limit (10)
+            ->select ();
+        if (is_object ($topTenFlower)) $topTenFlower = $topTenFlower->toArray ();
 
+        foreach ($topTenFlower as $item) {
+            UserAchievementHeal::recordTime ($item['user_id'], $item['star_id'], UserAchievementHeal::TIMER);
+        }
     }
 }
