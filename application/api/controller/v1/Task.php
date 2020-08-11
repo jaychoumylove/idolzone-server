@@ -162,10 +162,17 @@ class Task extends Base
         $cid = $this->req('cid', 'integer');
         $task_id = $this->req('task_id', 'integer');
         $this->getUser();
-        $awardsList = CfgTaskgift::where('category_id', $cid)->column('id,title,awards,count','id');
 
-        (new TaskService())->taskGiftSettle($cid, $task_id, $awardsList, $this->uid);
-        
+        if ((int)$cid == CfgTaskgiftCategory::ACHIEVEMENT_ID) {
+            $res = UserAchievementHeal::getAchievementReward($this->uid, $task_id);
+            if (empty($res)) {
+                Common::res (['code' => 1, 'msg' => '您还未达成领取条件哦']);
+            }
+        } else {
+            $awardsList = CfgTaskgift::where('category_id', $cid)->column('id,title,awards,count','id');
+            (new TaskService())->taskGiftSettle($cid, $task_id, $awardsList, $this->uid);
+        }
+
         Common::res();
     }
 }

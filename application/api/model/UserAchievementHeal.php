@@ -5,6 +5,7 @@ namespace app\api\model;
 
 
 use app\api\controller\v1\Pk;
+use app\base\service\Common;
 use think\Db;
 
 class UserAchievementHeal extends \app\base\model\Base
@@ -439,5 +440,36 @@ class UserAchievementHeal extends \app\base\model\Base
         if (empty($exist)) return false;
 
         return $exist['count_time'] >= UserAchievementHeal::TIMER;
+    }
+
+    public static function getAchievementReward($user_id, $task_id)
+    {
+        $task = CfgTaskgift::get ($task_id);
+        if (empty($task)) {
+            return false;
+        }
+
+        $reward = json_decode ($task['awrads'], true);
+
+        $res = CfgTaskgift::getAchievementStatus ($reward, $user_id);
+        if (empty($res['status'])) {
+            return false;
+        }
+
+        Db::startTrans ();
+        try {
+            $num = self::getAchievement ($user_id, $reward['achievement']);
+            if (empty($num)) {
+                Common::res (['code' => 1, 'msg' => '您还未达到领取条件哦']);
+            }
+
+            HeadwearUser::getAchievement ($user_id, $num, self::$typeMap[$reward['achievement']]);
+            Db::commit ();
+        } catch (\Throwable $exception) {
+            Db::rollback ();
+            Common::res (['code' => 1, 'msg' => '您还未达到领取条件哦']);
+        }
+
+        return true;
     }
 }
