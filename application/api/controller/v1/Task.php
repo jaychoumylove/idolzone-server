@@ -147,14 +147,9 @@ class Task extends Base
         $cid = $this->req('cid', 'integer');
         $this->getUser();
 
-        $isAchievement = (int)$cid == CfgTaskgiftCategory::ACHIEVEMENT_ID;
-        if ($isAchievement) {
-            $list = UserAchievementHeal::getAchievementTask ($this->uid);
-        } else {
-            $list = CfgTaskgift::where('category_id', $cid)->select();
-        }
+        $list = CfgTaskgift::where('category_id', $cid)->select();
 
-        $res['list'] = $isAchievement ? $list:CfgTaskgift::listHandle($cid, $list, $this->uid);
+        $res['list'] = CfgTaskgift::listHandle($cid, $list, $this->uid);
         $res['category'] = CfgTaskgiftCategory::getCategoryMore($this->uid);
         
         Common::res([

@@ -12,12 +12,25 @@ class CfgTaskgift extends Base
     {
         foreach ($list as &$value) {
             $value['awards'] = json_decode($value['awards']);
-            $data = self::getSettleStatu($cid, $value['id'], $uid);
+            $isAchievement = (int)$cid == CfgTaskgiftCategory::ACHIEVEMENT_ID;
+            $data = $isAchievement ? self::getAchievementStatus ($value['awards'], $uid): self::getSettleStatu($cid, $value['id'], $uid);
             $value['over'] = $data['status'];
             $value['btn_text'] = $data['btn_text'];
             $value['name_addon'] = $data['name_addon'];
         }
         return $list;
+    }
+
+    public static function getAchievementStatus($reward, $user_id)
+    {
+        $btn_text = "未达成";
+        $name_addon = '';
+
+        $key = array_keys ($reward)[0];
+        $status = (int)UserAchievementHeal::checkStatus ($user_id, $key);
+        if ($status) $btn_text = '领取';
+
+        return compact ('status', 'btn_text', 'name_addon');
     }
 
     public static function getSettleStatu($cid, $task_id, $uid)
