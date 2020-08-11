@@ -17,8 +17,19 @@ class CfgHeadwear extends Base
 
     public static function getAll($uid)
     {
-        $myHeadwearHas = HeadwearUser::where('uid', $uid)->where('status', 0)->column('hid');
-        $myHeadwearUse = HeadwearUser::where('uid', $uid)->where('status', 1)->column('hid');
+        $myHeadwear = HeadwearUser::where('uid', $uid)->select();
+        if (is_object ($myHeadwear)) $myHeadwear = $myHeadwear->toArray ();
+
+        $myHeadwearHas = array_filter ($myHeadwear, function ($item) {
+            return $item['status'] == 0;
+        });
+        $myHeadwearUse = array_filter ($myHeadwear, function ($item) {
+            return $item['status'] == 1;
+        });
+
+        $hasIds = array_column ($myHeadwearHas, 'hid');
+        $useDict = array_column ($myHeadwearUse, null, 'hid');
+
         $list = self::order('sort desc,diamond asc')->select();
 
         $newList = [
@@ -37,10 +48,10 @@ class CfgHeadwear extends Base
         ];
         foreach ($list as $key => $value) {
             $value['status'] = -1;
-            if (in_array($value['id'], $myHeadwearHas)) {
+            if (in_array($value['id'], $hasIds)) {
                 $value['status'] = 0;
             }
-            if (in_array($value['id'], $myHeadwearUse)) {
+            if (array_key_exists($value['id'], $useDict)) {
                 $value['status'] = 1;
                 // 正在佩戴的头饰
                 $res['cur'] = $value;
@@ -51,6 +62,9 @@ class CfgHeadwear extends Base
             }
             if ($value['type'] == self::ACHIEVEMENT_TYPE) {
                 $index = 1;
+                if ($value['status'] == 1) {
+                    $value['end_time'] = date('m月d日H时i分', strtotime ($useDict[$value['id']]['end_time']));
+                }
             }
             array_push ($newList[$index], $value);
         }
