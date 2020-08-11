@@ -19,6 +19,13 @@ class UserAchievementHeal extends \app\base\model\Base
     const FLOWER = 'flower';
     const PK = 'pk';
 
+    public static $typeMap = [
+        self::FLOWER_TIME => CfgHeadwear::FLOWER_TIME,
+        self::NEW_GUY => CfgHeadwear::NEW_GUY,
+        self::FLOWER => CfgHeadwear::FLOWER,
+        self::PK => CfgHeadwear::PK
+    ];
+
     public function user()
     {
         return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');
@@ -409,6 +416,8 @@ class UserAchievementHeal extends \app\base\model\Base
         $num = bcdiv ($exist['count_time'], self::TIMER);
         $data = ['count_time' => $last];
         self::where('id', $exist['id'])->update($data);
+
+
 
         return $num;
     }

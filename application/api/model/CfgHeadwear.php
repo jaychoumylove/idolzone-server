@@ -7,6 +7,11 @@ use think\Model;
 
 class CfgHeadwear extends Base
 {
+    const FLOWER      = 'achievement_flower';
+    const FLOWER_TIME = 'achievement_flower_time';
+    const NEW_GUY     = 'achievement_new_guy';
+    const PK          = 'achievement_pk';
+
     public static function getAll($uid)
     {
         $myHeadwearHas = HeadwearUser::where('uid', $uid)->where('status', 0)->column('hid');
