@@ -420,4 +420,42 @@ class UserAchievementHeal extends \app\base\model\Base
 
         return $num;
     }
+
+    public static function getAchievementTask($user_id)
+    {
+        // 拿到所有任务
+        // 拿到所有奖励
+        // 检查是否可领取
+        $task = self::where(compact ('user_id'))->select ();
+        if (is_object ($task)) $task = $task->toArray ();
+        $taskDict = array_column ($task, null, 'type');
+
+        $reward = CfgHeadwear::where('key', 'in', array_values (self::$typeMap))->select ();
+        if (is_object ($reward)) $reward = $reward->toArray ();
+        $rewardDict = array_column ($reward, null, 'key');
+
+        $list = [];
+        $default = [
+            'user_id' => $user_id,
+            'star_id' => UserStar::getStarId ($user_id),
+            'top_time' => 0,
+            'day_time' => 0,
+            'sum_time' => 0,
+            'count_time' => 0,
+            'top_status' => UserAchievementHeal::STATUS_BREAK,
+        ];
+        foreach (self::$typeMap as $index => $item) {
+            $single = array_key_exists ($index, $taskDict) ? $taskDict[$index]: array_merge ($default, ['type' => $index]);
+            $single['status'] = $single['count_time'] >= UserAchievementHeal::TIMER;
+            $single['over'] = $single['status'];
+            $single['btn_text'] = $single['status'] ? "领取": "未达成";
+            if (array_key_exists ($item, $rewardDict)) {
+                $single = array_merge ($single, ['img' => $rewardDict[$item]['img']]);
+            }
+
+            array_push ($list, $single);
+        }
+
+        return $list;
+    }
 }

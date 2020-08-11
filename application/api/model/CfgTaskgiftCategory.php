@@ -7,6 +7,8 @@ use think\Model;
 
 class CfgTaskgiftCategory extends Base
 {
+    const ACHIEVEMENT_ID = 5;
+
     // 红点和title
     public static function getCategoryMore($uid)
     {
@@ -44,6 +46,10 @@ class CfgTaskgiftCategory extends Base
                     break;
                 case 4:
                     $value['title'] = '关注爱豆圈子数据助手';
+                    break;
+                case self::ACHIEVEMENT_ID:
+                    $value['title'] = '成就挂饰';
+                    $value['status'] = 1;
                     break;
             }
 
