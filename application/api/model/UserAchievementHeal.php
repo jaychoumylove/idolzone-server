@@ -59,18 +59,20 @@ class UserAchievementHeal extends \app\base\model\Base
     private static function getPkRankList($rankType, $page, $size, array $extra)
     {
         if ($rankType == 'today') {
-            // 最近时间段
-            $week = 0;
-            // 粉丝排名
-            $order = 'pk.pkactive_count desc,pk.pkactive_score desc,pk.orderupdate_time asc';
-            // 总共用户贡献排名
+            $pkStatus = (new Pk())->getPkStatus();
+
+            if ($pkStatus['status'] < 2) {
+                // 正在报名 上一场数据
+                $lastPkTime = Db::name('pk_settle')->where('is_settle', 1)->order('id desc')->value('pk_time');
+            } elseif ($pkStatus['status'] == 2) {
+                // 团战开始 当前场数据
+                $lastPkTime = date('Y-m-d', time()) . ' ' . $pkStatus['timeSpace']['start_time'] . ':00';
+            }
             $list = Db::name('pk_user_rank')->alias('pk')
-                ->join('user u', 'u.id = pk.uid')
-                ->where('pk.week', $week)
-                ->order($order)
-                ->page($page, $size)
-                ->field('pk.*,u.avatarurl,u.nickname as name')
-                ->select();
+                ->join('user u', 'u.id = pk.uid','LEFT')
+                ->where('pk.last_pk_time', $lastPkTime)
+                ->order('pk.last_pk_count desc,pk.orderupdate_time asc')->page($page, 10)
+                ->field('pk.*,u.avatarurl,u.nickname as name')->select();
 
             foreach ($list as &$value) {
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
