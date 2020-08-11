@@ -32,7 +32,7 @@ class HeadwearUser extends Base
     {
         // 需要多少钻石
         $headWear = CfgHeadwear::where('id', $hid)->field('diamond,days')->find();
-        
+
         Db::startTrans();
         try {
             // 扣钻石
@@ -53,5 +53,38 @@ class HeadwearUser extends Base
         }
 
         Common::res(['msg' => '兑换成功']);
+    }
+
+    public static function getAchievement($uid, $num, $type)
+    {
+        $headWear = CfgHeadwear::where('key', $type)->find();
+        if (empty($headWear)) {
+            return false;
+        }
+
+        $hid = $headWear['id'];
+        $map = compact ('uid', $hid);
+        $currentTime = time ();
+        $format = 'Y-m-d H:i:s';
+        $currentDate = date($format, $currentTime);
+        $timeDiff = bcmul (UserAchievementHeal::TIMER, $num);
+        $exist = self::where ($map)
+            ->order (['create_time' => 'desc'])
+            ->find ();
+        if (empty($exist)) {
+            $endTime = bcadd ($currentTime, $timeDiff);
+            $data = [
+                'end_time' => date ($format, $endTime)
+            ];
+            self::create (array_merge ($data, $map));
+        } else {
+            $timeStart = $exist['end_time'] > $currentDate ? $exist['end_time']: $currentDate;
+
+            $timeStampStart = strtotime ($timeStart);
+            $endTime = bcadd ($timeStampStart, $timeDiff);
+            $data = ['end_time' => date($format, $endTime)];
+
+            self::where('id', $exist['id'])->update($data);
+        }
     }
 }

@@ -415,9 +415,8 @@ class UserAchievementHeal extends \app\base\model\Base
         $last = bcmod ($exist['count_time'], self::TIMER);
         $num = bcdiv ($exist['count_time'], self::TIMER);
         $data = ['count_time' => $last];
-        self::where('id', $exist['id'])->update($data);
-
-
+        $updated = self::where('id', $exist['id'])->update($data);
+        if (empty($updated)) return false;
 
         return $num;
     }
