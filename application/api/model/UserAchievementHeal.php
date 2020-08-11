@@ -303,13 +303,11 @@ class UserAchievementHeal extends \app\base\model\Base
      */
     public static function occupyStop()
     {
-        $model = (new self)->readMaster ();
-
         $map = [
             'top_status' => self::STATUS_CONTINUE,
             'type' => self::FLOWER_TIME
         ];
-        $stopper = $model->where($map)->find ();
+        $stopper = (new self)->readMaster ()->where($map)->find ();
         if (empty($stopper)) return false;
 
         $diffTime = self::supportDiffTimer ((int)$stopper['top_time']);
@@ -320,7 +318,7 @@ class UserAchievementHeal extends \app\base\model\Base
             'count_time' => bcadd ((int)$stopper['count_time'], $diffTime),
         ];
 
-        $model->where($map)->update($updated);
+        self::where($map)->update($updated);
     }
 
     /**
@@ -357,10 +355,8 @@ class UserAchievementHeal extends \app\base\model\Base
 
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
 
-        $model = (new self)->readMaster ();
-
         $map = compact ('user_id', 'star_id');
-        $occupier = $model->where ($map)->find ();
+        $occupier = (new self)->readMaster ()->where ($map)->find ();
 
         $currentTime = time ();
 
@@ -370,9 +366,9 @@ class UserAchievementHeal extends \app\base\model\Base
             'type' => self::FLOWER_TIME
         ];
         if ($occupier) {
-            $model->where ($map)->update($data);
+            self::where ($map)->update($data);
         } else {
-            $model::create (array_merge ($data, $map));
+            self::create (array_merge ($data, $map));
         }
     }
 
