@@ -67,6 +67,7 @@ class UserAchievementHeal extends \app\base\model\Base
 
     private static function getPkRankList($rankType, $page, $size, array $extra)
     {
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
         if ($rankType == 'today') {
             $pkStatus = (new Pk())->getPkStatus();
 
@@ -85,6 +86,7 @@ class UserAchievementHeal extends \app\base\model\Base
 
             foreach ($list as &$value) {
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
+                $value['img'] = $headWear['img'];
             }
         }
 
@@ -103,6 +105,11 @@ class UserAchievementHeal extends \app\base\model\Base
                 ])
                 ->page ($page, $size)
                 ->select ();
+            if (is_object ($list)) $list = $list->toArray ();
+            foreach ($list as &$value) {
+                $value['headwear'] = HeadwearUser::getUse($value['user_id']);
+                $value['img'] = $headWear['img'];
+            }
         }
 
         return $list;
@@ -125,6 +132,7 @@ class UserAchievementHeal extends \app\base\model\Base
         ];
 
         $orderField = 'us.' . $orderMap[$rankType];
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
 
         $list = Db::name('user_star')->alias('us')
             ->join('user u', 'u.id = us.user_id')
@@ -153,6 +161,8 @@ class UserAchievementHeal extends \app\base\model\Base
             $item['user'] = $user;
             $item['star'] = $star;
             $item['count'] = $item[$orderMap[$rankType]];
+            $value['headwear'] = HeadwearUser::getUse($item['user_id']);
+            $item['img'] = $headWear['img'];
 
             $list[$index] = $item;
         }
@@ -166,6 +176,7 @@ class UserAchievementHeal extends \app\base\model\Base
             'today' => 'day_flower',
             'yesterday' => 'yesterday_flower',
         ];
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::FLOWER)->find ();
         if (array_key_exists ($rankType, $starListMap)) {
             $whereField = $starListMap[$rankType];
 
@@ -187,8 +198,11 @@ class UserAchievementHeal extends \app\base\model\Base
             if (is_object ($list)) $list = $list->toArray ();
 
             foreach ($list as $index => $item) {
-                $item['count'] = $item[$whereField];
-                $list[$index] = $item;
+                $value = $item;
+                $value['count'] = $item[$whereField];
+                $value['img'] = $headWear['img'];
+                $value['headwear'] = HeadwearUser::getUse($item['user_id']);
+                $list[$index] = $value;
             }
         }
 
@@ -216,9 +230,14 @@ class UserAchievementHeal extends \app\base\model\Base
             $users = User::where('id', 'in', $userIds)->field('id,nickname,avatarurl')->select ();
             if (is_object ($users)) $users = $users->toArray ();
             $userDict = array_column ($users, null, 'id');
+
             foreach ($list as $index => $item) {
+                $value = $item;
                 $user = array_key_exists ($item['user_id'], $userDict) ? $userDict[$item['user_id']]: null;
-                $list[$index]['user'] = $user;
+                $value['img'] = $headWear['img'];
+                $value['headwear'] = HeadwearUser::getUse($item['user_id']);
+                $value['user'] = $user;
+                $list[$index] = $value;
             }
         }
 
@@ -276,18 +295,22 @@ class UserAchievementHeal extends \app\base\model\Base
 //        $able = Cfg::checkOccupyTime ();
 //        if (empty($able)) return $list;
 
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::FLOWER_TIME)->find ();
         foreach ($list as $key => $value) {
+            $item = $value;
             if ($value['top_status'] == self::STATUS_CONTINUE) {
                 $diffTime = self::supportDiffTimer ((int)$value['top_time']);
-                $value['day_time'] = bcadd ((int)$value['day_time'], $diffTime);
-                $value['sum_time'] = bcadd ((int)$value['sum_time'], $diffTime);
-                $value['count_time'] = bcadd ((int)$value['count_time'], $diffTime);
+                $item['day_time'] = bcadd ((int)$value['day_time'], $diffTime);
+                $item['sum_time'] = bcadd ((int)$value['sum_time'], $diffTime);
+                $item['count_time'] = bcadd ((int)$value['count_time'], $diffTime);
             }
 
-            $value['count'] = $value['day_time'];
-            $value['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
+            $item['count'] = $value['day_time'];
+            $item['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
+            $item['img'] = $headWear['img'];
+            $item['headwear'] = HeadwearUser::getUse($value['user_id']);
 
-            $list[$key] = $value;
+            $list[$key] = $item;
         }
 
         return $list;
