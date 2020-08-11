@@ -12,7 +12,7 @@ class Headwear extends Base
     public function select()
     {
         $this->getUser();
-        
+
         //删除过期的头饰
         HeadwearUser::where('uid', $this->uid)->where('end_time<"'.date('Y-m-d H:i:s').'"')->delete();
         

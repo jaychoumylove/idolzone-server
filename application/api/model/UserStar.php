@@ -382,4 +382,8 @@ class UserStar extends Base
         return (bool)$updated;
     }
 
+    public static function Flower()
+    {
+
+    }
 }
