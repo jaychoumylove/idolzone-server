@@ -7,6 +7,7 @@ namespace app\api\model;
 use app\api\controller\v1\Pk;
 use app\base\service\Common;
 use think\Db;
+use think\Exception;
 
 class UserAchievementHeal extends \app\base\model\Base
 {
@@ -399,7 +400,7 @@ class UserAchievementHeal extends \app\base\model\Base
             ]));
         } else {
             $data = [
-                'day_time' => bcadd ($time, $exist['day_times']),
+                'day_time' => bcadd ($time, $exist['day_time']),
                 'sum_time' => bcadd ($time, $exist['sum_time']),
                 'count_time' => bcadd ($time, $exist['count_time']),
             ];
@@ -449,7 +450,7 @@ class UserAchievementHeal extends \app\base\model\Base
             return false;
         }
 
-        $reward = json_decode ($task['awrads'], true);
+        $reward = json_decode ($task['awards'], true);
 
         $res = CfgTaskgift::getAchievementStatus ($reward, $user_id);
         if (empty($res['status'])) {
@@ -463,10 +464,16 @@ class UserAchievementHeal extends \app\base\model\Base
                 Common::res (['code' => 1, 'msg' => '您还未达到领取条件哦']);
             }
 
-            HeadwearUser::getAchievement ($user_id, $num, self::$typeMap[$reward['achievement']]);
+            $status = HeadwearUser::getAchievement ($user_id, $num, self::$typeMap[$reward['achievement']]);
+            if (empty($status)) {
+                Common::res (['code' => 1, 'msg' => '您还未达到领取条件哦']);
+            }
+
+//            throw new Exception('something was wrong');
             Db::commit ();
         } catch (\Throwable $exception) {
             Db::rollback ();
+//            throw $exception;
             Common::res (['code' => 1, 'msg' => '您还未达到领取条件哦']);
         }
 

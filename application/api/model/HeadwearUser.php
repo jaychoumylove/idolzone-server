@@ -61,9 +61,8 @@ class HeadwearUser extends Base
         if (empty($headWear)) {
             return false;
         }
-
         $hid = $headWear['id'];
-        $map = compact ('uid', $hid);
+        $map = compact ('uid', 'hid');
         $currentTime = time ();
         $format = 'Y-m-d H:i:s';
         $currentDate = date($format, $currentTime);
@@ -86,5 +85,7 @@ class HeadwearUser extends Base
 
             self::where('id', $exist['id'])->update($data);
         }
+
+        return true;
     }
 }
