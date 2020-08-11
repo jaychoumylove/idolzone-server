@@ -8,6 +8,7 @@ use app\api\model\CfgUserLevel;
 use app\api\model\HeadwearUser;
 use app\api\model\PkStar;
 use app\api\model\PkUser;
+use app\api\model\PkUserRank;
 use app\api\model\Rec;
 use app\api\model\RecTaskactivity618;
 use app\api\model\User;
@@ -282,6 +283,7 @@ class Pk extends Base
         $data = $this->getPkStatus();
 
         $pkTime = date('Y-m-d', time()) . ' ' . $data['timeSpace']['start_time'] . ':00';
+        $_pkTime = $pkTime;
         $isExist = Db::name('pk_settle')->where(['pk_time' => $pkTime])->find();
 
         if (!$isExist) {
@@ -350,6 +352,8 @@ class Pk extends Base
 
                     Db::name('pk_settle')->where(['pk_time' => $pk_time])->update(['is_settle' => 1]);
                 }
+
+                PkUserRank::settleHot ($_pkTime);
                 Db::commit();
             } catch (\Exception $e) {
                 Db::rollback();
