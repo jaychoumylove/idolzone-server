@@ -738,6 +738,7 @@ create index f_rec_lucky_draw_log_type_index
 	on f_rec_lucky_draw_log (type);
 
 -- 新增用户占领记录表
+-- V7
 drop f_user_achievement_heal if exists;
 create table f_user_achievement_heal
 (
@@ -809,3 +810,7 @@ INSERT INTO `f_cfg_headwear`(`img`, `diamond`, `key`, `type`, `create_time`, `up
 INSERT INTO `f_cfg_headwear`(`img`, `diamond`, `key`, `type`, `create_time`, `update_time`, `delete_time`, `sort`, `days`) VALUES ('https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GOYEnDnecuk4yqY2h5wj7RGBSM0YT9wbsicOPyYGc7X8BrLUOXIUwtgxySrzDFhthovBZbL9QFPug/0', 0, 'achievement_flower', 'ACHIEVEMENT', '2020-08-11 16:24:31', '2020-08-12 18:09:03', NULL, 0, 3);
 INSERT INTO `f_cfg_headwear`(`img`, `diamond`, `key`, `type`, `create_time`, `update_time`, `delete_time`, `sort`, `days`) VALUES ('https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GOYEnDnecuk4yqY2h5wj7R4Wcn537xB79ibXz7ia3Ixjy9QeibvHgKX6ibVqhbVd7bgNuIWMMLCmU8tg/0', 0, 'achievement_new_guy', 'ACHIEVEMENT', '2020-08-11 16:24:31', '2020-08-12 18:09:03', NULL, 0, 3);
 INSERT INTO `f_cfg_headwear`(`img`, `diamond`, `key`, `type`, `create_time`, `update_time`, `delete_time`, `sort`, `days`) VALUES ('https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GOYEnDnecuk4yqY2h5wj7RicdbcnxAK9CYpzqAxxeadJnia1UMPwiaPibVnDGBoxRrpGEcSsbjVTZGtw/0', 0, 'achievement_pk', 'ACHIEVEMENT', '2020-08-11 16:24:31', '2020-08-12 18:09:03', NULL, 0, 3);
+
+INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('成就挂饰', 'achievement', '{\"top_header\":{\"title\":\"成就挂饰\",\"tip\":{\"label\":\"说明\",\"gopage\":\"/pages/notice/notice?id=1\"}},\"banner\":[{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9HYKTMib185fwujoD0wb2EuDl3Mpakq1nR0AY9icvXibhiaiasiciawKA8O3V6CrPJdgy1rIlvoH1rcCCzTQ/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GOYEnDnecuk4yqY2h5wj7RMLfHXJ4shbk0PAMrWP8Cq8KOpadK1TGunXpwml3Odic5lZJic2cic34IQ/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Ghjtpe09aGSNPXRTUaYayne8TI8STQoF8gKhma6hbLuI0PNv4raQF04hqTd4wJm5S4R0J6St1TOg/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Ghjtpe09aGSNPXRTUaYaynYkrMORRf0LGjNr2cloGBibm0MUDMOmWa7ib8YtHot9ZfkrWtW6dsic32g/0\",\"gopage\":\"\"}],\"rank_group\":[{\"label\":\"宣传官\",\"value\":\"flower_time\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"守护者\",\"value\":\"pk\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"花神\",\"value\":\"flower\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"昨日排名\",\"value\":\"yesterday\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"明日之星\",\"value\":\"newguy\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"昨日\",\"value\":\"yesterday\"},{\"label\":\"周榜\",\"value\":\"week\"},{\"label\":\"月榜\",\"value\":\"month\"}]}]}', 1, '2020-08-08 14:17:15', '2020-08-11 11:12:04', NULL);
+
+-- end
