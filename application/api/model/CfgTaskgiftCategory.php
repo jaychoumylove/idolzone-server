@@ -48,7 +48,7 @@ class CfgTaskgiftCategory extends Base
                     $value['title'] = '关注爱豆圈子数据助手';
                     break;
                 case self::ACHIEVEMENT_ID:
-                    $value['title'] = '成就挂饰';
+                    $value['title'] = '成就头饰领取后，有效期为3天';
                     $value['status'] = 1;
                     break;
             }

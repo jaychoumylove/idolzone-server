@@ -109,6 +109,7 @@ class UserStar extends Base
                 $changArr = array_merge ($changArr, [
                     'total_flower' => $count,
                     'day_flower' => $count,
+                    'achievement_flower' => $count,
                 ]);
 
                 BadgeUser::addRec($uid, 2, $primary['total_flower'] + $count); //stype=2鲜花徽章

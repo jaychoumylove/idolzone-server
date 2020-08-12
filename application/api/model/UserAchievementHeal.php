@@ -298,11 +298,11 @@ class UserAchievementHeal extends \app\base\model\Base
                 ->where ($map)
                 ->order([
                     'ua.sum_time'  => 'desc',
-                    'us.total_flower'  => 'desc',
+                    'us.achievement_flower'  => 'desc',
                     'ua.id' => 'asc'
                 ])
                 ->page($page, $size)
-                ->field('ua.type,ua.sum_time,ua.count_time,us.total_flower,us.user_id,us.star_id')
+                ->field('ua.type,ua.sum_time,ua.count_time,us.achievement_flower,us.user_id,us.star_id')
                 ->select();
 
             if (is_object ($list)) $list = $list->toArray ();
@@ -317,7 +317,7 @@ class UserAchievementHeal extends \app\base\model\Base
                 $value['headwear'] = HeadwearUser::getUse($value['user_id']);
                 $value['user'] = $user;
 //                $value['num'] = 1;
-                $value['count'] = $value['total_flower'];
+                $value['count'] = $value['achievement_flower'];
                 $value['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
                 $list[$index] = $value;
             }

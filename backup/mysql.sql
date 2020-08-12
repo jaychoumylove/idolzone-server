@@ -778,3 +778,6 @@ alter table f_user_star
 alter table f_user_star
 	add yesterday_flower bigint default 0 not null comment '昨日贡献鲜花值';
 
+alter table f_user_star
+	add achievement_flower bigint default 0 not null comment '成就挂饰鲜花总贡献';
+
