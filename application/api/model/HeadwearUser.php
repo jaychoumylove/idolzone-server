@@ -86,6 +86,8 @@ class HeadwearUser extends Base
             self::where('id', $exist['id'])->update($data);
         }
 
-        return true;
+        return [
+            'end_time' => $data['end_time'],
+        ];
     }
 }

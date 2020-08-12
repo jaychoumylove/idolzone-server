@@ -168,11 +168,13 @@ class Task extends Base
             if (empty($res)) {
                 Common::res (['code' => 1, 'msg' => '您还未达成领取条件哦']);
             }
+
+            Common::res(['data' => $res]);
         } else {
             $awardsList = CfgTaskgift::where('category_id', $cid)->column('id,title,awards,count','id');
             (new TaskService())->taskGiftSettle($cid, $task_id, $awardsList, $this->uid);
-        }
 
-        Common::res();
+            Common::res();
+        }
     }
 }

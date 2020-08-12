@@ -118,7 +118,7 @@ class UserAchievementHeal extends \app\base\model\Base
             }
 
             $list = Db::name('pk_user_rank')->alias('pk')
-                ->join('user_achievement_heal ua', 'ua.user_id = pk.uid','LEFT')
+                ->join('user_achievement_heal ua', 'ua.user_id = pk.uid','LEFT OUTER')
                 ->where('pk.last_pk_time', $lastPkTime)
                 ->where($map)
                 ->field('ua.*,pk.last_pk_count')
@@ -247,13 +247,13 @@ class UserAchievementHeal extends \app\base\model\Base
 
         $listMap = ['star', 'all'];
         if (in_array ($rankType, $listMap)) {
-            $map = ['ua.type' => self::FLOWER];
+            $map = sprintf ('(ua.type = "%s" or ua.type is null)', self::FLOWER);
             if ($rankType == 'star') {
-                $map['ua.star_id'] = $extra['star_id'];
+                $map.= sprintf (' and us.star_id = %s', $extra['star_id']);
             }
 
             $list = Db::name('user_star')->alias('us')
-                ->join('user_achievement_heal ua', 'ua.user_id = us.user_id')
+                ->join('user_achievement_heal ua', 'ua.user_id = us.user_id', 'LEFT OUTER')
                 ->where ($map)
                 ->order([
                     'ua.sum_time'  => 'desc',
@@ -261,8 +261,9 @@ class UserAchievementHeal extends \app\base\model\Base
                     'ua.id' => 'asc'
                 ])
                 ->page($page, $size)
-                ->field('ua.*,us.total_flower')
+                ->field('ua.type,ua.sum_time,ua.count_time,us.total_flower,us.user_id,us.star_id')
                 ->select();
+
             if (is_object ($list)) $list = $list->toArray ();
 
             $userIds = array_column ($list, 'user_id');
@@ -517,6 +518,7 @@ class UserAchievementHeal extends \app\base\model\Base
             return false;
         }
 
+        $status = false;
         Db::startTrans ();
         try {
             $num = self::getAchievement ($user_id, $reward['achievement']);
@@ -537,7 +539,7 @@ class UserAchievementHeal extends \app\base\model\Base
             Common::res (['code' => 1, 'msg' => '您还未达到领取条件哦']);
         }
 
-        return true;
+        return $status;
     }
 
     /**
