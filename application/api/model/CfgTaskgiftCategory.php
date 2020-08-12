@@ -7,7 +7,7 @@ use think\Model;
 
 class CfgTaskgiftCategory extends Base
 {
-    const ACHIEVEMENT_ID = 5;
+    const ACHIEVEMENT_ID = 6;
 
     // 红点和title
     public static function getCategoryMore($uid)
