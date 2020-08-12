@@ -202,8 +202,8 @@ class UserAchievementHeal extends \app\base\model\Base
         $orderMap = [
             'today'     => 'thisday_count',
             'yesterday' => 'lastday_count',
-            'week'      => 'thisweek_count',
-            'month'     => 'thismonth_count',
+            'week'      => 'achievement_week_count',
+            'month'     => 'achievement_month_count',
         ];
 
         $orderField = 'us.' . $orderMap[$rankType];

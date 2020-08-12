@@ -103,6 +103,8 @@ class UserStar extends Base
                 'thisday_count' => $count,
                 'thisweek_count' => $count,
                 'thismonth_count' => $count,
+                'achievement_week_count' => $count,
+                'achievement_month_count' => $count,
             ];
             //送鲜花
             if ($type == 2) {

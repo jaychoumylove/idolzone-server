@@ -781,3 +781,11 @@ alter table f_user_star
 alter table f_user_star
 	add achievement_flower bigint default 0 not null comment '成就挂饰鲜花总贡献';
 
+alter table f_user_star
+	add achievement_count bigint default 0 not null comment '成就挂饰总贡献';
+
+alter table f_user_star change achievement_count achievement_week_count bigint default 0 not null comment '成就挂饰周贡献新数据';
+
+alter table f_user_star
+	add achievement_month_count bigint default 0 not null comment '成就挂饰月贡献新数据';
+

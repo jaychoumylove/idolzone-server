@@ -236,7 +236,8 @@ class AutoRun extends Base
             UserStar::where('1=1')->update([
                 'weekend_total_count' => Db::raw('total_count'),//每周日统计的总贡献（活动时要用）
                 'lastweek_count' => Db::raw('thisweek_count'),
-                'thisweek_count' => 0
+                'thisweek_count' => 0,
+                'achievement_week_count' => 0,
             ]);
             
             // 转存历史排名
@@ -351,7 +352,8 @@ class AutoRun extends Base
             // 用户月贡献清零
             UserStar::where('1=1')->update([
                 'lastmonth_count' => Db::raw('thismonth_count'),
-                'thismonth_count' => 0
+                'thismonth_count' => 0,
+                'achievement_month_count' => 0,
             ]);
             
             // 转存历史排名
