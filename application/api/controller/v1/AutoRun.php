@@ -9,6 +9,7 @@ use app\api\model\OpenRank;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecUserPaid;
 use app\api\model\RecWealActivityTask;
+use app\api\model\UserAchievementHeal;
 use app\base\controller\Base;
 use app\api\model\StarRank;
 use think\Db;
@@ -126,6 +127,7 @@ class AutoRun extends Base
             // 用户日贡献清零
             UserStar::settleFlower ();
             UserStar::settleCount ();
+            UserAchievementHeal::cleanDayInvite();
             UserStar::where('1=1')->update([
                 'lastday_count' => Db::raw('thisday_count'),
                 'thisday_count' => 0,

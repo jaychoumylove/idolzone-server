@@ -11,10 +11,7 @@ use think\Model;
 
 class UserAchievementHeal extends \app\base\model\Base
 {
-    const STATUS_CONTINUE = '_CONTINUE';
-    const STATUS_BREAK = '_BREAK';
-
-    const TIMER = 86400; // 60*60*24
+    const TIMER = 259200; // 60*60*24*3
 
     const FLOWER_TIME = 'flower_time';
     const NEW_GUY = 'newguy';
@@ -27,6 +24,59 @@ class UserAchievementHeal extends \app\base\model\Base
         self::FLOWER => CfgHeadwear::FLOWER,
         self::PK => CfgHeadwear::PK
     ];
+
+    public static function cleanDayInvite()
+    {
+        self::where('type', self::FLOWER_TIME)
+            ->where('invite_day', '>', 0)
+            ->update(['invite_day' => 0]);
+    }
+
+    /**
+     * @param $user_id
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\Exception
+     */
+    public static function addInvite($user_id)
+    {
+        $type = self::FLOWER_TIME;
+        $map = compact ('type', 'user_id');
+        $exist = (new self())->readMaster ()->where($map)->find ();
+        $currentTime = time ();
+        if (empty($exist)) {
+            $data = [
+                'invite_day' => 1,
+                'invite_sum' => 1,
+                'invite_count' => 1,
+                'invite_time' => $currentTime,
+            ];
+
+            self::create (array_merge ($data, $map));
+        } else {
+            $isDay = date ('Y-m-d', $currentTime) == date ('Y-m-d', $exist['invite_time']);
+            $inviteDay = $isDay ? $exist['invite_day']: 0;
+            $data = [
+                'invite_day' => bcadd ($inviteDay, 1),
+                'invite_sum' => bcadd ($exist['invite_sum'], 1),
+                'invite_count' => bcadd ($exist['invite_count'], 1),
+                'invite_time' => $currentTime,
+            ];
+
+            $isSettle = $data['invite_count'] >= 100;
+            if ($isSettle) {
+                $data['invite_count'] = bcsub ($data['invite_count'], 100);
+            }
+
+            self::where('id', $exist['id'])->update($data);
+
+            if ($isSettle) {
+                $starId = UserStar::getStarId ($user_id);
+                self::recordTime ($user_id, $starId, self::TIMER, self::FLOWER_TIME);
+            }
+        }
+    }
 
     public function user()
     {
@@ -293,20 +343,24 @@ class UserAchievementHeal extends \app\base\model\Base
         switch ($rankType) {
             case "today":
                 $order = [
-                    'day_time' => 'desc',
+                    'invite_day' => 'desc',
+                    'invite_sum' => 'desc',
+                    'invite_time' => 'asc',
                     'id' => 'asc'
                 ];
                 break;
             case "star":
                 $map += ['star_id' => $extra['star_id']];
                 $order = [
-                    'sum_time' => 'desc',
+                    'invite_sum' => 'desc',
+                    'invite_time' => 'asc',
                     'id' => 'asc'
                 ];
                 break;
             case "all":
                 $order = [
-                    'sum_time' => 'desc',
+                    'invite_sum' => 'desc',
+                    'invite_time' => 'asc',
                     'id' => 'asc'
                 ];
                 break;
@@ -318,6 +372,8 @@ class UserAchievementHeal extends \app\base\model\Base
             return [];
         }
 
+        $field = $rankType == 'today' ? 'invite_day': 'invite_sum';
+
         $list = self::with(['user', 'star'])
             ->where($map)
             ->order ($order)
@@ -325,22 +381,11 @@ class UserAchievementHeal extends \app\base\model\Base
             ->select ();
         if (is_object ($list)) $list = $list->toArray ();
 
-//        $able = Cfg::checkOccupyTime ();
-//        if (empty($able)) return $list;
-
         $headWear = CfgHeadwear::where('key', CfgHeadwear::FLOWER_TIME)->find ();
         foreach ($list as $key => $value) {
             $item = $value;
-            if ($value['top_status'] == self::STATUS_CONTINUE) {
-                $diffTime = self::supportDiffTimer ((int)$value['top_time']);
-                $item['day_time'] = bcadd ((int)$value['day_time'], $diffTime);
-                $item['sum_time'] = bcadd ((int)$value['sum_time'], $diffTime);
-                $item['count_time'] = bcadd ((int)$value['count_time'], $diffTime);
-            }
-
-            $item['count'] = $value['day_time'];
+            $item['count'] = $value[$field];
             $item['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
-//            $item['num'] = 1;
             $item['img'] = $headWear['img'];
             $item['headwear'] = HeadwearUser::getUse($value['user_id']);
 
@@ -348,86 +393,6 @@ class UserAchievementHeal extends \app\base\model\Base
         }
 
         return $list;
-    }
-
-    /**
-     * 老将退场
-     *
-     * @return bool
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public static function occupyStop()
-    {
-        $map = [
-            'top_status' => self::STATUS_CONTINUE,
-            'type' => self::FLOWER_TIME
-        ];
-        $stopper = (new self)->readMaster ()->where($map)->find ();
-        if (empty($stopper)) return false;
-
-        $diffTime = self::supportDiffTimer ((int)$stopper['top_time']);
-        $updated = [
-            'top_status' => self::STATUS_BREAK,
-            'day_time' => bcadd ((int)$stopper['day_time'], $diffTime),
-            'sum_time' => bcadd ((int)$stopper['sum_time'], $diffTime),
-            'count_time' => bcadd ((int)$stopper['count_time'], $diffTime),
-        ];
-
-        self::where($map)->update($updated);
-    }
-
-    /**
-     * @param $timer
-     * @return string
-     */
-    public static function supportDiffTimer($timer)
-    {
-        $currentTime = time ();
-
-        $endTime = $currentTime;
-        if (date ('YmdH', $timer) != date ('YmdH', $currentTime)) {
-            // 不在同一个小时内的表示
-            $endTime = (int) strtotime (date ('Y-m-d H', $timer) . ":59:59");
-        }
-
-        return bcsub ($endTime, (int)$timer);
-    }
-
-    /**
-     * 新王登基
-     *
-     * @param     $user_id
-     * @param int $star_id
-     * @return bool
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public static function occupyStart($user_id, $star_id = 0)
-    {
-//        $able = Cfg::checkOccupyTime ();
-//        if (empty($able)) return false;
-
-        if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
-
-        $type = self::FLOWER_TIME;
-        $map = compact ('user_id', 'star_id', 'type');
-        $occupier = (new self)->readMaster ()->where ($map)->find ();
-
-        $currentTime = time ();
-
-        $data = [
-            'top_status' => self::STATUS_CONTINUE,
-            'top_time' => $currentTime,
-            'type' => self::FLOWER_TIME
-        ];
-        if ($occupier) {
-            self::where ($map)->update($data);
-        } else {
-            self::create (array_merge ($data, $map));
-        }
     }
 
     /**
@@ -448,13 +413,11 @@ class UserAchievementHeal extends \app\base\model\Base
         if (is_object ($exist)) $exist = $exist->toArray ();
         if (empty($exist)) {
             self::create (array_merge ($map, [
-                'day_time' => $time,
                 'sum_time' => $time,
                 'count_time' => $time,
             ]));
         } else {
             $data = [
-                'day_time' => bcadd ($time, $exist['day_time']),
                 'sum_time' => bcadd ($time, $exist['sum_time']),
                 'count_time' => bcadd ($time, $exist['count_time']),
             ];
