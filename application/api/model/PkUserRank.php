@@ -13,6 +13,11 @@ class PkUserRank extends Base
         return $this->belongsTo('User', 'uid', 'id')->field('id,nickname,avatarurl');
     }
 
+    public function star()
+    {
+        return $this->hasOne('Star', 'id', 'star_id');
+    }
+
     public static function settleHot($pk_time)
     {
         $map = compact ('pk_time');
