@@ -29,8 +29,18 @@ class CfgTaskgift extends Base
 
         $key = $reward['achievement'];
         $res = UserAchievementHeal::checkStatus ($user_id, $key);
+        $btnTextMapByKey = [
+            UserAchievementHeal::FLOWER => '送鲜花',
+            UserAchievementHeal::FLOWER_TIME => '去邀请',
+            UserAchievementHeal::PK => '去PK',
+            UserAchievementHeal::NEW_GUY => '去打榜',
+        ];
         $status = (int)$res['status'];
-        $btn_text =  (int)$status ? '领取': '未达成';
+        if ((int) $status) {
+            $btn_text =  (int)$status ? '领取': '未达成';
+        } else {
+            $btn_text = array_key_exists ($key, $btnTextMapByKey) ? $btnTextMapByKey[$key]: "未达成";
+        }
         $num = (int)$res['num'];
 
         $reward = CfgHeadwear::where('key', UserAchievementHeal::$typeMap[$key])->find ();
