@@ -88,16 +88,16 @@ class UserAchievementHeal extends \app\base\model\Base
                 ->page($page, $size)
                 ->select();
 
-            $userIds = array_column ($list, 'user_id');
-            $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id');
+            $userIds = array_column ($list, 'uid');
+            $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', ['type' => self::PK]);
 
             foreach ($list as &$value) {
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
                 $value['img'] = $headWear['img'];
                 $value['num'] = 0;
-                $value['count'] = $value['send_hot'];
-                if (array_key_exists ($value['user_id'], $achievementDict)) {
-                    $value['num'] = (int)bcdiv ($achievementDict[$value['user_id']]['sum_time'], self::TIMER);
+                $value['count'] = $value['total_count'];
+                if (array_key_exists ($value['uid'], $achievementDict)) {
+                    $value['num'] = (int)bcdiv ($achievementDict[$value['uid']]['sum_time'], self::TIMER);
                 }
             }
         }
@@ -178,7 +178,7 @@ class UserAchievementHeal extends \app\base\model\Base
         $starIds = array_column ($list, 'star_id');
         $starDict = self::getDictList (new Star(), $starIds, 'id');
 
-        $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id');
+        $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', ['type' => self::NEW_GUY]);
         foreach ($list as $index => $item) {
             $user = array_key_exists ($item['user_id'], $userDict) ? $userDict[$item['user_id']]: null;
             $star = array_key_exists ($item['star_id'], $starDict) ? $starDict[$item['star_id']]: null;
