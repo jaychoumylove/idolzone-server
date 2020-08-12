@@ -792,6 +792,12 @@ alter table f_user_star
 alter table f_pk_user_rank
 	add achievement_total_count bigint default 0 not null comment '成就挂饰总贡献新数据';
 
+alter table f_cfg_headwear
+	add `key` varchar(156) null;
+
+alter table f_cfg_headwear
+	add type enum('NORMAL', 'ACHIEVEMENT') default 'NORMAL' not null;
+
 INSERT INTO `f_cfg_taskgift_category`(`name`, `banner`, `start_time`, `end_time`, `create_time`, `update_time`, `delete_time`) VALUES ('成就头饰', NULL, NULL, NULL, '2020-08-11 14:40:11', '2020-08-12 10:33:29', NULL);
 
 INSERT INTO `f_cfg_taskgift`(`title`, `awards`, `category_id`, `count`, `create_time`, `update_time`, `delete_time`) VALUES ('花神', '{\"achievement\":\"flower\",\"title\":\"花神\",\"desc\":\"鲜花日榜1-10名\",\"modal\":\"send\"}', 5, 3, '2020-08-11 14:58:13', '2020-08-12 14:59:19', NULL);
