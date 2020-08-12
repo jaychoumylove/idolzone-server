@@ -412,7 +412,8 @@ class UserAchievementHeal extends \app\base\model\Base
 
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
 
-        $map = compact ('user_id', 'star_id');
+        $type = self::FLOWER_TIME;
+        $map = compact ('user_id', 'star_id', 'type');
         $occupier = (new self)->readMaster ()->where ($map)->find ();
 
         $currentTime = time ();
