@@ -430,13 +430,12 @@ class UserAchievementHeal extends \app\base\model\Base
         $exist = (new self)->readMaster ()->where($map)->find ();
         if (empty($exist)) return false;
 
-        $last = bcmod ($exist['count_time'], self::TIMER);
-        $num = bcdiv ($exist['count_time'], self::TIMER);
+        $last = bcsub ($exist['count_time'], self::TIMER);
         $data = ['count_time' => $last];
         $updated = self::where('id', $exist['id'])->update($data);
         if (empty($updated)) return false;
 
-        return $num;
+        return 1;
     }
 
     /**
@@ -476,6 +475,11 @@ class UserAchievementHeal extends \app\base\model\Base
         $res = CfgTaskgift::getAchievementStatus ($reward, $user_id);
         if (empty($res['status'])) {
             return false;
+        }
+
+        $able = HeadwearUser::checkHasAchievement ($user_id, self::$typeMap[$reward['achievement']]);
+        if (empty($able)) {
+            Common::res (['code' => 1, 'msg' => '您已经兑换过一个了']);
         }
 
         $status = false;

@@ -55,6 +55,27 @@ class HeadwearUser extends Base
         Common::res(['msg' => '兑换成功']);
     }
 
+    public static function checkHasAchievement($uid, $type)
+    {
+        $headWear = CfgHeadwear::where('key', $type)->find();
+        if (empty($headWear)) {
+            return false;
+        }
+        $hid = $headWear['id'];
+        $map = compact ('uid', 'hid');
+        $exist = self::where ($map)
+            ->order (['create_time' => 'desc'])
+            ->find ();
+
+        if (empty($exist)) return true;
+
+        $currentTime = time ();
+        $format = 'Y-m-d H:i:s';
+        $currentDate = date($format, $currentTime);
+
+        return $currentDate > $exist['end_time'];
+    }
+
     public static function getAchievement($uid, $num, $type)
     {
         $headWear = CfgHeadwear::where('key', $type)->find();
