@@ -738,39 +738,39 @@ create index f_rec_lucky_draw_log_type_index
 	on f_rec_lucky_draw_log (type);
 
 -- 新增用户占领记录表
-drop f_user_occupy if exists;
-create table f_user_occupy
+drop f_user_achievement_heal if exists;
+create table f_user_achievement_heal
 (
     id           int auto_increment,
-    user_id      int                                                  not null,
-    star_id      int                                                  not null,
-    top_time     int                        default 0                 not null comment '登顶时间',
-    top_status   enum ('_CONTINUE', '_BREAK') default '_BREAK'           not null comment '登顶状态
-continue 持续占领中
-break 观望中',
-    day_top_time int                        default 0                 not null comment '每日占领时间',
-    sum_top_time bigint                     default 0                 not null comment '累计占领时间',
-    count_top_time bigint                     default 0                 not null comment '累计占领时间',
-    create_time  timestamp                  default CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
-    update_time  timestamp                  default CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
-    delete_time  timestamp                                            null,
+    user_id      int                                                                      not null,
+    star_id      int                                                                      not null,
+    sum_time     bigint                                         default 0                 not null comment '累计时间',
+    count_time   int                                            default 0                 not null comment '计数时间',
+    type         enum ('flower_time', 'flower', 'pk', 'newguy') default 'flower_time'     not null comment 'flower_time 宣传官
+flower 花神
+pk 守护神
+newguy 明日之星',
+    invite_count int                                            default 0                 null,
+    invite_sum   int                                            default 0                 not null,
+    invite_day   int                                            default 0                 not null,
+    invite_time  int                                                                      null,
+    create_time  timestamp                                      default CURRENT_TIMESTAMP not null,
+    update_time  timestamp                                      default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time  timestamp                                                                null,
     constraint f_user_occupy_id_uindex
         unique (id)
-);
+)
+    comment '成就挂饰表';
 
 create index f_user_occupy_s_index
-    on wx_idolzone.f_user_occupy (star_id);
-
-create index f_user_occupy_status_index
-    on wx_idolzone.f_user_occupy (top_status);
+    on wx_idolzone.f_user_achievement_heal (star_id);
 
 create index f_user_occupy_u_index
-    on wx_idolzone.f_user_occupy (user_id);
+    on wx_idolzone.f_user_achievement_heal (user_id);
 
-alter table f_user_occupy
+alter table f_user_achievement_heal
     add primary key (id);
 
--- END
 
 alter table f_user_star
 	add day_flower bigint default 0 not null comment '每日贡献鲜花值';
@@ -792,3 +792,9 @@ alter table f_user_star
 alter table f_pk_user_rank
 	add achievement_total_count bigint default 0 not null comment '成就挂饰总贡献新数据';
 
+INSERT INTO `f_cfg_taskgift_category`(`name`, `banner`, `start_time`, `end_time`, `create_time`, `update_time`, `delete_time`) VALUES ('成就头饰', NULL, NULL, NULL, '2020-08-11 14:40:11', '2020-08-12 10:33:29', NULL);
+
+INSERT INTO `f_cfg_taskgift`(`title`, `awards`, `category_id`, `count`, `create_time`, `update_time`, `delete_time`) VALUES ('花神', '{\"achievement\":\"flower\",\"title\":\"花神\",\"desc\":\"鲜花日榜1-10名\",\"modal\":\"send\"}', 5, 3, '2020-08-11 14:58:13', '2020-08-12 14:59:19', NULL);
+INSERT INTO `f_cfg_taskgift`(`title`, `awards`, `category_id`, `count`, `create_time`, `update_time`, `delete_time`) VALUES ('守护神', '{\"achievement\":\"pk\",\"title\":\"守护神\",\"desc\":\"团战贡献1-3名\",\"gopage\":\"/pages/pk/pk_index\"}', 5, 3, NULL, '2020-08-12 14:59:19', NULL);
+INSERT INTO `f_cfg_taskgift`(`title`, `awards`, `category_id`, `count`, `create_time`, `update_time`, `delete_time`) VALUES ('宣传官', '{\"achievement\":\"flower_time\",\"title\":\"宣传官\",\"desc\":\"累计邀请100名新人\",\"modal\":\"invit_desert\"}', 5, 3, '2020-08-11 14:58:13', '2020-08-12 14:59:19', NULL);
+INSERT INTO `f_cfg_taskgift`(`title`, `awards`, `category_id`, `count`, `create_time`, `update_time`, `delete_time`) VALUES ('明日之星', '{\"achievement\":\"newguy\",\"title\":\"明日之星\",\"desc\":\"注册日贡献排名1-10名\",\"modal\":\"send\"}', 5, 3, NULL, '2020-08-12 14:59:52', NULL);
