@@ -789,3 +789,6 @@ alter table f_user_star change achievement_count achievement_week_count bigint d
 alter table f_user_star
 	add achievement_month_count bigint default 0 not null comment '成就挂饰月贡献新数据';
 
+alter table f_pk_user_rank
+	add achievement_total_count bigint default 0 not null comment '成就挂饰总贡献新数据';
+

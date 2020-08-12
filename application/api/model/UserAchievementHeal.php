@@ -163,8 +163,8 @@ class UserAchievementHeal extends \app\base\model\Base
             $list = Db::name('pk_user_rank')->alias('pk')
                 ->join('user_achievement_heal ua', 'ua.user_id = pk.uid','LEFT OUTER')
                 ->where($map)
-                ->field('ua.*,pk.total_count,pk.last_pk_time,pk.mid,pk.uid')
-                ->order('ua.sum_time desc,pk.total_count desc,pk.orderupdate_time asc')
+                ->field('ua.*,pk.achievement_total_count,pk.last_pk_time,pk.mid,pk.uid')
+                ->order('ua.sum_time desc,pk.achievement_total_count desc,pk.orderupdate_time asc')
                 ->page($page, $size)
                 ->select();
 
@@ -183,7 +183,7 @@ class UserAchievementHeal extends \app\base\model\Base
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
                 $value['img'] = $headWear['img'];
                 $value['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
-                $value['count'] = $value['total_count'] ?: 0;
+                $value['count'] = $value['achievement_total_count'] ?: 0;
             }
         }
 

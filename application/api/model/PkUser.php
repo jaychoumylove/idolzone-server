@@ -90,7 +90,7 @@ class PkUser extends Base
                     $pkUpdateData = [
                         //'score' => Db::raw('score+' . $hot), // 10000贡献 = 1积分
                         'total_count' => Db::raw('total_count+' . $hot),
-
+                        'achievement_total_count' => Db::raw('achievement_total_count+' . $hot),
                         'last_pk_time' => $pkTime,
                         'last_pk_medal' => '',
                         'orderupdate_time' => date('Y-m-d H:i:s'),
