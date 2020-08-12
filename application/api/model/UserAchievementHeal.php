@@ -51,6 +51,8 @@ class UserAchievementHeal extends \app\base\model\Base
                 'invite_sum' => 1,
                 'invite_count' => 1,
                 'invite_time' => $currentTime,
+                'sum_time' => 0,
+                'count_time' => 0,
             ];
 
             self::create (array_merge ($data, $map));
@@ -144,7 +146,7 @@ class UserAchievementHeal extends \app\base\model\Base
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
                 $value['img'] = $headWear['img'];
                 $value['num'] = 0;
-                $value['count'] = $value['total_count'];
+                $value['count'] = $value['last_pk_count'];
                 if (array_key_exists ($value['uid'], $achievementDict)) {
                     $value['num'] = (int)bcdiv ($achievementDict[$value['uid']]['sum_time'], self::TIMER);
                 }
@@ -153,37 +155,35 @@ class UserAchievementHeal extends \app\base\model\Base
 
         $listMap = ['star', 'all'];
         if (in_array ($rankType, $listMap)) {
-            $map = ['ua.type' => self::PK];
+            $map = sprintf ('(ua.type = "%s" or ua.type is null)', self::PK);
             if ($rankType == 'star') {
-                $map['ua.star_id'] = $extra['star_id'];
+                $map.= sprintf (' and pk.mid = %s', $extra['star_id']);
             }
 
             $list = Db::name('pk_user_rank')->alias('pk')
                 ->join('user_achievement_heal ua', 'ua.user_id = pk.uid','LEFT OUTER')
-                ->where('pk.last_pk_time', $lastPkTime)
                 ->where($map)
-                ->field('ua.*,pk.last_pk_count')
-                ->order('ua.sum_time desc,pk.last_pk_count desc,pk.orderupdate_time asc')
+                ->field('ua.*,pk.total_count,pk.last_pk_time,pk.mid,pk.uid')
+                ->order('ua.sum_time desc,pk.total_count desc,pk.orderupdate_time asc')
                 ->page($page, $size)
                 ->select();
 
             if (is_object ($list)) $list = $list->toArray ();
-
-            $userIds = array_column ($list, 'user_id');
+            $userIds = array_column ($list, 'uid');
             $userDict = self::getDictList (new User(), $userIds, 'id','id,nickname,avatarurl');
 
-            $starIds = array_column ($list, 'star_id');
+            $starIds = array_column ($list, 'mid');
             $starDict = self::getDictList (new Star(), $starIds, 'id');
 
             foreach ($list as &$value) {
-                $user = array_key_exists ($value['user_id'], $userDict) ? $userDict[$value['user_id']]: null;
-                $star = array_key_exists ($value['star_id'], $starDict) ? $starDict[$value['star_id']]: null;
+                $user = array_key_exists ($value['uid'], $userDict) ? $userDict[$value['uid']]: null;
+                $star = array_key_exists ($value['mid'], $starDict) ? $starDict[$value['mid']]: null;
                 $value['user'] = $user;
                 $value['star'] = $star;
-                $value['headwear'] = HeadwearUser::getUse($value['user_id']);
+                $value['headwear'] = HeadwearUser::getUse($value['uid']);
                 $value['img'] = $headWear['img'];
                 $value['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
-                $value['count'] = $value['last_pk_count'];
+                $value['count'] = $value['total_count'] ?: 0;
             }
         }
 
@@ -408,7 +408,7 @@ class UserAchievementHeal extends \app\base\model\Base
     public static function recordTime($user_id, $star_id, $time, $type)
     {
         $map = compact ('user_id', 'star_id', 'type');
-        $exist = self::where($map)->find ();
+        $exist = (new self)->readMaster ()->where($map)->find ();
         if (is_object ($exist)) $exist = $exist->toArray ();
         if (empty($exist)) {
             self::create (array_merge ($map, [
@@ -427,7 +427,7 @@ class UserAchievementHeal extends \app\base\model\Base
     public static function getAchievement($user_id, $type)
     {
         $map = compact ('user_id', 'type');
-        $exist = self::where($map)->find ();
+        $exist = (new self)->readMaster ()->where($map)->find ();
         if (empty($exist)) return false;
 
         $last = bcmod ($exist['count_time'], self::TIMER);

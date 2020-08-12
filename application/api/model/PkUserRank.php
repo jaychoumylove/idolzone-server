@@ -20,10 +20,9 @@ class PkUserRank extends Base
 
     public static function settleHot($pk_time)
     {
-        $map = compact ('pk_time');
-        $top = self::where($map)
+        $top = self::where(['last_pk_time' => $pk_time])
             ->order ([
-                'send_hot' => 'desc',
+                'total_count' => 'desc',
                 'id' => 'asc'
             ])
             ->limit (3)
@@ -33,7 +32,7 @@ class PkUserRank extends Base
         foreach ($top as $item) {
             UserAchievementHeal::recordTime ($item['uid'],
                 $item['star_id'],
-                bcmul (UserAchievementHeal::TIMER, 3),
+                UserAchievementHeal::TIMER,
                 UserAchievementHeal::PK);
         }
     }
