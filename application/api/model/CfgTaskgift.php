@@ -18,24 +18,26 @@ class CfgTaskgift extends Base
             $value['btn_text'] = $data['btn_text'];
             $value['name_addon'] = $data['name_addon'];
             if ($isAchievement) $value['img'] = $data['img'];
+            if ($isAchievement) $value['num'] = $data['num'];
         }
         return $list;
     }
 
     public static function getAchievementStatus($reward, $user_id)
     {
-        $btn_text = "未达成";
         $name_addon = '';
 
         $key = $reward['achievement'];
-        $status = (int)UserAchievementHeal::checkStatus ($user_id, $key);
-        if ($status) $btn_text = '领取';
+        $res = UserAchievementHeal::checkStatus ($user_id, $key);
+        $status = (int)$res['status'];
+        $btn_text =  (int)$status ? '领取': '未达成';
+        $num = (int)$res['num'];
 
         $reward = CfgHeadwear::where('key', UserAchievementHeal::$typeMap[$key])->find ();
 
         $img = $reward['img'];
 
-        return compact ('status', 'btn_text', 'name_addon', 'img');
+        return compact ('status', 'btn_text', 'name_addon', 'img', 'num');
     }
 
     public static function getSettleStatu($cid, $task_id, $uid)

@@ -119,7 +119,6 @@ class UserAchievementHeal extends \app\base\model\Base
     {
         $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
         $pkStatus = (new Pk())->getPkStatus();
-
         if ($pkStatus['status'] < 2) {
             // 正在报名 上一场数据
             $lastPkTime = Db::name('pk_settle')->where('is_settle', 1)->order('id desc')->value('pk_time');
@@ -445,19 +444,24 @@ class UserAchievementHeal extends \app\base\model\Base
      *
      * @param $user_id
      * @param $type
-     * @return bool
+     * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
     public static function checkStatus($user_id, $type)
     {
+        $status = false;
+        $num = 0;
         $map = compact ('user_id', 'type');
         $exist = self::where($map)->find ();
 
-        if (empty($exist)) return false;
+        if ($exist) {
+            $status = $exist['count_time'] >= UserAchievementHeal::TIMER;
+            $num = $status ? bcdiv ($exist['count_time'], UserAchievementHeal::TIMER): 0;
+        }
 
-        return $exist['count_time'] >= UserAchievementHeal::TIMER;
+        return ['status' => $status, 'num' => $num];
     }
 
     public static function getAchievementReward($user_id, $task_id)
