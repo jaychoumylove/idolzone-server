@@ -88,10 +88,10 @@ class FansClub extends Base
         $keyword  = input('keyword');
 
         $isLess = $field == 'less_count';
-        $order = $isLess ? ["u.create_create" => 'desc']: [$field => 'desc'];
+        $order = $isLess ? ["u.create_time" => 'asc']: [$field => 'desc'];
         $map = [];
         if ($isLess) {
-            $map['lastweek_count'] = 0;
+            $field = 'week_count';
         }
         if ($keyword) {
             $map['nickname'] = ['like', '%'.$keyword.'%'];
