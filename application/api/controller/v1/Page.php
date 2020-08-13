@@ -6,6 +6,7 @@ use app\api\model\Cfg_luckyDraw;
 use app\api\model\CfgScrap;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\UserAchievementHeal;
+use app\api\model\UserInvite;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
@@ -504,5 +505,59 @@ class Page extends Base
         $data = $configCheck ? compact ('list', 'config'): compact ('list');
 
         Common::res (compact ('data'));
+    }
+
+    public function userInviteAssist()
+    {
+        $this->getUser ();
+        $config = Cfg::getCfg (Cfg::INVITE_ASSIST);
+
+        $config['end_time'] = strtotime ($config['time']['end']);
+
+        $starId = UserStar::getStarId ($this->uid);
+        // 我的拉新
+        $userInvite = UserInvite::where('user_id', $this->uid)->find ();
+
+        if (empty($userInvite)) {
+            $userInvite = [
+                'user_id' => $this->uid,
+                'star_id' => $starId,
+                'invite_day' => 0,
+                'invite_sum' => 0,
+                'invite_day_settle' => 0
+            ];
+        }
+
+        $star = Star::get($starId);
+
+        $config['idol_progress'] = $this->supportProgress ($config['idol_progress'], $star['invite_sum']);
+        $config['my_progress'] = $this->supportProgress ($config['my_progress'], $userInvite['invite_day']);
+        $config['idol_sum'] = $star['invite_sum'];
+        $config['my_sum'] = $userInvite['invite_sum'];
+        $config['my_day'] = $userInvite['invite_day'];
+
+        Common::res (['data' => $config]);
+    }
+
+    private function supportProgress($progress, $number) {
+        $lastValue = 0;
+        $lastSum = $number;
+        foreach ($progress as $index => $item) {
+            $value = bcsub ($item['value'], $lastValue);
+            if ($lastSum > 0) {
+                if ($lastSum > $value) {
+                    $item['percent'] = 100;
+                } else {
+                    $item['percent'] = bcdiv ($lastSum, $value, 2) * 100;
+                }
+                $lastSum -= $value;
+            } else {
+                $item['percent'] = 0;
+            }
+
+            $progress[$index] = $item;
+        }
+
+        return $progress;
     }
 }

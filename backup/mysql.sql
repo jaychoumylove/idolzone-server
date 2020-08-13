@@ -764,10 +764,10 @@ newguy 明日之星',
     comment '成就挂饰表';
 
 create index f_user_occupy_s_index
-    on wx_idolzone.f_user_achievement_heal (star_id);
+    on f_user_achievement_heal (star_id);
 
 create index f_user_occupy_u_index
-    on wx_idolzone.f_user_achievement_heal (user_id);
+    on f_user_achievement_heal (user_id);
 
 alter table f_user_achievement_heal
     add primary key (id);
@@ -812,5 +812,69 @@ INSERT INTO `f_cfg_headwear`(`img`, `diamond`, `key`, `type`, `create_time`, `up
 INSERT INTO `f_cfg_headwear`(`img`, `diamond`, `key`, `type`, `create_time`, `update_time`, `delete_time`, `sort`, `days`) VALUES ('https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GOYEnDnecuk4yqY2h5wj7RicdbcnxAK9CYpzqAxxeadJnia1UMPwiaPibVnDGBoxRrpGEcSsbjVTZGtw/0', 0, 'achievement_pk', 'ACHIEVEMENT', '2020-08-11 16:24:31', '2020-08-12 18:09:03', NULL, 0, 3);
 
 INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('成就挂饰', 'achievement', '{\"top_header\":{\"title\":\"成就挂饰\",\"tip\":{\"label\":\"说明\",\"gopage\":\"/pages/notice/notice?id=1\"}},\"banner\":[{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIgpgYpqYns2eda7qvqiaTak8JZOzURT6t6seaMe6b7tr4zrXmqGoAchw/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIQRJ16AEMgOAVEybwaicQ3aO5icezd5bLnkxQHlAmQ0JiaqzhhqIdQL32A/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIxoAldG2wfuiaiaRs6LBVvibibxeT6xJRVSCw7r1fy5jIjT3VvYo3pjCpFg/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIqjnmLT6vYIB2qQqGNy8QIz7J9TM9t5XVSY055VQQm9ia8kQDUWCdTPg/0\",\"gopage\":\"\"}],\"rank_group\":[{\"label\":\"宣传官\",\"value\":\"flower_time\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"守护者\",\"value\":\"pk\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"花神\",\"value\":\"flower\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"昨日排名\",\"value\":\"yesterday\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"明日之星\",\"value\":\"newguy\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"昨日\",\"value\":\"yesterday\"},{\"label\":\"周榜\",\"value\":\"week\"},{\"label\":\"月榜\",\"value\":\"month\"}]}]}', 1, '2020-08-08 14:17:15', '2020-08-13 10:22:29', NULL);
+
+-- end
+
+-- 拉新活动
+create table f_user_invite
+(
+    id                int auto_increment,
+    user_id           int                                 not null,
+    star_id           int                                 not null,
+    invite_day        int       default 0                 not null,
+    invite_sum        int       default 0                 not null,
+    invite_day_settle int       default 0                 not null,
+    create_time       timestamp default CURRENT_TIMESTAMP not null,
+    update_time       timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time       timestamp                           null,
+    constraint f_user_invite_id_uindex
+        unique (id)
+)
+    comment '用户拉新表';
+
+create index f_user_invite_s_index
+    on f_user_invite (star_id);
+
+create index f_user_invite_u_index
+    on f_user_invite (user_id);
+
+create index f_user_invite_us_index
+    on f_user_invite (user_id, star_id);
+
+alter table f_user_invite
+    add primary key (id);
+
+create table f_rec_user_invite
+(
+    id          int auto_increment,
+    user_id     int       default 0                 null,
+    star_id     int       default 0                 not null,
+    title       varchar(255)                        not null,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    reward      text                                null,
+    constraint f_rec_user_invite_id_uindex
+        unique (id)
+)
+    comment '用户领奖记录表';
+
+create index f_rec_user_invite_star_index
+    on f_rec_user_invite (star_id);
+
+create index f_rec_user_invite_u_index
+    on f_rec_user_invite (user_id);
+
+create index f_rec_user_invite_us_index
+    on f_rec_user_invite (user_id, star_id);
+
+alter table f_rec_user_invite
+    add primary key (id);
+
+alter table f_star
+	add invite_sum bigint default 0 not null comment '累计拉新';
+
+alter table f_star
+	add invite_count int default 0 not null comment '拉新奖励计算';
 
 -- end

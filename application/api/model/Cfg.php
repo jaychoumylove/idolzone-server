@@ -11,6 +11,7 @@ class Cfg extends Base
     const RECHARGE_LUCKY   = 'recharge_lucky';
     const ACHIEVEMENT      = 'achievement';
     const OCCUPY_TIME      = 'occupy_time';
+    const INVITE_ASSIST    = 'invite_assist';
 
     public static function getCfg($key)
     {
