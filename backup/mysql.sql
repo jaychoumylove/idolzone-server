@@ -877,4 +877,20 @@ alter table f_star
 alter table f_star
 	add invite_count int default 0 not null comment '拉新奖励计算';
 
+alter table  f_user_star_bakup
+	add day_flower bigint default 0 not null comment '每日贡献鲜花值';
+
+alter table  f_user_star_bakup
+	add yesterday_flower bigint default 0 not null comment '昨日贡献鲜花值';
+
+alter table  f_user_star_bakup
+	add achievement_flower bigint default 0 not null comment '成就挂饰鲜花总贡献';
+
+alter table  f_user_star_bakup
+	add achievement_count bigint default 0 not null comment '成就挂饰总贡献';
+
+alter table  f_user_star_bakup change achievement_count achievement_week_count bigint default 0 not null comment '成就挂饰周贡献新数据';
+
+alter table  f_user_star_bakup
+	add achievement_month_count bigint default 0 not null comment '成就挂饰月贡献新数据';
 -- end

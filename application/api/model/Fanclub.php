@@ -116,6 +116,12 @@ class Fanclub extends Base
                 'user_id' => $uid,
                 'fanclub_id' => $f_id
             ]);
+
+            // 更新状态为1，表示成功拉新一次 此时上级可以领取奖励
+            UserRelation::where(['ral_user_id' => $uid])->update(['status' => 1]);
+            $starId = UserStar::getStarId ($uid);
+            UserInvite::recordInvite ($uid, $starId);
+            \app\api\service\Star::addInvite ($starId);
             
             Db::commit();
         } catch (\Exception $e) {
