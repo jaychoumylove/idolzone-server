@@ -36,7 +36,7 @@ class UserInvite extends \app\base\model\Base
         return true;
     }
 
-    public static function settleInvite($user_id, $star_id = 0, $settle = 0)
+    public static function settleInvite($user_id, $settle = 0, $star_id = 0)
     {
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
 

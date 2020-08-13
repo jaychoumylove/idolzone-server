@@ -13,7 +13,18 @@ class UserInvite extends Base
 {
     public function settle()
     {
+        $settle = input ('settle', false);
+        if (empty($settle)) {
+            Common::res (['code' => 1, 'msg' => "暂未开放"]);
+        }
+        $this->getUser ();
 
+        $res = \app\api\model\UserInvite::settleInvite ($this->uid, $settle);
+        if (is_string ($res)) {
+            Common::res (['code' => 1, 'msg' => $res]);
+        }
+
+        Common::res (['data' => $res]);
     }
 
     public function recList()
