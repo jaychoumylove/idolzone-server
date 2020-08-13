@@ -90,13 +90,12 @@ class Fanclub extends Base
         
         Db::startTrans();
         try {
-            
+
+            // 查找推荐人
+            $relation = UserRelation::where('ral_user_id', $uid)->find();
+            $rer_user_id = $relation['rer_user_id'];
             // 没有退团才记录
             if (! $hasExited) {
-                
-                // 查找推荐人
-                $rer_user_id = UserRelation::where('ral_user_id', $uid)->value('rer_user_id');
-                
                 if ($rer_user_id)
                     FanclubUser::where([
                         'user_id' => $rer_user_id,
@@ -118,11 +117,13 @@ class Fanclub extends Base
             ]);
 
             // 更新状态为1，表示成功拉新一次 此时上级可以领取奖励
-            UserRelation::where(['ral_user_id' => $uid])->update(['status' => 1]);
-            $starId = UserStar::getStarId ($uid);
-            UserInvite::recordInvite ($uid, $starId);
-            \app\api\service\Star::addInvite ($starId);
-            
+            if ($relation['status'] == 0) {
+                UserRelation::where(['ral_user_id' => $uid])->update(['status' => 1]);
+                $starId = UserStar::getStarId ($rer_user_id);
+                UserInvite::recordInvite ($rer_user_id, $starId);
+                \app\api\service\Star::addInvite ($starId);
+            }
+
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();

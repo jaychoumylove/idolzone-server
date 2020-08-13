@@ -516,7 +516,6 @@ class Page extends Base
         $config['end_time'] = strtotime ($config['time']['end']);
 
         $starId = UserStar::getStarId ($this->uid);
-        // 我的拉新
         $userInvite = UserInvite::where('user_id', $this->uid)->find ();
 
         if (empty($userInvite)) {
