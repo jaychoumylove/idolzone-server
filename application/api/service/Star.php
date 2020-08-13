@@ -6,6 +6,7 @@ use app\api\model\CfgWealActivityTask;
 use app\api\model\FanclubUser;
 use app\api\model\Rec;
 use app\api\model\RecTaskactivity618;
+use app\api\model\RecUserInvite;
 use app\api\model\RecWealActivityTask;
 use app\api\model\StarRank as StarRankModel;
 use think\Db;
@@ -320,5 +321,39 @@ class Star
         }
 
         return array_sum ($hotArray);
+    }
+
+    public static function addInvite($star_id)
+    {
+        $star = (new StarModel())->where('id', $star_id)->find ();
+        if (empty($star)) return false;
+
+        $data = [
+            'invite_sum' => bcadd ($star['invite_sum'], 1),
+            'invite_count' => bcadd ($star['invite_count'], 1),
+        ];
+
+        $config = Cfg::getCfg (Cfg::INVITE_ASSIST);
+        $inviteReward = false;
+        if ($star['invite_count'] == $config['idol_reward']['state']) {
+            $data['invite_count'] = 0;
+            $inviteReward = true;
+        }
+
+        $updated = StarModel::where('id', $star_id)->update($data);
+        if (empty($updated)) return false;
+
+        if ($inviteReward) {
+            $hot = $config['idol_reward']['reward']['week_hot'];
+            $rankData = [
+                'week_hot' => Db::raw('week_hot+' . $hot),
+//                'month_hot' => Db::raw('month_hot+' . $hot),
+            ];
+            StarRankModel::where('star_id', $star_id)->update($rankData);
+            $res = RecUserInvite::add ($star_id, $config['idol_reward']['reward'], 'star');
+            if (empty($res)) return false;
+        }
+
+        return true;
     }
 }
