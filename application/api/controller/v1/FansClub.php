@@ -86,16 +86,28 @@ class FansClub extends Base
         $page = $this->req('page', 'integer', 1);
         $field  = input('field');
         $keyword  = input('keyword');
-                
-        $w = $keyword ? ['nickname'=>['like', '%'.$keyword.'%']]:'1=1';
+
+        $isLess = $field == 'less_count';
+        $order = $isLess ? ["u.create_create" => 'desc']: [$field => 'desc'];
+        $map = [];
+        if ($isLess) {
+            $map['lastweek_count'] = 0;
+        }
+        if ($keyword) {
+            $map['nickname'] = ['like', '%'.$keyword.'%'];
+        }
+
+//        $w = $keyword ? ['nickname'=>['like', '%'.$keyword.'%']]:'1=1';
         $res['list'] = Db::name('fanclub_user')
             ->alias('f')
             ->join('user u', 'u.id = f.user_id','LEFT')
             ->field('avatarurl,nickname,user_id,admin,' . $field . ' as hot,last' . $field . ' as lastweek_hot')
-            ->where($w)
+            ->where($map)
             ->where('fanclub_id', $fid)
             ->where('f.delete_time', 'NULL')
-            ->order($field . ' desc')->page($page, 20)->select();
+            ->order($order)
+            ->page($page, 20)
+            ->select();
         
         foreach ($res['list'] as &$value){
             $value['level'] = CfgUserLevel::getLevel($value['user_id']);
