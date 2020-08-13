@@ -335,8 +335,8 @@ class Star
 
         $config = Cfg::getCfg (Cfg::INVITE_ASSIST);
         $inviteReward = false;
-        if ($star['invite_count'] == $config['idol_reward']['state']) {
-            $data['invite_count'] = 0;
+        if ($data['invite_count'] >= $config['idol_reward']['state']) {
+            $data['invite_count'] = bcsub ($data['invite_count'], $config['idol_reward']['state']);
             $inviteReward = true;
         }
 
