@@ -528,7 +528,7 @@ class Page extends Base
             ];
         }
 
-        $star = Star::get($starId);
+        $star = StarModel::get($starId);
 
         $config['idol_progress'] = $this->supportProgress ($config['idol_progress'], $star['invite_sum']);
         $config['my_progress'] = $this->supportProgress ($config['my_progress'], $userInvite['invite_day']);
