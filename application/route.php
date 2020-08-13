@@ -355,3 +355,5 @@ Route::rule('api/:version/user/paid/log', 'api/v1.UserPaid/getPaidLogPager');// 
 
 Route::rule('api/:version/welfare/info', 'api/v1.Welfare/info'); // 公益打卡信息
 Route::rule('api/:version/welfare/rank', 'api/v1.Welfare/rank'); // 公益打卡信息
+
+Route::rule('api/:version/invite/settle_rec', 'api/v1.UserInvite/recList');//领取列表

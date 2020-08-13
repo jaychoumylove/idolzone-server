@@ -5,6 +5,7 @@ namespace app\api\controller\v1;
 use app\api\model\Cfg_luckyDraw;
 use app\api\model\CfgScrap;
 use app\api\model\RecLuckyDrawLog;
+use app\api\model\RecUserInvite;
 use app\api\model\UserAchievementHeal;
 use app\api\model\UserInvite;
 use app\api\model\UserScrap;
@@ -535,6 +536,13 @@ class Page extends Base
         $config['idol_sum'] = $star['invite_sum'];
         $config['my_sum'] = $userInvite['invite_sum'];
         $config['my_day'] = $userInvite['invite_day'];
+
+        $config['rec_list'] = RecUserInvite::where('user_id', '>', 0)
+            ->order ([
+                'create_time' => 'desc'
+            ])
+            ->limit (10)
+            ->select ();
 
         Common::res (['data' => $config]);
     }
