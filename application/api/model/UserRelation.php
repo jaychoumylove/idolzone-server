@@ -56,8 +56,6 @@ class UserRelation extends Base
             RecWealActivityTask::setTask ($uid, 1, CfgWealActivityTask::INVITE);
 
             RecTaskfather::addRec($relation['rer_user_id'], [2, 13, 24, 35]);
-
-            UserAchievementHeal::addInvite ($relation['rer_user_id']);
         }
     }
 

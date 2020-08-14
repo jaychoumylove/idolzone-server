@@ -127,6 +127,8 @@ class Fanclub extends Base
                 }
             }
 
+            UserAchievementHeal::addInvite ($rer_user_id);
+
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
