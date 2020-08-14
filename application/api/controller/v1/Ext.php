@@ -57,9 +57,19 @@ class Ext extends Base
 
     public function activeConform()
     {
+        $platform = $this->req('platform', 'require', 'MP-WEIXIN'); // 平台
         $data = Cfg::getCfg (Cfg::ACTIVE_CONFORM);
 
-        Common::res (compact ('data'));
+        if ($platform != "MP-WEIXIN") {
+            $data['banner'] = [
+                [
+                    "img_url" => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FYdBa8Z4Zr6mbm9oetXqFeHJR1JpEQgRq7YjFdJukjDlufMNQWiaVtI4AFsz1DTMbMPGiaVK1LobibQ/0',
+                    "gopage" => ''
+                ]
+            ];
+        }
+
+        Common::res (['data' => $data]);
     }
 
 
