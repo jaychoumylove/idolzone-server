@@ -421,10 +421,10 @@ class UserStar extends Base
     {
         $format = "Y-m-d H:i:s";
         $start = date($format, strtotime('yesterday'));
-        $end = date($format, strtotime('today'));
+        $end = date($format, time ());
 
         $newGuys = User::where('create_time', '>', $start)
-            ->where('create_time', $end)
+            ->where('create_time', '<', $end)
             ->select ();
         if (is_object ($newGuys)) $newGuys = $newGuys->toArray ();
 
