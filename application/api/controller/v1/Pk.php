@@ -283,7 +283,6 @@ class Pk extends Base
         $data = $this->getPkStatus();
 
         $pkTime = date('Y-m-d', time()) . ' ' . $data['timeSpace']['start_time'] . ':00';
-        $_pkTime = $pkTime;
         $isExist = Db::name('pk_settle')->where(['pk_time' => $pkTime])->find();
 
         if (!$isExist) {
@@ -303,6 +302,7 @@ class Pk extends Base
 
                     //520告白临时活动
                     CfgPkactive::settle($pk_time);
+                    PkUserRank::settleHot ($pk_time);
 
                     for ($i = 0; $i < 2; $i++) {
                         $pk_type = $i;
@@ -353,7 +353,6 @@ class Pk extends Base
                     Db::name('pk_settle')->where(['pk_time' => $pk_time])->update(['is_settle' => 1]);
                 }
 
-                PkUserRank::settleHot ($_pkTime);
                 Db::commit();
             } catch (\Exception $e) {
                 Db::rollback();

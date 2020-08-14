@@ -22,8 +22,8 @@ class PkUserRank extends Base
     {
         $top = self::where(['last_pk_time' => $pk_time])
             ->order ([
-                'total_count' => 'desc',
-                'id' => 'asc'
+                'last_pk_count' => 'desc',
+                'update_time' => 'asc'
             ])
             ->limit (3)
             ->select ();
