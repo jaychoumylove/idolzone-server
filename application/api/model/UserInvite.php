@@ -79,6 +79,15 @@ class UserInvite extends \app\base\model\Base
                 throw new Exception('更新失败');
             }
 
+            if ($reward['type'] == 'prop') {
+                $endTimestamp = bcadd (time (), $reward['end_time']);
+                $endTime = date('Y-m-d H:i:s', $endTimestamp);
+                UserProp::addPropWithEnd ($user_id, $reward['key'], 1, $endTime);
+            }
+            if ($reward['type'] == 'currency') {
+                (new \app\api\service\User())->change ($user_id, [$reward['key'] => $reward['number']], '拉新助力奖励');
+            }
+
             $res = RecUserInvite::add ($user_id, $reward, 'user');
             if (empty($res)) {
                 throw new Exception('新增领取记录失败');

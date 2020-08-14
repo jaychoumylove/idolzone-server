@@ -242,7 +242,7 @@ Route::rule('api/:version/page/prop', 'api/v1.Page/prop');//兑换列表
 Route::rule('api/:version/page/myprop', 'api/v1.Page/myprop');//我的卡券
 Route::rule('api/:version/page/propexchange', 'api/v1.Page/propExchange');//积分兑换
 Route::rule('api/:version/page/propuse', 'api/v1.Page/propUse');//使用道具
-Route::rule('api/:version/page/invite_assist', 'api/v1.Page/userInviteAssist');//使用道具
+Route::rule('api/:version/page/invite_assist', 'api/v1.Page/userInviteAssist');//拉新助力
 
 Route::rule('api/:version/page/sendSms', 'api/v1.Page/sendSms');//使用道具
 
