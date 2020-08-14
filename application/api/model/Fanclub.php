@@ -118,23 +118,24 @@ class Fanclub extends Base
 
             // 更新状态为1，表示成功拉新一次 此时上级可以领取奖励
             if ($relation['status'] == 0) {
-                UserRelation::where(['ral_user_id' => $uid])->update(['status' => 1]);
-                $status = Cfg::checkInviteAssistTime ();
-                if ($status) {
-                    $starId = UserStar::getStarId ($rer_user_id);
-                    UserInvite::recordInvite ($rer_user_id, $starId);
-                    \app\api\service\Star::addInvite ($starId);
+                if ($rer_user_id) {
+                    UserRelation::where(['ral_user_id' => $uid])->update(['status' => 1]);
+                    $status = Cfg::checkInviteAssistTime ();
+                    if ($status) {
+                        $starId = UserStar::getStarId ($rer_user_id);
+                        UserInvite::recordInvite ($rer_user_id, $starId);
+                        \app\api\service\Star::addInvite ($starId);
+                    }
+                    UserAchievementHeal::addInvite ($rer_user_id);
+
+                    RecTask::addRec($rer_user_id, [11, 12, 13]);
+
+                    RecTaskfather::addRec($rer_user_id, [2, 13, 24, 35]);
                 }
-
-                UserAchievementHeal::addInvite ($rer_user_id);
-
-                RecTask::addRec($rer_user_id, [11, 12, 13]);
 
                 RecTaskactivity618::addOrEdit($uid, 2,1);
 
                 RecWealActivityTask::setTask ($uid, 1, CfgWealActivityTask::INVITE);
-
-                RecTaskfather::addRec($rer_user_id, [2, 13, 24, 35]);
             }
 
             Db::commit();
