@@ -38,6 +38,7 @@ class UserInvite extends \app\base\model\Base
             $data = [
                 'invite_day' => 1,
                 'invite_sum' => 1,
+                'invite_day_settle' => [],
             ];
 
             self::create (array_merge ($map, $data));

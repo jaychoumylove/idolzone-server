@@ -524,7 +524,7 @@ class Page extends Base
                 'star_id' => $starId,
                 'invite_day' => 0,
                 'invite_sum' => 0,
-                'invite_day_settle' => 0
+                'invite_day_settle' => []
             ];
         }
 
