@@ -65,6 +65,11 @@ class UserInvite extends \app\base\model\Base
 
     public static function settleInvite($user_id, $settle = 0, $star_id = 0)
     {
+        $status = Cfg::checkInviteAssistTime ();
+        if (empty($status)) {
+            return "活动已截止";
+        }
+
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
 
         $config = Cfg::getCfg (Cfg::INVITE_ASSIST);
