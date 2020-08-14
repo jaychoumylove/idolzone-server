@@ -125,9 +125,17 @@ class Fanclub extends Base
                     UserInvite::recordInvite ($rer_user_id, $starId);
                     \app\api\service\Star::addInvite ($starId);
                 }
-            }
 
-            UserAchievementHeal::addInvite ($rer_user_id);
+                UserAchievementHeal::addInvite ($rer_user_id);
+
+                RecTask::addRec($rer_user_id, [11, 12, 13]);
+
+                RecTaskactivity618::addOrEdit($uid, 2,1);
+
+                RecWealActivityTask::setTask ($uid, 1, CfgWealActivityTask::INVITE);
+
+                RecTaskfather::addRec($rer_user_id, [2, 13, 24, 35]);
+            }
 
             Db::commit();
         } catch (\Exception $e) {

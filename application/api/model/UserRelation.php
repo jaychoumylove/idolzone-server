@@ -49,13 +49,6 @@ class UserRelation extends Base
             //     UserExt::where('user_id', $relation['rer_user_id'])->update(['aixin' => Db::raw('aixin+1')]);
             // }
 
-            RecTask::addRec($relation['rer_user_id'], [11, 12, 13]);
-
-            RecTaskactivity618::addOrEdit($uid, 2,1);
-
-            RecWealActivityTask::setTask ($uid, 1, CfgWealActivityTask::INVITE);
-
-            RecTaskfather::addRec($relation['rer_user_id'], [2, 13, 24, 35]);
         }
     }
 
