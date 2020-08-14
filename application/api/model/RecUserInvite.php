@@ -6,6 +6,11 @@ namespace app\api\model;
 
 class RecUserInvite extends \app\base\model\Base
 {
+    public function user()
+    {
+        return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');
+    }
+
     public function setRewardAttr($value)
     {
         if (is_array ($value)) {

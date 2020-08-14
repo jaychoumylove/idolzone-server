@@ -535,8 +535,10 @@ class Page extends Base
         $config['idol_sum'] = $star['invite_sum'];
         $config['my_sum'] = $userInvite['invite_sum'];
         $config['my_day'] = $userInvite['invite_day'];
+        $config['my_day_settle'] = $userInvite['invite_day_settle'];
 
-        $config['rec_list'] = RecUserInvite::where('user_id', '>', 0)
+        $config['rec_list'] = RecUserInvite::with(['user'])
+            ->where('user_id', '>', 0)
             ->order ([
                 'create_time' => 'desc'
             ])
@@ -546,11 +548,12 @@ class Page extends Base
         Common::res (['data' => $config]);
     }
 
-    private function supportProgress($progress, $number) {
+    private function supportProgress($progress, $number, $key = 'value') {
         $lastValue = 0;
         $lastSum = $number;
+        $weights = $progress[count ($progress) - 1][$key];
         foreach ($progress as $index => $item) {
-            $value = bcsub ($item['value'], $lastValue);
+            $value = bcsub ($item[$key], $lastValue);
             if ($lastSum > 0) {
                 if ($lastSum > $value) {
                     $item['percent'] = 100;
@@ -561,6 +564,8 @@ class Page extends Base
             } else {
                 $item['percent'] = 0;
             }
+            $lastValue = $item[$key];
+            $item['weights'] = bcdiv ($value, $weights, 2) * 100;
 
             $progress[$index] = $item;
         }

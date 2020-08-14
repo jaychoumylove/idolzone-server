@@ -14,6 +14,19 @@ class UserInvite extends \app\base\model\Base
         return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');
     }
 
+    public function getInviteDaySettleAttr($value)
+    {
+        return json_decode ($value, true);
+    }
+
+    public function setInviteDaySettleAttr($value)
+    {
+        if (is_array ($value)) {
+            $value = json_encode ($value);
+        }
+        return $value;
+    }
+
     public static function recordInvite($user_id, $star_id = 0)
     {
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
@@ -54,13 +67,19 @@ class UserInvite extends \app\base\model\Base
 
         $map  = compact ('user_id', 'star_id');
 
-        $exist = (new self())->readMaster ()->where($map)->find ();
+        $model = (new self());
+
+        $exist = $model->readMaster ()->where($map)->find ();
         if (empty($exist)) {
             return "你未达到领取条件";
         }
 
-        if ((int)$exist['invite_day_settle'] >= $settle) {
+        if (in_array ($settle, $exist['invite_day_settle'])) {
             return "您已领取过了";
+        }
+
+        if ((int)$exist['invite_day'] < $settle) {
+            return "您的邀请人数不够哦";
         }
 
         $reward = [];
@@ -79,7 +98,9 @@ class UserInvite extends \app\base\model\Base
 
         Db::startTrans ();
         try {
-            $updated = self::where('id', $exist['id'])->update(['invite_day_settle' => $settle]);
+            $daySettle = $exist['invite_day_settle'];
+            array_push ($daySettle, (int)$settle);
+            $updated = $model->where('id', $exist['id'])->update(['invite_day_settle' => json_encode ($daySettle)]);
             if (empty($updated)) {
                 throw new Exception('更新失败');
             }
@@ -98,11 +119,12 @@ class UserInvite extends \app\base\model\Base
                 throw new Exception('新增领取记录失败');
             }
 
+//            throw new Exception('something was wrong');
 
             Db::commit ();
         } catch (\Throwable $throwable) {
             Db::rollback ();
-
+//            throw $throwable;
             return "请稍后再试";
         }
 
