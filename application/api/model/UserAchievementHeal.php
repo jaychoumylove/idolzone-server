@@ -199,6 +199,11 @@ class UserAchievementHeal extends \app\base\model\Base
             'month'     => date ('Y-m-d', strtotime ('first day of this month')) . ' 00:00:00',
         ];
 
+        $rankEnd = [];
+        if ($rankType == 'yesterday') {
+            $rankEnd['u.create_time'] = ['<', date ('Y-m-d') . ' 00:00:00'];
+        }
+
         $orderMap = [
             'today'     => 'thisday_count',
             'yesterday' => 'lastday_count',
@@ -212,6 +217,7 @@ class UserAchievementHeal extends \app\base\model\Base
         $list = Db::name('user_star')->alias('us')
             ->join('user u', 'u.id = us.user_id')
             ->where('u.create_time', '>', $rankMap[$rankType])
+            ->where($rankEnd)
             ->order([
                 $orderField  => 'desc',
                 'u.id' => 'asc'
