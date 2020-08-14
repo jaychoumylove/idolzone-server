@@ -176,4 +176,22 @@ class Cfg extends Base
 
         return true;
     }
+
+    public static function checkInviteAssistTime()
+    {
+        $config = self::getCfg (self::INVITE_ASSIST);
+
+        $limit = $config['time'];
+
+        $now = date ('Y-m-d H:i:s');
+
+        if ($now < $limit['start']) {
+            return false;
+        }
+        if ($now > $limit['end']) {
+            return false;
+        }
+
+        return true;
+    }
 }

@@ -196,6 +196,11 @@ class AutoRun extends Base
                 OpenRank::where('count', '>', 0)->delete(true);
             }
 
+            $status = Cfg::checkInviteAssistTime ();
+            if ($status) {
+                \app\api\model\UserInvite::cleanDayInvite ();
+            }
+
             // 清除用户充值礼包记录
             RecUserPaid::where('count', '>', 0)
                 ->update(['count' => 0,'is_settle' => 0]);

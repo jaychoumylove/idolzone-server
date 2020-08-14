@@ -27,6 +27,14 @@ class UserInvite extends \app\base\model\Base
         return $value;
     }
 
+    public static function cleanDayInvite()
+    {
+        self::where('1=1')->update([
+            'invite_day' => 0,
+            'invite_day_settle' => json_encode ([]),
+        ]);
+    }
+
     public static function recordInvite($user_id, $star_id = 0)
     {
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
