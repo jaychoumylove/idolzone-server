@@ -122,9 +122,12 @@ class Fanclub extends Base
                     UserRelation::where(['ral_user_id' => $uid])->update(['status' => 1]);
                     $status = Cfg::checkInviteAssistTime ();
                     if ($status) {
-                        $starId = UserStar::getStarId ($rer_user_id);
-                        UserInvite::recordInvite ($rer_user_id, $starId);
-                        \app\api\service\Star::addInvite ($starId);
+                        $platform = User::where('id', $rer_user_id)->value ('platform');
+                        if ($platform == "MP-WEIXIN") {
+                            $starId = UserStar::getStarId ($rer_user_id);
+                            UserInvite::recordInvite ($rer_user_id, $starId);
+                            \app\api\service\Star::addInvite ($starId);
+                        }
                     }
                     UserAchievementHeal::addInvite ($rer_user_id);
 
