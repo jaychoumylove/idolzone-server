@@ -25,6 +25,21 @@ class UserAchievementHeal extends \app\base\model\Base
         self::PK => CfgHeadwear::PK
     ];
 
+    public function user()
+    {
+        return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');
+    }
+
+    public function userStar()
+    {
+        return $this->hasOne ('UserStar', 'user_id', 'user_id');
+    }
+
+    public function star()
+    {
+        return $this->hasOne('Star', 'id', 'star_id');
+    }
+
     public static function cleanDayInvite()
     {
         self::where('type', self::FLOWER_TIME)
@@ -53,6 +68,7 @@ class UserAchievementHeal extends \app\base\model\Base
                 'invite_time' => $currentTime,
                 'sum_time' => 0,
                 'count_time' => 0,
+                'star_id' => UserStar::getStarId ($user_id)
             ];
 
             self::create (array_merge ($data, $map));
@@ -78,21 +94,6 @@ class UserAchievementHeal extends \app\base\model\Base
                 self::recordTime ($user_id, $starId, self::TIMER, self::FLOWER_TIME);
             }
         }
-    }
-
-    public function user()
-    {
-        return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');
-    }
-
-    public function userStar()
-    {
-        return $this->hasOne ('UserStar', 'user_id', 'user_id');
-    }
-
-    public function star()
-    {
-        return $this->hasOne('Star', 'id', 'star_id');
     }
 
     public static function getRankByTypeForAchievement($type, $rankType, $page = 1, $size = 10, $extra = [])
