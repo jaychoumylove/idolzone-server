@@ -43,4 +43,23 @@ class UserInvite extends Base
 
         Common::res (['data' => $list]);
     }
+
+    public function rank()
+    {
+        $this->getUser ();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+
+        $starId = UserStar::getStarId ($this->uid);
+        $list = \app\api\model\UserInvite::with(['user'])
+            ->where('star_id', $starId)
+            ->order ([
+                'invite_sum' => 'desc',
+                'create_time' => 'asc',
+            ])
+            ->page ($page, $size)
+            ->select ();
+
+        Common::res (['data' => $list]);
+    }
 }

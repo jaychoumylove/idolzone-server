@@ -9,6 +9,11 @@ use think\Exception;
 
 class UserInvite extends \app\base\model\Base
 {
+    public function user()
+    {
+        return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');
+    }
+
     public static function recordInvite($user_id, $star_id = 0)
     {
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
