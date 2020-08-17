@@ -96,6 +96,160 @@ class UserAchievementHeal extends \app\base\model\Base
         }
     }
 
+    public static function getMyRank($typeField, $rankTypeField, $user_id, $extra)
+    {
+        switch ($typeField) {
+            case self::FLOWER_TIME:
+                $info = self::getMyFlowerTimeRank($rankTypeField, $user_id, $extra);
+                break;
+            case self::FLOWER:
+                $info = self::getMyFlowerRankList($rankTypeField, $user_id, $extra);
+                break;
+            case self::PK:
+                $info = self::getMyPkRankList($rankTypeField, $user_id, $extra);
+                break;
+            case self::NEW_GUY:
+                $info = self::getMyNewGuyRankList($rankTypeField, $user_id, $extra);
+                break;
+            default:
+                break;
+        }
+
+        return empty($info) ? null: $info;
+    }
+
+    private static function getMyFlowerTimeRank($rankTypeField, $user_id, $extra)
+    {
+        $info = self::with(['user', 'star'])->where('user_id', $user_id)->find ();
+        if (empty($info)) return null;
+
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::FLOWER_TIME)->find ();
+        $field = $rankTypeField == 'today' ? 'invite_day': 'invite_sum';
+        $starMap = [];
+        if ($rankTypeField == 'star') {
+            $starMap['star_id'] = $extra['star_id'];
+        }
+        $rank = self::where($field, '>', $info[$field])->where ($starMap)->count ();
+        $rank = bcadd ($rank, 1);
+        $info['rank'] = $rank;
+        $info['count'] = $info[$field];
+        $info['num'] = (int)bcdiv ($info['sum_time'], self::TIMER);
+        $info['img'] = $headWear['img'];
+        $info['headwear'] = HeadwearUser::getUse($info['user_id']);
+
+        return $info;
+    }
+
+    private static function getMyFlowerRankList($rankTypeField, $user_id, $extra)
+    {
+        $info = UserStar::where('user_id', $user_id)->find ();
+        if (empty($info)) return [];
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::FLOWER)->find ();
+
+        $fieldMap = [
+            'today' => 'day_flower',
+            'yesterday' => 'yesterday_flower',
+            'star' => 'achievement_flower',
+            'all' => 'achievement_flower',
+        ];
+        $field = $fieldMap[$rankTypeField];
+
+        $starMap = [];
+        if ($rankTypeField == 'star') {
+            $starMap['star_id'] = $extra['star_id'];
+        }
+        $rank = UserStar::where($field, '>', $info[$field])
+            ->where ($starMap)
+            ->count ();
+
+        $sumTime = self::where('user_id', $user_id)->value ('sum_time', 0);
+        $rank = bcadd ($rank, 1);
+        $info['rank'] = $rank;
+        $info['count'] = $info[$field];
+        $info['num'] = (int)bcdiv ($sumTime, self::TIMER);
+        $info['img'] = $headWear['img'];
+        $info['headwear'] = HeadwearUser::getUse($info['user_id']);
+
+        return $info;
+    }
+
+    private static function getMyPkRankList($rankTypeField, $user_id, $extra)
+    {
+
+    }
+
+    private static function getMyNewGuyRankList($rankTypeField, $user_id, $extra)
+    {
+        $rankMap = [
+            'today'     => date ('Y-m-d') . ' 00:00:00',
+            'yesterday' => date ('Y-m-d', strtotime ('-1 days')) . ' 00:00:00',
+            'week'      => date ('Y-m-d H:i:s', strtotime ('monday this week')),
+            'month'     => date ('Y-m-d', strtotime ('first day of this month')) . ' 00:00:00',
+        ];
+
+        $fieldMap = [
+            'today'     => 'thisday_count',
+            'yesterday' => 'lastday_count',
+            'week'      => 'achievement_week_count',
+            'month'     => 'achievement_month_count',
+        ];
+
+        $rankEnd = [];
+        if ($rankTypeField == 'yesterday') {
+            $rankEnd['yesterday'] = date ('Y-m-d') . ' 00:00:00';
+        }
+
+        $user = User::where('id', $user_id)->find ();
+        if ($rankMap[$rankTypeField] > $user['create_time']) {
+            return null;
+        }
+        if (array_key_exists ($rankTypeField, $rankEnd)) {
+            if ($rankEnd[$rankTypeField] < $user['create_time']) {
+                return null;
+            }
+        }
+
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
+
+        $userStar = UserStar::where('user_id', $user_id)->find ();
+
+        $list = Db::name('user_star')->alias('us')
+            ->join('user u', 'u.id = us.user_id')
+            ->where('u.create_time', '>', $rankMap[$rankTypeField])
+            ->order([
+                $orderField  => 'desc',
+                'u.id' => 'asc'
+            ])
+            ->field('us.*,u.avatarurl,u.nickname as name')
+            ->select();
+        if (is_object ($list)) $list = $list->toArray ();
+
+        $userIds = array_column ($list, 'user_id');
+        $userDict = self::getDictList (new User(), $userIds, 'id','id,nickname,avatarurl');
+
+        $starIds = array_column ($list, 'star_id');
+        $starDict = self::getDictList (new Star(), $starIds, 'id');
+
+        $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', ['type' => self::NEW_GUY]);
+        foreach ($list as $index => $item) {
+            $user = array_key_exists ($item['user_id'], $userDict) ? $userDict[$item['user_id']]: null;
+            $star = array_key_exists ($item['star_id'], $starDict) ? $starDict[$item['star_id']]: null;
+            $item['user'] = $user;
+            $item['star'] = $star;
+            $item['count'] = $item[$orderMap[$rankTypeField]];
+            $item['headwear'] = HeadwearUser::getUse($item['user_id']);
+            $item['img'] = $headWear['img'];
+            $item['num'] = 0;
+            if (array_key_exists ($item['user_id'], $achievementDict)) {
+                $item['num'] = (int)bcdiv ($achievementDict[$item['user_id']]['sum_time'], self::TIMER);
+            }
+
+            $list[$index] = $item;
+        }
+
+        return $list;
+    }
+    
     public static function getRankByTypeForAchievement($type, $rankType, $page = 1, $size = 10, $extra = [])
     {
         switch ($type) {

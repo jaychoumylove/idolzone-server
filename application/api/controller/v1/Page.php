@@ -584,4 +584,37 @@ class Page extends Base
 
         return $progress;
     }
+    
+    public function myAchievement()
+    {
+        $this->getUser ();
+
+        $type = input ('type', false);
+        if (false === $type) Common::res (['code' => 1,'msg' => '请选择类别1']);
+
+        $rankType = input ('rank_type', false);
+        if (false === $rankType) Common::res (['code' => 1,'msg' => '请选择类别2']);
+
+        $config = Cfg::getCfg (Cfg::ACHIEVEMENT);
+
+        if (array_key_exists ($type, $config['rank_group']) == false) {
+            Common::res (['code' => 1,'msg' => '请选择类别3']);
+        }
+        $typeField = $config['rank_group'][$type]['value'];
+
+        if (array_key_exists ($rankType ,$config['rank_group'][$type]['btn']) == false) {
+            Common::res (['code' => 1,'msg' => '请选择类别4']);
+        }
+        $rankTypeField = $config['rank_group'][$type]['btn'][$rankType]['value'];
+
+        $extra = [];
+        if ($rankTypeField == 'star') {
+            $star_id = UserStar::getStarId ($this->uid);
+            $extra = ['star_id' => $star_id];
+        }
+
+        $myInfo = UserAchievementHeal::getMyRank($typeField, $rankTypeField, $extra);
+
+        Common::res (['data' => $myInfo]);
+    }
 }
