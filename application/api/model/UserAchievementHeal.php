@@ -141,7 +141,7 @@ class UserAchievementHeal extends \app\base\model\Base
                 ->select();
 
             $userIds = array_column ($list, 'uid');
-            $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', ['type' => self::PK]);
+            $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', "*", ['type' => self::PK]);
 
             $starIds = array_column ($list, 'mid');
             $starDict = self::getDictList (new Star(), $starIds, 'id');
@@ -242,7 +242,7 @@ class UserAchievementHeal extends \app\base\model\Base
         $starIds = array_column ($list, 'star_id');
         $starDict = self::getDictList (new Star(), $starIds, 'id');
 
-        $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', ['type' => self::NEW_GUY]);
+        $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', "*", ['type' => self::NEW_GUY]);
         foreach ($list as $index => $item) {
             $user = array_key_exists ($item['user_id'], $userDict) ? $userDict[$item['user_id']]: null;
             $star = array_key_exists ($item['star_id'], $starDict) ? $starDict[$item['star_id']]: null;
@@ -296,7 +296,7 @@ class UserAchievementHeal extends \app\base\model\Base
             if (is_object ($list)) $list = $list->toArray ();
 
             $userIds = array_column ($list, 'user_id');
-            $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', ['type' => self::FLOWER]);
+            $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', "*", ['type' => self::FLOWER]);
 
             foreach ($list as $index => $item) {
                 $value = $item;
