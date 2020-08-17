@@ -323,13 +323,17 @@ class UserAchievementHeal extends \app\base\model\Base
             $userIds = array_column ($list, 'user_id');
             $userDict = self::getDictList (new User(), $userIds, 'id','id,nickname,avatarurl');
 
+            $starIds = array_column ($list, 'star_id');
+            $starDict = self::getDictList (new Star(), $starIds, 'id');
+
             foreach ($list as $index => $item) {
                 $value = $item;
                 $user = array_key_exists ($item['user_id'], $userDict) ? $userDict[$item['user_id']]: null;
+                $star = array_key_exists ($item['star_id'], $starDict) ? $starDict[$item['star_id']]: null;
+                $value['user'] = $user;
+                $value['star'] = $star;
                 $value['img'] = $headWear['img'];
                 $value['headwear'] = HeadwearUser::getUse($value['user_id']);
-                $value['user'] = $user;
-//                $value['num'] = 1;
                 $value['count'] = $value['achievement_flower'];
                 $value['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
                 $list[$index] = $value;
