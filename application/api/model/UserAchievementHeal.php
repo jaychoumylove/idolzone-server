@@ -175,23 +175,22 @@ class UserAchievementHeal extends \app\base\model\Base
 
     private static function getMyPkRankList($rankTypeField, $user_id, $extra)
     {
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::PK)->find ();
+        $pkStatus = (new Pk())->getPkStatus();
+        if ($pkStatus['status'] < 2) {
+            // 正在报名 上一场数据
+            $lastPkTime = Db::name('pk_settle')->where('is_settle', 1)->order('id desc')->value('pk_time');
+        } elseif ($pkStatus['status'] == 2) {
+            // 团战开始 当前场数据
+            $lastPkTime = date('Y-m-d', time()) . ' ' . $pkStatus['timeSpace']['start_time'] . ':00';
+        }
 
-    }
-
-    private static function getMyNewGuyRankList($rankTypeField, $user_id, $extra)
-    {
+        $info = PkUserRank::where('user_id', $user_id)->find ();
         $rankMap = [
             'today'     => date ('Y-m-d') . ' 00:00:00',
             'yesterday' => date ('Y-m-d', strtotime ('-1 days')) . ' 00:00:00',
             'week'      => date ('Y-m-d H:i:s', strtotime ('monday this week')),
             'month'     => date ('Y-m-d', strtotime ('first day of this month')) . ' 00:00:00',
-        ];
-
-        $fieldMap = [
-            'today'     => 'thisday_count',
-            'yesterday' => 'lastday_count',
-            'week'      => 'achievement_week_count',
-            'month'     => 'achievement_month_count',
         ];
 
         $rankEnd = [];
@@ -209,45 +208,88 @@ class UserAchievementHeal extends \app\base\model\Base
             }
         }
 
-        $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
-
-        $userStar = UserStar::where('user_id', $user_id)->find ();
-
-        $list = Db::name('user_star')->alias('us')
-            ->join('user u', 'u.id = us.user_id')
-            ->where('u.create_time', '>', $rankMap[$rankTypeField])
-            ->order([
-                $orderField  => 'desc',
-                'u.id' => 'asc'
-            ])
-            ->field('us.*,u.avatarurl,u.nickname as name')
-            ->select();
-        if (is_object ($list)) $list = $list->toArray ();
-
-        $userIds = array_column ($list, 'user_id');
-        $userDict = self::getDictList (new User(), $userIds, 'id','id,nickname,avatarurl');
-
-        $starIds = array_column ($list, 'star_id');
-        $starDict = self::getDictList (new Star(), $starIds, 'id');
-
-        $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', ['type' => self::NEW_GUY]);
-        foreach ($list as $index => $item) {
-            $user = array_key_exists ($item['user_id'], $userDict) ? $userDict[$item['user_id']]: null;
-            $star = array_key_exists ($item['star_id'], $starDict) ? $starDict[$item['star_id']]: null;
-            $item['user'] = $user;
-            $item['star'] = $star;
-            $item['count'] = $item[$orderMap[$rankTypeField]];
-            $item['headwear'] = HeadwearUser::getUse($item['user_id']);
-            $item['img'] = $headWear['img'];
-            $item['num'] = 0;
-            if (array_key_exists ($item['user_id'], $achievementDict)) {
-                $item['num'] = (int)bcdiv ($achievementDict[$item['user_id']]['sum_time'], self::TIMER);
-            }
-
-            $list[$index] = $item;
+        $info = UserStar::where('user_id', $user_id)->find ();
+        if (empty($userStar)) {
+            Common::res (['code' =>1, 'msg' => '请先加入圈子']);
         }
 
-        return $list;
+        $fieldMap = [
+            'today'     => 'thisday_count',
+            'yesterday' => 'lastday_count',
+            'week'      => 'achievement_week_count',
+            'month'     => 'achievement_month_count',
+        ];
+
+        $field = $fieldMap[$rankTypeField];
+
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
+
+        $sumTime = self::where('user_id', $user_id)->value ('sum_time', 0);
+        $rank = UserStar::where($field, '>', $info[$field])->count ();
+        $rank = bcadd ($rank, 1);
+        $info['rank'] = $rank;
+        $info['user'] = $user;
+        $info['star'] = Star::get ($info['star_id']);
+        $info['count'] = $info[$field];
+        $info['headwear'] = HeadwearUser::getUse($user_id);
+        $info['img'] = $headWear['img'];
+        $item['num'] = (int)bcdiv ($sumTime, self::TIMER);
+
+        return $info;
+    }
+
+    private static function getMyNewGuyRankList($rankTypeField, $user_id, $extra)
+    {
+        $rankMap = [
+            'today'     => date ('Y-m-d') . ' 00:00:00',
+            'yesterday' => date ('Y-m-d', strtotime ('-1 days')) . ' 00:00:00',
+            'week'      => date ('Y-m-d H:i:s', strtotime ('monday this week')),
+            'month'     => date ('Y-m-d', strtotime ('first day of this month')) . ' 00:00:00',
+        ];
+
+        $rankEnd = [];
+        if ($rankTypeField == 'yesterday') {
+            $rankEnd['yesterday'] = date ('Y-m-d') . ' 00:00:00';
+        }
+
+        $user = User::where('id', $user_id)->find ();
+        if ($rankMap[$rankTypeField] > $user['create_time']) {
+            return null;
+        }
+        if (array_key_exists ($rankTypeField, $rankEnd)) {
+            if ($rankEnd[$rankTypeField] < $user['create_time']) {
+                return null;
+            }
+        }
+
+        $info = UserStar::where('user_id', $user_id)->find ();
+        if (empty($userStar)) {
+            Common::res (['code' =>1, 'msg' => '请先加入圈子']);
+        }
+
+        $fieldMap = [
+            'today'     => 'thisday_count',
+            'yesterday' => 'lastday_count',
+            'week'      => 'achievement_week_count',
+            'month'     => 'achievement_month_count',
+        ];
+
+        $field = $fieldMap[$rankTypeField];
+
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
+
+        $sumTime = self::where('user_id', $user_id)->value ('sum_time', 0);
+        $rank = UserStar::where($field, '>', $info[$field])->count ();
+        $rank = bcadd ($rank, 1);
+        $info['rank'] = $rank;
+        $info['user'] = $user;
+        $info['star'] = Star::get ($info['star_id']);
+        $info['count'] = $info[$field];
+        $info['headwear'] = HeadwearUser::getUse($user_id);
+        $info['img'] = $headWear['img'];
+        $item['num'] = (int)bcdiv ($sumTime, self::TIMER);
+
+        return $info;
     }
     
     public static function getRankByTypeForAchievement($type, $rankType, $page = 1, $size = 10, $extra = [])

@@ -619,7 +619,7 @@ class Page extends Base
             $extra = ['star_id' => $star_id];
         }
 
-        $myInfo = UserAchievementHeal::getMyRank($typeField, $rankTypeField, $extra);
+        $myInfo = UserAchievementHeal::getMyRank($typeField, $rankTypeField,$this->uid, $extra);
 
         Common::res (['data' => $myInfo]);
     }
