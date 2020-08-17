@@ -86,16 +86,28 @@ class FansClub extends Base
         $page = $this->req('page', 'integer', 1);
         $field  = input('field');
         $keyword  = input('keyword');
-                
-        $w = $keyword ? ['nickname'=>['like', '%'.$keyword.'%']]:'1=1';
+
+        $isLess = $field == 'less_count';
+        $order = $isLess ? ["u.create_time" => 'asc']: [$field => 'desc'];
+        $map = [];
+        if ($isLess) {
+            $field = 'week_count';
+        }
+        if ($keyword) {
+            $map['nickname'] = ['like', '%'.$keyword.'%'];
+        }
+
+//        $w = $keyword ? ['nickname'=>['like', '%'.$keyword.'%']]:'1=1';
         $res['list'] = Db::name('fanclub_user')
             ->alias('f')
             ->join('user u', 'u.id = f.user_id','LEFT')
             ->field('avatarurl,nickname,user_id,admin,' . $field . ' as hot,last' . $field . ' as lastweek_hot')
-            ->where($w)
+            ->where($map)
             ->where('fanclub_id', $fid)
             ->where('f.delete_time', 'NULL')
-            ->order($field . ' desc')->page($page, 20)->select();
+            ->order($order)
+            ->page($page, 20)
+            ->select();
         
         foreach ($res['list'] as &$value){
             $value['level'] = CfgUserLevel::getLevel($value['user_id']);
@@ -480,5 +492,17 @@ class FansClub extends Base
         Common::res([
             'data' => $res
         ]);
+    }
+
+    public function removeAll()
+    {
+        $this->getUser();
+        $uid = input ('user_id', []);
+        if (empty($uid) || is_array ($uid) == false) {
+            Common::res (['code' => 1, 'msg' => '请选择移出人员']);
+        }
+
+        Fanclub::removeAll($this->uid,$uid);
+        Common::res();
     }
 }
