@@ -120,7 +120,7 @@ class UserAchievementHeal extends \app\base\model\Base
 
     private static function getPkRankList($rankType, $page, $size, array $extra)
     {
-        $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
+        $headWear = CfgHeadwear::where('key', CfgHeadwear::PK)->find ();
         $pkStatus = (new Pk())->getPkStatus();
         if ($pkStatus['status'] < 2) {
             // 正在报名 上一场数据
