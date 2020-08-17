@@ -287,7 +287,7 @@ class UserAchievementHeal extends \app\base\model\Base
             $map = [
                 $whereField => ['>', 0],
             ];
-            $list = UserStar::with(['User', 'Star', 'achievement'])
+            $list = UserStar::with(['User', 'Star'])
                 ->page ($page, $size)
                 ->where ($map)
                 ->order ($order)
@@ -295,14 +295,20 @@ class UserAchievementHeal extends \app\base\model\Base
 
             if (is_object ($list)) $list = $list->toArray ();
 
+            $userIds = array_column ($list, 'user_id');
+            $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', ['type' => self::FLOWER]);
+
             foreach ($list as $index => $item) {
                 $value = $item;
                 $value['count'] = $item[$whereField];
                 $value['img'] = $headWear['img'];
-                $value['num'] = 1;
                 $value['headwear'] = HeadwearUser::getUse($item['user_id']);
                 $value['count'] = $value[$whereField];
-                $value['num'] = (int)bcdiv ($value['achievement']['sum_time'], self::TIMER);
+                $value['num'] = 0;
+                if (array_key_exists ($item['user_id'], $achievementDict)) {
+                    $value['num'] = (int)bcdiv ($achievementDict[$item['user_id']]['sum_time'], self::TIMER);
+                }
+
                 $list[$index] = $value;
             }
         }
