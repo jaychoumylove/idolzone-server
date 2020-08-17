@@ -442,7 +442,12 @@ class Page extends Base
             }
         }catch (\Throwable $throwable) {}
 
-        $scrap = CfgScrap::where('status', CfgScrap::ON)->select ();
+        $scrap = CfgScrap::where('status', CfgScrap::ON)
+            ->order([
+                'sort' => 'desc',
+                "id" => "desc"
+            ])
+            ->select ();
         if (is_object ($scrap)) $scrap = $scrap->toArray ();
 
         $scrapIds = array_column ($scrap, 'id');
