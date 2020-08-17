@@ -146,7 +146,7 @@ class UserAchievementHeal extends \app\base\model\Base
             $starIds = array_column ($list, 'mid');
             $starDict = self::getDictList (new Star(), $starIds, 'id');
 
-            foreach ($list as &$value) {
+            foreach ($list as $key => $value) {
                 $star = array_key_exists ($value['mid'], $starDict) ? $starDict[$value['mid']]: null;
                 $value['star'] = $star;
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
@@ -156,6 +156,8 @@ class UserAchievementHeal extends \app\base\model\Base
                 if (array_key_exists ($value['uid'], $achievementDict)) {
                     $value['num'] = (int)bcdiv ($achievementDict[$value['uid']]['sum_time'], self::TIMER);
                 }
+
+                $list[$key] = $value;
             }
         }
 
@@ -165,6 +167,7 @@ class UserAchievementHeal extends \app\base\model\Base
             if ($rankType == 'star') {
                 $map.= sprintf (' and pk.mid = %s', $extra['star_id']);
             }
+            $map .= sprintf (' and pk.last_pk_time = "%s"', $lastPkTime);
 
             $list = Db::name('pk_user_rank')->alias('pk')
                 ->join('user_achievement_heal ua', 'ua.user_id = pk.uid','LEFT OUTER')
