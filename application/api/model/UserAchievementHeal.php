@@ -131,7 +131,7 @@ class UserAchievementHeal extends \app\base\model\Base
         }
 
         if ($rankType == 'today') {
-            $list = PkUserRank::with(['User','star'])
+            $list = PkUserRank::with(['User'])
                 ->where('last_pk_time', $lastPkTime)
                 ->order([
                     'last_pk_count' => 'desc',
@@ -143,7 +143,12 @@ class UserAchievementHeal extends \app\base\model\Base
             $userIds = array_column ($list, 'uid');
             $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', ['type' => self::PK]);
 
+            $starIds = array_column ($list, 'mid');
+            $starDict = self::getDictList (new Star(), $starIds, 'id');
+
             foreach ($list as &$value) {
+                $star = array_key_exists ($value['mid'], $starDict) ? $starDict[$value['mid']]: null;
+                $value['star'] = $star;
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
                 $value['img'] = $headWear['img'];
                 $value['num'] = 0;
