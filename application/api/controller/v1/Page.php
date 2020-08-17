@@ -499,7 +499,14 @@ class Page extends Base
             $star_id = UserStar::getStarId ($this->uid);
             $extra = ['star_id' => $star_id];
         }
-        $list = UserAchievementHeal::getRankByTypeForAchievement ($typeField, $rankTypeField, $page, $size, $extra);
+
+        $sum = bcmul ($page, $size);
+        if ($sum > 100) {
+            // 限制100条数据
+            $list = [];
+        } else {
+            $list = UserAchievementHeal::getRankByTypeForAchievement ($typeField, $rankTypeField, $page, $size, $extra);
+        }
 
         $data = $configCheck ? compact ('list', 'config'): compact ('list');
 
