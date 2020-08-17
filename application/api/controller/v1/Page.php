@@ -49,6 +49,7 @@ class Page extends Base
     {
         $this->getUser();
 
+        $platform = input('platform', 'MP-WEIXIN');
         $rer_user_id = input('referrer', 0);
         $enterScene = $this->req('scene');// 场景
         if ($enterScene == 1001 || $enterScene == 1089) {
@@ -90,6 +91,11 @@ class Page extends Base
         } else if ($userTotalPay < Cfg::getCfg('open_img_show_charge')) {
             // 充值小于n元的用户隐藏首页弹图
             $res['config']['index_open'] = null;
+        } else {
+            // index_open 格式 '{"img": "", "url": "", "platform":["MP-WEIXIN","MP-QQ"]}'
+            if (in_array ($platform, $res['config']['index_open']['platform']) == false) {
+                $res['config']['index_open'] = null;
+            }
         }
 
         $res['config']['share_text'] = CfgShareTitle::getOne();
