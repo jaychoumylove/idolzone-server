@@ -24,6 +24,7 @@ class Base extends Controller
         if (!$token) Common::res(['code' => 200]);
         $this->uid = Common::getSession($token);
         if (!$this->uid) Common::res(['code' => 201]);
+        if(User::where('id',$this->uid)->value('type')==4) Common::res(['code' => 1, 'msg' => '该账户已经被冻结']);
     }
 
     protected function getUserByUnionid()
