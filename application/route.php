@@ -204,6 +204,7 @@ Route::rule('api/:version/fans/applylist', 'api/v1.FansClub/applylist');// 申�
 Route::rule('api/:version/fans/applydeal', 'api/v1.FansClub/applydeal');// 申请处理
 Route::rule('api/:version/fans/enter', 'api/v1.FansClub/enter');// 邀请页面
 Route::rule('api/:version/fans/upAdmin', 'api/v1.FansClub/upAdmin');// 提/降管理员
+Route::rule('api/:version/fans/remove_all', 'api/v1.FansClub/removeAll');// 退出粉丝团
 
 Route::rule('api/:version/fans/mybox', 'api/v1.FansClub/mybox');// 粉丝团宝箱
 Route::rule('api/:version/fans/sendbox', 'api/v1.FansClub/sendbox');// 发粉丝团宝箱
@@ -242,6 +243,7 @@ Route::rule('api/:version/page/prop', 'api/v1.Page/prop');//兑换列表
 Route::rule('api/:version/page/myprop', 'api/v1.Page/myprop');//我的卡券
 Route::rule('api/:version/page/propexchange', 'api/v1.Page/propExchange');//积分兑换
 Route::rule('api/:version/page/propuse', 'api/v1.Page/propUse');//使用道具
+Route::rule('api/:version/page/invite_assist', 'api/v1.Page/userInviteAssist');//拉新助力
 
 Route::rule('api/:version/page/sendSms', 'api/v1.Page/sendSms');//使用道具
 
@@ -354,3 +356,7 @@ Route::rule('api/:version/user/paid/log', 'api/v1.UserPaid/getPaidLogPager');// 
 
 Route::rule('api/:version/welfare/info', 'api/v1.Welfare/info'); // 公益打卡信息
 Route::rule('api/:version/welfare/rank', 'api/v1.Welfare/rank'); // 公益打卡信息
+
+Route::rule('api/:version/invite/settle_rec', 'api/v1.UserInvite/recList');//领取列表
+Route::rule('api/:version/invite/settle', 'api/v1.UserInvite/settle');//领取奖励
+Route::rule('api/:version/invite/rank', 'api/v1.UserInvite/rank'); // 公益打卡信息

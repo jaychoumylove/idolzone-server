@@ -15,15 +15,15 @@ class PkUserRank extends Base
 
     public function star()
     {
-        return $this->hasOne('Star', 'id', 'star_id');
+        return $this->hasOne('Star', 'mid', 'id');
     }
 
     public static function settleHot($pk_time)
     {
         $top = self::where(['last_pk_time' => $pk_time])
             ->order ([
-                'total_count' => 'desc',
-                'id' => 'asc'
+                'last_pk_count' => 'desc',
+                'update_time' => 'asc'
             ])
             ->limit (3)
             ->select ();
@@ -31,7 +31,7 @@ class PkUserRank extends Base
 
         foreach ($top as $item) {
             UserAchievementHeal::recordTime ($item['uid'],
-                $item['star_id'],
+                $item['mid'],
                 UserAchievementHeal::TIMER,
                 UserAchievementHeal::PK);
         }

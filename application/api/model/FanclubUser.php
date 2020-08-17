@@ -38,6 +38,10 @@ class FanclubUser extends Base
     /**我在圈子里的排名信息 */
     public static function getMyRankInfo($uid, $fid, $field)
     {
+        $isLess = $field == 'less_count';
+        if ($isLess) {
+            $field = 'week_count';
+        }
         $where = $fid ? ['user_id' => $uid, 'fanclub_id' => $fid] : ['user_id' => $uid];
         $res = self::where($where)->field('user_id,last'.$field.' as lastweek_score,'.$field.' as score')->find();
                 

@@ -648,18 +648,18 @@ create table f_user_scrap
     comment '用户碎片';
 
 create index f_user_scrap_scrap_index
-    on wx_idolzone.f_user_scrap (scrap_id);
+    on f_user_scrap (scrap_id);
 
 create index f_user_scrap_us_index
-    on wx_idolzone.f_user_scrap (user_id, scrap_id);
+    on f_user_scrap (user_id, scrap_id);
 
 create index f_user_scrap_user_index
-    on wx_idolzone.f_user_scrap (user_id);
+    on f_user_scrap (user_id);
 
 alter table f_user_scrap
     add primary key (id);
 
-create table wx_idolzone.f_cfg_scrap
+create table f_cfg_scrap
 (
     id              int auto_increment,
     name            varchar(255)                                   not null,
@@ -695,7 +695,7 @@ create index f_cfg_scrap_ts_index
 create index f_cfg_scrap_type_index
     on f_cfg_scrap (type);
 
-alter table wx_idolzone.f_cfg_scrap
+alter table f_cfg_scrap
     add primary key (id);
 
 alter table f_prop
@@ -764,10 +764,10 @@ newguy 明日之星',
     comment '成就挂饰表';
 
 create index f_user_occupy_s_index
-    on wx_idolzone.f_user_achievement_heal (star_id);
+    on f_user_achievement_heal (star_id);
 
 create index f_user_occupy_u_index
-    on wx_idolzone.f_user_achievement_heal (user_id);
+    on f_user_achievement_heal (user_id);
 
 alter table f_user_achievement_heal
     add primary key (id);
@@ -811,6 +811,93 @@ INSERT INTO `f_cfg_headwear`(`img`, `diamond`, `key`, `type`, `create_time`, `up
 INSERT INTO `f_cfg_headwear`(`img`, `diamond`, `key`, `type`, `create_time`, `update_time`, `delete_time`, `sort`, `days`) VALUES ('https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GOYEnDnecuk4yqY2h5wj7R4Wcn537xB79ibXz7ia3Ixjy9QeibvHgKX6ibVqhbVd7bgNuIWMMLCmU8tg/0', 0, 'achievement_new_guy', 'ACHIEVEMENT', '2020-08-11 16:24:31', '2020-08-12 18:09:03', NULL, 0, 3);
 INSERT INTO `f_cfg_headwear`(`img`, `diamond`, `key`, `type`, `create_time`, `update_time`, `delete_time`, `sort`, `days`) VALUES ('https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GOYEnDnecuk4yqY2h5wj7RicdbcnxAK9CYpzqAxxeadJnia1UMPwiaPibVnDGBoxRrpGEcSsbjVTZGtw/0', 0, 'achievement_pk', 'ACHIEVEMENT', '2020-08-11 16:24:31', '2020-08-12 18:09:03', NULL, 0, 3);
 
-INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('成就挂饰', 'achievement', '{\"top_header\":{\"title\":\"成就挂饰\",\"tip\":{\"label\":\"说明\",\"gopage\":\"/pages/notice/notice?id=1\"}},\"banner\":[{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIgpgYpqYns2eda7qvqiaTak8JZOzURT6t6seaMe6b7tr4zrXmqGoAchw/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIQRJ16AEMgOAVEybwaicQ3aO5icezd5bLnkxQHlAmQ0JiaqzhhqIdQL32A/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIxoAldG2wfuiaiaRs6LBVvibibxeT6xJRVSCw7r1fy5jIjT3VvYo3pjCpFg/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIqjnmLT6vYIB2qQqGNy8QIz7J9TM9t5XVSY055VQQm9ia8kQDUWCdTPg/0\",\"gopage\":\"\"}],\"rank_group\":[{\"label\":\"宣传官\",\"value\":\"flower_time\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"守护者\",\"value\":\"pk\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"花神\",\"value\":\"flower\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"昨日排名\",\"value\":\"yesterday\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"明日之星\",\"value\":\"newguy\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"昨日\",\"value\":\"yesterday\"},{\"label\":\"周榜\",\"value\":\"week\"},{\"label\":\"月榜\",\"value\":\"month\"}]}]}', 1, '2020-08-08 14:17:15', '2020-08-13 10:22:29', NULL);
-
+INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('成就挂饰', 'achievement', '{\"top_header\":{\"title\":\"成就挂饰\",\"tip\":{\"label\":\"说明\",\"gopage\":\"/pages/notice/notice?id=1\"}},\"banner\":[{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIxoAldG2wfuiaiaRs6LBVvibibxeT6xJRVSCw7r1fy5jIjT3VvYo3pjCpFg/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIQRJ16AEMgOAVEybwaicQ3aO5icezd5bLnkxQHlAmQ0JiaqzhhqIdQL32A/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIqjnmLT6vYIB2qQqGNy8QIz7J9TM9t5XVSY055VQQm9ia8kQDUWCdTPg/0\",\"gopage\":\"\"},{\"img_url\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EOWV82IkeqFRibMgcWRnrqIgpgYpqYns2eda7qvqiaTak8JZOzURT6t6seaMe6b7tr4zrXmqGoAchw/0\",\"gopage\":\"\"}],\"rank_group\":[{\"label\":\"花神\",\"value\":\"flower\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"昨日排名\",\"value\":\"yesterday\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"守护者\",\"value\":\"pk\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]},{\"label\":\"明日之星\",\"value\":\"newguy\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"昨日\",\"value\":\"yesterday\"},{\"label\":\"周榜\",\"value\":\"week\"},{\"label\":\"月榜\",\"value\":\"month\"}]},{\"label\":\"宣传官\",\"value\":\"flower_time\",\"btn\":[{\"label\":\"今日实时\",\"value\":\"today\"},{\"label\":\"圈内排名\",\"value\":\"star\"},{\"label\":\"总排名\",\"value\":\"all\"}]}]}', 1, '2020-08-08 14:17:15', '2020-08-14 14:20:47', NULL);
 -- end
+
+-- 拉新活动
+drop table if exists f_user_invite;
+create table f_user_invite
+(
+    id                int auto_increment,
+    user_id           int                                 not null,
+    star_id           int                                 not null,
+    invite_day        int       default 0                 not null,
+    invite_sum        int       default 0                 not null,
+    invite_day_settle text                                null,
+    create_time       timestamp default CURRENT_TIMESTAMP not null,
+    update_time       timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time       timestamp                           null,
+    constraint f_user_invite_id_uindex
+        unique (id)
+)
+    comment '用户拉新表';
+
+create index f_user_invite_s_index
+    on f_user_invite (star_id);
+
+create index f_user_invite_u_index
+    on f_user_invite (user_id);
+
+create index f_user_invite_us_index
+    on f_user_invite (user_id, star_id);
+
+alter table f_user_invite
+    add primary key (id);
+
+drop table if exists f_rec_user_invite;
+create table f_rec_user_invite
+(
+    id          int auto_increment,
+    user_id     int       default 0                 null,
+    star_id     int       default 0                 not null,
+    title       varchar(255)                        not null,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    reward      text                                null,
+    constraint f_rec_user_invite_id_uindex
+        unique (id)
+)
+    comment '用户领奖记录表';
+
+create index f_rec_user_invite_star_index
+    on f_rec_user_invite (star_id);
+
+create index f_rec_user_invite_u_index
+    on f_rec_user_invite (user_id);
+
+create index f_rec_user_invite_us_index
+    on f_rec_user_invite (user_id, star_id);
+
+alter table f_rec_user_invite
+    add primary key (id);
+
+alter table f_star
+	add invite_sum bigint default 0 not null comment '累计拉新';
+
+alter table f_star
+	add invite_count int default 0 not null comment '拉新奖励计算';
+
+alter table  f_user_star_bakup
+	add day_flower bigint default 0 not null comment '每日贡献鲜花值';
+
+alter table  f_user_star_bakup
+	add yesterday_flower bigint default 0 not null comment '昨日贡献鲜花值';
+
+alter table  f_user_star_bakup
+	add achievement_flower bigint default 0 not null comment '成就挂饰鲜花总贡献';
+
+alter table  f_user_star_bakup
+	add achievement_count bigint default 0 not null comment '成就挂饰总贡献';
+
+alter table  f_user_star_bakup change achievement_count achievement_week_count bigint default 0 not null comment '成就挂饰周贡献新数据';
+
+alter table  f_user_star_bakup
+	add achievement_month_count bigint default 0 not null comment '成就挂饰月贡献新数据';
+INSERT INTO `f_cfg_share`(`desc`, `title`, `imageUrl`, `path`, `create_time`, `update_time`, `delete_time`) VALUES ('拉新助力', '为STARNAME赢得11月开屏，快来助我一臂之力', NULL, 'path=/pages/group/group', '2020-08-14 10:59:49', '2020-08-14 15:36:51', NULL);
+INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('拉新助力解锁', 'invite_assist', '{\"banner\":\"https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fc6k4icARtLOpP2kdnMiaic0oGemvqN43zUUia0ftswfBZ0Ch4kjiblryV4BK4Pb8DJBiagibyUWlGtD4BA/0\",\"time\":{\"start\":\"2020-08-09 00:00:00\",\"end\":\"2020-09-30 23:59:59\"},\"share_id\":111,\"idol_tip\":\"邀请新用户助力拉新解锁\",\"my_title\":\"个人拉新奖励\",\"go_notice\":\"/pages/notice/notice?id=1\",\"idol_reward\":{\"state\":100,\"reward\":{\"week_hot\":1000000,\"type\":\"hot\",\"number\":1000000}},\"idol_progress\":[{\"value\":1000,\"reward\":[\"小程序开屏一天\",\"200应援金\"]},{\"value\":3000,\"reward\":[\"小程序开屏一天\",\"300应援金\"]},{\"value\":6000,\"reward\":[\"小程序开屏一天\",\"500应援金\"]}],\"my_progress\":[{\"value\":3,\"reward\":{\"name\":\"金豆*1万\",\"number\":10000,\"key\":\"coin\",\"type\":\"currency\"}},{\"value\":5,\"reward\":{\"name\":\"金豆福袋\",\"number\":1,\"end_time\":604800,\"key\":10,\"type\":\"prop\",\"img\":\"https://mmbiz.qpic.cn/mmbiz_png/h9gCibVJa7JXX6zqzjkSn01fIlGmzJw6ufzJPQqnQz9PQwhL9d2jCL8x6qlic5VDiaWU3XkPSZfZ4ZRVau9DQVtKg/0\"}},{\"value\":10,\"reward\":{\"name\":\"钻石*10\",\"number\":10,\"key\":\"stone\",\"type\":\"currency\"}},{\"value\":15,\"reward\":{\"name\":\"鲜花*2万\",\"number\":20000,\"key\":\"flower\",\"type\":\"currency\"}}],\"settle_title\":\"领取记录\",\"count_title\":\"贡献榜\"}', 1, '2020-08-13 14:28:55', '2020-08-14 14:44:21', NULL);
+-- end
+
+-- 新增碎片成品排序
+alter table f_cfg_scrap
+	add sort int default 0 not null comment '排序 0-99整数 越大越靠前';

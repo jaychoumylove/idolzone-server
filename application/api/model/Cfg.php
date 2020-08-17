@@ -11,6 +11,7 @@ class Cfg extends Base
     const RECHARGE_LUCKY   = 'recharge_lucky';
     const ACHIEVEMENT      = 'achievement';
     const OCCUPY_TIME      = 'occupy_time';
+    const INVITE_ASSIST    = 'invite_assist';
 
     public static function getCfg($key)
     {
@@ -166,6 +167,24 @@ class Cfg extends Base
 
         $limit = $config['time'];
         $now         = date ('H:i:s');
+        if ($now < $limit['start']) {
+            return false;
+        }
+        if ($now > $limit['end']) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function checkInviteAssistTime()
+    {
+        $config = self::getCfg (self::INVITE_ASSIST);
+
+        $limit = $config['time'];
+
+        $now = date ('Y-m-d H:i:s');
+
         if ($now < $limit['start']) {
             return false;
         }

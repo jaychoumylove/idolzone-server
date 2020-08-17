@@ -44,28 +44,18 @@ class UserRelation extends Base
         $relation = self::where('ral_user_id', $uid)->where('status', 'in',  [0, 1, 2])->find();
 
         if ($relation) {
-            // 更新状态为1，表示成功拉新一次 此时上级可以领取奖励
-            self::where(['ral_user_id' => $uid])->update(['status' => 1]);
             // 拉人活动爱心+1
             // if (input('platform') == 'MP-WEIXIN') {
             //     UserExt::where('user_id', $relation['rer_user_id'])->update(['aixin' => Db::raw('aixin+1')]);
             // }
 
-            RecTask::addRec($relation['rer_user_id'], [11, 12, 13]);
-
-            RecTaskactivity618::addOrEdit($uid, 2,1);
-
-            RecWealActivityTask::setTask ($uid, 1, CfgWealActivityTask::INVITE);
-
-            RecTaskfather::addRec($relation['rer_user_id'], [2, 13, 24, 35]);
-
-            UserAchievementHeal::addInvite ($relation['rer_user_id']);
         }
     }
 
     /**
      * status 0 邀请的用户 没有加入圈子
      *        1 邀请的用户 已加入圈子 未领取拉新奖励
+     *        2 未领取拉新奖励
      *        3 系统分配的圈内用户
      *        4 手动加的用户
      */
