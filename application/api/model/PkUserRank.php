@@ -31,7 +31,7 @@ class PkUserRank extends Base
 
         foreach ($top as $item) {
             UserAchievementHeal::recordTime ($item['uid'],
-                $item['star_id'],
+                $item['mid'],
                 UserAchievementHeal::TIMER,
                 UserAchievementHeal::PK);
         }
