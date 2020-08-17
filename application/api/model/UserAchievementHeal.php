@@ -264,11 +264,17 @@ class UserAchievementHeal extends \app\base\model\Base
                 $order += ['yesterday_flower' => 'desc'];
             }
             $order += [
+                'update_time' => 'asc',
                 'create_time' => 'asc',
                 'id' => 'asc'
             ];
+
+            $map = [
+                $whereField => ['>', 0],
+            ];
             $list = UserStar::with(['User', 'Star', 'achievement'])
                 ->page ($page, $size)
+                ->where ($map)
                 ->order ($order)
                 ->select ();
 

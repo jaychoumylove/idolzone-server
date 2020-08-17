@@ -236,4 +236,62 @@ class Fanclub extends Base
             }
         }
     }
+
+    public static function removeAll($operater, array $uids)
+    {
+        $isLeader = FanclubUser::isLeader($operater);
+        $isAdmin= FanclubUser::isAdmin($operater);
+        if (($isLeader || $isAdmin  )==false) {
+            Common::res([
+                'code' => 1,
+                'msg' => '没有权限'
+            ]);
+        }
+        $fanclubId =  FanclubUser::where('user_id', $operater)->value ('fanclub_id');
+        $fanclubUsers = FanclubUser::where('user_id', 'in', $uids)
+            ->where('fanclub_id', $fanclubId)
+            ->field('week_count,week_hot,weekmem_count,weekbox_count')
+            ->select();
+        if (is_object ($fanclubUsers)) $fanclubUsers = $fanclubUsers->toArray ();
+
+        $user_ids = array_column ($fanclubUsers, 'user_id');
+        if (empty($user_ids)) {
+            Common::res (['code' => 1, 'msg' => '用户已请出']);
+        }
+
+        $fanclub = self::get ($fanclubId);
+        if (empty($fanclub)) {
+            Common::res (['code' => 1, 'msg' => '粉丝团已注销']);
+        }
+
+
+        $weekCount    = array_sum (array_column ($fanclubUsers, 'week_count'));
+        $weekHot      = array_sum (array_column ($fanclubUsers, 'week_hot'));
+        $weekMemCount = array_sum (array_column ($fanclubUsers, 'weekmem_count'));
+        $weekBoxCount = array_sum (array_column ($fanclubUsers, 'weekbox_count'));
+
+        $fanClubUpdate = [
+            'mem_count'    => bcsub ($fanclub['mem_count'], count ($user_ids)),
+            'week_count'    => bcsub ($fanclub['week_count'], $weekCount),
+            'week_hot'      => bcsub ($fanclub['week_hot'], $weekHot),
+            'weekmem_count' => bcsub ($fanclub['weekmem_count'], $weekMemCount),
+            'weekbox_count' => bcsub ($fanclub['weekbox_count'], $weekBoxCount),
+        ];
+
+        Db::startTrans ();
+        try {
+            // 用户退出
+            FanclubUser::destroy($user_ids);
+            FanclubApplyUser::where('user_id', 'in', $user_ids)->delete();
+
+            self::where('id', $fanclubId)->update($fanClubUpdate);
+
+            Db::commit ();
+        } catch (\Throwable $throwable) {
+            Db::rollback ();
+
+            Common::res (['code' => 1, 'msg' => '请稍后再试']);
+        }
+    }
+
 }

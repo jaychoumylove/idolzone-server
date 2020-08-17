@@ -493,4 +493,16 @@ class FansClub extends Base
             'data' => $res
         ]);
     }
+
+    public function removeAll()
+    {
+        $this->getUser();
+        $uid = input ('user_id', []);
+        if (empty($uid) || is_array ($uid) == false) {
+            Common::res (['code' => 1, 'msg' => '请选择移出人员']);
+        }
+
+        Fanclub::removeAll($this->uid,$uid);
+        Common::res();
+    }
 }
