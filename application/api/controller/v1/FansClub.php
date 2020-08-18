@@ -497,12 +497,12 @@ class FansClub extends Base
     public function removeAll()
     {
         $this->getUser();
-        $uid = input ('user_id', []);
-        if (empty($uid) || is_array ($uid) == false) {
+        $uid = input ('user_id', false);
+        if (empty($uid)) {
             Common::res (['code' => 1, 'msg' => '请选择移出人员']);
         }
 
-        Fanclub::removeAll($this->uid,$uid);
+        Fanclub::removeAll($this->uid,explode (',', $uid));
         Common::res();
     }
 }
