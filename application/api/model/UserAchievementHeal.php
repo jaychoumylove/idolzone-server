@@ -132,7 +132,7 @@ class UserAchievementHeal extends \app\base\model\Base
         $rank = 'no';
         if ($info[$field] > 0) {
             $rank = self::where($field, '>', $info[$field])->where ($starMap)->count ();
-            $rank = bcadd ($rank, 1);
+            $rank = (int) bcadd ($rank, 1);
         }
         $info['rank'] = $rank;
         $info['count'] = $info[$field];
@@ -145,7 +145,7 @@ class UserAchievementHeal extends \app\base\model\Base
 
     private static function getMyFlowerRankList($rankTypeField, $user_id, $extra)
     {
-        $info = UserStar::where('user_id', $user_id)->find ();
+        $info = UserStar::with(['User','Star'])->where('user_id', $user_id)->find ();
         if (empty($info)) return [];
         $headWear = CfgHeadwear::where('key', CfgHeadwear::FLOWER)->find ();
 
@@ -171,7 +171,7 @@ class UserAchievementHeal extends \app\base\model\Base
             $rank = UserStar::where($field, '>', $info[$field])
                 ->where ($starMap)
                 ->count ();
-            $rank = bcadd ($rank, 1);
+            $rank = (int) bcadd ($rank, 1);
         }
         $info['rank'] = $rank;
         $info['count'] = $info[$field];
@@ -194,14 +194,13 @@ class UserAchievementHeal extends \app\base\model\Base
             $lastPkTime = date('Y-m-d', time()) . ' ' . $pkStatus['timeSpace']['start_time'] . ':00';
         }
 
-        $infoMap = ['user_id' => $user_id];
+        $infoMap = ['uid' => $user_id];
         if ($rankTypeField == 'today') {
             $infoMap['last_pk_time'] = $lastPkTime;
         }
-        $info = PkUserRank::where($infoMap)->find ();
+        $info = PkUserRank::with(['User','star'])->where($infoMap)->find ();
         if (empty($info)) return null;
 
-        $user = User::get ($user_id);
         $sumTime = self::where('user_id', $user_id)
             ->where('type', self::PK)
             ->value ('sum_time', 0);
@@ -217,11 +216,9 @@ class UserAchievementHeal extends \app\base\model\Base
             }
 
             $rank = PkUserRank::where($rankMap)->count ();
-            $rank = bcadd ($rank, 1);
+            $rank = (int) bcadd ($rank, 1);
         }
         $info['rank'] = $rank;
-        $info['user'] = $user;
-        $info['star'] = Star::get ($extra['star_id']);
         $info['count'] = $info[$field];
         $info['headwear'] = HeadwearUser::getUse($user_id);
         $info['img'] = $headWear['img'];
@@ -254,8 +251,8 @@ class UserAchievementHeal extends \app\base\model\Base
             }
         }
 
-        $info = UserStar::where('user_id', $user_id)->find ();
-        if (empty($userStar)) {
+        $info = UserStar::with(['User', 'Star'])->where('user_id', $user_id)->find ();
+        if (empty($info)) {
             Common::res (['code' =>1, 'msg' => '请先加入圈子']);
         }
 
@@ -277,11 +274,9 @@ class UserAchievementHeal extends \app\base\model\Base
         $rank = 'no';
         if ($info[$field] > 0) {
             $rank = UserStar::where($field, '>', $info[$field])->count ();
-            $rank = bcadd ($rank, 1);
+            $rank = (int) bcadd ($rank, 1);
         }
         $info['rank'] = $rank;
-        $info['user'] = $user;
-        $info['star'] = Star::get ($info['star_id']);
         $info['count'] = $info[$field];
         $info['headwear'] = HeadwearUser::getUse($user_id);
         $info['img'] = $headWear['img'];

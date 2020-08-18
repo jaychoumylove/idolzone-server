@@ -15,7 +15,7 @@ class PkUserRank extends Base
 
     public function star()
     {
-        return $this->hasOne('Star', 'mid', 'id');
+        return $this->hasOne('Star', 'id', 'mid');
     }
 
     public static function settleHot($pk_time)
