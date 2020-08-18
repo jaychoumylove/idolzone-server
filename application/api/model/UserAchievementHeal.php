@@ -329,6 +329,7 @@ class UserAchievementHeal extends \app\base\model\Base
         if ($rankType == 'today') {
             $list = PkUserRank::with(['User'])
                 ->where('last_pk_time', $lastPkTime)
+                ->where ('last_pk_count', '>', 0)
                 ->order([
                     'last_pk_count' => 'desc',
                     'orderupdate_time' => 'asc'
@@ -363,11 +364,11 @@ class UserAchievementHeal extends \app\base\model\Base
             if ($rankType == 'star') {
                 $map.= sprintf (' and pk.mid = %s', $extra['star_id']);
             }
-            $map .= sprintf (' and pk.last_pk_time = "%s"', $lastPkTime);
 
             $list = Db::name('pk_user_rank')->alias('pk')
                 ->join('user_achievement_heal ua', 'ua.user_id = pk.uid','LEFT OUTER')
                 ->where($map)
+                ->where('pk.achievement_total_count', '>', 0)
                 ->field('ua.*,pk.achievement_total_count,pk.last_pk_time,pk.mid,pk.uid')
                 ->order('ua.sum_time desc,pk.achievement_total_count desc,pk.orderupdate_time asc')
                 ->page($page, $size)
@@ -423,6 +424,7 @@ class UserAchievementHeal extends \app\base\model\Base
             ->join('user u', 'u.id = us.user_id')
             ->where('u.create_time', '>', $rankMap[$rankType])
             ->where($rankEnd)
+            ->where($orderField, '>', 0)
             ->order([
                 $orderField  => 'desc',
                 'u.id' => 'asc'
@@ -519,6 +521,7 @@ class UserAchievementHeal extends \app\base\model\Base
             $list = Db::name('user_star')->alias('us')
                 ->join('user_achievement_heal ua', 'ua.user_id = us.user_id', 'LEFT OUTER')
                 ->where ($map)
+                ->where ('achievement_flower', '>', 0)
                 ->order([
                     'ua.sum_time'  => 'desc',
                     'us.achievement_flower'  => 'desc',
@@ -602,6 +605,7 @@ class UserAchievementHeal extends \app\base\model\Base
 
         $list = self::with(['user', 'star'])
             ->where($map)
+            ->where($field, '>', 0)
             ->order ($order)
             ->page ($page, $size)
             ->select ();
