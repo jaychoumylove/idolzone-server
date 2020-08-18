@@ -129,8 +129,11 @@ class UserAchievementHeal extends \app\base\model\Base
         if ($rankTypeField == 'star') {
             $starMap['star_id'] = $extra['star_id'];
         }
-        $rank = self::where($field, '>', $info[$field])->where ($starMap)->count ();
-        $rank = bcadd ($rank, 1);
+        $rank = 'no';
+        if ($info[$field] > 0) {
+            $rank = self::where($field, '>', $info[$field])->where ($starMap)->count ();
+            $rank = bcadd ($rank, 1);
+        }
         $info['rank'] = $rank;
         $info['count'] = $info[$field];
         $info['num'] = (int)bcdiv ($info['sum_time'], self::TIMER);
@@ -158,14 +161,18 @@ class UserAchievementHeal extends \app\base\model\Base
         if ($rankTypeField == 'star') {
             $starMap['star_id'] = $extra['star_id'];
         }
-        $rank = UserStar::where($field, '>', $info[$field])
-            ->where ($starMap)
-            ->count ();
 
         $sumTime = self::where('user_id', $user_id)
             ->where('type', self::FLOWER)
             ->value ('sum_time', 0);
-        $rank = bcadd ($rank, 1);
+
+        $rank = 'no';
+        if ($info[$field] > 0) {
+            $rank = UserStar::where($field, '>', $info[$field])
+                ->where ($starMap)
+                ->count ();
+            $rank = bcadd ($rank, 1);
+        }
         $info['rank'] = $rank;
         $info['count'] = $info[$field];
         $info['num'] = (int)bcdiv ($sumTime, self::TIMER);
@@ -195,19 +202,23 @@ class UserAchievementHeal extends \app\base\model\Base
         if (empty($info)) return null;
 
         $user = User::get ($user_id);
-
-        $field = $rankTypeField == 'today' ? 'last_pk_count': 'achievement_total_count';
-        $rankMap = [
-            $field => ['>', 0]
-        ];
-        if ($rankTypeField == 'star') {
-            $rankMap['mid'] = $extra['star_id'];
-        }
         $sumTime = self::where('user_id', $user_id)
             ->where('type', self::PK)
             ->value ('sum_time', 0);
-        $rank = PkUserRank::where($rankMap)->count ();
-        $rank = bcadd ($rank, 1);
+
+        $field = $rankTypeField == 'today' ? 'last_pk_count': 'achievement_total_count';
+        $rank = 'no';
+        if ($info[$field] > 0) {
+            $rankMap = [
+                $field => ['>', $info[$field]]
+            ];
+            if ($rankTypeField == 'star') {
+                $rankMap['mid'] = $extra['star_id'];
+            }
+
+            $rank = PkUserRank::where($rankMap)->count ();
+            $rank = bcadd ($rank, 1);
+        }
         $info['rank'] = $rank;
         $info['user'] = $user;
         $info['star'] = Star::get ($extra['star_id']);
@@ -262,8 +273,12 @@ class UserAchievementHeal extends \app\base\model\Base
         $sumTime = self::where('user_id', $user_id)
             ->where('type', self::NEW_GUY)
             ->value ('sum_time', 0);
-        $rank = UserStar::where($field, '>', $info[$field])->count ();
-        $rank = bcadd ($rank, 1);
+
+        $rank = 'no';
+        if ($info[$field] > 0) {
+            $rank = UserStar::where($field, '>', $info[$field])->count ();
+            $rank = bcadd ($rank, 1);
+        }
         $info['rank'] = $rank;
         $info['user'] = $user;
         $info['star'] = Star::get ($info['star_id']);
