@@ -37,6 +37,8 @@ class Payment extends Base
     public function order()
     {
         $this->getUser();
+        if(User::where('id',$this->uid)->value('type')==5) Common::res(['code' => 1, 'msg' => '该账号检测不安全，不予以充值']);
+
         $type = $this->req('type', 'require');
         $user_id = $this->req('user_id', 'require',0);
         $count = $this->req('count', 'integer'); // 数目
