@@ -353,23 +353,38 @@ class UserAchievementHeal extends \app\base\model\Base
 
         $listMap = ['star', 'all'];
         if (in_array ($rankType, $listMap)) {
-            $map = sprintf ('(ua.type = "%s" or ua.type is null)', self::PK);
-            if ($rankType == 'star') {
-                $map.= sprintf (' and pk.mid = %s', $extra['star_id']);
-            }
+//            $map = sprintf ('(ua.type = "%s" or ua.type is null)', self::PK);
+//            if ($rankType == 'star') {
+//                $map.= sprintf (' and pk.mid = %s', $extra['star_id']);
+//            }
+//
+//            $list = Db::name('pk_user_rank')->alias('pk')
+//                ->join('user_achievement_heal ua', 'ua.user_id = pk.uid','LEFT OUTER')
+//                ->where($map)
+//                ->where('pk.achievement_total_count', '>', 0)
+//                ->field('ua.*,pk.achievement_total_count,pk.last_pk_time,pk.mid,pk.uid')
+//                ->order('ua.sum_time desc,pk.achievement_total_count desc,pk.orderupdate_time asc')
+//                ->page($page, $size)
+//                ->select();
 
-            $list = Db::name('pk_user_rank')->alias('pk')
-                ->join('user_achievement_heal ua', 'ua.user_id = pk.uid','LEFT OUTER')
-                ->where($map)
-                ->where('pk.achievement_total_count', '>', 0)
-                ->field('ua.*,pk.achievement_total_count,pk.last_pk_time,pk.mid,pk.uid')
-                ->order('ua.sum_time desc,pk.achievement_total_count desc,pk.orderupdate_time asc')
-                ->page($page, $size)
-                ->select();
+            $map = [
+                  'achievement_total_count' => ['>', 0]
+            ];
+            if ($rankType == 'star') {
+                $map['mid']= $extra['star_id'];
+            }
+            $list = PkUserRank::where($map)
+                ->order ([
+                    'achievement_total_count' => 'desc',
+                    'orderupdate_time' => 'asc'
+                ])
+                ->page ($page, $size)
+                ->select ();
 
             if (is_object ($list)) $list = $list->toArray ();
             $userIds = array_column ($list, 'uid');
             $userDict = self::getDictList (new User(), $userIds, 'id','id,nickname,avatarurl');
+            $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', "*", ['type' => self::PK]);
 
             $starIds = array_column ($list, 'mid');
             $starDict = self::getDictList (new Star(), $starIds, 'id');
@@ -381,7 +396,11 @@ class UserAchievementHeal extends \app\base\model\Base
                 $value['star'] = $star;
                 $value['headwear'] = HeadwearUser::getUse($value['uid']);
                 $value['img'] = $headWear['img'];
-                $value['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
+//                $value['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
+                $value['num'] = 0;
+                if (array_key_exists ($value['uid'], $achievementDict)) {
+                    $value['num'] = (int)bcdiv ($achievementDict[$value['uid']]['sum_time'], self::TIMER);
+                }
                 $value['count'] = $value['achievement_total_count'] ?: 0;
             }
         }
@@ -532,6 +551,7 @@ class UserAchievementHeal extends \app\base\model\Base
             $starIds = array_column ($list, 'star_id');
             $starDict = self::getDictList (new Star(), $starIds, 'id');
 
+//            $achievementDict = self::getDictList (new UserAchievementHeal(), $userIds, 'user_id', "*", ['type' => self::NEW_GUY]);
             foreach ($list as $index => $item) {
                 $value = $item;
                 $user = array_key_exists ($item['user_id'], $userDict) ? $userDict[$item['user_id']]: null;
@@ -541,6 +561,10 @@ class UserAchievementHeal extends \app\base\model\Base
                 $value['img'] = $headWear['img'];
                 $value['headwear'] = HeadwearUser::getUse($value['user_id']);
                 $value['count'] = $value['achievement_flower'];
+//                $value['num'] = 0;
+//                if (array_key_exists ($item['user_id'], $achievementDict)) {
+//                    $value['num'] = (int)bcdiv ($achievementDict[$item['user_id']]['sum_time'], self::TIMER);
+//                }
                 $value['num'] = (int)bcdiv ($value['sum_time'], self::TIMER);
                 $list[$index] = $value;
             }
