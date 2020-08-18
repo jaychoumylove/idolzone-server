@@ -162,7 +162,9 @@ class UserAchievementHeal extends \app\base\model\Base
             ->where ($starMap)
             ->count ();
 
-        $sumTime = self::where('user_id', $user_id)->value ('sum_time', 0);
+        $sumTime = self::where('user_id', $user_id)
+            ->where('type', self::FLOWER)
+            ->value ('sum_time', 0);
         $rank = bcadd ($rank, 1);
         $info['rank'] = $rank;
         $info['count'] = $info[$field];
@@ -185,51 +187,30 @@ class UserAchievementHeal extends \app\base\model\Base
             $lastPkTime = date('Y-m-d', time()) . ' ' . $pkStatus['timeSpace']['start_time'] . ':00';
         }
 
-        $info = PkUserRank::where('user_id', $user_id)->find ();
+        $infoMap = ['user_id' => $user_id];
+        if ($rankTypeField == 'today') {
+            $infoMap['last_pk_time'] = $lastPkTime;
+        }
+        $info = PkUserRank::where($infoMap)->find ();
+        if (empty($info)) return null;
+
+        $user = User::get ($user_id);
+
+        $field = $rankTypeField == 'today' ? 'last_pk_count': 'achievement_total_count';
         $rankMap = [
-            'today'     => date ('Y-m-d') . ' 00:00:00',
-            'yesterday' => date ('Y-m-d', strtotime ('-1 days')) . ' 00:00:00',
-            'week'      => date ('Y-m-d H:i:s', strtotime ('monday this week')),
-            'month'     => date ('Y-m-d', strtotime ('first day of this month')) . ' 00:00:00',
+            $field => ['>', 0]
         ];
-
-        $rankEnd = [];
-        if ($rankTypeField == 'yesterday') {
-            $rankEnd['yesterday'] = date ('Y-m-d') . ' 00:00:00';
+        if ($rankTypeField == 'star') {
+            $rankMap['mid'] = $extra['star_id'];
         }
-
-        $user = User::where('id', $user_id)->find ();
-        if ($rankMap[$rankTypeField] > $user['create_time']) {
-            return null;
-        }
-        if (array_key_exists ($rankTypeField, $rankEnd)) {
-            if ($rankEnd[$rankTypeField] < $user['create_time']) {
-                return null;
-            }
-        }
-
-        $info = UserStar::where('user_id', $user_id)->find ();
-        if (empty($userStar)) {
-            Common::res (['code' =>1, 'msg' => '请先加入圈子']);
-        }
-
-        $fieldMap = [
-            'today'     => 'thisday_count',
-            'yesterday' => 'lastday_count',
-            'week'      => 'achievement_week_count',
-            'month'     => 'achievement_month_count',
-        ];
-
-        $field = $fieldMap[$rankTypeField];
-
-        $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
-
-        $sumTime = self::where('user_id', $user_id)->value ('sum_time', 0);
-        $rank = UserStar::where($field, '>', $info[$field])->count ();
+        $sumTime = self::where('user_id', $user_id)
+            ->where('type', self::PK)
+            ->value ('sum_time', 0);
+        $rank = PkUserRank::where($rankMap)->count ();
         $rank = bcadd ($rank, 1);
         $info['rank'] = $rank;
         $info['user'] = $user;
-        $info['star'] = Star::get ($info['star_id']);
+        $info['star'] = Star::get ($extra['star_id']);
         $info['count'] = $info[$field];
         $info['headwear'] = HeadwearUser::getUse($user_id);
         $info['img'] = $headWear['img'];
@@ -278,7 +259,9 @@ class UserAchievementHeal extends \app\base\model\Base
 
         $headWear = CfgHeadwear::where('key', CfgHeadwear::NEW_GUY)->find ();
 
-        $sumTime = self::where('user_id', $user_id)->value ('sum_time', 0);
+        $sumTime = self::where('user_id', $user_id)
+            ->where('type', self::NEW_GUY)
+            ->value ('sum_time', 0);
         $rank = UserStar::where($field, '>', $info[$field])->count ();
         $rank = bcadd ($rank, 1);
         $info['rank'] = $rank;
