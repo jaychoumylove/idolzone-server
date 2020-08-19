@@ -118,13 +118,14 @@ class Fanclub extends Base
 
             // 更新状态为1，表示成功拉新一次 此时上级可以领取奖励
             if ($relation['status'] == 0) {
-                if ($rer_user_id) {
+                $starId = UserStar::getStarId ($rer_user_id);
+                $exited = empty($starId); // true 已退圈 false 未退圈
+                if ($rer_user_id && empty($exited)) {
                     UserRelation::where(['ral_user_id' => $uid])->update(['status' => 1]);
                     $status = Cfg::checkInviteAssistTime ();
                     if ($status) {
                         $platform = User::where('id', $rer_user_id)->value ('platform');
                         if ($platform == "MP-WEIXIN") {
-                            $starId = UserStar::getStarId ($rer_user_id);
                             UserInvite::recordInvite ($rer_user_id, $starId);
                             \app\api\service\Star::addInvite ($starId);
                         }
@@ -144,7 +145,7 @@ class Fanclub extends Base
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
-            throw new $e;
+            throw $e;
 //            Common::res([
 //                'code' => 400,
 //                'msg' => $e->getMessage()
