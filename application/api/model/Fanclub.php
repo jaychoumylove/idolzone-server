@@ -144,10 +144,11 @@ class Fanclub extends Base
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
-            Common::res([
-                'code' => 400,
-                'msg' => $e->getMessage()
-            ]);
+            throw new $e;
+//            Common::res([
+//                'code' => 400,
+//                'msg' => $e->getMessage()
+//            ]);
         }
     }
     /**

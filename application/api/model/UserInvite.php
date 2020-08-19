@@ -39,7 +39,10 @@ class UserInvite extends \app\base\model\Base
     {
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
 
-        $map  = compact ('user_id', 'star_id');
+        $map  = [
+            'user_id' => $user_id,
+            'star_id' => $star_id
+        ];
 
         $exist = (new self())->readMaster ()->where($map)->find ();
         if (empty($exist)) {
