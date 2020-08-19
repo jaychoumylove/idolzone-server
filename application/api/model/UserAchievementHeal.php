@@ -238,7 +238,7 @@ class UserAchievementHeal extends \app\base\model\Base
 
         $rankEnd = [];
         if ($rankTypeField == 'yesterday') {
-            $rankEnd['yesterday'] = date('Y-m-d') . ' 00:00:00';
+            $rankEnd['yesterday'] = $rankMap['today'];
         }
 
         $user = User::where('id', $user_id)->find();
@@ -369,12 +369,6 @@ class UserAchievementHeal extends \app\base\model\Base
             'week'      => date('Y-m-d H:i:s', strtotime('monday this week')),
             'month'     => date('Y-m-d', strtotime('first day of this month')) . ' 00:00:00',
         ];
-
-        $rankEnd = [];
-        if ($rankType == 'yesterday') {
-            $rankEnd['u.create_time'] = ['<', date('Y-m-d') . ' 00:00:00'];
-        }
-
         $orderMap = [
             'today'     => 'thisday_count',
             'yesterday' => 'lastday_count',
@@ -387,7 +381,7 @@ class UserAchievementHeal extends \app\base\model\Base
             'create_time' => ['>', $rankMap[$rankType]]
         ];
         if ($rankType == 'yesterday') {
-            $end                = date('Y-m-d') . ' 00:00:00';
+            $end                = $rankMap['today'];
             $map['create_time'] = ['between', [$rankMap[$rankType], $end]];
         }
         $order = [
