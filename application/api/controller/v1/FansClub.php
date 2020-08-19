@@ -1,6 +1,7 @@
 <?php
 namespace app\api\controller\v1;
 
+use app\api\model\Cfg;
 use app\api\model\CfgWealActivityTask;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecWealActivityTask;
@@ -34,11 +35,11 @@ class FansClub extends Base
         $res['wx'] = $this->req('wx', 'require');
         $this->getUser();
 
-        if(CfgUserLevel::getLevel($this->uid)<9) Common::res(['code' => 1, 'msg' => '粉丝等级需达到9级']);
-        
-        (new WxAPI())->msgCheck($res['clubname']);
         $res['user_id'] = $this->uid;
         $res['star_id'] = UserStar::getStarId($this->uid);
+        if(!in_array($res['star_id'],Cfg::getCfg('fanclub_ignore_userlevel')) && CfgUserLevel::getLevel($this->uid)<9) Common::res(['code' => 1, 'msg' => '粉丝等级需达到9级']);
+        
+        (new WxAPI())->msgCheck($res['clubname']);
 
         Db::startTrans();
         try {
