@@ -93,8 +93,10 @@ class Page extends Base
             $res['config']['index_open'] = null;
         } else {
             // index_open 格式 '{"img": "", "url": "", "platform":["MP-WEIXIN","MP-QQ"]}'
-            if (in_array ($platform, $res['config']['index_open']['platform']) == false) {
-                $res['config']['index_open'] = null;
+            if (array_key_exists ('platform', $res['config']['index_open'])) {
+                if (in_array ($platform, $res['config']['index_open']['platform']) == false) {
+                    $res['config']['index_open'] = null;
+                }
             }
         }
 
