@@ -329,7 +329,8 @@ class WxAPI
         if (isset($res['errcode']) && $res['errcode']) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
         //QQ
         if (isset($res['errCode']) && $res['errCode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
-        if (isset($res['errCode']) && $res['errCode']) Common::res(['code' => 1, 'msg' => $res['errMsg']]);
+//        只有检测合法值为87014的情况检测出错
+//        if (isset($res['errCode']) && $res['errCode']) Common::res(['code' => 1, 'msg' => $res['errMsg']]);
     }
 
     /**校验一张图片是否含有违法违规内容 */
