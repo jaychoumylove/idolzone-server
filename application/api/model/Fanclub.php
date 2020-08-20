@@ -276,7 +276,7 @@ class Fanclub extends Base
         $fanclubId =  FanclubUser::where('user_id', $operater)->value ('fanclub_id');
         $fanclubUsers = FanclubUser::where('user_id', 'in', $uids)
             ->where('fanclub_id', $fanclubId)
-            ->field('week_count,week_hot,weekmem_count,weekbox_count')
+            ->field('user_id,week_count,week_hot,weekmem_count,weekbox_count')
             ->select();
         if (is_object ($fanclubUsers)) $fanclubUsers = $fanclubUsers->toArray ();
 
@@ -307,7 +307,7 @@ class Fanclub extends Base
         Db::startTrans ();
         try {
             // 用户退出
-            FanclubUser::destroy($user_ids);
+            FanclubUser::destroy (['user_id' => ['in', $user_ids]]);
             FanclubApplyUser::where('user_id', 'in', $user_ids)->delete();
 
             self::where('id', $fanclubId)->update($fanClubUpdate);
