@@ -252,13 +252,23 @@ class User extends Base
         $user = UserModel::where('id', $this->uid)->field('type,nickname,avatarurl')->find();
         
         //禁言
-        if ($user['type'] == 2) return;
-        
-        // 检测发言内容
-        RecStarChart::verifyWord($content);
+        if ($user['type'] == 2) {
+            Common::res(['code' =>1,'msg' => '您已被禁言']);
+        }
         
         //记录喊话
-        $starid = UserStar::where('user_id', $this->uid)->value('star_id');
+        $userStar = UserStar::where('user_id', $this->uid)->find();
+        $openTime = $userStar['open_time'];
+        $currentTime = time();
+        if ($openTime && $openTime > $currentTime) {
+            $msg = sprintf('你已被禁言预计解封时间：%s', date('Y-m-d H:i:s', $openTime));
+            Common::res(['code' => 1, 'msg' => $msg]);
+        }
+
+        // 检测发言内容
+        RecStarChart::verifyWord($content);
+
+        $starid = $userStar['star_id'];
         RecStarChart::create([
             'user_id' => $this->uid,
             'star_id' => $starid,
