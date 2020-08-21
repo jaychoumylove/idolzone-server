@@ -72,7 +72,7 @@ class UserExt extends Base
         $currentTime = time();
         $diff = bcsub($currentTime, $data['lottery_star_time']);
         if ((int)$diff < (int)$config['start_limit_time']) {
-            Common::res(['code' => 1, 'msg' => '点击太快了']);
+            Common::res(['code' => 1, 'msg' => sprintf("每%s秒才能抽一次哦", $config['start_limit_time'])]);
         }
 
         // 随机一个奖品
