@@ -901,3 +901,7 @@ INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `updat
 -- 新增碎片成品排序
 alter table f_cfg_scrap
 	add sort int default 0 not null comment '排序 0-99整数 越大越靠前';
+
+-- 记录用户上次抽奖时间以便限制用户抽奖间隙
+alter table f_user_ext
+    add lottery_star_time int default 0 not null comment '上次抽奖时间戳';

@@ -27,12 +27,6 @@ class Lottery extends Base
             // 在线
             $max = 30;
             $remainCount = UserExt::addCount($this->uid, $max);
-        } else if ($type == 2) {
-            // 观看视频 直接+5次
-            $remainCount = UserExt::where('user_id', $this->uid)->value('lottery_count');
-            $remainCount += 5;
-            if ($remainCount > 30) $remainCount = 30;
-            UserExt::where('user_id', $this->uid)->update(['lottery_count' => $remainCount, 'lottery_time' => time()]);
         }
 
         Common::res(['data' => $remainCount]);
