@@ -27,26 +27,34 @@ class UserExt extends Base
     }
 
     /**增加抽奖次数 */
-    public static function addCount($uid, $max = 10)
+    public static function addCount($uid, $type = 0)
     {
         $data = self::where('user_id', $uid)->field('lottery_count,lottery_time')->find();
-
-        if ($data['lottery_count'] >= $max) {
-            // 当前剩余次数大于上限 
-            $remainCount = $data['lottery_count'];
-        } else {
-            // 加完之后的抽奖次数
-            $remainCount = floor((time() - $data['lottery_time']) / 60) + $data['lottery_count'];
-
-            if ($remainCount > $data['lottery_count']) {
-                $remainCount = $remainCount > $max ? $max : $remainCount;
-
-                self::where('user_id', $uid)->update([
-                    'lottery_count' => $remainCount,
-                    'lottery_time' => time(),
-                ]);
-            }
+        $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
+        $diff = time() - $data['lottery_time'];
+        $auto_add_time = $config['auto_add_time'];
+        if ($diff < $auto_add_time) {
+            // 不在自动恢复次数时间内
+            return $data['lottery_count'];
         }
+
+        $typeMap = ['first_max', 'add_max'];
+        $max = $config[$typeMap[$type]];
+        if ($data['lottery_count'] >= $max) {
+            // 当前剩余次数大于上限
+            return $data['lottery_count'];
+        }
+
+        // 加完之后的抽奖次数
+        $num = (int) bcdiv($diff, $auto_add_time);
+        $remainCount = (int) bcadd($num, $data['lottery_count']);
+
+        $remainCount = $remainCount > $max ? $max : $remainCount;
+
+        self::where('user_id', $uid)->update([
+            'lottery_count' => $remainCount,
+            'lottery_time' => time(),
+        ]);
 
         return $remainCount;
     }
@@ -54,22 +62,34 @@ class UserExt extends Base
     /**抽奖 */
     public static function lotteryStart($uid)
     {
-        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time,lottery_times')->find();
+        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time,lottery_times,lottery_star_time')->find();
         if ($data['lottery_count'] <= 0) Common::res(['code' => 1, 'msg' => '没有抽奖次数了']);
-        if ($data['lottery_times'] >= 100) Common::res(['code' => 1, 'msg' => '今天已经抽了100次了']);
+        $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
+        if ($data['lottery_times'] >= $config['day_max']) {
+            $msg = sprintf('今天已经抽了%s次了', $config['day_max']);
+            Common::res(['code' => 1, 'msg' => $msg]);
+        }
+        $currentTime = time();
+        $diff = bcsub($currentTime, $data['lottery_star_time']);
+        if ((int)$diff < (int)$config['start_limit_time']) {
+            Common::res(['code' => 1, 'msg' => '点击太快了']);
+        }
 
         // 随机一个奖品
         $lottery = Common::lottery(CfgLottery::all());
 
         Db::startTrans();
         try {
-            
             // 扣除金豆增加今日抽奖次数
             $isDone = self::where('user_id', $uid)->where('lottery_times', '<', 100)->update([
                 'lottery_count' => Db::raw('lottery_count-1'),
                 'lottery_times' => Db::raw('lottery_times+1'),
+                'lottery_star_time' => $currentTime
             ]);
-            if(!$isDone) Common::res(['code' => 1, 'msg' => '今天已经抽了100次了']);
+            if(!$isDone) {
+                $msg = isset($msg) ? $msg: sprintf('今天已经抽了%s次了', $config['day_max']);
+                Common::res(['code' => 1, 'msg' => $msg]);
+            }
     
             RecTask::addRec($uid, [5, 6]);
             RecTaskfather::addRec($uid, [4, 15, 26, 37]);

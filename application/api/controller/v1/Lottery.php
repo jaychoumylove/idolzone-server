@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\Cfg;
 use app\api\model\RecLotteryBox;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -21,12 +22,20 @@ class Lottery extends Base
 
         if ($type == 0) {
             // 离线
-            $max = 10;
-            $remainCount = UserExt::addCount($this->uid, $max);
+            $remainCount = UserExt::addCount($this->uid, $type);
         } else if ($type == 1) {
             // 在线
-            $max = 30;
-            $remainCount = UserExt::addCount($this->uid, $max);
+            $remainCount = UserExt::addCount($this->uid, $type);
+        } else if ($type == 2) {
+            $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
+            if (empty($config['enable_video_add']['status'])) {
+                Common::res(['code' => 1, 'msg' => '暂未开放']);
+            }
+            // 观看视频 直接+5次
+            $remainCount = UserExt::where('user_id', $this->uid)->value('lottery_count');
+            $remainCount += $config['enable_video_add']['number'];
+            if ($remainCount > $config['add_max']) $remainCount = $config['add_max'];
+            UserExt::where('user_id', $this->uid)->update(['lottery_count' => $remainCount, 'lottery_time' => time()]);
         }
 
         Common::res(['data' => $remainCount]);
