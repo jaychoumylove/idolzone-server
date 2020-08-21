@@ -2,8 +2,10 @@
 
 namespace app\api\controller\v1;
 
+use app\base\service\alipay\request\AlipayTradeWapPayRequest;
 use app\api\model\Cfg;
 use app\base\controller\Base;
+use app\base\service\alipay\AopClient;
 use app\base\service\Common;
 use app\api\model\PayGoods;
 use app\api\model\RecPayOrder;
@@ -89,6 +91,32 @@ class Payment extends Base
 
         // 处理预支付数据
         (new WxPayService())->returnFront($res);
+    }
+
+    public function alipayOrder()
+    {
+        $aop = new AopClient ();
+
+        $aop->gatewayUrl = 'https://openapi.alipay.com/gateway.do';
+        $aop->appId = '你的appid';
+        $aop->rsaPrivateKey = '你的应用私钥';
+        $aop->alipayrsaPublicKey = '你的支付宝公钥';
+        $aop->apiVersion = '1.0';
+        $aop->signType = 'RSA2';
+        $aop->postCharset = 'utf-8';
+        $aop->format = 'json';
+
+        $request = new AlipayTradeWapPayRequest ();
+        $request->setBizContent("{" .
+            "    \"body\":\"对一笔交易的具体描述信息。如果是多种商品，请将商品描述字符串累加传给body。\"," .
+            "    \"subject\":\"测试\"," .
+            "    \"out_trade_no\":\"70501111111S001111119\"," .
+            "    \"timeout_express\":\"90m\"," .
+            "    \"total_amount\":9.00," .
+            "    \"product_code\":\"QUICK_WAP_WAY\"" .
+            "  }");
+        $result = $aop->pageExecute($request);
+        echo $result;
     }
 
     /**支付成功的通知 */
