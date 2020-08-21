@@ -6,6 +6,7 @@ use app\base\service\alipay\request\AlipayTradeWapPayRequest;
 use app\api\model\Cfg;
 use app\base\controller\Base;
 use app\base\service\alipay\AopClient;
+use app\base\service\AliPayApi;
 use app\base\service\Common;
 use app\api\model\PayGoods;
 use app\api\model\RecPayOrder;
@@ -15,6 +16,7 @@ use app\api\model\UserSprite;
 use app\base\service\WxPay as WxPayService;
 use think\Db;
 use think\Log;
+use think\Request;
 
 class Payment extends Base
 {
@@ -44,6 +46,7 @@ class Payment extends Base
         $type = $this->req('type', 'require');
         $user_id = $this->req('user_id', 'require',0);
         $count = $this->req('count', 'integer'); // 数目
+        $payType = $this->req('pay_type', RecPayOrder::WECHAT_PAY);
 
         $discount = PayGoods::getMyDiscount($this->uid);
         if ($type == 'stone') {
@@ -58,6 +61,12 @@ class Payment extends Base
             $count *= $discount['increase'];
         }
 
+        $minCount = strlen(substr(strrchr($totalFee, "."), 1));
+        if ($minCount > 0) {
+            // 有小数位数即不符合比例
+            Common::res(['code' => 1, 'msg' => '数目不正确']);
+        }
+
         // 下单
         $order = RecPayOrder::create([
             'id' => date('YmdHis') . mt_rand(1000, 9999),
@@ -66,57 +75,96 @@ class Payment extends Base
             'total_fee' => $totalFee,
             'goods_info' => json_encode([$type => $count], JSON_UNESCAPED_UNICODE), // 商品信息
             'platform' => input('platform', null),
+            'pay_type' => $payType
         ]);
-        // 预支付参数
-        $config = [
-            'body' => '充值', // 支付标题
-            'orderId' => $order['id'], // 订单ID
-            'totalFee' => $totalFee, // 支付金额
-            'notifyUrl' => 'https://' . $_SERVER['HTTP_HOST'] . '/api/v1/pay/notify/' . input('platform'), // 支付成功通知url
-            'tradeType' => 'JSAPI', // 支付类型
-        ];
-        // APP和小程序差异
-        $openidType = 'openid';
-        if (input('platform') == 'APP') {
-            $openidType = 'openid_app';
-            $config['tradeType'] = 'APP';
-        } else if (input('platform') == 'MP-QQ') {
-            $config['tradeType'] = 'MINIAPP';
+
+        if ($payType == RecPayOrder::WECHAT_PAY) {
+            // 预支付参数
+            $config = [
+                'body' => '充值', // 支付标题
+                'orderId' => $order['id'], // 订单ID
+                'totalFee' => $totalFee, // 支付金额
+                'notifyUrl' => 'https://' . $_SERVER['HTTP_HOST'] . '/api/v1/pay/notify/' . input('platform'), // 支付成功通知url
+                'tradeType' => 'JSAPI', // 支付类型
+            ];
+            // APP和小程序差异
+            $openidType = 'openid';
+            if (input('platform') == 'APP') {
+                $openidType = 'openid_app';
+                $config['tradeType'] = 'APP';
+            } else if (input('platform') == 'MP-QQ') {
+                $config['tradeType'] = 'MINIAPP';
+            }
+
+            $config['openid'] = User::where('id', $this->uid)->value($openidType);
+            if (!$config['openid']) Common::res(['code' => 1, 'msg' => '请先登录小程序']);
+
+            $res = (new WxAPI())->unifiedorder($config);
+
+            // 处理预支付数据
+            (new WxPayService())->returnFront($res);
         }
 
-        $config['openid'] = User::where('id', $this->uid)->value($openidType);
-        if (!$config['openid']) Common::res(['code' => 1, 'msg' => '请先登录小程序']);
+        if ($payType == RecPayOrder::ALI_PAY) {
+            $aop = AliPayApi::getInstance();
 
-        $res = (new WxAPI())->unifiedorder($config);
+            $request = new AlipayTradeWapPayRequest ();
 
-        // 处理预支付数据
-        (new WxPayService())->returnFront($res);
+            $data = [
+                'body' => "",
+                'subject' => "充值",
+                'out_trade_no' => $order['id'],
+                'timeout_express' => "10m", // 支付截止时间
+                'total_amount' => $totalFee, //
+                'product_code' => "QUICK_WAP_WAY",
+            ];
+            $request->setBizContent(json_encode($data));
+            $notifyUrl = request()->domain() . '/api/v1/pay/alipaynotify';
+            $request->setNotifyUrl($notifyUrl);
+            $result = $aop->pageExecute($request);
+            Common::res(['data' => $result]);
+        }
     }
 
-    public function alipayOrder()
+    public function alipayNotify()
     {
-        $aop = new AopClient ();
+        $data = request()->post();
+        // 测试数据
+//        $data = json_decode('{"gmt_create":"2020-08-21 14:51:38","charset":"utf-8","seller_email":"boss@cyoor.com","subject":"测试","sign":"AmpSga21Znra0jr6X7AjVJQUSuPR0E3bjdaB62GaWfNb2GxpLfMlVV7DHL4pcrvM2hXLNfCLN5WkA1C1sIbDJcbvUGPawXm30s3qVyGILw/iJuErugv5uM2CAwtbsqH6Xqod4XksOVWa6fd68OaiK4cHqavq0n+/Iek6OVZDrKPvLK0q3s3HOEWYRrcGOv73v442gU1H6klUDT0PFj0gYZkPeaT0SDBFNYLk7pt4ZFYyAPqCkwiw4KB1/T//PHhn6dLLOIW8Vjt2tVbCwPN/s02gRgsGd+bnD95F9tTKdU30vyIdG42mdmc4DHwcxVJcCMgMv9FzZ20GwlJZzuG27A==","buyer_id":"2088022310408581","invoice_amount":"0.01","notify_id":"2020082100222145139008581405901343","fund_bill_list":"[{\"amount\":\"0.01\",\"fundChannel\":\"PCREDIT\"}]","notify_type":"trade_status_sync","trade_status":"TRADE_SUCCESS","receipt_amount":"0.01","buyer_pay_amount":"0.01","app_id":"2021001188684845","sign_type":"RSA2","seller_id":"2088931332328615","gmt_payment":"2020-08-21 14:51:38","notify_time":"2020-08-21 14:51:39","version":"1.0","out_trade_no":"ddh0002","total_amount":"0.01","trade_no":"2020082122001408581445066410","auth_app_id":"2021001188684845","buyer_logon_id":"155****9622","point_amount":"0.00"}', true);
 
-        $aop->gatewayUrl = 'https://openapi.alipay.com/gateway.do';
-        $aop->appId = '你的appid';
-        $aop->rsaPrivateKey = '你的应用私钥';
-        $aop->alipayrsaPublicKey = '你的支付宝公钥';
-        $aop->apiVersion = '1.0';
-        $aop->signType = 'RSA2';
-        $aop->postCharset = 'utf-8';
-        $aop->format = 'json';
+        if ($data['trade_status'] != 'TRADE_SUCCESS') {
+            die();
+        }
 
-        $request = new AlipayTradeWapPayRequest ();
-        $request->setBizContent("{" .
-            "    \"body\":\"对一笔交易的具体描述信息。如果是多种商品，请将商品描述字符串累加传给body。\"," .
-            "    \"subject\":\"测试\"," .
-            "    \"out_trade_no\":\"70501111111S001111119\"," .
-            "    \"timeout_express\":\"90m\"," .
-            "    \"total_amount\":9.00," .
-            "    \"product_code\":\"QUICK_WAP_WAY\"" .
-            "  }");
-        $result = $aop->pageExecute($request);
-        echo $result;
+        $aop = AliPayApi::getInstance();
+        // 验签
+        $res = $aop->rsaCheckV1($data, $aop->alipayrsaPublicKey, $data['sign_type']);
+        if (empty($res)) {
+            die();
+        }
+
+        $order = RecPayOrder::get($data['out_trade_no']);
+        if (empty($order)) {
+            die();
+        }
+        // 处理订单状态和业务
+        Db::startTrans();
+        try {
+            // 更改订单状态
+            $isDone = RecPayOrder::where(['id' => $data['out_trade_no']])->update(['pay_time' => $data['notify_time']]);
+            if ($isDone) {
+                // 支付成功 处理业务
+                RecPayOrder::paySuccess($order);
+                Db::commit();
+            }
+        } catch (\Exception $e) {
+            Db::rollback();
+            Log::record($e->getMessage(), 'error');
+            die();
+        }
+
+        echo "success";
+        die();
     }
 
     /**支付成功的通知 */

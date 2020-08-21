@@ -150,6 +150,7 @@ Route::rule('api/:version/pay/order', 'api/v1.Payment/order');// 支付下单
 Route::rule('api/:version/pay/notify/:platform', 'api/v1.Payment/notify');// 支付通知
 Route::rule('api/:version/pay/goods', 'api/v1.Payment/goods');// 商品列表
 Route::rule('api/:version/pay/alipayorder', 'api/v1.Payment/alipayOrder');// 支付下单
+Route::rule('api/:version/pay/alipaynotify', 'api/v1.Payment/alipayNotify');// 支付下单
 
 // Newboy
 Route::rule('api/:version/new/gift', 'api/v1.Newboy/gift');// 礼包

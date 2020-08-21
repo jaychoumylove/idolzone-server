@@ -905,3 +905,11 @@ alter table f_cfg_scrap
 -- 记录用户上次抽奖时间以便限制用户抽奖间隙
 alter table f_user_ext
     add lottery_star_time int default 0 not null comment '上次抽奖时间戳';
+
+-- 新增支付方式
+alter table f_rec_pay_order
+	add pay_type varchar(150) default 'wechat_pay' not null;
+
+create index f_rec_pay_order_payty_index
+	on f_rec_pay_order (pay_type);
+
