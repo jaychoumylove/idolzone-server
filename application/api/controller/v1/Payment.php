@@ -15,6 +15,7 @@ use app\base\service\WxAPI;
 use app\api\model\User;
 use app\api\model\UserSprite;
 use app\base\service\WxPay as WxPayService;
+use Exception;
 use think\Db;
 use think\Log;
 
@@ -34,7 +35,7 @@ class Payment extends Base
             $res['farm_distance'] = 432 - $res['farm_coin'];
         } else {
             $user_id = input('user_id', false);
-            if ($user_id) {
+            if ($user_id&&(int)$user_id) {
                 // 我的优惠
                 $res['discount'] = PayGoods::getMyDiscount($this->uid);
 
@@ -201,7 +202,7 @@ class Payment extends Base
                 RecPayOrder::paySuccess($order);
                 Db::commit();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Log::record($e->getMessage(), 'error');
             die();
@@ -230,7 +231,7 @@ class Payment extends Base
 
                     $wxPayService->returnSuccess();
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollback();
                 Log::record($e->getMessage(), 'error');
             }
