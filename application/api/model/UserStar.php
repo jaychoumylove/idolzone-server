@@ -398,6 +398,7 @@ class UserStar extends Base
         $topTenFlower = self::where('day_flower', '>', 0)
             ->order ([
                 'day_flower' => 'desc',
+                'update_time' => 'asc',
                 'id' => 'asc'
             ])
             ->limit (10)
@@ -434,6 +435,7 @@ class UserStar extends Base
             ->where('user_id', 'in', $newGuysId)
             ->order ([
                 'thisday_count' => 'desc',
+                'update_time' => 'asc',
                 'id' => 'asc'
             ])
             ->limit (10)
