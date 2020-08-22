@@ -170,8 +170,6 @@ class Payment extends Base
     public function alipayNotify()
     {
         $data = request()->post();
-        // 测试数据
-//        $data = json_decode('{"gmt_create":"2020-08-21 14:51:38","charset":"utf-8","seller_email":"boss@cyoor.com","subject":"测试","sign":"AmpSga21Znra0jr6X7AjVJQUSuPR0E3bjdaB62GaWfNb2GxpLfMlVV7DHL4pcrvM2hXLNfCLN5WkA1C1sIbDJcbvUGPawXm30s3qVyGILw/iJuErugv5uM2CAwtbsqH6Xqod4XksOVWa6fd68OaiK4cHqavq0n+/Iek6OVZDrKPvLK0q3s3HOEWYRrcGOv73v442gU1H6klUDT0PFj0gYZkPeaT0SDBFNYLk7pt4ZFYyAPqCkwiw4KB1/T//PHhn6dLLOIW8Vjt2tVbCwPN/s02gRgsGd+bnD95F9tTKdU30vyIdG42mdmc4DHwcxVJcCMgMv9FzZ20GwlJZzuG27A==","buyer_id":"2088022310408581","invoice_amount":"0.01","notify_id":"2020082100222145139008581405901343","fund_bill_list":"[{\"amount\":\"0.01\",\"fundChannel\":\"PCREDIT\"}]","notify_type":"trade_status_sync","trade_status":"TRADE_SUCCESS","receipt_amount":"0.01","buyer_pay_amount":"0.01","app_id":"2021001188684845","sign_type":"RSA2","seller_id":"2088931332328615","gmt_payment":"2020-08-21 14:51:38","notify_time":"2020-08-21 14:51:39","version":"1.0","out_trade_no":"ddh0002","total_amount":"0.01","trade_no":"2020082122001408581445066410","auth_app_id":"2021001188684845","buyer_logon_id":"155****9622","point_amount":"0.00"}', true);
 
         if ($data['trade_status'] != 'TRADE_SUCCESS') {
             die();
