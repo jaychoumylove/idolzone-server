@@ -2,11 +2,11 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\Rec;
 use app\api\model\UserCurrency;
 use app\base\service\alipay\request\AlipayTradeWapPayRequest;
 use app\api\model\Cfg;
 use app\base\controller\Base;
-use app\base\service\alipay\AopClient;
 use app\base\service\AliPayApi;
 use app\base\service\Common;
 use app\api\model\PayGoods;
@@ -17,7 +17,6 @@ use app\api\model\UserSprite;
 use app\base\service\WxPay as WxPayService;
 use think\Db;
 use think\Log;
-use think\Request;
 
 class Payment extends Base
 {
@@ -96,6 +95,27 @@ class Payment extends Base
             'platform' => input('platform', null),
             'pay_type' => $payType
         ]);
+
+        if ($payType == RecPayOrder::QQ_PAY) {
+            // 预支付参数
+            $config = [
+                'body' => '充值', // 支付标题
+                'orderId' => $order['id'], // 订单ID
+                'totalFee' => $totalFee, // 支付金额
+                'notifyUrl' => 'https://' . $_SERVER['HTTP_HOST'] . '/api/v1/pay/notify/' . input('platform'), // 支付成功通知url
+                'tradeType' => 'MINIAPP', // 支付类型
+            ];
+            // APP和小程序差异
+            $openidType = 'openid';
+
+            $config['openid'] = User::where('id', $user_id)->value($openidType);
+            if (!$config['openid']) Common::res(['code' => 1, 'msg' => '请先登录小程序']);
+
+            $res = (new WxAPI())->unifiedorder($config);
+
+            // 处理预支付数据
+            (new WxPayService())->returnFront($res);
+        }
 
         if ($payType == RecPayOrder::WECHAT_PAY) {
             // 预支付参数
