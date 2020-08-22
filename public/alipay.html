@@ -5,6 +5,7 @@
     <title>Title</title>
 </head>
 <body>
+<<<<<<< Updated upstream
 <form id='alipaysubmit' name='alipaysubmit' action='https://openapi.alipay.com/gateway.do?charset=utf-8' method='POST'>
     <input type='hidden' name='biz_content' value='{"data":"\u5546\u54c1\u63cf\u8ff0\u4fe1\u606f","subject":"\u6d4b\u8bd5","out_trade_no":"ddh0002","timeout_express":"10m","total_amount":"0.01","product_code":"QUICK_WAP_WAY"}'/>
     <input type='hidden' name='app_id' value='2021001188684845'/>
@@ -20,5 +21,30 @@
     <input type='submit' value='ok' style='display:none;'>
 </form>
 <script>document.forms['alipaysubmit'].submit();</script>
+=======
+<!--<form id='alipaysubmit' name='alipaysubmit' action='https://openapi.alipay.com/gateway.do?charset=utf-8' method='POST'>-->
+<!--    <input type='hidden' name='biz_content' value='{"data":"\u5546\u54c1\u63cf\u8ff0\u4fe1\u606f","subject":"\u6d4b\u8bd5","out_trade_no":"ddh0002","timeout_express":"10m","total_amount":"0.01","product_code":"QUICK_WAP_WAY"}'/>-->
+<!--    <input type='hidden' name='app_id' value='2021001188684845'/>-->
+<!--    <input type='hidden' name='version' value='1.0'/>-->
+<!--    <input type='hidden' name='format' value='json'/>-->
+<!--    <input type='hidden' name='sign_type' value='RSA2'/>-->
+<!--    <input type='hidden' name='method' value='alipay.trade.wap.pay'/>-->
+<!--    <input type='hidden' name='timestamp' value='2020-08-21 14:50:09'/>-->
+<!--    <input type='hidden' name='alipay_sdk' value='alipay-sdk-php-20200415'/>-->
+<!--    <input type='hidden' name='notify_url' value='https://cs.adqz.xiaolishu.com/api/v1/pay/alipaynotify'/>-->
+<!--    <input type='hidden' name='charset' value='utf-8'/>-->
+<!--    <input type='hidden' name='sign' value='lGPk+U9zsIZWWBaUIb03aIet/KWBI1WqKr1GQd4xR362EBRjst39aYtm4jmSibj+Y7b+bARRCwMeA8TdV1MMyVEp0UBf9otdm7yKe8o1pR+n4sC+lzMAeEbpQtmOz1bXWcFiamUC0lBuX8J2yrdyotfNXyOSNTMJF43TJBLLHqzAmy+miDi7P+rb15XA2Z4XLhS0aBMOAIFR+gJxFpRnoiFxX31PHj124nWsoXjsrqyR6eydBUIPcG53BS1H/TP3J2k/CSSPhfIMyObbDYBf+QjX4DaS6ASBCiQr+3XEhpsVFj1iD0l5KvmfpXRbQ1gKREdUBrP/qBkjz5QMd1pkxg=='/>-->
+<!--    <input type='submit' value='ok' style='display:none;'>-->
+<!--</form>-->
+<!--<script>document.forms['alipaysubmit'].submit();</script>-->
+<form id='alipayorder' name='alipayorder' action='https://cs.adqz.xiaolishu.com/api/v1/pay/order' method='POST'>
+    <input type='hidden' name='type' value='flower'/>
+    <input type='hidden' name='user_id' value='680003'/>
+    <input type='hidden' name='count' value='1000000'/>
+    <input type='hidden' name='pay_type' value='ali_pay'/>
+    <input type='submit' value='ok' style='display:none;'>
+</form>
+<script>document.forms['alipayorder'].submit();</script>
+>>>>>>> Stashed changes
 </body>
 </html>

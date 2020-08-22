@@ -50,7 +50,7 @@ class User
 
         if (!isset($res['openid']) || !$res['openid']) {
             // 登录失败
-            Common::res(['code' => 202, 'data' => $res]);
+            Common::res(['code' => 202, 'data' => null]);
         } else {
             return $res;
         }

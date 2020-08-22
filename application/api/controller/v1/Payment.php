@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\UserCurrency;
 use app\base\service\alipay\request\AlipayTradeWapPayRequest;
 use app\api\model\Cfg;
 use app\base\controller\Base;
@@ -23,14 +24,28 @@ class Payment extends Base
     /**商品列表 */
     public function goods()
     {
-        $this->getUser();
-        $res['list'] = PayGoods::all();
-        // 我的优惠
-        $res['discount'] = PayGoods::getMyDiscount($this->uid);
+        $platform = input('platform', 'MP-WEIXIN');
+        if ($platform != 'H5-OTHER') {
+            $this->getUser();
+            // 我的优惠
+            $res['discount'] = PayGoods::getMyDiscount($this->uid);
 
-        // 农场产量
-        $res['farm_coin'] = UserSprite::where('user_id', $this->uid)->value('total_speed_coin');
-        $res['farm_distance'] = 432 - $res['farm_coin'];
+            // 农场产量
+            $res['farm_coin'] = UserSprite::where('user_id', $this->uid)->value('total_speed_coin');
+            $res['farm_distance'] = 432 - $res['farm_coin'];
+        } else {
+            $user_id = input('user_id', false);
+            if ($user_id) {
+                // 我的优惠
+                $res['discount'] = PayGoods::getMyDiscount($this->uid);
+
+                // 农场产量
+                $res['farm_coin'] = UserSprite::where('user_id', $this->uid)->value('total_speed_coin');
+                $res['farm_distance'] = 432 - $res['farm_coin'];
+                $res['currency'] = UserCurrency::getCurrency($user_id);
+            }
+        }
+        $res['list'] = PayGoods::all();
 
         Common::res(['data' => $res]);
     }
@@ -40,15 +55,19 @@ class Payment extends Base
      */
     public function order()
     {
-        $this->getUser();
-        if(User::where('id',$this->uid)->value('type')==5) Common::res(['code' => 1, 'msg' => '该账号检测不安全，不予以充值']);
-
         $type = $this->req('type', 'require');
-        $user_id = $this->req('user_id', 'require',0);
+        $tar_user_id = $this->req('user_id', 'require',0);
         $count = $this->req('count', 'integer'); // 数目
-        $payType = $this->req('pay_type', RecPayOrder::WECHAT_PAY);
+        $payType = $this->req('pay_type', 'require', RecPayOrder::WECHAT_PAY);
+        if ($payType == RecPayOrder::WECHAT_PAY) {
+            $this->getUser();
+            $user_id = $this->uid;
+        } else {
+            $user_id = $tar_user_id;
+        }
+        if(User::where('id',$user_id)->value('type')==5) Common::res(['code' => 1, 'msg' => '该账号检测不安全，不予以充值']);
 
-        $discount = PayGoods::getMyDiscount($this->uid);
+        $discount = PayGoods::getMyDiscount($user_id);
         if ($type == 'stone') {
             $rate = Cfg::getCfg('recharge_rate')['stone'];
             $totalFee = $count * $rate;
@@ -70,8 +89,8 @@ class Payment extends Base
         // 下单
         $order = RecPayOrder::create([
             'id' => date('YmdHis') . mt_rand(1000, 9999),
-            'user_id' => $this->uid,
-            'tar_user_id' => $user_id ? $user_id : $this->uid,
+            'user_id' => $user_id,
+            'tar_user_id' => $tar_user_id,
             'total_fee' => $totalFee,
             'goods_info' => json_encode([$type => $count], JSON_UNESCAPED_UNICODE), // 商品信息
             'platform' => input('platform', null),
@@ -96,7 +115,7 @@ class Payment extends Base
                 $config['tradeType'] = 'MINIAPP';
             }
 
-            $config['openid'] = User::where('id', $this->uid)->value($openidType);
+            $config['openid'] = User::where('id', $user_id)->value($openidType);
             if (!$config['openid']) Common::res(['code' => 1, 'msg' => '请先登录小程序']);
 
             $res = (new WxAPI())->unifiedorder($config);
@@ -122,6 +141,7 @@ class Payment extends Base
             $notifyUrl = request()->domain() . '/api/v1/pay/alipaynotify';
             $request->setNotifyUrl($notifyUrl);
             $result = $aop->pageExecute($request);
+//            echo $result;
             Common::res(['data' => $result]);
         }
     }
@@ -147,11 +167,15 @@ class Payment extends Base
         if (empty($order)) {
             die();
         }
+        if ($order['pay_time'] && $order['pay_time'] == $data['gmt_payment']) {
+            echo "success";
+            die();
+        }
         // 处理订单状态和业务
         Db::startTrans();
         try {
             // 更改订单状态
-            $isDone = RecPayOrder::where(['id' => $data['out_trade_no']])->update(['pay_time' => $data['notify_time']]);
+            $isDone = RecPayOrder::where(['id' => $data['out_trade_no']])->update(['pay_time' => $data['gmt_payment']]);
             if ($isDone) {
                 // 支付成功 处理业务
                 RecPayOrder::paySuccess($order);
