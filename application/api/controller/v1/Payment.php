@@ -59,7 +59,7 @@ class Payment extends Base
         $tar_user_id = $this->req('user_id', 'require',0);
         $count = $this->req('count', 'integer'); // 数目
         $payType = $this->req('pay_type', 'require', RecPayOrder::WECHAT_PAY);
-        if ($payType == RecPayOrder::WECHAT_PAY) {
+        if (in_array($payType, [RecPayOrder::WECHAT_PAY, RecPayOrder::QQ_PAY])) {
             $this->getUser();
             $user_id = $this->uid;
         } else {
