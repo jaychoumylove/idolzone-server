@@ -8,7 +8,10 @@ use app\base\service\Common;
 use app\api\model\User as UserModel;
 use think\Db;
 use app\api\service\User;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\Exception;
+use think\exception\DbException;
 
 class UserExt extends Base
 {
@@ -31,7 +34,7 @@ class UserExt extends Base
     {
         $data = self::where('user_id', $uid)->field('lottery_count,lottery_time')->find();
         $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
-        $diff = time() - $data['lottery_time'];
+        $diff = (int)bcsub(time(), $data['lottery_time']);
         $auto_add_time = $config['auto_add_time'];
         if ($diff < $auto_add_time) {
             // 不在自动恢复次数时间内
@@ -286,9 +289,9 @@ class UserExt extends Base
      * @param $starId
      * @return bool
      * @throws Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
      */
     public static function extraHot($uid, $extraHot, $starId)
     {
@@ -311,7 +314,7 @@ class UserExt extends Base
      * @param $extraHot
      * @param $starId
      * @throws Exception
-     * @throws \think\exception\DbException
+     * @throws DbException
      */
     public static function extraHotLog($uid, $extraHot, $starId)
     {
@@ -370,7 +373,7 @@ class UserExt extends Base
             ->where('end_time is NULL or end_time>="'.date('Y-m-d H:i:s').'"')
             ->where('status', 1)
             ->field('uid,end_time,status')
-            ->select ();;
+            ->select ();
         if (is_object ($headWears)) $headWears = $headWears->toArray ();
 
         $headWearsDict = array_column ($headWears, 'hid', 'uid');

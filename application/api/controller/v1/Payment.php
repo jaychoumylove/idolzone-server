@@ -63,6 +63,9 @@ class Payment extends Base
             $user_id = $this->uid;
         } else {
             $user_id = $tar_user_id;
+            if (empty($user_id)) {
+                Common::res(['code' => 1, 'msg' => '请选择充值用户']);
+            }
         }
         if(User::where('id',$user_id)->value('type')==5) Common::res(['code' => 1, 'msg' => '该账号检测不安全，不予以充值']);
 
@@ -158,7 +161,7 @@ class Payment extends Base
                 'product_code' => "QUICK_WAP_WAY",
             ];
             $request->setBizContent(json_encode($data));
-            $notifyUrl = request()->domain() . '/api/v1/pay/alipaynotify';
+            $notifyUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/api/v1/pay/alipaynotify';
             $request->setNotifyUrl($notifyUrl);
             $result = $aop->pageExecute($request);
 //            echo $result;
@@ -171,6 +174,8 @@ class Payment extends Base
         $data = request()->post();
 
         if ($data['trade_status'] != 'TRADE_SUCCESS') {
+            Log::record("交易出错", 'error');
+            Log::error(json_encode($data));
             die();
         }
 
@@ -178,14 +183,20 @@ class Payment extends Base
         // 验签
         $res = $aop->rsaCheckV1($data, $aop->alipayrsaPublicKey, $data['sign_type']);
         if (empty($res)) {
+            Log::record("验签错误", 'error');
+            Log::error(json_encode($data));
             die();
         }
 
         $order = RecPayOrder::get($data['out_trade_no']);
         if (empty($order)) {
+            Log::record("订单号找不到", 'error');
+            Log::error(json_encode($data));
             die();
         }
         if ($order['pay_time'] && $order['pay_time'] == $data['gmt_payment']) {
+            Log::record("订单已处理", 'error');
+            Log::error(json_encode($data));
             echo "success";
             die();
         }
