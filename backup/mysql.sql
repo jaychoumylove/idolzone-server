@@ -739,7 +739,7 @@ create index f_rec_lucky_draw_log_type_index
 
 -- 新增用户占领记录表
 -- V7
-drop f_user_achievement_heal if exists;
+drop table if exists f_user_achievement_heal;
 create table f_user_achievement_heal
 (
     id           int auto_increment,
@@ -915,3 +915,139 @@ alter table f_rec_pay_order
 
 create index f_rec_pay_order_payty_index
 	on f_rec_pay_order (pay_type);
+
+drop table if exists f_cfg_animal;
+create table f_cfg_animal
+(
+    id          int auto_increment,
+    name        varchar(255)                           not null,
+    image       varchar(255)                           not null,
+    type        varchar(150) default 'NORMAL'          not null,
+    `lock`      int          default 0                 not null,
+    lock_num    int          default 0                 not null,
+    create_time timestamp    default CURRENT_TIMESTAMP null,
+    update_time timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                              null,
+    constraint f_cfg_pet_id_uindex
+        unique (id)
+)
+    comment '宠物配置表';
+
+create index f_cfg_pet_type_index
+    on f_cfg_animal (type);
+
+alter table f_cfg_animal
+    add primary key (id);
+
+drop table if exists f_cfg_animal_level;
+create table f_cfg_animal_level
+(
+    id          int auto_increment,
+    level       int       default 1                 not null,
+    number      int       default 0                 not null,
+    `desc`      varchar(255)                        null,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    constraint f_cfg_animal_level_id_uindex
+        unique (id)
+)
+    comment '宠物等级';
+
+create index f_cfg_animal_level_lv_index
+    on f_cfg_animal_level (level);
+
+alter table f_cfg_animal_level
+    add primary key (id);
+
+drop table if exists f_animal_draw;
+create table f_animal_draw
+(
+    id          int auto_increment,
+    animal_id   int                                   not null,
+    chance      float(5, 2) default 0.00              not null,
+    number      int         default 1                 not null,
+    create_time timestamp   default CURRENT_TIMESTAMP not null,
+    update_time timestamp   default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                             null,
+    constraint f_animal_draw_id_uindex
+        unique (id)
+)
+    comment '宠物碎片抽奖池';
+
+alter table f_animal_draw
+    add primary key (id);
+
+drop table if exists f_user_animal;
+create table f_user_animal
+(
+    id          int auto_increment,
+    user_id     int                                 not null,
+    animal_id   int                                 not null,
+    scrap       int       default 0                 not null comment '碎片数',
+    level       int       default 0                 not null comment '等级
+默认0-未解锁',
+    `lock`      int       default 0                 not null comment '是否锁定
+0-已解锁
+[int]-需要解锁的数量',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    constraint f_user_animal_id_uindex
+        unique (id)
+)
+    comment '用户宠物表';
+
+create index f_user_animal_an_index
+    on f_user_animal (animal_id);
+
+create index f_user_animal_u_index
+    on f_user_animal (user_id);
+
+create index f_user_animal_ua_index
+    on f_user_animal (user_id, animal_id);
+
+alter table f_user_animal
+    add primary key (id);
+
+drop table if exists f_user_manor;
+create table f_user_manor
+(
+    id          int auto_increment,
+    user_id     int                                 not null,
+    day_count   bigint    default 0                 not null comment '今日金豆产量',
+    day_left    bigint    default 0                 not null comment '剩余产量',
+    background  varchar(255)                        not null,
+    week_count  bigint    default 0                 not null comment '本周产量',
+    sum         bigint    default 0                 not null comment '庄园总产量',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    constraint f_user_manor_id_uindex
+        unique (id),
+    constraint f_user_manor_user_index
+        unique (user_id)
+)
+    comment '用户庄园';
+
+alter table f_user_manor
+    add primary key (id);
+
+drop table if exists f_cfg_manor_background;
+create table f_cfg_manor_background
+(
+    id          int auto_increment,
+    url         varchar(255)                                 not null,
+    name        varchar(255)                                 not null,
+    status      enum ('ON', 'OFF') default 'OFF'             not null,
+    url_s       varchar(255)                                 not null,
+    create_time timestamp          default CURRENT_TIMESTAMP not null,
+    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                                    null,
+    constraint f_cfg_manor_background_id_uindex
+        unique (id)
+)
+    comment '庄园背景';
+
+alter table f_cfg_manor_background
+    add primary key (id);
