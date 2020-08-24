@@ -901,3 +901,17 @@ INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `updat
 -- 新增碎片成品排序
 alter table f_cfg_scrap
 	add sort int default 0 not null comment '排序 0-99整数 越大越靠前';
+
+-- 记录用户上次抽奖时间以便限制用户抽奖间隙
+alter table f_user_ext
+    add lottery_star_time int default 0 not null comment '上次抽奖时间戳';
+
+-- 把抽奖携程配置以便以后改动
+INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('免费抽奖配置', 'free_lottery', '{\"enable_double\":true,\"notice\":{\"title\":\"抽奖规则\",\"desc\":[\"1、每人每天抽奖机会上限为 100次\",\"2、在线时，每分钟恢复一次抽奖机会，存储上限为30次\",\"3、离线时，每分钟恢复一次抽奖机会，存储上限为10次\",\"4、周五、周六、周日奖励翻倍\",\"5、抽奖次数0点清零\"]},\"enable_video_add\":{\"status\":false,\"number\":5,\"text\":\"立即获得5次\"},\"day_max\":100,\"start_limit_time\":0,\"auto_add_time\":60,\"add_max\":30,\"first_max\":10}', 1, '2020-08-21 10:46:14', '2020-08-21 13:37:35', NULL);
+
+-- 新增支付方式
+alter table f_rec_pay_order
+	add pay_type varchar(150) default 'wechat_pay' not null;
+
+create index f_rec_pay_order_payty_index
+	on f_rec_pay_order (pay_type);

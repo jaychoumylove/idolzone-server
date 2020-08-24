@@ -12,6 +12,7 @@ use app\api\model\RecWealActivityTask;
 use app\api\model\UserAchievementHeal;
 use app\base\controller\Base;
 use app\api\model\StarRank;
+use Exception;
 use think\Db;
 use app\api\model\StarRankHistory;
 use app\api\model\UserStar;
@@ -78,7 +79,7 @@ class AutoRun extends Base
             }
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -206,7 +207,7 @@ class AutoRun extends Base
                 ->update(['count' => 0,'is_settle' => 0]);
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -234,7 +235,8 @@ class AutoRun extends Base
         try {
             // 用户金豆每周清零
             UserCurrency::where('1=1')->update([
-                'coin' => 0
+                'coin' => 0,
+                'update_time' => Db::raw('update_time'),
             ]);
             
             // 用户周贡献清零
@@ -243,6 +245,7 @@ class AutoRun extends Base
                 'lastweek_count' => Db::raw('thisweek_count'),
                 'thisweek_count' => 0,
                 'achievement_week_count' => 0,
+                'update_time' => Db::raw('update_time'),
             ]);
             
             // 转存历史排名
@@ -322,7 +325,7 @@ class AutoRun extends Base
             ]);
             
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -359,6 +362,7 @@ class AutoRun extends Base
                 'lastmonth_count' => Db::raw('thismonth_count'),
                 'thismonth_count' => 0,
                 'achievement_month_count' => 0,
+                'update_time' => Db::raw('update_time'),
             ]);
             
             // 转存历史排名
@@ -389,7 +393,7 @@ class AutoRun extends Base
             ]);
             
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -436,7 +440,7 @@ class AutoRun extends Base
                 }
                 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollback();
                 Common::res([
                     'code' => 400,

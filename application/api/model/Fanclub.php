@@ -20,46 +20,24 @@ class Fanclub extends Base
         return $this->belongsTo('User', 'user_id', 'id')->field('id,avatarurl,nickname');
     }
 
-    public static function getList($keyword, $field, $page, $size)
+    public static function getList($star_id, $keyword, $field, $page, $size)
     {
         // 关键字
+        $map = ['star_id' => $star_id];
         if ($keyword) {
-            $ids = Star::where('name', 'like', '%' . $keyword . '%')->column('id');
-            $w = [
-                'star_id' => [
-                    'in',
-                    $ids
-                ]
-            ];
-        } else {
-            $w = '1=1';
+            $map['clubname'] = ['like', "%$keyword%"];
         }
-        
-        // 字段排序
-        if ($field == 'fansclub_count') {
-            $list = Fanclub::with('star')->where($w)
-                ->whereOr('clubname', 'like', '%' . $keyword . '%')
-                ->order('week_count desc')
-                ->page($page, $size)
-                ->select();
-        } else 
-            if ($field == 'fansclub_hot') {
-                $list = Fanclub::with('star')->where($w)
-                    ->whereOr('clubname', 'like', '%' . $keyword . '%')
-                    ->order('week_hot desc')
-                    ->page($page, $size)
-                    ->select();
-            } else 
-                if ($field == 'star_hot') {
-                    $list = Db::name('fanclub')->alias('f')
-                        ->join('star s', 's.id = f.star_id')
-                        ->field('s.name as clubname,s.head_img_s as avatar,f.star_id,sum(mem_count) as mem_count,sum(week_count) as week_count,sum(week_hot) as week_hot')
-                        ->where($w)
-                        ->group('f.star_id')
-                        ->page($page, $size)
-                        ->order('week_hot desc')
-                        ->select();
-                }
+        $orderMap = [
+             'fansclub_hot' =>  'week_hot',
+             'fansclub_count' =>  'week_count',
+        ];
+
+        $order = [$orderMap[$field] => 'desc'];
+
+        $list = Fanclub::with('star')->where($map)
+            ->order($order)
+            ->page($page, $size)
+            ->select();
         
         return $list;
     }

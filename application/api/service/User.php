@@ -10,6 +10,7 @@ use app\base\service\WxAPI;
 use app\base\service\Common;
 use app\api\model\User as UserModel;
 use app\api\model\UserCurrency;
+use Exception;
 use think\Db;
 use app\api\model\UserRelation;
 use app\api\model\Rec;
@@ -50,7 +51,7 @@ class User
 
         if (!isset($res['openid']) || !$res['openid']) {
             // 登录失败
-            Common::res(['code' => 202, 'data' => $res]);
+            Common::res(['code' => 202, 'data' => null]);
         } else {
             return $res;
         }
@@ -152,7 +153,7 @@ class User
             $this->change($uid, Cfg::getCfg('invitAward'), '拉新奖励');
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }

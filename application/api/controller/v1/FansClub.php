@@ -129,8 +129,10 @@ class FansClub extends Base
         $keyword = $this->req('keyword');
         $field = $this->req('field', 'require');
         $this->getUser();
+
+        $star_id = UserStar::getStarId($this->uid);
         
-        $list = Fanclub::getList($keyword, $field, $page, $size);
+        $list = Fanclub::getList($star_id, $keyword, $field, $page, $size);
         
         foreach ($list as &$value) {
             if(isset($value['id'])) $value['mystatus'] = FanclubApplyUser::where([
