@@ -245,6 +245,7 @@ class AutoRun extends Base
                 'lastweek_count' => Db::raw('thisweek_count'),
                 'thisweek_count' => 0,
                 'achievement_week_count' => 0,
+                'update_time' => Db::raw('update_time'),
             ]);
             
             // 转存历史排名
@@ -361,6 +362,7 @@ class AutoRun extends Base
                 'lastmonth_count' => Db::raw('thismonth_count'),
                 'thismonth_count' => 0,
                 'achievement_month_count' => 0,
+                'update_time' => Db::raw('update_time'),
             ]);
             
             // 转存历史排名
