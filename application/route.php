@@ -361,3 +361,14 @@ Route::rule('api/:version/welfare/rank', 'api/v1.Welfare/rank'); // 公益打卡
 Route::rule('api/:version/invite/settle_rec', 'api/v1.UserInvite/recList');//领取列表
 Route::rule('api/:version/invite/settle', 'api/v1.UserInvite/settle');//领取奖励
 Route::rule('api/:version/invite/rank', 'api/v1.UserInvite/rank'); // 公益打卡信息
+
+Route::rule('api/:version/page/manor', 'api/v1.Page/manor');//庄园信息
+Route::rule('api/:version/animal/list', 'api/v1.Animal/getAnimalList');//宠物列表
+Route::rule('api/:version/animal/info', 'api/v1.Animal/getAnimalInfo'); // 宠物信息
+Route::rule('api/:version/animal/up', 'api/v1.Animal/upAnimal');//宠物升级
+Route::rule('api/:version/animal/unlock', 'api/v1.Animal/unLockAnimal'); // 宠物解锁
+Route::rule('api/:version/animal/draw_info', 'api/v1.Animal/rank'); // 宠物抽奖池
+Route::rule('api/:version/animal/steal', 'api/v1.Animal/animalSteal'); // 宠物偷豆
+Route::rule('api/:version/animal/output', 'api/v1.Animal/animalOutput'); // 宠物产豆
+Route::rule('api/:version/manor/background', 'api/v1.Animal/getCfgBackground'); // 庄园背景列表
+Route::rule('api/:version/manor/use_background', 'api/v1.Animal/useBackground'); // 使用庄园背景
