@@ -62,7 +62,7 @@ class Payment extends Base
             $this->getUser();
             $user_id = $this->uid;
         } else {
-            $user_id = $tar_user_id;
+            $user_id = (int)$tar_user_id;
             if (empty($user_id)) {
                 Common::res(['code' => 1, 'msg' => '请选择充值用户']);
             }
@@ -163,6 +163,8 @@ class Payment extends Base
             $request->setBizContent(json_encode($data));
             $notifyUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/api/v1/pay/alipaynotify';
             $request->setNotifyUrl($notifyUrl);
+            $returnUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/#/pages/charge/charge';
+            $request->setReturnUrl($returnUrl);
             $result = $aop->pageExecute($request);
 //            echo $result;
             Common::res(['data' => $result]);
