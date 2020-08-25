@@ -20,6 +20,16 @@ class AnimalLottery extends Base
             Common::res(['code' => 1, 'msg' => '今日召唤数已用完']);
         }
 
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        if (array_key_exists($type, $config['type']) == false) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        $currency = UserCurrency::getCurrency($user_id);
+        if ($currency['panacea'] < $config['type'][$type]['panacea']) {
+            Common::res(['code' => 1, 'msg' => '灵丹不够哦']);
+        }
+
 
     }
 }

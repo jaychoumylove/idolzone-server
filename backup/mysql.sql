@@ -1072,3 +1072,6 @@ alter table f_cfg_animal_scrap
 
 alter table f_user_ext
 	add animal_lottery int default 0 not null comment '每日召唤宠物次数';
+
+alter table f_user_currency
+	add panacea int(11) unsigned default 0 not null comment '灵丹';

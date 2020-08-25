@@ -13,6 +13,7 @@ class Cfg extends Base
     const OCCUPY_TIME      = 'occupy_time';
     const INVITE_ASSIST    = 'invite_assist';
     const FREE_LOTTERY     = "free_lottery";
+    const MANOR_ANIMAL     = "manor_animal";
 
     public static function getCfg($key)
     {
