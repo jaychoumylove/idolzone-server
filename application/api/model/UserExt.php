@@ -41,8 +41,15 @@ class UserExt extends Base
             return $data['lottery_count'];
         }
 
-        $typeMap = ['first_max', 'add_max'];
-        $max = $config[$typeMap[$type]];
+        $max = $config['add_max'];
+        if ($type == 0) {
+            $lv = CfgUserLevel::getLevel($uid);
+            foreach ($config['level_max'] as $lvItem) {
+                if ($lv > $lvItem['level']) {
+                    $max = $lvItem['max'];
+                }
+            }
+        }
         if ($data['lottery_count'] >= $max) {
             // 当前剩余次数大于上限
             return $data['lottery_count'];
