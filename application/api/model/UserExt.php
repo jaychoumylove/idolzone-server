@@ -82,6 +82,9 @@ class UserExt extends Base
             $msg = sprintf('今天已经抽了%s次了', $config['day_max']);
             Common::res(['code' => 1, 'msg' => $msg]);
         }
+        if ($data['lottery_count'] >= $config['day_max']) {
+            Common::res(['code' => 1, 'msg' => '请点击100抽吧']);
+        }
         $currentTime = time();
         $diff = bcsub($currentTime, $data['lottery_star_time']);
         if ((int)$diff < (int)$config['start_limit_time']) {
