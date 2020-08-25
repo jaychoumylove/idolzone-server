@@ -361,3 +361,5 @@ Route::rule('api/:version/welfare/rank', 'api/v1.Welfare/rank'); // 公益打卡
 Route::rule('api/:version/invite/settle_rec', 'api/v1.UserInvite/recList');//领取列表
 Route::rule('api/:version/invite/settle', 'api/v1.UserInvite/settle');//领取奖励
 Route::rule('api/:version/invite/rank', 'api/v1.UserInvite/rank'); // 公益打卡信息
+
+Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息
