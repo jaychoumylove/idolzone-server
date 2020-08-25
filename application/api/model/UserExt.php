@@ -32,8 +32,11 @@ class UserExt extends Base
     /**增加抽奖次数 */
     public static function addCount($uid, $type = 0)
     {
-        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time')->find();
+        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time,lottery_times')->find();
         $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
+        if ($data['lottery_times'] >= $config['day_max']) {
+            return 0;
+        }
         $diff = (int)bcsub(time(), $data['lottery_time']);
         $auto_add_time = $config['auto_add_time'];
         if ($diff < $auto_add_time) {
