@@ -49,6 +49,16 @@ class Lottery extends Base
         Common::res(['data' => $res]);
     }
 
+    public function multipleStart()
+    {
+        $this->getUser();
+        $type = input('type', 'hundred');
+
+        $data = UserExt::multipleLottery($type, $this->uid);
+
+        Common::res(compact('data'));
+    }
+
     /*每日抽奖所得*/
     public function dayEarn()
     {

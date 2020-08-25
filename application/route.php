@@ -214,6 +214,7 @@ Route::rule('api/:version/fans/getBox', 'api/v1.FansClub/getBox');// 发粉丝�
 // lottery
 Route::rule('api/:version/lottery/addCount', 'api/v1.Lottery/addCount');// 增加抽奖次数
 Route::rule('api/:version/lottery/start', 'api/v1.Lottery/start');// 抽奖
+Route::rule('api/:version/lottery/multiple_start', 'api/v1.Lottery/multipleStart');// 多次抽奖
 Route::rule('api/:version/lottery/dayEarn', 'api/v1.Lottery/dayEarn');// 抽奖今日获得
 Route::rule('api/:version/lottery/log', 'api/v1.Lottery/log');// 抽奖今日明细
 Route::rule('api/:version/lottery/double', 'api/v1.Lottery/double');// 双倍领取奖励

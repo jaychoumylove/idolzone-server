@@ -464,4 +464,70 @@ class UserExt extends Base
             'value'=>$lottery['value'],
         ];
     }
+
+    public static function multipleLottery($type, $uid)
+    {
+        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time,lottery_times,lottery_star_time')->find();
+        if ($data['lottery_count'] <= 0) Common::res(['code' => 1, 'msg' => '没有抽奖次数了']);
+        $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
+        if ($data['lottery_times'] >= $config['day_max']) {
+            $msg = sprintf('今天已经抽了%s次了', $config['day_max']);
+            Common::res(['code' => 1, 'msg' => $msg]);
+        }
+        $currentTime = time();
+        $diff = bcsub($currentTime, $data['lottery_star_time']);
+        if ((int)$diff < (int)$config['start_limit_time']) {
+            Common::res(['code' => 1, 'msg' => sprintf("每%s秒才能抽一次哦", $config['start_limit_time'])]);
+        }
+        $times = $config['multiple'][$type]['number'];
+        if ($data['lottery_count'] > $times) {
+            Common::res(['code' => 1, 'msg' => "抽奖次数不够 $times 哦"]);
+        }
+
+        // 随机一个奖品
+        $lotteryList = CfgLottery::all();
+        $array = range (0, bcsub ($times, 1));
+        $choose = [];
+        foreach ($array as $item) {
+            $chooseItem = Common::lottery ($lotteryList);
+            array_push ($choose, $chooseItem);
+        }
+
+        $chooseItem = [];
+        foreach ($choose as $key => $value) {
+            if (array_key_exists($value['type'], $chooseItem)) {
+                $chooseItem[$value['type']]['num'] = (int)bcadd($value['num'], $chooseItem[$value['type']]['num']);
+            } else {
+                $chooseItem[$value['type']] = $value;
+            }
+        }
+
+        Db::startTrans();
+        try {
+            // 扣除金豆增加今日抽奖次数
+            $isDone = self::where('user_id', $uid)->update([
+                'lottery_count' => Db::raw('lottery_count-'.$times),
+                'lottery_times' => Db::raw('lottery_times+'.$times),
+                'lottery_star_time' => $currentTime
+            ]);
+            if(!$isDone) {
+                $msg = sprintf('今天已经抽了%s次了', $times);
+                Common::res(['code' => 1, 'msg' => $msg]);
+            }
+
+            RecTask::addRec($uid, [5, 6], $times);
+            RecTaskfather::addRec($uid, [4, 15, 26, 37], $times);
+
+            foreach ($choose as $item) {
+                self::grant($uid, $item);
+            }
+
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+
+        return $chooseItem;
+    }
 }
