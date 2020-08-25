@@ -928,6 +928,7 @@ create table f_cfg_animal
     create_time timestamp    default CURRENT_TIMESTAMP null,
     update_time timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
     delete_time timestamp                              null,
+    exchange int not null comment '碎片ID用于解锁｜升级',
     constraint f_cfg_pet_id_uindex
         unique (id)
 )
@@ -944,8 +945,9 @@ create table f_cfg_animal_level
 (
     id          int auto_increment,
     level       int       default 1                 not null,
-    number      int       default 0                 not null,
+    number      int       default 0                 not null comment '碎片解锁数量',
     `desc`      varchar(255)                        null,
+    output int default 0 not null comment '每10秒产豆数',
     create_time timestamp default CURRENT_TIMESTAMP not null,
     update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
     delete_time timestamp                           null,
@@ -960,11 +962,11 @@ create index f_cfg_animal_level_lv_index
 alter table f_cfg_animal_level
     add primary key (id);
 
-drop table if exists f_animal_draw;
-create table f_animal_draw
+drop table if exists f_animal_lottery;
+create table f_animal_lottery
 (
     id          int auto_increment,
-    animal_id   int                                   not null,
+    scrap   int                                   not null,
     chance      float(5, 2) default 0.00              not null,
     number      int         default 1                 not null,
     create_time timestamp   default CURRENT_TIMESTAMP not null,
@@ -975,7 +977,7 @@ create table f_animal_draw
 )
     comment '宠物碎片抽奖池';
 
-alter table f_animal_draw
+alter table f_animal_lottery
     add primary key (id);
 
 drop table if exists f_user_animal;
@@ -1051,3 +1053,22 @@ create table f_cfg_manor_background
 
 alter table f_cfg_manor_background
     add primary key (id);
+
+drop table if exists f_cfg_animal_scrap;
+create table f_cfg_animal_scrap
+(
+    id          int auto_increment,
+    name        varchar(255)                        not null,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    constraint f_animal_scrap_id_uindex
+        unique (id)
+)
+    comment '宠物碎片';
+
+alter table f_cfg_animal_scrap
+    add primary key (id);
+
+alter table f_user_ext
+	add animal_lottery int default 0 not null comment '每日召唤宠物次数';
