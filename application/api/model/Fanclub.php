@@ -4,8 +4,10 @@ namespace app\api\model;
 use app\base\model\Base;
 use app\base\service\Common;
 use app\api\service\User as UserService;
+use Exception;
 use think\Db;
 use think\model\Relation;
+use Throwable;
 
 class Fanclub extends Base
 {
@@ -121,7 +123,7 @@ class Fanclub extends Base
             }
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             throw $e;
 //            Common::res([
@@ -160,6 +162,19 @@ class Fanclub extends Base
                 'code' => 1,
                 'msg' => '没有权限'
             ]);
+        }
+
+        $fanclubId = FanclubUser::where('user_id', $operater)->value('fanclub_id');
+        // 不能踢别的团的成员
+        if ($fanclubId != $fanclubUser['fanclub_id']) {
+            Common::res(['code' => 1, 'msg' => '权限不够']);
+        }
+        if ($isAdmin) {
+            $isBeLeader = FanclubUser::isLeader($uid);
+            if ($isBeLeader) {
+                // 管理员不能踢团长
+                Common::res(['code' => 1, 'msg' => '权限不够']);
+            }
         }
         
 //         $hasExited = Db::name('fanclub_user')->where('user_id', $uid)
@@ -202,7 +217,7 @@ class Fanclub extends Base
 //                     (new UserService())->change($uid, ['stone' => - 100], '超过1次退出粉丝团');
                 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollback();
                 Common::res([
                     'code' => 400,
@@ -231,7 +246,7 @@ class Fanclub extends Base
                 ]);
                 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollback();
                 Common::res([
                     'code' => 400,
@@ -291,7 +306,7 @@ class Fanclub extends Base
             self::where('id', $fanclubId)->update($fanClubUpdate);
 
             Db::commit ();
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             Db::rollback ();
 
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
