@@ -479,7 +479,15 @@ class UserExt extends Base
         if ((int)$diff < (int)$config['start_limit_time']) {
             Common::res(['code' => 1, 'msg' => sprintf("每%s秒才能抽一次哦", $config['start_limit_time'])]);
         }
-        $times = $config['multiple'][$type]['number'];
+
+        $multipleType = array_filter($config['multiple'], function ($item) use ($type) {
+            return $item['type'] == $type;
+        });
+        if (empty($multipleType)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+        $multipleType = array_values($multipleType);
+        $times = $multipleType[0]['number'];
         if ($data['lottery_count'] < $times) {
             Common::res(['code' => 1, 'msg' => "抽奖次数不够 $times 哦"]);
         }
