@@ -615,11 +615,13 @@ class Page extends Base
             }
         }
 
+        $data['banner'] = $item['img'];
+
         $content = NovelContent::where('aid', $item['id'])->find();
 
-        Common::res(['data' => [
-            'info' => $item,
-            'content' => $content
-        ]]);
+        $data['content'] = $content['content'];
+        $data['second'] = 15;
+
+        Common::res(compact('data'));
     }
 }
