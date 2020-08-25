@@ -929,6 +929,8 @@ create table f_cfg_animal
     update_time timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
     delete_time timestamp                              null,
     exchange int not null comment '碎片ID用于解锁｜升级',
+    scrap_name        varchar(255)                        not null,
+    scrap_img varchar(255) not null,
     constraint f_cfg_pet_id_uindex
         unique (id)
 )
@@ -966,7 +968,7 @@ drop table if exists f_animal_lottery;
 create table f_animal_lottery
 (
     id          int auto_increment,
-    scrap   int                                   not null,
+    animal   int                                   not null,
     chance      float(5, 2) default 0.00              not null,
     number      int         default 1                 not null,
     create_time timestamp   default CURRENT_TIMESTAMP not null,
@@ -1052,22 +1054,6 @@ create table f_cfg_manor_background
     comment '庄园背景';
 
 alter table f_cfg_manor_background
-    add primary key (id);
-
-drop table if exists f_cfg_animal_scrap;
-create table f_cfg_animal_scrap
-(
-    id          int auto_increment,
-    name        varchar(255)                        not null,
-    create_time timestamp default CURRENT_TIMESTAMP not null,
-    update_time timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
-    delete_time timestamp                           null,
-    constraint f_animal_scrap_id_uindex
-        unique (id)
-)
-    comment '宠物碎片';
-
-alter table f_cfg_animal_scrap
     add primary key (id);
 
 alter table f_user_ext
