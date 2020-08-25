@@ -480,7 +480,7 @@ class UserExt extends Base
             Common::res(['code' => 1, 'msg' => sprintf("每%s秒才能抽一次哦", $config['start_limit_time'])]);
         }
         $times = $config['multiple'][$type]['number'];
-        if ($data['lottery_count'] > $times) {
+        if ($data['lottery_count'] < $times) {
             Common::res(['code' => 1, 'msg' => "抽奖次数不够 $times 哦"]);
         }
 
@@ -488,17 +488,18 @@ class UserExt extends Base
         $lotteryList = CfgLottery::all();
         $array = range (0, bcsub ($times, 1));
         $choose = [];
-        foreach ($array as $item) {
+        foreach ($array as $ite) {
             $chooseItem = Common::lottery ($lotteryList);
+            if (is_object($chooseItem)) $chooseItem = $chooseItem->toArray();
             array_push ($choose, $chooseItem);
         }
 
-        $chooseItem = [];
+        $returns = [];
         foreach ($choose as $key => $value) {
-            if (array_key_exists($value['type'], $chooseItem)) {
-                $chooseItem[$value['type']]['num'] = (int)bcadd($value['num'], $chooseItem[$value['type']]['num']);
+            if (array_key_exists($value['type'], $returns)) {
+                $returns[$value['type']]['num'] = (int)bcadd($value['num'], $returns[$value['type']]['num']);
             } else {
-                $chooseItem[$value['type']] = $value;
+                $returns[$value['type']] = $value;
             }
         }
 
@@ -528,6 +529,6 @@ class UserExt extends Base
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
 
-        return $chooseItem;
+        return $returns;
     }
 }
