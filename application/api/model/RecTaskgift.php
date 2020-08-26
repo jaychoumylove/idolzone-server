@@ -42,16 +42,18 @@ class RecTaskgift extends Base
             }
             if ($cid == 1 && $task_id == 7) {
                 $relation = UserRelation::where('ral_user_id', $uid)->find();
-                $rer_user_id = $relation['rer_user_id'];
-                $starId = UserStar::getStarId ($rer_user_id);
-                $exited = empty($starId); // true 已退圈 false 未退圈
-                if ($rer_user_id && empty($exited)) {
-                    $status = Cfg::checkInviteAssistTime();
-                    if ($status) {
-                        $platform = \app\api\model\User::where('id', $rer_user_id)->value('platform');
-                        if ($platform == "MP-WEIXIN") {
-                            UserInvite::recordInvite($rer_user_id, $starId);
-                            \app\api\service\Star::addInvite($starId);
+                if ($relation) {
+                    $rer_user_id = $relation['rer_user_id'];
+                    $starId = UserStar::getStarId ($rer_user_id);
+                    $exited = empty($starId); // true 已退圈 false 未退圈
+                    if ($rer_user_id && empty($exited)) {
+                        $status = Cfg::checkInviteAssistTime();
+                        if ($status) {
+                            $platform = \app\api\model\User::where('id', $rer_user_id)->value('platform');
+                            if ($platform == "MP-WEIXIN") {
+                                UserInvite::recordInvite($rer_user_id, $starId);
+                                \app\api\service\Star::addInvite($starId);
+                            }
                         }
                     }
                 }
