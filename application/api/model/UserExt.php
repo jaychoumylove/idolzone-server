@@ -82,8 +82,16 @@ class UserExt extends Base
             $msg = sprintf('今天已经抽了%s次了', $config['day_max']);
             Common::res(['code' => 1, 'msg' => $msg]);
         }
-        if ($data['lottery_count'] >= $config['day_max']) {
-            Common::res(['code' => 1, 'msg' => '请点击100抽吧']);
+        $goMultiple = 0;
+        if (array_key_exists('multiple', $config)) {
+            foreach ($config['multiple'] as $item) {
+                if ($data['lottery_count'] >= $item['number']) {
+                    $goMultiple = (int)$item['number'];
+                }
+            }
+        }
+        if ($goMultiple > 0) {
+            Common::res(['code' => 1, 'msg' => "请点击 $goMultiple 抽吧"]);
         }
         $currentTime = time();
         $diff = bcsub($currentTime, $data['lottery_star_time']);

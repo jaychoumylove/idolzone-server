@@ -32,10 +32,15 @@ class Lottery extends Base
                 Common::res(['code' => 1, 'msg' => '暂未开放']);
             }
             // 观看视频 直接+5次
-            $remainCount = UserExt::where('user_id', $this->uid)->value('lottery_count');
-            $remainCount += $config['enable_video_add']['number'];
+            $info = UserExt::where('user_id', $this->uid)->find();
+            $currentTime = time();
+            $timeDiff = (int)bcsub($currentTime, $info['lottery_time']);
+            if ($timeDiff < $config['enable_video_add']['limit']) {
+                Common::res(['code' => 1, 'msg' => sprintf('请%s秒后再试', $config['enable_video_add']['limit'])]);
+            }
+            $remainCount = (int)bcadd($info['lottery_time'], $config['enable_video_add']['number']);
             if ($remainCount > $config['add_max']) $remainCount = $config['add_max'];
-            UserExt::where('user_id', $this->uid)->update(['lottery_count' => $remainCount, 'lottery_time' => time()]);
+            UserExt::where('user_id', $this->uid)->update(['lottery_count' => $remainCount, 'lottery_time' => $currentTime]);
         }
 
         Common::res(['data' => $remainCount]);
