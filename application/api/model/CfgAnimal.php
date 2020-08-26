@@ -9,6 +9,7 @@ use app\base\model\Base;
 class CfgAnimal extends Base
 {
     const OUTPUT = 'OUTPUT';
+    const STEAL  = 'STEAL';
 
     public function scrap()
     {

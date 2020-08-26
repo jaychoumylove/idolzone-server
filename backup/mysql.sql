@@ -1023,6 +1023,7 @@ create table f_user_manor
     user_id     int                                 not null,
     day_count   bigint    default 0                 not null comment '今日金豆产量',
     last_output_time int default 0 not null comment '上次产豆时间',
+    day_steal int default 0 not null comment '今日偷豆次数',
     background  varchar(255)                        not null,
     week_count  bigint    default 0                 not null comment '本周产量',
     sum         bigint    default 0                 not null comment '庄园总产量',

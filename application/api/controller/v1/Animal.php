@@ -117,6 +117,14 @@ class Animal extends Base
     public function animalSteal()
     {
         // 宠物偷豆
+        $this->getUser();
+        $steal_id = (int)input('user_id', 0);
+        if (empty($steal_id)) {
+            Common::res(['code' => 1, 'msg' => '请选择偷取用户']);
+        }
+
+        UserManor::steal($this->uid);
+        Common::res();
     }
 
     public function animalOutput()

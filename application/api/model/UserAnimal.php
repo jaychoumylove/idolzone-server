@@ -38,34 +38,65 @@ class UserAnimal extends Base
 
     public static function getOutput($uid, $type)
     {
-        $output = 0;
+        $number = 0;
 
         $userAnimals = self::where('user_id', $uid)->select();
         if (is_object($userAnimals)) $userAnimals = $userAnimals->toArray();
-        if (empty($userAnimals)) return $output;
+        if (empty($userAnimals)) return $number;
 
         $animalIds = array_column($userAnimals, 'animal_id');
         $outputAnimals = CfgAnimal::where('id', 'in', $animalIds)
             ->where('type', $type)
             ->select();
         if (is_object($outputAnimals)) $outputAnimals = $outputAnimals->toArray();
-        if (empty($outputAnimals)) return $output;
+        if (empty($outputAnimals)) return $number;
 
         $outputIds = array_column($outputAnimals, 'id');
         $userOutputAnimals = array_filter($userAnimals, function ($item) use ($outputIds) {
             return in_array($item['animal_id'], $outputIds);
         });
 
-        if (empty($userOutputAnimals)) return $output;
+        if (empty($userOutputAnimals)) return $number;
 
+        $outputType = [
+            CfgAnimal::OUTPUT => 'output',
+            CfgAnimal::STEAL => 'steal',
+        ];
         foreach ($userOutputAnimals as $key => $userOutputAnimal) {
             $level = CfgAnimalLevel::where('animal_id', $userOutputAnimal['animal_id'])
                 ->where('level', $userOutputAnimals['level'])
                 ->find();
 
-            $output += $level['data'];
+            $number += $level[$outputType[$type]];
         }
 
-        return $output;
+        return $number;
+    }
+
+    public static function countOutputSecond($output, $number)
+    {
+        $outputSec = bcdiv($output, self::MIN_OUTPUT_TIME, 1);
+        return ceil(bcdiv($number, $outputSec, 2));
+    }
+
+    public static function getOutputNumber($user_id)
+    {
+        $output = self::getOutput($user_id, CfgAnimal::OUTPUT);
+        if (empty($output)) return;
+
+        $maxTime = self::LIMIT_OUTPUT_HOURS * 60 * 60;
+        $outputMax = bcmul($output, $maxTime);
+        if ($diffTime > $maxTime) {
+            // 最多只能存储8小时产豆
+            $addCount = $outputMax;
+        } else {
+            $num = bcdiv($diffTime, self::MIN_OUTPUT_TIME);
+
+            $addCount = bcmul($output, $num);
+            if ($selfManor['count_left']) {
+                $addCount = bcadd($addCount, $selfManor['count_left']);
+                if ($addCount > $outputMax) $addCount = $outputMax;
+            }
+        }
     }
 }
