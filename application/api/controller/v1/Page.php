@@ -617,9 +617,7 @@ class Page extends Base
 
         $data['banner'] = $item['img'];
 
-        $content = NovelContent::where('aid', $item['id'])->find();
-
-        $data['content'] = $content['content'];
+        $data['content'] = $item['content'];
         $data['second'] = 15;
 
         Common::res(compact('data'));
