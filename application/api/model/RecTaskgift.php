@@ -40,7 +40,7 @@ class RecTaskgift extends Base
                 BadgeUser::addRec($uid, 7, 1, $awards['badge']['id']);//冬至徽章
                 unset($awards['badge']);
             }
-            if ($cid == 1 && $task_id == 7) {
+            if ($cid == 1 && $task_id == 3) {
                 $relation = UserRelation::where('ral_user_id', $uid)->find();
                 if ($relation) {
                     $rer_user_id = $relation['rer_user_id'];
