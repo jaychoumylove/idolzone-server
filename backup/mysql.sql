@@ -915,3 +915,6 @@ alter table f_rec_pay_order
 
 create index f_rec_pay_order_payty_index
 	on f_rec_pay_order (pay_type);
+
+-- 宝箱分享修改
+UPDATE `f_cfg_share` SET `path` = 'path=/pages/lottery/box_open' WHERE `id` = 8;
