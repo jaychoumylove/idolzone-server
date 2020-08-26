@@ -3,11 +3,14 @@
 namespace app\api\controller\v1;
 
 use app\api\model\Cfg_luckyDraw;
+use app\api\model\CfgAnimal;
 use app\api\model\CfgScrap;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\RecUserInvite;
 use app\api\model\UserAchievementHeal;
+use app\api\model\UserAnimal;
 use app\api\model\UserInvite;
+use app\api\model\UserManor;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
@@ -598,5 +601,25 @@ class Page extends Base
     public function manor()
     {
         // 我的庄园信息
+        $this->getUser();
+        $currentTime = time();
+
+        $manor = UserManor::get(['user_id' => $this->uid]);
+        if (empty($manor)) {
+            $manor = UserManor::create([
+                'user_id' => $this->uid,
+                'last_output_time' => $currentTime,
+            ]);
+            $animal = UserAnimal::create([
+                "user_id" => $this->uid,
+                'animal_id' => 1,
+                'scrap' => 0,
+                'level' => 1,
+            ]);
+        } else {
+            $diffTime = bcsub($currentTime, $manor['last_output_time']);
+            $output = UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
+            $addCount = UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
+        }
     }
 }
