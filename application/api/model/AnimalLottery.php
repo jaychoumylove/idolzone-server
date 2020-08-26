@@ -50,31 +50,42 @@ class AnimalLottery extends Base
 
         $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id');
 
-
-//        $choose = Common::lottery($list);
         Db::startTrans();
         try {
-            //
-            $exist = UserAnimal::where('user_id', $user_id)
-                ->where('animal', $choose['animal'])
-                ->find();
-            if ($exist) {
-                $updated = UserAnimal::where('id', $exist['id'])->update([
-                    'scrap' => bcadd($exist['scrap'], $choose['number'])
-                ]);
-                if (empty($updated)) {
+
+            $inserts = [];
+            $updateNum = 0;
+            $updatedNum = 0;
+            foreach ($choose as $key => $value) {
+                if (array_key_exists($key, $userAnimalDict)) {
+                    // 更新
+                    $updateNum ++;
+                    $id = $userAnimalDict[$key]['id'];
+                    $updated = UserAnimal::where('id', $id)->update([
+                        'scrap' => bcadd($userAnimalDict[$key]['scrap'], $choose['number'])
+                    ]);
+                    $update = empty($updated) ? 0: 1;
+                    $updatedNum += $update;
+                } else {
+                    // 写入
+                    $item = [
+                        'user_id' => $user_id,
+                        'animal' => $value['animal'],
+                        'scrap' => $value['number'],
+                        'level' => 1,
+                    ];
+                    array_push($inserts, $item);
+                }
+            }
+
+            if ($updateNum) {
+                if ($updateNum != $updatedNum) {
                     throw new Exception('更新失败');
                 }
-            } else {
-                $animal = CfgAnimal::get($choose['animal']);
+            }
 
-                UserAnimal::create([
-                    'user_id' => $user_id,
-                    'animal' => $choose['animal'],
-                    'scrap' => $choose['number'],
-                    'level' => 0,
-                    'lock' => $animal['lock_num']
-                ]);
+            if ($inserts) {
+                UserAnimal::saveAll($inserts);
             }
 
             (new \app\api\service\User())->change($user_id, ['panacea' => -$config['type'][$type]['panacea']]);
