@@ -8,6 +8,7 @@ use app\api\model\AnimalLottery;
 use app\api\model\CfgAnimal;
 use app\api\model\CfgAnimalLevel;
 use app\api\model\UserAnimal;
+use app\api\model\UserManor;
 use app\base\controller\Base;
 use app\base\service\Common;
 
@@ -120,7 +121,11 @@ class Animal extends Base
 
     public function animalOutput()
     {
-        // 宠物产豆收集
+        // 宠物产豆
+        $this->getUser();
+
+        UserManor::animalOutput($this->uid);
+        Common::res();
     }
 
     public function getCfgBackground()

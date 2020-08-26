@@ -949,7 +949,9 @@ create table f_cfg_animal_level
     level       int       default 1                 not null,
     number      int       default 0                 not null comment '碎片解锁数量',
     `desc`      varchar(255)                        null,
-    output int default 0 not null comment '每10秒产豆数',
+    data int default 0 not null comment '每10秒产豆数|
+偷豆数|
+else',
     create_time timestamp default CURRENT_TIMESTAMP not null,
     update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
     delete_time timestamp                           null,
@@ -1020,7 +1022,7 @@ create table f_user_manor
     id          int auto_increment,
     user_id     int                                 not null,
     day_count   bigint    default 0                 not null comment '今日金豆产量',
-    day_left    bigint    default 0                 not null comment '剩余产量',
+    last_output_time int default 0 not null comment '上次产豆时间',
     background  varchar(255)                        not null,
     week_count  bigint    default 0                 not null comment '本周产量',
     sum         bigint    default 0                 not null comment '庄园总产量',

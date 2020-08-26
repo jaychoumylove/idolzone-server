@@ -35,4 +35,37 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '请稍后再试']);
         }
     }
+
+    public static function getOutput($uid, $type)
+    {
+        $output = 0;
+
+        $userAnimals = self::where('user_id', $uid)->select();
+        if (is_object($userAnimals)) $userAnimals = $userAnimals->toArray();
+        if (empty($userAnimals)) return $output;
+
+        $animalIds = array_column($userAnimals, 'animal_id');
+        $outputAnimals = CfgAnimal::where('id', 'in', $animalIds)
+            ->where('type', $type)
+            ->select();
+        if (is_object($outputAnimals)) $outputAnimals = $outputAnimals->toArray();
+        if (empty($outputAnimals)) return $output;
+
+        $outputIds = array_column($outputAnimals, 'id');
+        $userOutputAnimals = array_filter($userAnimals, function ($item) use ($outputIds) {
+            return in_array($item['animal_id'], $outputIds);
+        });
+
+        if (empty($userOutputAnimals)) return $output;
+
+        foreach ($userOutputAnimals as $key => $userOutputAnimal) {
+            $level = CfgAnimalLevel::where('animal_id', $userOutputAnimal['animal_id'])
+                ->where('level', $userOutputAnimals['level'])
+                ->find();
+
+            $output += $level['data'];
+        }
+
+        return $output;
+    }
 }
