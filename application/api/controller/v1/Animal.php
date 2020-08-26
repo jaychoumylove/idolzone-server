@@ -123,7 +123,7 @@ class Animal extends Base
             Common::res(['code' => 1, 'msg' => '请选择偷取用户']);
         }
 
-        UserManor::steal($this->uid);
+        UserManor::steal($this->uid, $steal_id);
         Common::res();
     }
 
