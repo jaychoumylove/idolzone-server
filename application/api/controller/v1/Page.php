@@ -3,7 +3,9 @@
 namespace app\api\controller\v1;
 
 use app\api\model\Cfg_luckyDraw;
+use app\api\model\CfgNovel;
 use app\api\model\CfgScrap;
+use app\api\model\NovelContent;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\RecUserInvite;
 use app\api\model\UserAchievementHeal;
@@ -25,6 +27,7 @@ use app\api\model\CfgAds;
 use app\api\model\CfgItem;
 use app\api\model\Notice;
 use app\api\model\UserItem;
+use Exception;
 use GatewayWorker\Lib\Gateway;
 use app\api\model\UserExt;
 use app\api\model\Prop;
@@ -41,6 +44,7 @@ use app\api\model\FanclubUser;
 use app\api\model\CfgShare;
 use app\api\model\RecTaskfather;
 use app\api\service\Sms;
+use Throwable;
 
 class Page extends Base
 {
@@ -238,7 +242,7 @@ class Page extends Base
                 Db::name('pk_user_rank')->where('uid', $this->uid)->update(['score' => 0]);
 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollBack();
                 Common::res(['code' => 400, 'msg' => $e->getMessage()]);
             }
@@ -448,7 +452,7 @@ class Page extends Base
                     }
                 }
             }
-        }catch (\Throwable $throwable) {}
+        }catch (Throwable $throwable) {}
 
         $scrap = CfgScrap::where('status', CfgScrap::ON)
             ->order([
@@ -591,5 +595,33 @@ class Page extends Base
         }
 
         return $progress;
+    }
+
+    public function customAd()
+    {
+        $this->getUser();
+
+        $list = CfgNovel::all();
+        $list = collection($list)->toArray();
+
+        $ids = array_column($list, 'id');
+        $lucky = rand(0, count($ids) - 1);
+        $luckyId = $ids[$lucky];
+        $item = [];
+        foreach ($list as $key => $value) {
+            if ($value['id'] == $luckyId) {
+                $item = $value;
+                break;
+            }
+        }
+
+        $data['banner'] = $item['img'];
+
+        $content = NovelContent::where('aid', $item['id'])->find();
+
+        $data['content'] = $content['content'];
+        $data['second'] = 15;
+
+        Common::res(compact('data'));
     }
 }
