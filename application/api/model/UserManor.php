@@ -24,23 +24,7 @@ class UserManor extends Base
         $diffTime = bcsub($currentTime, $selfManor['last_output_time']);
         if ($diffTime < self::MIN_OUTPUT_TIME) return;
 
-        $output = UserAnimal::getOutput($uid, CfgAnimal::OUTPUT);
-        if (empty($output)) return;
-
-        $maxTime = self::LIMIT_OUTPUT_HOURS * 60 * 60;
-        $outputMax = bcmul($output, $maxTime);
-        if ($diffTime > $maxTime) {
-            // 最多只能存储8小时产豆
-            $addCount = $outputMax;
-        } else {
-            $num = bcdiv($diffTime, self::MIN_OUTPUT_TIME);
-
-            $addCount = bcmul($output, $num);
-            if ($selfManor['count_left']) {
-                $addCount = bcadd($addCount, $selfManor['count_left']);
-                if ($addCount > $outputMax) $addCount = $outputMax;
-            }
-        }
+        $addCount = UserAnimal::getOutputNumber($uid, $diffTime, $selfManor['count_left']);
 
         $update = [];
         if ($selfManor['count_left']) {

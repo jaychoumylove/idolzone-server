@@ -79,10 +79,11 @@ class UserAnimal extends Base
         return ceil(bcdiv($number, $outputSec, 2));
     }
 
-    public static function getOutputNumber($user_id)
+    public static function getOutputNumber($user_id, $diffTime, $default = 0)
     {
+        $addCount = 0;
         $output = self::getOutput($user_id, CfgAnimal::OUTPUT);
-        if (empty($output)) return;
+        if (empty($output)) return $addCount;
 
         $maxTime = self::LIMIT_OUTPUT_HOURS * 60 * 60;
         $outputMax = bcmul($output, $maxTime);
@@ -93,10 +94,12 @@ class UserAnimal extends Base
             $num = bcdiv($diffTime, self::MIN_OUTPUT_TIME);
 
             $addCount = bcmul($output, $num);
-            if ($selfManor['count_left']) {
-                $addCount = bcadd($addCount, $selfManor['count_left']);
+            if ($default) {
+                $addCount = bcadd($addCount, $default);
                 if ($addCount > $outputMax) $addCount = $outputMax;
             }
         }
+
+        return $addCount;
     }
 }
