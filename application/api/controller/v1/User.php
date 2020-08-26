@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\CfgForbiddenWords;
 use app\base\controller\Base;
 use app\api\model\User as UserModel;
 use app\base\service\Common;
@@ -248,6 +249,7 @@ class User extends Base
     public function sayworld()
     {
         $content = $this->req('content', 'require');
+
         $this->getUser();
         $user = UserModel::where('id', $this->uid)->field('type,nickname,avatarurl')->find();
         
@@ -281,8 +283,9 @@ class User extends Base
         (new UserService())->change($this->uid, [
             'trumpet' => -1
         ], '喊话');
-        // 推送socket消息
-        Gateway::sendToAll(json_encode([
+
+        // 没有广告语 推送socket消息
+        if(CfgForbiddenWords::noAds($content)) Gateway::sendToAll(json_encode([
             'type' => 'sayworld',
             'data' => [
                 'avatarurl' => $user['avatarurl'],

@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\CfgForbiddenWords;
 use app\base\controller\Base;
 use app\api\service\Star as StarService;
 use app\api\model\Star as StarModel;
@@ -69,6 +70,9 @@ class Star extends Base
     {
         $starid = $this->req('starid', 'integer');
         $content = $this->req('content', 'require');
+
+        //包含广告用语直接退出
+        if(!CfgForbiddenWords::noAds($content)) return;
 
         $this->getUser();
 
