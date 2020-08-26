@@ -63,6 +63,15 @@ class Animal extends Base
     public function upAnimal()
     {
         // 宠物升级
+        $this->getUser();
+        $animal = (int)input('animal', 0);
+        if (empty($animal)) {
+            Common::res(['code' => 1, 'msg' => '请选择宠物']);
+        }
+
+        UserAnimal::lvUp($this->uid, $animal);
+
+        Common::res();
     }
 
     public function lotteryAnimal()
@@ -73,11 +82,6 @@ class Animal extends Base
         $data = AnimalLottery::lottery($type, $this->uid);
 
         Common::res(compact('data'));
-    }
-
-    public function unLockAnimal()
-    {
-        // 解锁宠物
     }
 
     public function getAnimalInfo()

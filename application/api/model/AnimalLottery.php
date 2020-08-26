@@ -52,7 +52,6 @@ class AnimalLottery extends Base
 
         Db::startTrans();
         try {
-
             $inserts = [];
             $updateNum = 0;
             $updatedNum = 0;
