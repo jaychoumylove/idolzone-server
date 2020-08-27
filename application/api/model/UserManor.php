@@ -95,6 +95,12 @@ class UserManor extends Base
 
             (new \app\api\service\User())->change($uid, ['coin' => self::STEAL_NUMBER], '偷取庄园金豆');
 
+            ManorStealLog::create([
+                'user_id' => $uid,
+                'steal_id' => $steal_id,
+                'number' => self::STEAL_NUMBER
+            ]);
+
             Db::commit();
         }catch (Throwable $throwable) {
             Db::rollback();

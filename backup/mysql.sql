@@ -1059,6 +1059,33 @@ create table f_cfg_manor_background
 alter table f_cfg_manor_background
     add primary key (id);
 
+drop table if exists f_manor_steal_log;
+create table f_manor_steal_log
+(
+    id          int auto_increment,
+    user_id     int                                 not null comment '小偷',
+    steal_id    int                                 not null comment '受害者',
+    number      int       default 0                 not null comment '偷取数量',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                           null,
+    constraint f_manor_steal_log_id_uindex
+        unique (id)
+)
+    comment '偷取日志';
+
+create index f_manor_steal_log_steal_index
+    on f_manor_steal_log (steal_id);
+
+create index f_manor_steal_log_us_index
+    on f_manor_steal_log (user_id, steal_id);
+
+create index f_manor_steal_log_user_index
+    on f_manor_steal_log (user_id);
+
+alter table f_manor_steal_log
+    add primary key (id);
+
 alter table f_user_ext
 	add animal_lottery int default 0 not null comment '每日召唤宠物次数';
 

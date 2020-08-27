@@ -7,6 +7,7 @@ namespace app\api\controller\v1;
 use app\api\model\AnimalLottery;
 use app\api\model\CfgAnimal;
 use app\api\model\CfgAnimalLevel;
+use app\api\model\ManorStealLog;
 use app\api\model\UserAnimal;
 use app\api\model\UserManor;
 use app\base\controller\Base;
@@ -125,6 +126,21 @@ class Animal extends Base
 
         UserManor::steal($this->uid, $steal_id);
         Common::res();
+    }
+
+    public function stealLog()
+    {
+        $this->getUser();
+        $page = input('page', 1);
+        $size = input('size', 10);
+
+        $list = ManorStealLog::with(['user'])
+            ->where('steal_id', $this->uid)
+            ->page($page, $size)
+            ->select();
+        if (is_object($list)) $list = $list->toArray();
+
+        Common::res(['data' => $list]);
     }
 
     public function animalOutput()
