@@ -143,6 +143,12 @@ class Animal extends Base
         Common::res(['data' => $list]);
     }
 
+    public function stealUserList()
+    {
+        $list = UserManor::getRandomStealUser();
+        Common::res(['data' => $list]);
+    }
+
     public function animalOutput()
     {
         // 宠物产豆

@@ -107,4 +107,13 @@ class UserManor extends Base
             Common::res(['code' => 1, 'msg' => '已经被庄主收走咯']);
         }
     }
+
+    public static function getRandomStealUser()
+    {
+        $currentTime = time();
+
+        //SELECT * FROM `product_info`
+        //WHERE id >= (SELECT FLOOR( RAND()*((SELECT MAX(id) FROM product_info)-(SELECT MIN(id) FROM product_info))+(SELECT MIN(id) FROM product_info)))
+        //ORDER BY id LIMIT 10;
+    }
 }

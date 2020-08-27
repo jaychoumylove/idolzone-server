@@ -4,7 +4,9 @@ namespace app\api\controller\v1;
 
 use app\api\model\Cfg_luckyDraw;
 use app\api\model\CfgAnimal;
+use app\api\model\CfgNovel;
 use app\api\model\CfgScrap;
+use app\api\model\NovelContent;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\RecUserInvite;
 use app\api\model\UserAchievementHeal;
@@ -629,5 +631,31 @@ class Page extends Base
             'output' => $output,
             'add_count' => $addCount
         ]]);
+    }
+    
+    public function customAd()
+    {
+        $this->getUser();
+
+        $list = CfgNovel::all();
+        $list = collection($list)->toArray();
+
+        $ids = array_column($list, 'id');
+        $lucky = rand(0, count($ids) - 1);
+        $luckyId = $ids[$lucky];
+        $item = [];
+        foreach ($list as $key => $value) {
+            if ($value['id'] == $luckyId) {
+                $item = $value;
+                break;
+            }
+        }
+
+        $data['banner'] = $item['img'];
+
+        $data['content'] = $item['content'];
+        $data['second'] = 15;
+
+        Common::res(compact('data'));
     }
 }
