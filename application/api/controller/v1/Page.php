@@ -616,10 +616,18 @@ class Page extends Base
                 'scrap' => 0,
                 'level' => 1,
             ]);
+            $output = 1;
+            $addCount = 0;
         } else {
             $diffTime = bcsub($currentTime, $manor['last_output_time']);
             $output = UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
             $addCount = UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
         }
+
+        Common::res(['data' => [
+            'manor' => $manor,
+            'output' => $output,
+            'add_count' => $addCount
+        ]]);
     }
 }
