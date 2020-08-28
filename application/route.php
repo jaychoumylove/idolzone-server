@@ -370,6 +370,8 @@ Route::rule('api/:version/animal/unlock', 'api/v1.Animal/unLockAnimal'); // 宠�
 Route::rule('api/:version/animal/lottery_info', 'api/v1.Animal/getAnimalLotteryInfo'); // 宠物抽奖池
 Route::rule('api/:version/animal/lottery', 'api/v1.Animal/lotteryAnimal'); // 宠物信息
 Route::rule('api/:version/animal/steal', 'api/v1.Animal/animalSteal'); // 宠物偷豆
+Route::rule('api/:version/animal/steallist', 'api/v1.Animal/stealUserList');//偷取用户列表
+Route::rule('api/:version/animal/steallog', 'api/v1.Animal/stealLog'); // 偷取日志
 Route::rule('api/:version/animal/output', 'api/v1.Animal/animalOutput'); // 宠物产豆
 Route::rule('api/:version/animal/settle', 'api/v1.Animal/animalSettle'); // 宠物产豆收集
 Route::rule('api/:version/manor/background', 'api/v1.Animal/getCfgBackground'); // 庄园背景列表

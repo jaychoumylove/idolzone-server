@@ -112,8 +112,10 @@ class UserManor extends Base
     {
         $currentTime = time();
 
-        //SELECT * FROM `product_info`
-        //WHERE id >= (SELECT FLOOR( RAND()*((SELECT MAX(id) FROM product_info)-(SELECT MIN(id) FROM product_info))+(SELECT MIN(id) FROM product_info)))
-        //ORDER BY id LIMIT 10;
+        $sql = 'SELECT * FROM `f_user_manor`
+WHERE id >= (SELECT FLOOR( RAND()*((SELECT MAX(id) FROM f_user_manor)-(SELECT MIN(id) FROM f_user_manor))+(SELECT MIN(id) FROM f_user_manor)))
+ORDER BY id LIMIT 10;';
+
+        return Db::execute($sql);
     }
 }
