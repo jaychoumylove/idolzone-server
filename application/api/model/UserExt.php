@@ -32,8 +32,11 @@ class UserExt extends Base
     /**增加抽奖次数 */
     public static function addCount($uid, $type = 0)
     {
-        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time')->find();
+        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time,lottery_times')->find();
         $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
+        if ($data['lottery_times'] >= $config['day_max']) {
+            return 0;
+        }
         $diff = (int)bcsub(time(), $data['lottery_time']);
         $auto_add_time = $config['auto_add_time'];
         if ($diff < $auto_add_time) {
@@ -41,8 +44,15 @@ class UserExt extends Base
             return $data['lottery_count'];
         }
 
-        $typeMap = ['first_max', 'add_max'];
-        $max = $config[$typeMap[$type]];
+        $max = $config['add_max'];
+        if ($type == 0) {
+            $lv = CfgUserLevel::getLevel($uid);
+            foreach ($config['level_max'] as $lvItem) {
+                if ($lv > $lvItem['level']) {
+                    $max = $lvItem['max'];
+                }
+            }
+        }
         if ($data['lottery_count'] >= $max) {
             // 当前剩余次数大于上限
             return $data['lottery_count'];
@@ -72,10 +82,21 @@ class UserExt extends Base
             $msg = sprintf('今天已经抽了%s次了', $config['day_max']);
             Common::res(['code' => 1, 'msg' => $msg]);
         }
+        $goMultiple = 0;
+        if (array_key_exists('multiple', $config)) {
+            foreach ($config['multiple'] as $item) {
+                if ($data['lottery_count'] >= $item['number']) {
+                    $goMultiple = (int)$item['number'];
+                }
+            }
+        }
+        if ($goMultiple > 0) {
+            Common::res(['code' => 1, 'msg' => "请点击 $goMultiple 抽吧"]);
+        }
         $currentTime = time();
         $diff = bcsub($currentTime, $data['lottery_star_time']);
         if ((int)$diff < (int)$config['start_limit_time']) {
-            Common::res(['code' => 1, 'msg' => sprintf("每%s秒才能抽一次哦", $config['start_limit_time'])]);
+            Common::res(['code' => 1, 'msg' => "点击太快了"]);
         }
 
         // 随机一个奖品
@@ -463,5 +484,80 @@ class UserExt extends Base
             'addNum'=>$extraAdd,
             'value'=>$lottery['value'],
         ];
+    }
+
+    public static function multipleLottery($type, $uid)
+    {
+        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time,lottery_times,lottery_star_time')->find();
+        if ($data['lottery_count'] <= 0) Common::res(['code' => 1, 'msg' => '没有抽奖次数了']);
+        $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
+        if ($data['lottery_times'] >= $config['day_max']) {
+            $msg = sprintf('今天已经抽了%s次了', $config['day_max']);
+            Common::res(['code' => 1, 'msg' => $msg]);
+        }
+        $currentTime = time();
+        $diff = bcsub($currentTime, $data['lottery_star_time']);
+        if ((int)$diff < (int)$config['start_limit_time']) {
+            Common::res(['code' => 1, 'msg' => "点击太快了"]);
+        }
+
+        $multipleType = array_filter($config['multiple'], function ($item) use ($type) {
+            return $item['type'] == $type;
+        });
+        if (empty($multipleType)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+        $multipleType = array_values($multipleType);
+        $times = $multipleType[0]['number'];
+        if ($data['lottery_count'] < $times) {
+            Common::res(['code' => 1, 'msg' => "抽奖次数不够 $times 哦"]);
+        }
+
+        // 随机一个奖品
+        $lotteryList = CfgLottery::all();
+        $array = range (0, bcsub ($times, 1));
+        $choose = [];
+        foreach ($array as $ite) {
+            $chooseItem = Common::lottery ($lotteryList);
+            if (is_object($chooseItem)) $chooseItem = $chooseItem->toArray();
+            array_push ($choose, $chooseItem);
+        }
+
+        $returns = [];
+        foreach ($choose as $key => $value) {
+            if (array_key_exists($value['type'], $returns)) {
+                $returns[$value['type']]['num'] = (int)bcadd($value['num'], $returns[$value['type']]['num']);
+            } else {
+                $returns[$value['type']] = $value;
+            }
+        }
+
+        Db::startTrans();
+        try {
+            // 扣除金豆增加今日抽奖次数
+            $isDone = self::where('user_id', $uid)->update([
+                'lottery_count' => Db::raw('lottery_count-'.$times),
+                'lottery_times' => Db::raw('lottery_times+'.$times),
+                'lottery_star_time' => $currentTime
+            ]);
+            if(!$isDone) {
+                $msg = sprintf('今天已经抽了%s次了', $times);
+                Common::res(['code' => 1, 'msg' => $msg]);
+            }
+
+            RecTask::addRec($uid, [5, 6], $times);
+            RecTaskfather::addRec($uid, [4, 15, 26, 37], $times);
+
+            foreach ($choose as $item) {
+                self::grant($uid, $item);
+            }
+
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            Common::res(['code' => 400, 'msg' => $e->getMessage()]);
+        }
+
+        return $returns;
     }
 }
