@@ -116,6 +116,14 @@ class UserManor extends Base
 WHERE id >= (SELECT FLOOR( RAND()*((SELECT MAX(id) FROM f_user_manor)-(SELECT MIN(id) FROM f_user_manor))+(SELECT MIN(id) FROM f_user_manor)))
 ORDER BY id LIMIT 10;';
 
-        return Db::execute($sql);
+        $list = Db::query($sql);
+
+        $userIds = array_column($list, 'user_id');
+        $userDict = UserManor::getDictList((new User()), $userIds, 'id', 'nickname,id,avatarurl');
+        foreach ($list as $key => $value ) {
+            $list[$key]['user'] = array_key_exists($value['user_id'], $userDict) ? $userDict[$value['user_id']]: null;
+        }
+
+        return $list;
     }
 }
