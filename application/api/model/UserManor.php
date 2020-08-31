@@ -108,13 +108,15 @@ class UserManor extends Base
         }
     }
 
-    public static function getRandomStealUser()
+    public static function getRandomStealUser($user_id)
     {
         $currentTime = time();
 
         $sql = 'SELECT * FROM `f_user_manor`
 WHERE id >= (SELECT FLOOR( RAND()*((SELECT MAX(id) FROM f_user_manor)-(SELECT MIN(id) FROM f_user_manor))+(SELECT MIN(id) FROM f_user_manor)))
-ORDER BY id LIMIT 10;';
+and user_id <> ';
+        $sql .= $user_id;
+        $sql .= ' ORDER BY id LIMIT 10;';
 
         $list = Db::query($sql);
 

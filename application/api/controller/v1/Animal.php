@@ -204,8 +204,15 @@ class Animal extends Base
 
     public function stealUserList()
     {
-        $list = UserManor::getRandomStealUser();
-        Common::res(['data' => $list]);
+        $this->getUser();
+        $list = UserManor::getRandomStealUser($this->uid);
+        $daySteal = UserManor::where('user_id', $this->uid)->value('day_steal');
+        $sumSteal = UserAnimal::getOutput($this->uid, CfgAnimal::STEAL);
+        $diff = (int)bcsub($sumSteal, $daySteal);
+        Common::res(['data' => [
+            'list' => $list,
+            'steal_left_times' => $diff > 0 ? $diff: 0
+        ]]);
     }
 
     public function animalOutput()
