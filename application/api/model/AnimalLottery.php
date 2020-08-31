@@ -68,6 +68,7 @@ class AnimalLottery extends Base
             $inserts = [];
             $updateNum = 0;
             $updatedNum = 0;
+            $hasNew = false;
             foreach ($choose as $key => $value) {
                 if (array_key_exists($key, $userAnimalDict)) {
                     // 更新
@@ -89,6 +90,7 @@ class AnimalLottery extends Base
                     ];
                     array_push($inserts, $item);
                     $value['new'] = true;
+                    $hasNew = true;
                 }
                 if (array_key_exists($value['animal'], $animalDict)) {
                     $value['animal_info'] = $animalDict[$value['animal']];
@@ -115,6 +117,6 @@ class AnimalLottery extends Base
             Common::res(['code' => 1, 'msg' => '请稍后再试']);
         }
 
-        return $choose;
+        return ['list' => $choose, 'has_new' => $hasNew];
     }
 }

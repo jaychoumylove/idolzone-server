@@ -163,7 +163,7 @@ class Animal extends Base
         $lv = empty($userAnimal) ? 0: $userAnimal['level'];
         $nextLv = bcadd($lv, 1);
 
-        $lvDict = CfgAnimalLevel::getDictList((new CfgAnimalLevel()), [$lv, $nextLv], 'id', '*', ['animal_id' => $animalId]);
+        $lvDict = CfgAnimalLevel::getDictList((new CfgAnimalLevel()), [$lv, $nextLv], 'level', '*', ['animal_id' => $animalId]);
 
         $data = [
             'animal' => $animal,
