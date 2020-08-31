@@ -628,8 +628,8 @@ class Page extends Base
 
         Common::res(['data' => [
             'manor' => $manor,
-            'output' => $output,
-            'add_count' => $addCount
+            'output' => (int)$output,
+            'add_count' => (int)$addCount
         ]]);
     }
     

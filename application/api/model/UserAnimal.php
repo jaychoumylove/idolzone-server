@@ -30,7 +30,12 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '碎片不够哦']);
         }
 
-        $updated = UserAnimal::where('id', $userAnimal['id'])->update(['scrap' => $leftScrap]);
+        $updateData =[
+            'scrap' => $leftScrap,
+            'level' => $nextLevel,
+        ];
+
+        $updated = UserAnimal::where('id', $userAnimal['id'])->update($updateData);
         if (empty($updated)) {
             Common::res(['code' => 1, 'msg' => '请稍后再试']);
         }
@@ -42,21 +47,25 @@ class UserAnimal extends Base
 
         $userAnimals = self::where('user_id', $uid)->select();
         if (is_object($userAnimals)) $userAnimals = $userAnimals->toArray();
-        if (empty($userAnimals)) return $number;
+        if (empty($userAnimals)) {
+            return $number;
+        }
 
         $animalIds = array_column($userAnimals, 'animal_id');
-        $outputAnimals = CfgAnimal::where('id', 'in', $animalIds)
-            ->where('type', $type)
-            ->select();
+        $outputAnimals = CfgAnimal::where('id', 'in', $animalIds)->select();
         if (is_object($outputAnimals)) $outputAnimals = $outputAnimals->toArray();
-        if (empty($outputAnimals)) return $number;
+        if (empty($outputAnimals)) {
+            return $number;
+        }
 
         $outputIds = array_column($outputAnimals, 'id');
         $userOutputAnimals = array_filter($userAnimals, function ($item) use ($outputIds) {
             return in_array($item['animal_id'], $outputIds);
         });
 
-        if (empty($userOutputAnimals)) return $number;
+        if (empty($userOutputAnimals)) {
+            return $number;
+        }
 
         $outputType = [
             CfgAnimal::OUTPUT => 'output',
@@ -64,12 +73,11 @@ class UserAnimal extends Base
         ];
         foreach ($userOutputAnimals as $key => $userOutputAnimal) {
             $level = CfgAnimalLevel::where('animal_id', $userOutputAnimal['animal_id'])
-                ->where('level', $userOutputAnimals['level'])
+                ->where('level', $userOutputAnimal['level'])
                 ->find();
 
             $number += $level[$outputType[$type]];
         }
-
         return $number;
     }
 
@@ -85,13 +93,13 @@ class UserAnimal extends Base
         $output = self::getOutput($user_id, CfgAnimal::OUTPUT);
         if (empty($output)) return $addCount;
 
-        $maxTime = self::LIMIT_OUTPUT_HOURS * 60 * 60;
+        $maxTime = UserManor::LIMIT_OUTPUT_HOURS * 60 * 60;
         $outputMax = bcmul($output, $maxTime);
         if ($diffTime > $maxTime) {
             // 最多只能存储8小时产豆
             $addCount = $outputMax;
         } else {
-            $num = bcdiv($diffTime, self::MIN_OUTPUT_TIME);
+            $num = bcdiv($diffTime, UserManor::MIN_OUTPUT_TIME);
 
             $addCount = bcmul($output, $num);
             if ($default) {

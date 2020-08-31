@@ -15,6 +15,11 @@ class AnimalLottery extends Base
     const MULTIPLE = 'multiple';
     const MAX = 100;
 
+    public function animal()
+    {
+        return $this->hasOne('CfgAnimal', 'id', 'animal');
+    }
+
     public static function lottery($type, $user_id)
     {
         $nums = UserExt::where('user_id', $user_id)->value('animal_lottery');
@@ -23,17 +28,23 @@ class AnimalLottery extends Base
         }
 
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
-        if (array_key_exists($type, $config['type']) == false) {
+        $typeItem = null;
+        foreach ($config['lottery']['types'] as $value) {
+            if ($value['type'] == $type) {
+                $typeItem = $value;
+            }
+        }
+        if (empty($typeItem)) {
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
 
         $currency = UserCurrency::getCurrency($user_id);
-        if ($currency['panacea'] < $config['type'][$type]['panacea']) {
+        if ($currency['panacea'] < $typeItem['panacea']) {
             Common::res(['code' => 1, 'msg' => '灵丹不够哦']);
         }
 
         $list = self::all();
-        $array = range (0, bcsub ($config['type'][$type]['number'], 1));
+        $array = range (0, bcsub ($typeItem['number'], 1));
         $choose = [];
         foreach ($array as $it) {
             $chooseItem = Common::lottery ($list);
@@ -50,6 +61,8 @@ class AnimalLottery extends Base
 
         $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id');
 
+        $animalDict = CfgAnimal::getDictList((new CfgAnimal()), $animalIds, 'id');
+
         Db::startTrans();
         try {
             $inserts = [];
@@ -61,20 +74,26 @@ class AnimalLottery extends Base
                     $updateNum ++;
                     $id = $userAnimalDict[$key]['id'];
                     $updated = UserAnimal::where('id', $id)->update([
-                        'scrap' => bcadd($userAnimalDict[$key]['scrap'], $choose['number'])
+                        'scrap' => bcadd($userAnimalDict[$key]['scrap'], $value['number'])
                     ]);
                     $update = empty($updated) ? 0: 1;
                     $updatedNum += $update;
+                    $value['new'] = false;
                 } else {
                     // 写入
                     $item = [
                         'user_id' => $user_id,
-                        'animal' => $value['animal'],
+                        'animal_id' => $value['animal'],
                         'scrap' => $value['number'],
                         'level' => 1,
                     ];
                     array_push($inserts, $item);
+                    $value['new'] = true;
                 }
+                if (array_key_exists($value['animal'], $animalDict)) {
+                    $value['animal_info'] = $animalDict[$value['animal']];
+                }
+                $choose[$key] = $value;
             }
 
             if ($updateNum) {
@@ -84,14 +103,15 @@ class AnimalLottery extends Base
             }
 
             if ($inserts) {
-                UserAnimal::saveAll($inserts);
+                (new UserAnimal())->saveAll($inserts);
             }
 
-            (new \app\api\service\User())->change($user_id, ['panacea' => -$config['type'][$type]['panacea']]);
-
+            (new \app\api\service\User())->change($user_id, ['panacea' => -$typeItem['panacea']], '召唤宠物');
+//            throw new Exception('something was wrong');
             Db::commit();
         } catch (\Exception $exception) {
             Db::rollback();
+//            throw $exception;
             Common::res(['code' => 1, 'msg' => '请稍后再试']);
         }
 

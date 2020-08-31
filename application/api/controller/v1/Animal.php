@@ -82,23 +82,36 @@ class Animal extends Base
                 $value['level'] = 1;
 
                 $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
-                    ->where('level', $value['lv'])
+                    ->where('level', $value['level'])
                     ->find();
 
                 $list[$key] = $value;
             }
         }
 
-        Common::res(['data' => $list]);
+        $currentTime = time();
+        $manor = UserManor::get(['user_id' => $this->uid]);
+        $diffTime = bcsub($currentTime, $manor['last_output_time']);
+        $output = UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
+        $addCount = UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
+
+        Common::res(['data' => [
+            'list' => $list,
+            'output' => $output,
+            'add_count' => $addCount,
+            'steal_left' => $manor['day_steal']
+        ]]);
     }
 
     public function getAnimalLotteryInfo()
     {
         // 获取宠物奖池信息
-        $list = AnimalLottery::order([
-            'chance' => 'desc',
-            'id' => 'asc'
-        ])->select();
+        $list = AnimalLottery::with(['animal'])
+            ->order([
+                'chance' => 'desc',
+                'id' => 'asc'
+            ])
+            ->select();
 
         if (is_object($list)) $list = $list->toArray();
 
@@ -109,12 +122,12 @@ class Animal extends Base
     {
         // 宠物升级
         $this->getUser();
-        $animal = (int)input('animal', 0);
-        if (empty($animal)) {
+        $animalId = (int)input('animal_id', 0);
+        if (empty($animalId)) {
             Common::res(['code' => 1, 'msg' => '请选择宠物']);
         }
 
-        UserAnimal::lvUp($this->uid, $animal);
+        UserAnimal::lvUp($this->uid, $animalId);
 
         Common::res();
     }
@@ -133,7 +146,7 @@ class Animal extends Base
     {
         // 获取宠物信息
         $animalId = (int)input('animal_id', 0);
-        if (empty($animal)) {
+        if (empty($animalId)) {
             Common::res(['code' => 1, 'msg' => '请选择宠物']);
         }
 
@@ -143,16 +156,19 @@ class Animal extends Base
         }
 
         $userAnimal = UserAnimal::get(['animal_id' => $animalId]);
+        if (empty($userAnimal)) {
+            Common::res(['code' =>1, 'msg' => '尚未拥有哦']);
+        }
 
         $lv = empty($userAnimal) ? 0: $userAnimal['level'];
         $nextLv = bcadd($lv, 1);
 
-        $lvDict = CfgAnimalLevel::getDictList((new CfgAnimalLevel()), [$lv, $nextLv], 'id');
+        $lvDict = CfgAnimalLevel::getDictList((new CfgAnimalLevel()), [$lv, $nextLv], 'id', '*', ['animal_id' => $animalId]);
 
         $data = [
             'animal' => $animal,
             'lv' => $lvDict[$lv],
-            'next_lv' => $lvDict[$nextLv]
+            'next_lv' => array_key_exists($nextLv, $lvDict) ? $lvDict[$nextLv]: null
         ];
 
         Common::res(compact('data'));
