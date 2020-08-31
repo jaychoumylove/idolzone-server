@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\CfgForbiddenWords;
 use app\base\controller\Base;
 use app\api\service\Star as StarService;
 use app\api\model\Star as StarModel;
@@ -14,6 +15,7 @@ use app\api\model\Rec;
 use app\api\model\Cfg;
 use app\api\model\RecStarinfoHistory;
 use app\api\model\UserSprite;
+use Exception;
 use GatewayWorker\Lib\Gateway;
 use app\api\model\GuideCron;
 use think\Db;
@@ -69,6 +71,9 @@ class Star extends Base
     {
         $starid = $this->req('starid', 'integer');
         $content = $this->req('content', 'require');
+
+        //包含广告用语直接退出
+        if(!CfgForbiddenWords::noAds($content)) return;
 
         $this->getUser();
 
@@ -167,7 +172,7 @@ class Star extends Base
             ->find();
             $userStar['star']['captain'] = $userStar['captain'];
             Common::res(['data'=>['userStar'=>$userStar['star']]]);            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -180,7 +185,7 @@ class Star extends Base
     {
         $this->getUser ();
 
-        $data = \app\api\service\Star::extraSendHot ($this->uid);
+        $data = StarService::extraSendHot ($this->uid);
 
         Common::res (compact ('data'));
     }

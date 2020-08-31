@@ -4,8 +4,10 @@ namespace app\api\model;
 use app\base\model\Base;
 use app\base\service\Common;
 use app\api\service\User as UserService;
+use Exception;
 use think\Db;
 use think\model\Relation;
+use Throwable;
 
 class Fanclub extends Base
 {
@@ -100,14 +102,6 @@ class Fanclub extends Base
                 $exited = empty($starId); // true 已退圈 false 未退圈
                 if ($rer_user_id && empty($exited)) {
                     UserRelation::where(['ral_user_id' => $uid])->update(['status' => 1]);
-                    $status = Cfg::checkInviteAssistTime ();
-                    if ($status) {
-                        $platform = User::where('id', $rer_user_id)->value ('platform');
-                        if ($platform == "MP-WEIXIN") {
-                            UserInvite::recordInvite ($rer_user_id, $starId);
-                            \app\api\service\Star::addInvite ($starId);
-                        }
-                    }
                     UserAchievementHeal::addInvite ($rer_user_id);
 
                     RecTask::addRec($rer_user_id, [11, 12, 13]);
@@ -121,7 +115,7 @@ class Fanclub extends Base
             }
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             throw $e;
 //            Common::res([
@@ -160,6 +154,19 @@ class Fanclub extends Base
                 'code' => 1,
                 'msg' => '没有权限'
             ]);
+        }
+
+        $fanclubId = FanclubUser::where('user_id', $operater)->value('fanclub_id');
+        // 不能踢别的团的成员
+        if ($fanclubId != $fanclubUser['fanclub_id']) {
+            Common::res(['code' => 1, 'msg' => '权限不够']);
+        }
+        if ($isAdmin) {
+            $isBeLeader = FanclubUser::isLeader($uid);
+            if ($isBeLeader) {
+                // 管理员不能踢团长
+                Common::res(['code' => 1, 'msg' => '权限不够']);
+            }
         }
         
 //         $hasExited = Db::name('fanclub_user')->where('user_id', $uid)
@@ -202,7 +209,7 @@ class Fanclub extends Base
 //                     (new UserService())->change($uid, ['stone' => - 100], '超过1次退出粉丝团');
                 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollback();
                 Common::res([
                     'code' => 400,
@@ -231,7 +238,7 @@ class Fanclub extends Base
                 ]);
                 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollback();
                 Common::res([
                     'code' => 400,
@@ -291,7 +298,7 @@ class Fanclub extends Base
             self::where('id', $fanclubId)->update($fanClubUpdate);
 
             Db::commit ();
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             Db::rollback ();
 
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
