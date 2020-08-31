@@ -128,4 +128,14 @@ and user_id <> ';
 
         return $list;
     }
+
+    public static function animalChange($uid, $animalId)
+    {
+        $exist = UserAnimal::get(['user_id' => $uid, 'animal_id' => $animalId]);
+        if (empty($exist)) {
+            Common::res(['code' => 1, 'msg' => '你还没有这个宠物哦']);
+        }
+
+        UserManor::where('user_id', $uid)->update(['use_animal' => $animalId]);
+    }
 }

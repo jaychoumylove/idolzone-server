@@ -224,6 +224,18 @@ class Animal extends Base
         Common::res();
     }
 
+    public function changeMainAnimal()
+    {
+        $animalId = (int)input('animal_id', 0);
+        if (empty($animalId)) {
+            Common::res(['code' => 1, 'msg' => '请选择宠物']);
+        }
+        $this->getUser();
+
+        UserManor::animalChange($this->uid, $animalId);
+        Common::res();
+    }
+
     public function getCfgBackground()
     {
         // 获取庄园背景列表

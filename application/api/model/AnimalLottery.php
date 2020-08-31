@@ -65,6 +65,11 @@ class AnimalLottery extends Base
 
         Db::startTrans();
         try {
+            $extUpd = UserExt::where('user_id', $user_id)->update(['animal_lottery' => bcadd($nums, $typeItem['number'])]);
+            if (empty($extUpd)) {
+                throw new Exception('更新失败');
+            }
+
             $inserts = [];
             $updateNum = 0;
             $updatedNum = 0;
