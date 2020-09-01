@@ -36,4 +36,20 @@ class PkUserRank extends Base
                 UserAchievementHeal::PK);
         }
     }
+
+    public static function settlePanacea($pk_time)
+    {
+        $top = self::where(['last_pk_time' => $pk_time])
+            ->order ([
+                'last_pk_count' => 'desc',
+                'update_time' => 'asc'
+            ])
+            ->limit (10)
+            ->select ();
+        if (is_object ($top)) $top = $top->toArray ();
+
+        $ids = array_column($top, 'uid');
+
+        (new RecPanaceaTask())->settleRank($ids, CfgPanaceaTask::PK_RANK);
+    }
 }

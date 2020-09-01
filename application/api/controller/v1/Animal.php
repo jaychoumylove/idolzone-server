@@ -303,11 +303,6 @@ class Animal extends Base
 
     public function settleTask()
     {
-        // 检测是否开启福袋任务
-//        $status = Cfg::checkActiveByPathInBtnGroup (Cfg::WEAL_ACTIVE_PATH);
-//        if (empty($status)) {
-//            Common::res (['code' => 1, 'msg' => '活动已结束']);
-//        }
         $this->getUser();
         $task_id = $this->req('task_id', 'integer');
         $task = (new CfgPanaceaTask())->get($task_id);

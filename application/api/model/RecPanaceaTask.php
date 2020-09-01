@@ -28,6 +28,41 @@ class RecPanaceaTask extends Base
     }
 
     /**
+     * @param $userList
+     * @param $type
+     * @throws DbException
+     */
+    public function settleRank ($userList, $type)
+    {
+        if (empty($userList)) return;
+
+        $task = CfgPanaceaTask::get(['type' => $type]);
+        if (empty($task)) return;
+
+        $reward = json_decode($task['extra'], true);
+
+        $logMap = [
+            CfgPanaceaTask::FLOWER_RANK => '鲜花日榜',
+            CfgPanaceaTask::PK_RANK => 'PK榜',
+        ];
+
+        Db::startTrans();
+        try {
+            $userService = new \app\api\service\User();
+            foreach ($userList as $user_id) {
+                $panacea = max($reward);
+                $userService->change($user_id, ['panacea' => $panacea], '完成灵丹任务-'. $logMap[$type]);
+                $reward = array_filter($reward, function ($item) use ($panacea) {
+                    return $item < $panacea;
+                });
+            }
+            Db::commit();
+        } catch (Throwable $throwable) {
+            Db::rollback();
+        }
+    }
+
+    /**
      * 领取任务奖励
      *
      * @param $task_id

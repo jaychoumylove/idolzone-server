@@ -13,6 +13,7 @@ class CfgPanaceaTask extends Base
     const DAY = 'DAY';
     const SUM = 'SUM';
     const ONCE = 'ONCE';
+    const RANK = 'RANK';
 
     const ON = 'ON';
     const OFF = 'OFF';
@@ -33,6 +34,10 @@ class CfgPanaceaTask extends Base
     //  单次任务
     const LEVEL = 'LEVEL';// 等级任务
     const BADGE = 'BADGE'; // 徽章任务 key
+
+    // 榜单任务
+    const FLOWER_RANK = 'FLOWER_RANK';// 每日鲜花榜top10
+    const PK_RANK = 'PK_RANK'; // pk榜top10
 
     public static function getTaskByKey($key)
     {
@@ -76,6 +81,12 @@ class CfgPanaceaTask extends Base
         foreach ($list as $key => $value) {
             $value['done_times'] = 0;
             $value['status']     = 0;
+            if($value['type'] == self::RANK) {
+                $extra = json_decode($value['extra'], true);
+                $first = $extra[0];
+                $last = $extra[count($extra) - 1];
+                $value['reward'] = $first .'-'. $last;
+            }
             if (array_key_exists ($value['id'], $taskRecDict)) {
                 $recTask = $taskRecDict[$value['id']];
 
