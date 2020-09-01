@@ -73,10 +73,7 @@ class RecPanaceaTask extends Base
                 }
             }
 
-            $res = UserExt::luckyChange ($uid, $earn);
-            if (empty($res)) {
-                throw new Exception('重复领取', 3);
-            }
+            (new \app\api\service\User())->change($uid, ['panacea' => $earn], '完成灵丹任务');
 
 //            throw new Exception('something was wrong');
 
