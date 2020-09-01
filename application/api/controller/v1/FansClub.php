@@ -2,7 +2,9 @@
 namespace app\api\controller\v1;
 
 use app\api\model\Cfg;
+use app\api\model\CfgPanaceaTask;
 use app\api\model\CfgWealActivityTask;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecWealActivityTask;
 use app\base\controller\Base;
@@ -15,6 +17,7 @@ use app\api\model\FanclubUser;
 use app\api\model\CfgTaskgiftCategory;
 use app\api\model\Star;
 use app\api\service\User;
+use Exception;
 use think\Db;
 use app\api\service\FanclubTask;
 use app\api\model\RecTaskfather;
@@ -46,7 +49,7 @@ class FansClub extends Base
             $new = Fanclub::create($res);
             Fanclub::joinFanclub($this->uid, $new['id']);
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
@@ -180,7 +183,7 @@ class FansClub extends Base
             Fanclub::where('id', $fid)->update($res);
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
@@ -226,9 +229,10 @@ class FansClub extends Base
             UserStar::changeHandle($this->uid, 'mass');
 
             RecWealActivityTask::setTask ($this->uid, 1, CfgWealActivityTask::FANS_CLUB_MASS);
+            RecPanaceaTask::setTask ($this->uid, 1, CfgPanaceaTask::FANS_CLUB_MASS);
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
@@ -395,7 +399,7 @@ class FansClub extends Base
 
                     FanclubApplyUser::create($res);
 
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
 
                     Common::res([
                         'code' => 1,
@@ -462,7 +466,7 @@ class FansClub extends Base
                         Fanclub::joinFanclub($uid, $f_id);
     
                         Db::commit();
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Db::rollback();
                         Common::res([
                             'code' => 400,
