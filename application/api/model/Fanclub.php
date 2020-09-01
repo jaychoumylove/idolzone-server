@@ -112,6 +112,7 @@ class Fanclub extends Base
                 RecTaskactivity618::addOrEdit($uid, 2,1);
 
                 RecWealActivityTask::setTask ($uid, 1, CfgWealActivityTask::INVITE);
+                RecPanaceaTask::setTask ($uid, 1, CfgPanaceaTask::INVITE);
             }
 
             Db::commit();

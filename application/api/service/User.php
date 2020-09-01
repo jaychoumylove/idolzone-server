@@ -2,8 +2,10 @@
 
 namespace app\api\service;
 
+use app\api\model\CfgPanaceaTask;
 use app\api\model\CfgWealActivityTask;
 use app\api\model\CfgWelfare;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecWealActivityTask;
 use app\api\model\Welfare;
 use app\base\service\WxAPI;
@@ -126,11 +128,23 @@ class User
                 'flower' => CfgWealActivityTask::USE_FOLLOWER,
                 'point'  => CfgWealActivityTask::USE_POINT,
             ];
+            $panaceaMap = [
+                'stone'  => CfgPanaceaTask::USE_STONE,
+                'flower' => CfgPanaceaTask::USE_FOLLOWER,
+                'point'  => CfgPanaceaTask::USE_POINT,
+            ];
             foreach ($currency as $key => $value) {
                 if (array_key_exists ($key, $wealMap)) {
                     if ((int)$value < 0) {
                         $wealType = $wealMap[$key];
                         RecWealActivityTask::setTask ($uid, abs ($value), $wealType);
+                    }
+                }
+
+                if (array_key_exists ($key, $panaceaMap)) {
+                    if ((int)$value < 0) {
+                        $panaceaType = $panaceaMap[$key];
+                        RecPanaceaTask::setTask ($uid, abs ($value), $panaceaType);
                     }
                 }
             }

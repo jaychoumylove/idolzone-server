@@ -5,9 +5,14 @@ namespace app\api\controller\v1;
 
 
 use app\api\model\AnimalLottery;
+use app\api\model\Cfg;
 use app\api\model\CfgAnimal;
 use app\api\model\CfgAnimalLevel;
+use app\api\model\CfgPanaceaTask;
+use app\api\model\CfgWealActivityTask;
 use app\api\model\ManorStealLog;
+use app\api\model\RecPanaceaTask;
+use app\api\model\RecWealActivityTask;
 use app\api\model\UserAnimal;
 use app\api\model\UserManor;
 use app\base\controller\Base;
@@ -285,5 +290,40 @@ class Animal extends Base
     public function useBackground()
     {
         // 使用庄园背景
+    }
+
+    public function getTaskList()
+    {
+        $this->getUser();
+        // 任务列表
+        $list = (new CfgPanaceaTask())->getList($this->uid);
+
+        Common::res(['data' => $list]);
+    }
+
+    public function settleTask()
+    {
+        // 检测是否开启福袋任务
+//        $status = Cfg::checkActiveByPathInBtnGroup (Cfg::WEAL_ACTIVE_PATH);
+//        if (empty($status)) {
+//            Common::res (['code' => 1, 'msg' => '活动已结束']);
+//        }
+        $this->getUser();
+        $task_id = $this->req('task_id', 'integer');
+        $task = (new CfgPanaceaTask())->get($task_id);
+        if(!$task){
+            Common::res(['code' => 1, 'msg' => '不存在该任务']);
+        }
+        if ($task['type'] != CfgPanaceaTask::ONCE) {
+            $rectask= RecPanaceaTask::where(['user_id'=>$this->uid,'task_id'=>$task_id])->find();
+
+            if (empty($rectask)) {
+                Common::res (['code' => 1, 'msg' => "还未完成该任务哦"]);
+            }
+        }
+
+        $earn = (new RecPanaceaTask())->settle($task_id, $this->uid);
+
+        Common::res(['data' => $earn]);
     }
 }

@@ -376,6 +376,8 @@ Route::rule('api/:version/animal/steallist', 'api/v1.Animal/stealUserList');//�
 Route::rule('api/:version/animal/steallog', 'api/v1.Animal/stealLog'); // 偷取日志
 Route::rule('api/:version/animal/output', 'api/v1.Animal/animalOutput'); // 宠物产豆
 Route::rule('api/:version/animal/settle', 'api/v1.Animal/animalSettle'); // 宠物产豆收集
+Route::rule('api/:version/panacea/task_list', 'api/v1.Animal/getTaskList'); // 灵丹任务列表
+Route::rule('api/:version/panacea/task_settle', 'api/v1.Animal/settleTask'); // 完成灵丹任务
 Route::rule('api/:version/manor/background', 'api/v1.Animal/getCfgBackground'); // 庄园背景列表
 Route::rule('api/:version/manor/use_background', 'api/v1.Animal/useBackground'); // 使用庄园背景
 Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息
