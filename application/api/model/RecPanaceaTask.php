@@ -36,7 +36,7 @@ class RecPanaceaTask extends Base
     {
         if (empty($userList)) return;
 
-        $task = CfgPanaceaTask::get(['type' => $type]);
+        $task = CfgPanaceaTask::get(['key' => $type]);
         if (empty($task)) return;
 
         $reward = json_decode($task['extra'], true);
