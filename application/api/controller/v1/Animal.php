@@ -55,7 +55,7 @@ class Animal extends Base
 
             $animalIds = array_column($list, 'id');
 
-            $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id');
+            $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $this->uid]);
             foreach ($list as $key => $value) {
                 // 补充数据
                 $value['user_animal'] = null;
