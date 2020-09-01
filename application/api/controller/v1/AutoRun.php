@@ -6,6 +6,7 @@ use app\api\model\Cfg;
 use app\api\model\CfgActive;
 use app\api\model\CfgLottery;
 use app\api\model\OpenRank;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecUserPaid;
 use app\api\model\RecWealActivityTask;
@@ -184,8 +185,9 @@ class AutoRun extends Base
             // pk表清除
             PkUser::clearPk();
 
-            // 清楚每日任务
+            // 清理每日任务
             RecWealActivityTask::cleanDay ();
+            RecPanaceaTask::cleanDay();
 
             // 开屏备选的清理
             if (Cfg::checkActiveByPathInBtnGroup (Cfg::WEAL_ACTIVE_PATH)) {
