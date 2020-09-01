@@ -10,6 +10,7 @@ use app\api\model\RecTaskactivity618;
 use app\api\model\RecUserPaid;
 use app\api\model\RecWealActivityTask;
 use app\api\model\UserAchievementHeal;
+use app\api\model\UserManor;
 use app\base\controller\Base;
 use app\api\model\StarRank;
 use Exception;
@@ -206,6 +207,12 @@ class AutoRun extends Base
             RecUserPaid::where('count', '>', 0)
                 ->update(['count' => 0,'is_settle' => 0]);
 
+            // 每日庄园结算
+            UserManor::where('1=1')->update([
+                'day_count' => 0,
+                'day_steal' => 0,
+            ]);
+
             Db::commit();
         } catch (Exception $e) {
             Db::rollBack();
@@ -321,6 +328,11 @@ class AutoRun extends Base
             
             FamilyUser::where('1=1')->update([
                 'lastweek_count' => Db::raw('week_count'),
+                'week_count' => 0,
+            ]);
+
+            // 每周庄园结算
+            UserManor::where('1=1')->update([
                 'week_count' => 0,
             ]);
             
