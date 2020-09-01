@@ -98,9 +98,9 @@ class AutoRun extends Base
     public function dayHandle()
     {
         $lock = Lock::getVal('day_end');
-        if (date('md', time()) == date('md', strtotime($lock['time']))) {
-            return '本日已执行过';
-        }
+//        if (date('md', time()) == date('md', strtotime($lock['time']))) {
+//            return '本日已执行过';
+//        }
         // lock
         Lock::setVal('day_end', 1);
         
