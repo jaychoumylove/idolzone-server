@@ -93,7 +93,7 @@ class UserAnimal extends Base
         $output = self::getOutput($user_id, CfgAnimal::OUTPUT);
         if (empty($output)) return $addCount;
 
-        $maxTime = UserManor::LIMIT_OUTPUT_HOURS * 60 * 60;
+        $maxTime = UserManor::LIMIT_OUTPUT_HOURS * 60 * 6;
         $outputMax = bcmul($output, $maxTime);
         if ($diffTime > $maxTime) {
             // 最多只能存储8小时产豆
@@ -109,5 +109,15 @@ class UserAnimal extends Base
         }
 
         return $addCount;
+    }
+
+    public static function getStealLeft($uid)
+    {
+        $stealLeft = self::getOutput($uid, CfgAnimal::STEAL);
+
+        $manor = UserManor::get(['user_id' => $uid]);
+        $useTimes = (int)$manor['day_steal'];
+
+        return $stealLeft > $useTimes ? (int)bcsub($stealLeft, $useTimes): 0;
     }
 }

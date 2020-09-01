@@ -92,19 +92,23 @@ class Animal extends Base
         $currentTime = time();
         $manor = UserManor::get(['user_id' => $this->uid]);
         $diffTime = bcsub($currentTime, $manor['last_output_time']);
-        $output = UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
-        $addCount = UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
+        $output = (int)UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
+        $addCount = (int)UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
+        $mainAnimalId = (int)$manor['use_animal'];
+        $stealLeft = UserAnimal::getStealLeft($this->uid);
 
         Common::res(['data' => [
             'list' => $list,
             'output' => $output,
             'add_count' => $addCount,
-            'steal_left' => $manor['day_steal']
+            'steal_left' => $stealLeft,
+            'main_animal' => $mainAnimalId
         ]]);
     }
 
     public function getAnimalLotteryInfo()
     {
+        $this->getUser();
         // 获取宠物奖池信息
         $list = AnimalLottery::with(['animal'])
             ->order([
@@ -114,6 +118,17 @@ class Animal extends Base
             ->select();
 
         if (is_object($list)) $list = $list->toArray();
+
+        $ids = array_column($list, 'animal');
+        $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $ids, 'animal_id', '*', ['user_id' => $this->uid]);
+        foreach ($list as $key => $value) {
+            $value['scrap_num'] = 0;
+            if (array_key_exists($value['animal'], $userAnimalDict)) {
+                $value['scrap_num'] = $userAnimalDict[$value['animal']]['scrap'];
+            }
+
+            $list[$key] = $value;
+        }
 
         Common::res(['data' => $list]);
     }

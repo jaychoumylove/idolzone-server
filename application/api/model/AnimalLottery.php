@@ -20,6 +20,17 @@ class AnimalLottery extends Base
         return $this->hasOne('CfgAnimal', 'id', 'animal');
     }
 
+    public static function getLeftLotteryTimes($user_id)
+    {
+        $nums = UserExt::where('user_id', $user_id)->value('animal_lottery');
+
+        if ($nums > self::MAX) {
+            return 0;
+        }
+
+        return (int) bcsub(self::MAX, $nums);
+    }
+
     public static function lottery($type, $user_id)
     {
         $nums = UserExt::where('user_id', $user_id)->value('animal_lottery');

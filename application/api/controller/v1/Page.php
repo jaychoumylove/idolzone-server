@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\AnimalLottery;
 use app\api\model\Cfg_luckyDraw;
 use app\api\model\CfgAnimal;
 use app\api\model\CfgNovel;
@@ -608,9 +609,11 @@ class Page extends Base
 
         $manor = UserManor::get(['user_id' => $this->uid]);
         if (empty($manor)) {
+            $useAnimal = 1;
             $manor = UserManor::create([
                 'user_id' => $this->uid,
                 'last_output_time' => $currentTime,
+                'use_animal' => 1,
             ]);
             $animal = UserAnimal::create([
                 "user_id" => $this->uid,
@@ -621,18 +624,30 @@ class Page extends Base
             $output = 1;
             $addCount = 0;
             $autoCount = false;
+            $steal_left = 1;
         } else {
+            $useAnimal = $manor['use_animal'];
             $diffTime = bcsub($currentTime, $manor['last_output_time']);
             $output = UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
+            $steal_left = UserAnimal::getOutput($this->uid, CfgAnimal::STEAL);
+
             $addCount = UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
             $autoCount = false;
         }
+
+        $mainAnimal = CfgAnimal::get($useAnimal);
+        $lotteryLeft = AnimalLottery::getLeftLotteryTimes($this->uid);
+        $limit_add_time = (int)bcmul(UserManor::LIMIT_OUTPUT_HOURS, 360);
 
         Common::res(['data' => [
             'manor' => $manor,
             'output' => (int)$output,
             'add_count' => (int)$addCount,
-            'auto_count' => $autoCount
+            'auto_count' => $autoCount,
+            'main_animal' => $mainAnimal,
+            'lottery_left' => $lotteryLeft,
+            'steal_left' => $steal_left,
+            'limit_time' => $limit_add_time
         ]]);
     }
     
