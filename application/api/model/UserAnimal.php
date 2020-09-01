@@ -93,13 +93,17 @@ class UserAnimal extends Base
         $output = self::getOutput($user_id, CfgAnimal::OUTPUT);
         if (empty($output)) return $addCount;
 
-        $maxTime = UserManor::LIMIT_OUTPUT_HOURS * 60 * 6;
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $limit_output_hours = $config['max_output_hours'];
+        $min_output_time = $config['min_output_seconds'];
+
+        $maxTime = $limit_output_hours * 60 * 6;
         $outputMax = bcmul($output, $maxTime);
         if ($diffTime > $maxTime) {
             // 最多只能存储8小时产豆
             $addCount = $outputMax;
         } else {
-            $num = bcdiv($diffTime, UserManor::MIN_OUTPUT_TIME);
+            $num = bcdiv($diffTime, $min_output_time);
 
             $addCount = bcmul($output, $num);
             if ($default) {

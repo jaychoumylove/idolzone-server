@@ -12,11 +12,6 @@ use Throwable;
 
 class UserManor extends Base
 {
-    const MIN_OUTPUT_TIME = 10;
-    const LIMIT_OUTPUT_HOURS = 8;
-    const AUTO_LEVEL_UP = 2;
-    const STEAL_NUMBER = 1000;
-
     public static function checkFistReward()
     {
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
@@ -58,7 +53,10 @@ class UserManor extends Base
         $selfManor = self::get(['user_id' => $uid]);
         $currentTime = time();
         $diffTime = bcsub($currentTime, $selfManor['last_output_time']);
-        if ($diffTime < self::MIN_OUTPUT_TIME) return;
+
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $min_output_time = (int)$config['min_output_seconds'];
+        if ($diffTime < $min_output_time) return;
 
         $addCount = UserAnimal::getOutputNumber($uid, $diffTime, $selfManor['count_left']);
 
@@ -98,17 +96,21 @@ class UserManor extends Base
 
         $stealManor = self::get(['user_id' => $steal_id]);
 
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $min_output_time = $config['min_output_seconds'];
+        $steal_num = $config['steal_number'];
+
         $stealOutput = UserAnimal::getOutput($steal_id, CfgAnimal::OUTPUT);
         $currentTime = time();
         $diffTime = bcsub($currentTime, $stealManor['last_output_time']);
-        $num = bcdiv($diffTime, self::MIN_OUTPUT_TIME);
+        $num = bcdiv($diffTime, $min_output_time);
         $addCount = bcmul($stealOutput, $num);
-        if ($addCount < self::STEAL_NUMBER) {
+        if ($addCount < $steal_num) {
             Common::res(['code' => 1, 'msg' => '已经被庄主收走咯']);
         }
 
-        $second = bcdiv(self::STEAL_NUMBER, $stealOutput);
-        $left = bcmod(self::STEAL_NUMBER, $stealOutput);
+        $second = bcdiv($steal_num, $stealOutput);
+        $left = bcmod($steal_num, $stealOutput);
         $update = [];
         if ($second) {
             $update['last_output_time'] = bcsub($stealManor['last_output_time'], $second);
@@ -129,12 +131,12 @@ class UserManor extends Base
                 throw new Exception('已经被庄主收走咯');
             }
 
-            (new \app\api\service\User())->change($uid, ['coin' => self::STEAL_NUMBER], '偷取庄园金豆');
+            (new \app\api\service\User())->change($uid, ['coin' => $steal_num], '偷取庄园金豆');
 
             ManorStealLog::create([
                 'user_id' => $uid,
                 'steal_id' => $steal_id,
-                'number' => self::STEAL_NUMBER
+                'number' => $steal_num
             ]);
 
             Db::commit();

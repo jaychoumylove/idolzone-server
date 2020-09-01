@@ -639,7 +639,10 @@ class Page extends Base
 
         $mainAnimal = CfgAnimal::get($useAnimal);
         $lotteryLeft = AnimalLottery::getLeftLotteryTimes($this->uid);
-        $limit_add_time = (int)bcmul(UserManor::LIMIT_OUTPUT_HOURS, 360);
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+
+        $max_output_hours = $config['max_output_hours'];
+        $limit_add_time = (int)bcmul($max_output_hours, 360);
 
         Common::res(['data' => [
             'manor' => $manor,
