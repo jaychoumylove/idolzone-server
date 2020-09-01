@@ -638,11 +638,18 @@ class Page extends Base
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
-        $lotteryLeft = AnimalLottery::getLeftLotteryTimes($this->uid);
+        $nums = UserExt::where('user_id', $this->uid)->value('animal_lottery');
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $maxLottery = (int)$config['lottery']['max'];
+        if ($nums > $maxLottery) {
+            $lotteryLeft = 0;
+        } else {
+            $lotteryLeft = bcsub($maxLottery, $nums);
+        }
 
         $max_output_hours = $config['max_output_hours'];
         $limit_add_time = (int)bcmul($max_output_hours, 360);
+        $word = '宠物列表可换宠物';
 
         Common::res(['data' => [
             'manor' => $manor,
@@ -653,7 +660,9 @@ class Page extends Base
             'lottery_left' => $lotteryLeft,
             'steal_left' => $steal_left,
             'limit_time' => $limit_add_time,
-            'panacea_reward' => $panaceaReward
+            'panacea_reward' => $panaceaReward,
+            'word' => $word,
+            'max_lottery'  => $maxLottery
         ]]);
     }
     

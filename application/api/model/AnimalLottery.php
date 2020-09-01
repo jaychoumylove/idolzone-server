@@ -34,11 +34,11 @@ class AnimalLottery extends Base
     public static function lottery($type, $user_id)
     {
         $nums = UserExt::where('user_id', $user_id)->value('animal_lottery');
-        if ($nums >= self::MAX) {
-            Common::res(['code' => 1, 'msg' => '今日召唤数已用完']);
-        }
 
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        if ($nums >= (int)$config['lottery']['max']) {
+            Common::res(['code' => 1, 'msg' => '今日召唤数已用完']);
+        }
         $typeItem = null;
         foreach ($config['lottery']['types'] as $value) {
             if ($value['type'] == $type) {
@@ -55,7 +55,7 @@ class AnimalLottery extends Base
         }
 
         $list = self::all();
-        $array = range (0, bcsub ($typeItem['number'], 1));
+        $array = range (0, bcsub ($typeItem['times'], 1));
         $choose = [];
         foreach ($array as $it) {
             $chooseItem = Common::lottery ($list);
@@ -70,7 +70,7 @@ class AnimalLottery extends Base
 
         $animalIds = array_keys($choose);
 
-        $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id');
+        $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $user_id]);
 
         $animalDict = CfgAnimal::getDictList((new CfgAnimal()), $animalIds, 'id');
 

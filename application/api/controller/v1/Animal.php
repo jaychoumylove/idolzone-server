@@ -189,6 +189,7 @@ class Animal extends Base
 
     public function getAnimalInfo()
     {
+        $this->getUser();
         // 获取宠物信息
         $animalId = (int)input('animal_id', 0);
         if (empty($animalId)) {
@@ -200,7 +201,7 @@ class Animal extends Base
             Common::res(['code' => 1, 'msg' => '宠物暂未开放']);
         }
 
-        $userAnimal = UserAnimal::get(['animal_id' => $animalId]);
+        $userAnimal = UserAnimal::get(['animal_id' => $animalId, 'user_id' => $this->uid]);
         if (empty($userAnimal)) {
             Common::res(['code' =>1, 'msg' => '尚未拥有哦']);
         }
