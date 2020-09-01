@@ -17,6 +17,42 @@ class UserManor extends Base
     const AUTO_LEVEL_UP = 2;
     const STEAL_NUMBER = 1000;
 
+    public static function checkFistReward()
+    {
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $startTime = strtotime($config['manor_start_time']);
+        $timeStr = sprintf('+%s days', $config['manor_get_flower_reward_limit']);
+        $endTime = strtotime($timeStr, $startTime);
+        $currentTime = time();
+        if ($currentTime < $startTime) {
+            return false;
+        }
+        if ($currentTime > $endTime) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function getFlowerReward($uid)
+    {
+        $status = self::checkFistReward();
+        if (empty($status)) {
+            return 0;
+        }
+
+        $userStar = UserStar::get(['user_id' => $uid]);
+        $totalFlower = $userStar['total_flower'];
+
+        $num = (int) bcdiv($totalFlower, 1000000);
+
+        if ($num) {
+            (new \app\api\service\User())->change($uid, ['panacea' => $num], '往期鲜花收益');
+        }
+
+        return $num;
+    }
+
     public static function animalOutput($uid)
     {
         $selfManor = self::get(['user_id' => $uid]);

@@ -608,6 +608,7 @@ class Page extends Base
         $currentTime = time();
 
         $manor = UserManor::get(['user_id' => $this->uid]);
+        $panaceaReward = 10;
         if (empty($manor)) {
             $useAnimal = 1;
             $manor = UserManor::create([
@@ -625,6 +626,7 @@ class Page extends Base
             $addCount = 0;
             $autoCount = false;
             $steal_left = 1;
+            $panaceaReward = UserManor::getFlowerReward($this->uid);
         } else {
             $useAnimal = $manor['use_animal'];
             $diffTime = bcsub($currentTime, $manor['last_output_time']);
@@ -647,7 +649,8 @@ class Page extends Base
             'main_animal' => $mainAnimal,
             'lottery_left' => $lotteryLeft,
             'steal_left' => $steal_left,
-            'limit_time' => $limit_add_time
+            'limit_time' => $limit_add_time,
+            'panacea_reward' => $panaceaReward
         ]]);
     }
     
