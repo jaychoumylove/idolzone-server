@@ -20,7 +20,7 @@ class Animal extends Base
         $this->getUser();
         $type = input('type');
 
-        if (in_array($type, ['already', 'all', 'yet']) == false) {
+        if (in_array($type, ['already', 'all', 'yet', 'twelve']) == false) {
             Common::res(['code' => 1, 'msg' => '请选择查看类型']);
         }
 
@@ -37,6 +37,31 @@ class Animal extends Base
 
                 $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['animal_id'])
                     ->where('level', $value['level'])
+                    ->find();
+
+                $list[$key] = $value;
+            }
+        }
+
+        if ($type == 'twelve') {
+            $list = CfgAnimal::where('type', 'NORMAL')->order('create_time', 'desc')->select();
+
+            if (is_object($list)) $list = $list->toArray();
+
+            $animalIds = array_column($list, 'id');
+
+            $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id');
+            foreach ($list as $key => $value) {
+                // 补充数据
+                $value['user_animal'] = null;
+                $lv                   = 1;
+                if (array_key_exists($value['id'], $userAnimalDict)) {
+                    $value['user_animal'] = $userAnimalDict[$value['id']];
+                    $lv                   = $value['user_animal']['level'];
+                }
+
+                $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
+                    ->where('level', $lv)
                     ->find();
 
                 $list[$key] = $value;
