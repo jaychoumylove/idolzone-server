@@ -1094,3 +1094,10 @@ alter table f_user_ext
 
 alter table f_user_currency
 	add panacea int(11) unsigned default 0 not null comment '灵丹';
+
+alter table f_rec
+	add panacea bigint default 0 not null;
+
+alter table f_rec
+	add before_panacea bigint default 0 not null;
+
