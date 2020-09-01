@@ -608,7 +608,7 @@ class Page extends Base
         $currentTime = time();
 
         $manor = UserManor::get(['user_id' => $this->uid]);
-        $panaceaReward = 10;
+        $panaceaReward = 0;
         if (empty($manor)) {
             $useAnimal = 1;
             $manor = UserManor::create([
