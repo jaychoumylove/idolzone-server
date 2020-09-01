@@ -183,7 +183,8 @@ class Animal extends Base
         $data = [
             'animal' => $animal,
             'lv' => $lvDict[$lv],
-            'next_lv' => array_key_exists($nextLv, $lvDict) ? $lvDict[$nextLv]: null
+            'next_lv' => array_key_exists($nextLv, $lvDict) ? $lvDict[$nextLv]: null,
+            'scrap_num' => $userAnimal['scrap']
         ];
 
         Common::res(compact('data'));
