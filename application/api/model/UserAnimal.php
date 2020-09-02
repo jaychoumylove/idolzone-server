@@ -132,6 +132,9 @@ class UserAnimal extends Base
             if (empty($scrapUpdated)) {
                 throw new Exception('更新失败');
             }
+
+            UserManor::where('user_id', $uid)->update(['use_animal' => $animal]);
+
             Db::commit();
         }catch (Throwable $throwable) {
             Db::rollback();

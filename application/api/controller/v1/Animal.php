@@ -115,7 +115,7 @@ class Animal extends Base
                 $lv                   = 1;
                 if (array_key_exists($value['id'], $userAnimalDict)) {
                     $value['user_animal'] = $userAnimalDict[$value['id']];
-                    $value['empty_image'] = $value['image'];
+                    $value['empty_img'] = $value['image'];
                     $lv                   = $value['user_animal']['level'];
                 }
 
