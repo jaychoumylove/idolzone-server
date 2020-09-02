@@ -35,13 +35,15 @@ class UserExt extends Base
         $data = self::where('user_id', $uid)->field('lottery_count,lottery_time,lottery_times')->find();
         $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
         if ($data['lottery_times'] >= $config['day_max']) {
-            return $data['lottery_count'];
+            return 0;
         }
         $diff = (int)bcsub(time(), $data['lottery_time']);
+        // 剩余次数
+        $leftTimes = bcsub($config['day_max'], $data['lottery_times']);
         $auto_add_time = $config['auto_add_time'];
         if ($diff < $auto_add_time) {
             // 不在自动恢复次数时间内
-            return $data['lottery_count'];
+            return $data['lottery_count'] > $leftTimes ? $leftTimes: $data['lottery_count'];
         }
 
         $max = $config['add_max'];
@@ -55,7 +57,7 @@ class UserExt extends Base
         }
         if ($data['lottery_count'] >= $max) {
             // 当前剩余次数大于上限
-            return $data['lottery_count'];
+            return $data['lottery_count'] > $leftTimes ? $leftTimes: $data['lottery_count'];
         }
 
         // 加完之后的抽奖次数
@@ -69,7 +71,7 @@ class UserExt extends Base
             'lottery_time' => time(),
         ]);
 
-        return $remainCount;
+        return $remainCount > $leftTimes ? $leftTimes: $remainCount;
     }
 
     /**抽奖 */
@@ -521,15 +523,15 @@ class UserExt extends Base
         $multipleType = array_values($multipleType);
         $times = $multipleType[0]['number'];
 
-        $leftTimes = bcsub($config['day_max'], $data['lottery_times']);
-
-        if ($leftTimes < $times) {
-            $times = $leftTimes;
-        }
-//        $dayTimes = bcadd($data['lottery_times'], $times);
-//        if ($dayTimes > $config['day_max']) {
-//            Common::res(['code' => 1, 'msg' => '抽奖次数不够']);
+//        $leftTimes = bcsub($config['day_max'], $data['lottery_times']);
+//
+//        if ($leftTimes < $times) {
+//            $times = $leftTimes;
 //        }
+        $dayTimes = bcadd($data['lottery_times'], $times);
+        if ($dayTimes > $config['day_max']) {
+            Common::res(['code' => 1, 'msg' => '抽奖次数不够']);
+        }
         $level = CfgUserLevel::getLevel($uid);
         if ($level < $multipleType[0]['level']) {
             Common::res(['code' => 1, 'msg' => '等级不够哦']);

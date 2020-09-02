@@ -39,7 +39,11 @@ class Lottery extends Base
                 Common::res(['code' => 1, 'msg' => sprintf('请%s秒后再试', $config['enable_video_add']['limit'])]);
             }
             $remainCount = (int)bcadd($info['lottery_count'], $config['enable_video_add']['number']);
+
+            $leftTimes = bcsub($config['day_max'], $info['lottery_times']);
             if ($remainCount > $config['add_max']) $remainCount = $config['add_max'];
+
+            $remainCount = $remainCount > $leftTimes ? $leftTimes: $remainCount;
             UserExt::where('user_id', $this->uid)->update(['lottery_count' => $remainCount, 'lottery_time' => $currentTime]);
         }
 
