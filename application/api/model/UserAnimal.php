@@ -6,11 +6,19 @@ namespace app\api\model;
 
 use app\base\model\Base;
 use app\base\service\Common;
+use think\Db;
+use think\Exception;
+use Throwable;
 
 class UserAnimal extends Base
 {
     public static function lvUp($uid, $animal)
     {
+        $animalInfo = CfgAnimal::get($animal);
+        if (empty($animalInfo)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
         $userAnimal = UserAnimal::where('user_id', $uid)
             ->where('animal_id', $animal)
             ->find();
@@ -25,18 +33,103 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '已经到达最高等级了']);
         }
 
-        $leftScrap = bcsub($userAnimal['scrap'], $cfglv['number']);
+        $isNormal = $animalInfo['type'] == 'NORMAL';
+        $isSecret = $animalInfo['type'] == 'SECRET';
+
+        if ($isNormal) {
+            $scrap_num = $userAnimal['scrap'];
+        }
+        if ($isSecret) {
+            $scrap_num = UserExt::where('user_id', $uid)->value ('scrap');
+        }
+
+        $leftScrap = bcsub($scrap_num, $cfglv['number']);
         if ($leftScrap < 0) {
             Common::res(['code' => 1, 'msg' => '碎片不够哦']);
         }
 
         $updateData =[
-            'scrap' => $leftScrap,
             'level' => $nextLevel,
         ];
+        if ($isNormal) {
+            $updateData['scrap'] = $leftScrap;
+        }
 
-        $updated = UserAnimal::where('id', $userAnimal['id'])->update($updateData);
-        if (empty($updated)) {
+        Db::startTrans();
+        try {
+            $updated = UserAnimal::where('id', $userAnimal['id'])->update($updateData);
+            if (empty($updated)) {
+                throw new Exception('更新失败');
+            }
+
+            if ($isSecret) {
+                $scrapUpdated = UserExt::where('user_id', $uid)
+                    ->where('scrap', $scrap_num)
+                    ->update(['scrap' => $leftScrap]);
+                if (empty($scrapUpdated)) {
+                    throw new Exception('更新失败');
+                }
+            }
+
+            Db::commit();
+        }catch (Throwable $throwable) {
+            Db::rollback();
+
+            Common::res(['code' => 1, 'msg' => '请稍后再试']);
+        }
+    }
+
+    public static function unlock($uid, $animal)
+    {
+        $animalInfo = CfgAnimal::get($animal);
+        if (empty($animalInfo)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+        if ($animalInfo['type'] != 'SECRET') {
+            //
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        $exist = UserAnimal::get(['animal_id' => $animal, 'user_id' => $uid]);
+        if ($exist) {
+            Common::res(['code' => 1, 'msg' => '已解锁']);
+        }
+
+        $currentLevel = 1;
+        $cfglv = CfgAnimalLevel::where('animal_id', $animal)
+            ->where('level', $currentLevel)
+            ->find();
+
+        if (empty($cfglv)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        $scrap_num = UserExt::where('user_id', $uid)->value ('scrap');
+
+        $leftScrap = bcsub($scrap_num, $cfglv['number']);
+        if ($leftScrap < 0) {
+            Common::res(['code' => 1, 'msg' => '碎片不够哦']);
+        }
+
+        Db::startTrans();
+        try {
+            UserAnimal::create([
+                'user_id' => $uid,
+                'animal_id' => $animal,
+                'type' => 'SECRET',
+                'level' => 1,
+            ]);
+
+            $scrapUpdated = UserExt::where('user_id', $uid)
+                ->where('scrap', $scrap_num)
+                ->update(['scrap' => $leftScrap]);
+            if (empty($scrapUpdated)) {
+                throw new Exception('更新失败');
+            }
+            Db::commit();
+        }catch (Throwable $throwable) {
+            Db::rollback();
+
             Common::res(['code' => 1, 'msg' => '请稍后再试']);
         }
     }

@@ -14,6 +14,7 @@ use app\api\model\ManorStealLog;
 use app\api\model\RecPanaceaTask;
 use app\api\model\RecWealActivityTask;
 use app\api\model\UserAnimal;
+use app\api\model\UserExt;
 use app\api\model\UserManor;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -25,7 +26,7 @@ class Animal extends Base
         $this->getUser();
         $type = input('type');
 
-        if (in_array($type, ['already', 'all', 'yet', 'twelve']) == false) {
+        if (in_array($type, ['already', 'all', 'yet', 'twelve','secret']) == false) {
             Common::res(['code' => 1, 'msg' => '请选择查看类型']);
         }
 
@@ -42,31 +43,6 @@ class Animal extends Base
 
                 $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['animal_id'])
                     ->where('level', $value['level'])
-                    ->find();
-
-                $list[$key] = $value;
-            }
-        }
-
-        if ($type == 'twelve') {
-            $list = CfgAnimal::where('type', 'NORMAL')->order('create_time', 'desc')->select();
-
-            if (is_object($list)) $list = $list->toArray();
-
-            $animalIds = array_column($list, 'id');
-
-            $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $this->uid]);
-            foreach ($list as $key => $value) {
-                // 补充数据
-                $value['user_animal'] = null;
-                $lv                   = 1;
-                if (array_key_exists($value['id'], $userAnimalDict)) {
-                    $value['user_animal'] = $userAnimalDict[$value['id']];
-                    $lv                   = $value['user_animal']['level'];
-                }
-
-                $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
-                    ->where('level', $lv)
                     ->find();
 
                 $list[$key] = $value;
@@ -119,6 +95,57 @@ class Animal extends Base
             }
         }
 
+        if ($type == 'twelve') {
+            $list = CfgAnimal::where('type', 'NORMAL')->order('create_time', 'desc')->select();
+
+            if (is_object($list)) $list = $list->toArray();
+
+            $animalIds = array_column($list, 'id');
+
+            $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $this->uid]);
+            foreach ($list as $key => $value) {
+                // 补充数据
+                $value['user_animal'] = null;
+                $lv                   = 1;
+                if (array_key_exists($value['id'], $userAnimalDict)) {
+                    $value['user_animal'] = $userAnimalDict[$value['id']];
+                    $lv                   = $value['user_animal']['level'];
+                }
+
+                $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
+                    ->where('level', $lv)
+                    ->find();
+
+                $list[$key] = $value;
+            }
+        }
+
+        if ($type == 'secret') {
+            $list = CfgAnimal::where('type', 'SECRET')->order('create_time', 'desc')->select();
+
+            if (is_object($list)) $list = $list->toArray();
+
+            $animalIds = array_column($list, 'id');
+
+            $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $this->uid]);
+
+            foreach ($list as $key => $value) {
+                // 补充数据
+                $value['user_animal'] = null;
+                $lv                   = 1;
+                if (array_key_exists($value['id'], $userAnimalDict)) {
+                    $value['user_animal'] = $userAnimalDict[$value['id']];
+                    $lv                   = $value['user_animal']['level'];
+                }
+
+                $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
+                    ->where('level', $lv)
+                    ->find();
+
+                $list[$key] = $value;
+            }
+        }
+
         $currentTime = time();
         $manor = UserManor::get(['user_id' => $this->uid]);
         $diffTime = bcsub($currentTime, $manor['last_output_time']);
@@ -150,11 +177,15 @@ class Animal extends Base
         if (is_object($list)) $list = $list->toArray();
 
         $ids = array_column($list, 'animal');
+        $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
         $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $ids, 'animal_id', '*', ['user_id' => $this->uid]);
         foreach ($list as $key => $value) {
             $value['scrap_num'] = 0;
             if (array_key_exists($value['animal'], $userAnimalDict)) {
                 $value['scrap_num'] = $userAnimalDict[$value['animal']]['scrap'];
+            }
+            if ($value['type'] == 'SECRET') {
+                $value['scrap_num'] = $scrapNum;
             }
 
             $list[$key] = $value;
@@ -173,6 +204,20 @@ class Animal extends Base
         }
 
         UserAnimal::lvUp($this->uid, $animalId);
+
+        Common::res();
+    }
+
+    public function unLockAnimal()
+    {
+        // 解锁宠物
+        $this->getUser();
+        $animalId = (int)input('animal_id', 0);
+        if (empty($animalId)) {
+            Common::res(['code' => 1, 'msg' => '请选择宠物']);
+        }
+
+        UserAnimal::unlock($this->uid, $animalId);
 
         Common::res();
     }
