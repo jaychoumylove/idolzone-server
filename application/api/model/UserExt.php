@@ -48,7 +48,7 @@ class UserExt extends Base
         if ($type == 0) {
             $lv = CfgUserLevel::getLevel($uid);
             foreach ($config['level_max'] as $lvItem) {
-                if ($lv > $lvItem['level']) {
+                if ($lv >= $lvItem['level']) {
                     $max = $lvItem['max'];
                 }
             }
