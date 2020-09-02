@@ -84,9 +84,13 @@ class UserExt extends Base
         }
         $goMultiple = 0;
         if (array_key_exists('multiple', $config)) {
+            $level = CfgUserLevel::getLevel($uid);
             foreach ($config['multiple'] as $item) {
-                if ($data['lottery_count'] >= $item['number']) {
-                    $goMultiple = (int)$item['number'];
+                if ($level >= $item['level']) {
+                    $goMultiple = 0;
+                    if ($data['lottery_count'] >= $item['number']) {
+                        $goMultiple = (int)$item['number'];
+                    }
                 }
             }
         }
@@ -509,6 +513,10 @@ class UserExt extends Base
         }
         $multipleType = array_values($multipleType);
         $times = $multipleType[0]['number'];
+        $level = CfgUserLevel::getLevel($uid);
+        if ($level < $multipleType[0]['level']) {
+            Common::res(['code' => 1, 'msg' => '等级不够哦']);
+        }
         if ($data['lottery_count'] < $times) {
             Common::res(['code' => 1, 'msg' => "抽奖次数不够 $times 哦"]);
         }

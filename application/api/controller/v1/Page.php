@@ -7,6 +7,7 @@ use app\api\model\Cfg_luckyDraw;
 use app\api\model\CfgAnimal;
 use app\api\model\CfgNovel;
 use app\api\model\CfgScrap;
+use app\api\model\CfgUserLevel;
 use app\api\model\NovelContent;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\RecUserInvite;
@@ -110,6 +111,18 @@ class Page extends Base
 
         $res['config']['share_text'] = CfgShareTitle::getOne();
         $res['config']['share_cfg'] = CfgShare::column('title,imageUrl,path','id');
+        if (array_key_exists('free_lottery', $res['config'])) {
+            $level = CfgUserLevel::getLevel($this->uid);
+
+            $multiple = [];
+            foreach ($res['config']['free_lottery']['multiple'] as $item) {
+                if ((int)$level >= $item['level']) {
+                    $multiple = $item;
+                }
+            }
+
+            $res['config']['free_lottery']['multiple'] = [$multiple];
+        }
 
         //生成我的徽章数据
         BadgeUser::initBadge($this->uid);
