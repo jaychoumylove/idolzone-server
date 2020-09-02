@@ -3,7 +3,10 @@
 namespace app\api\controller;
 
 
+use app\api\model\CfgAnimal;
+use app\api\model\CfgAnimalLevel;
 use app\base\controller\Base;
+use Exception;
 use think\Db;
 use app\base\service\Common;
 use app\api\model\CfgTaskgiftCategory;
@@ -22,6 +25,7 @@ use app\api\model\RecTask;
 use app\api\model\BadgeUser;
 use app\api\model\FanclubUser;
 use app\api\model\RecPayOrder;
+use think\Response;
 
 class Test extends Base
 {
@@ -90,7 +94,7 @@ class Test extends Base
             StarRankModel::change($starid, -$hot, $type);
             
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
@@ -142,7 +146,7 @@ class Test extends Base
             
             Db::commit();
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -176,12 +180,101 @@ class Test extends Base
             
             Db::commit();
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
         
         Common::res(['code' => 0,'msg' => '操作成功']);
+    }
+
+    public function reBuildAnimal()
+    {
+        $normal = [];
+        $secret = [];
+        $lock = 0;
+        $lock_num = 0;
+        $exchange = 0;
+
+        $animalLeft = 8;
+        $luckyLeft = 9;
+        $animal = [
+            'name' => '鼠',
+            'image' => 'https://mmbiz.qpic.cn/mmbiz_gif/w5pLFvdua9Fic6VmPQYib2ktqATmSxJmUtvNXVsBzTEmc1fyK8O16OSuJUAicicLZA0o1hkNVmBoSqKZUj89srXPvA/0',
+            'scrap_img' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QhT8Zws3rWRdHxribSNudmOUjMjv17TxfCTLhDwKKRCaW0VwbNRzUlQA/0',
+            'empty_img' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QOpdWkhyqdYQ2icwwiborbFn9uXEDnyI3FsHiaHia5UwOPjFYibjVO0htb8g/0',
+            'scrap_name' => '鼠碎片',
+            'star_id' => null,
+            'lock' => $lock,
+            'lock_num' => $lock_num,
+            'exchange' => $exchange
+        ];
+
+        $array = range(0, 16, 1);
+
+        $animalArray = [];
+        foreach ($array as $key => $value) {
+            array_push($animalArray, $animal);
+        }
+
+        $sql = (new CfgAnimal())->fetchSql(true)->insertAll($animalArray);
+
+        return Response::create(['sql' => $sql], 'json');
+    }
+
+    public function reBuildAnimalLevel()
+    {
+        $list = CfgAnimal::all();
+        $steal = 0;
+
+        $array = range(0, 9, 1);
+        $normalArrayLv = [];
+        $luckyArrayLv = [];
+
+        foreach ($array as $key => $value) {
+            $lvItem = [
+                'level' => bcadd($value, 1),
+                'steal' => $steal,
+            ];
+
+            $lvItem['number'] = bcmul($lvItem['level'], 100);
+            $lvItem['output'] = bcmul($lvItem['level'], 10);
+            if ($lvItem['level'] == 1) {
+                $lvItem['number'] = 10;
+                $lvItem['output'] = 1;
+            }
+
+            $lvItem['desc'] = sprintf('每10秒/%s金豆', $lvItem['number']);
+
+            $luckyLvItem = $lvItem;
+            $luckyLvItem['number'] = 10;
+            $luckyLvItem['output'] = bcmul($luckyLvItem['level'], 100);
+
+            array_push($normalArrayLv, $lvItem);
+            array_push($luckyArrayLv, $luckyLvItem);
+        }
+
+        $cfgAnimalLevel = new CfgAnimalLevel();
+        $typeMap = [
+            'NORMAL' => $normalArrayLv,
+            'SECRET' => $luckyArrayLv,
+        ];
+        $insert = [];
+        foreach ($list as $key => $value) {
+            $lvMap = $typeMap[$value['type']];
+
+            foreach ($lvMap as $item) {
+                $insertItem = [
+                    'animal_id' => $value['id'],
+                ];
+                $insertItem = array_merge($insertItem, $item);
+                array_push($insert, $insertItem);
+            }
+        }
+
+        $sql = $cfgAnimalLevel->fetchSql(true)->insertAll($insert);
+
+        return Response::create(['sql' => $sql], 'json');
     }
     
 }
