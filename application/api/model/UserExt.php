@@ -520,10 +520,16 @@ class UserExt extends Base
         }
         $multipleType = array_values($multipleType);
         $times = $multipleType[0]['number'];
-        $dayTimes = bcadd($data['lottery_times'], $times);
-        if ($dayTimes > $config['day_max']) {
-            Common::res(['code' => 1, 'msg' => '抽奖次数不够']);
+
+        $leftTimes = bcsub($config['day_max'], $data['lottery_times']);
+
+        if ($leftTimes < $times) {
+            $times = $leftTimes;
         }
+//        $dayTimes = bcadd($data['lottery_times'], $times);
+//        if ($dayTimes > $config['day_max']) {
+//            Common::res(['code' => 1, 'msg' => '抽奖次数不够']);
+//        }
         $level = CfgUserLevel::getLevel($uid);
         if ($level < $multipleType[0]['level']) {
             Common::res(['code' => 1, 'msg' => '等级不够哦']);
