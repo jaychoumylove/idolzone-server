@@ -33,6 +33,7 @@ class RecPayOrder extends Base
         RecTaskactivity618::addOrEdit($uid, 6, $order['total_fee']);
 
         RecWealActivityTask::setTask ($uid, (int)$order['total_fee'], CfgWealActivityTask::RECHARGE);
+        RecPanaceaTask::setTask ($uid, (int)$order['total_fee'], CfgPanaceaTask::RECHARGE);
 
         RecUserPaid::setTask ($uid, (int)$order['total_fee']);
 

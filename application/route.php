@@ -6,6 +6,9 @@ use think\Route;
 Route::rule('testaa', 'api/Test/index');
 Route::rule('getToken', 'api/Test/getToken');
 Route::rule('getUid', 'api/Test/getUid');
+Route::rule('test/buildanimallv', 'api/Test/reBuildAnimalLevel');
+Route::rule('test/buildanimal', 'api/Test/reBuildAnimal');
+Route::rule('test/buildanimallottery', 'api/Test/reBuildLottery');
 
 // APP热更新
 Route::rule('api/:version/app/update', 'api/v1.H5/update');
@@ -363,4 +366,21 @@ Route::rule('api/:version/invite/settle_rec', 'api/v1.UserInvite/recList');//领
 Route::rule('api/:version/invite/settle', 'api/v1.UserInvite/settle');//领取奖励
 Route::rule('api/:version/invite/rank', 'api/v1.UserInvite/rank'); // 公益打卡信息
 
+Route::rule('api/:version/page/manor', 'api/v1.Page/manor');//庄园信息
+Route::rule('api/:version/animal/list', 'api/v1.Animal/getAnimalList');//宠物列表
+Route::rule('api/:version/animal/info', 'api/v1.Animal/getAnimalInfo'); // 宠物信息
+Route::rule('api/:version/animal/up', 'api/v1.Animal/upAnimal');//宠物升级
+Route::rule('api/:version/animal/unlock', 'api/v1.Animal/unLockAnimal'); // 宠物解锁
+Route::rule('api/:version/animal/change', 'api/v1.Animal/changeMainAnimal'); // 宠物更换
+Route::rule('api/:version/animal/lottery_info', 'api/v1.Animal/getAnimalLotteryInfo'); // 宠物抽奖池
+Route::rule('api/:version/animal/lottery', 'api/v1.Animal/lotteryAnimal'); // 宠物信息
+Route::rule('api/:version/animal/steal', 'api/v1.Animal/animalSteal'); // 宠物偷豆
+Route::rule('api/:version/animal/steallist', 'api/v1.Animal/stealUserList');//偷取用户列表
+Route::rule('api/:version/animal/steallog', 'api/v1.Animal/stealLog'); // 偷取日志
+Route::rule('api/:version/animal/output', 'api/v1.Animal/animalOutput'); // 宠物产豆
+Route::rule('api/:version/animal/settle', 'api/v1.Animal/animalSettle'); // 宠物产豆收集
+Route::rule('api/:version/panacea/task_list', 'api/v1.Animal/getTaskList'); // 灵丹任务列表
+Route::rule('api/:version/panacea/task_settle', 'api/v1.Animal/settleTask'); // 完成灵丹任务
+Route::rule('api/:version/manor/background', 'api/v1.Animal/getCfgBackground'); // 庄园背景列表
+Route::rule('api/:version/manor/use_background', 'api/v1.Animal/useBackground'); // 使用庄园背景
 Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息

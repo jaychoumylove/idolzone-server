@@ -17,6 +17,7 @@ use app\base\service\WxAPI;
 use app\api\model\CfgSignin;
 use app\api\model\CfgUserLevel;
 use app\api\model\FanclubUser;
+use Exception;
 use GatewayWorker\Lib\Gateway;
 use app\api\model\RecStarChart;
 use think\Db;
@@ -81,7 +82,7 @@ class User extends Base
             UserModel::where('id',$this->uid)->update(['phoneNumber'=>$res['data']['phoneNumber']]);
         
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 1, 'msg' => '该手机号码已存在']);
         }
@@ -467,7 +468,7 @@ class User extends Base
             UserModel::where('id', $this->uid)->update($res);
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }

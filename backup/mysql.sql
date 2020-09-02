@@ -739,7 +739,7 @@ create index f_rec_lucky_draw_log_type_index
 
 -- 新增用户占领记录表
 -- V7
-drop f_user_achievement_heal if exists;
+drop table if exists f_user_achievement_heal;
 create table f_user_achievement_heal
 (
     id           int auto_increment,
@@ -918,3 +918,264 @@ create index f_rec_pay_order_payty_index
 
 -- 宝箱分享修改
 UPDATE `f_cfg_share` SET `path` = 'path=/pages/lottery/box_open' WHERE `id` = 8;
+
+drop table if exists f_cfg_animal;
+create table f_cfg_animal
+(
+    id          int auto_increment,
+    name        varchar(255)                           not null,
+    image       varchar(255)                           not null,
+    type        varchar(150) default 'NORMAL'          not null,
+    `lock`      int          default 0                 not null,
+    lock_num    int          default 0                 not null,
+    create_time timestamp    default CURRENT_TIMESTAMP null,
+    update_time timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                              null,
+    exchange int not null comment '碎片ID用于解锁｜升级',
+    scrap_name        varchar(255)                        not null,
+    scrap_img varchar(255) not null,
+    star_id     int                                    null,
+    constraint f_cfg_pet_id_uindex
+        unique (id)
+)
+    comment '宠物配置表';
+
+create index f_cfg_pet_type_index
+    on f_cfg_animal (type);
+
+alter table f_cfg_animal
+    add primary key (id);
+
+drop table if exists f_cfg_animal_level;
+create table f_cfg_animal_level
+(
+    id          int auto_increment,
+    animal_id   int                                 not null,
+    level       int       default 1                 not null,
+    number      int       default 0                 not null comment '碎片解锁数量',
+    `desc`      varchar(255)                        null,
+    output      int       default 0                 not null comment '每10秒产豆数',
+    steal       int       default 0                 not null comment '偷豆数',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    constraint f_cfg_animal_level_id_uindex
+        unique (id)
+)
+    comment '宠物等级';
+
+create index f_cfg_animal_level_lv_index
+    on f_cfg_animal_level (level);
+
+alter table f_cfg_animal_level
+    add primary key (id);
+
+drop table if exists f_animal_lottery;
+create table f_animal_lottery
+(
+    id          int auto_increment,
+    animal   int                                   not null,
+    chance      float(5, 2) default 0.00              not null,
+    number      int         default 1                 not null,
+    create_time timestamp   default CURRENT_TIMESTAMP not null,
+    update_time timestamp   default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                             null,
+    constraint f_animal_draw_id_uindex
+        unique (id)
+)
+    comment '宠物碎片抽奖池';
+
+alter table f_animal_lottery
+    add primary key (id);
+
+drop table if exists f_user_animal;
+create table f_user_animal
+(
+    id          int auto_increment,
+    user_id     int                                 not null,
+    animal_id   int                                 not null,
+    scrap       int       default 0                 not null comment '碎片数',
+    level       int       default 0                 not null comment '等级
+默认0-未解锁',
+    `lock`      int       default 0                 not null comment '是否锁定
+0-已解锁
+[int]-需要解锁的数量',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    constraint f_user_animal_id_uindex
+        unique (id)
+)
+    comment '用户宠物表';
+
+create index f_user_animal_an_index
+    on f_user_animal (animal_id);
+
+create index f_user_animal_u_index
+    on f_user_animal (user_id);
+
+create index f_user_animal_ua_index
+    on f_user_animal (user_id, animal_id);
+
+alter table f_user_animal
+    add primary key (id);
+
+drop table if exists f_user_manor;
+create table f_user_manor
+(
+    id                int auto_increment,
+    user_id           int                                 not null,
+    day_count         int       default 0                 not null comment '今日金豆产量',
+    count_left        int       default 0                 not null comment '剩余产量',
+    background        varchar(255)                        null,
+    week_count        bigint    default 0                 not null comment '本周产量',
+    sum               bigint    default 0                 not null comment '庄园总产量',
+    create_time       timestamp default CURRENT_TIMESTAMP not null,
+    update_time       timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time       timestamp                           null,
+    last_output_time  int       default 0                 not null comment '上次产豆时间',
+    day_steal         int       default 0                 not null comment '每日偷豆数量',
+    day_lottery_times int       default 0                 not null,
+    use_animal        int       default 1                 not null,
+    get_flower_reward int       default 0                 not null comment '是否领取限时上线鲜花福利',
+    constraint f_user_manor_id_uindex
+        unique (id),
+    constraint f_user_manor_user_index
+        unique (user_id)
+)
+    comment '用户庄园';
+
+alter table f_user_manor
+    add primary key (id);
+
+drop table if exists f_cfg_manor_background;
+create table f_cfg_manor_background
+(
+    id          int auto_increment,
+    url         varchar(255)                                 not null,
+    name        varchar(255)                                 not null,
+    status      enum ('ON', 'OFF') default 'OFF'             not null,
+    url_s       varchar(255)                                 not null,
+    create_time timestamp          default CURRENT_TIMESTAMP not null,
+    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                                    null,
+    constraint f_cfg_manor_background_id_uindex
+        unique (id)
+)
+    comment '庄园背景';
+
+alter table f_cfg_manor_background
+    add primary key (id);
+
+drop table if exists f_manor_steal_log;
+create table f_manor_steal_log
+(
+    id          int auto_increment,
+    user_id     int                                 not null comment '小偷',
+    steal_id    int                                 not null comment '受害者',
+    number      int       default 0                 not null comment '偷取数量',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                           null,
+    constraint f_manor_steal_log_id_uindex
+        unique (id)
+)
+    comment '偷取日志';
+
+create index f_manor_steal_log_steal_index
+    on f_manor_steal_log (steal_id);
+
+create index f_manor_steal_log_us_index
+    on f_manor_steal_log (user_id, steal_id);
+
+create index f_manor_steal_log_user_index
+    on f_manor_steal_log (user_id);
+
+alter table f_manor_steal_log
+    add primary key (id);
+
+alter table f_user_ext
+	add animal_lottery int default 0 not null comment '每日召唤宠物次数';
+
+alter table f_user_currency
+	add panacea int(11) unsigned default 0 not null comment '灵丹';
+
+alter table f_rec
+	add panacea bigint default 0 not null;
+
+alter table f_rec
+	add before_panacea bigint default 0 not null;
+
+create table f_rec_panacea_task
+(
+    id              int auto_increment
+        primary key,
+    task_id         int                                 null,
+    user_id         int                                 null,
+    done_times      bigint    default 0                 null comment '已完成次数',
+    is_settle_times int       default 0                 null comment '已领奖励次数',
+    create_time     timestamp default CURRENT_TIMESTAMP null,
+    update_time     timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    delete_time     timestamp                           null,
+    constraint task_id
+        unique (task_id, user_id)
+)
+    comment '记录-任务
+task_type = 1为每日任务
+师徒';
+
+create table f_cfg_panacea_task
+(
+    id          int auto_increment
+        primary key,
+    name        varchar(255)                                                  null,
+    icon        varchar(255)                                                  null,
+    `desc`      varchar(255)                                                  null comment '描述',
+    sort        int                                 default 0                 null comment '排序',
+    done        bigint                              default 0                 not null comment '完成任务所需要的数值',
+    limit_times int                                 default 0                 not null comment '完成任务的每天的上限',
+    `key`       varchar(255)                                                  null comment '任务key',
+    reward      int                                 default 0                 not null comment '奖励',
+    type        enum ('SUM', 'DAY', 'ONCE', 'RANK') default 'SUM'             not null comment '累计任务
+每日任务
+单次任务',
+    btn_text    varchar(255)                        default ''                null comment '未完成时的按钮文字',
+    gopage      varchar(255)                                                  null comment '未完成时的跳转页面',
+    open_type   varchar(255)                                                  null comment '调用button组件的open-type',
+    shareid     int(11) unsigned                    default 0                 null comment 'cfg_share表中的id',
+    create_time timestamp                           default CURRENT_TIMESTAMP null,
+    update_time timestamp                           default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                                                     null,
+    status      enum ('ON', 'OFF')                  default 'ON'              not null,
+    extra       varchar(255)                                                  null
+)
+    comment '任务-获取灵丹';
+
+INSERT INTO `f_cfg_panacea_task`(`name`, `icon`, `desc`, `sort`, `done`, `limit_times`, `key`, `reward`, `type`, `btn_text`, `gopage`, `open_type`, `shareid`, `create_time`, `update_time`, `delete_time`, `status`, `extra`) VALUES ('贡献人气', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9G3d5wQSx6E5w4aNVVRmUp2KdEBGSKOMnicH9DAMlajZszybNCdEicTtBfLbgXbbrX7nhibKPg5GWXoQ/0', '每次贡献', 1, 1000000, 0, 'SUM_COUNT', 1, 'SUM', '去打榜', '/pages/group/group', NULL, 0, '2020-06-11 21:44:19', '2020-09-01 15:51:24', NULL, 'ON', NULL);
+INSERT INTO `f_cfg_panacea_task`(`name`, `icon`, `desc`, `sort`, `done`, `limit_times`, `key`, `reward`, `type`, `btn_text`, `gopage`, `open_type`, `shareid`, `create_time`, `update_time`, `delete_time`, `status`, `extra`) VALUES ('使用鲜花', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GT2o2aCDJf7rjLOUlbtTERziauZWDgQPHRlOiac7NsMqj5Bbz1VfzicVr9BqhXgVmBmOA2AuE7ZnMbA/0', '每次冲榜使用鲜花', 2, 1000000, 0, 'USE_FOLLOWER', 3, 'SUM', '去打榜', '/pages/group/group', NULL, 0, '2020-07-20 09:30:02', '2020-09-01 15:56:51', NULL, 'ON', NULL);
+INSERT INTO `f_cfg_panacea_task`(`name`, `icon`, `desc`, `sort`, `done`, `limit_times`, `key`, `reward`, `type`, `btn_text`, `gopage`, `open_type`, `shareid`, `create_time`, `update_time`, `delete_time`, `status`, `extra`) VALUES ('补充鲜花', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FquzibbuL4TMQyMbRKaQyUhLBDFLSfEgnRuQZBDwBQHBqr9Y4tMicSDcDjzwWhC4Xh0z19SmBaX2rg/0', '每次补充鲜花', 6, 35, 0, 'RECHARGE', 5, 'SUM', '回复“1”', '/pages/charge/charge', 'contact', 0, '2020-07-20 09:37:16', '2020-09-01 15:56:47', NULL, 'ON', NULL);
+INSERT INTO `f_cfg_panacea_task`(`name`, `icon`, `desc`, `sort`, `done`, `limit_times`, `key`, `reward`, `type`, `btn_text`, `gopage`, `open_type`, `shareid`, `create_time`, `update_time`, `delete_time`, `status`, `extra`) VALUES ('鲜花日榜', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GT2o2aCDJf7rjLOUlbtTERziauZWDgQPHRlOiac7NsMqj5Bbz1VfzicVr9BqhXgVmBmOA2AuE7ZnMbA/0', '每日鲜花日榜top10', 12, 0, 0, 'FLOWER_RANK', 0, 'RANK', ' 系统发放', '/pages/achievement_rank/achievement_rank?type=0', NULL, 0, '2020-09-01 16:22:36', '2020-09-01 19:04:24', NULL, 'ON', '[5,6,8,11,15,20,25,30,40,50]');
+INSERT INTO `f_cfg_panacea_task`(`name`, `icon`, `desc`, `sort`, `done`, `limit_times`, `key`, `reward`, `type`, `btn_text`, `gopage`, `open_type`, `shareid`, `create_time`, `update_time`, `delete_time`, `status`, `extra`) VALUES ('PK粉丝榜', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9EqVxh70XuVn1VhJLyPnEbxriczDwYpJxLicMALveZ8I6vxIGDDu9yB41Dicq9XYTtUcggaFYvQEc2ng/0', 'PK粉丝榜top10', 13, 0, 0, 'PK_RANK', 0, 'RANK', ' 系统发放', '/pages/achievement_rank/achievement_rank?type=1', NULL, 0, '2020-09-01 16:22:36', '2020-09-01 19:08:57', NULL, 'ON', '[1,2,3,4,5,6,8,11,15,20]');
+
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('鼠', 'https://mmbiz.qpic.cn/mmbiz_gif/w5pLFvdua9Fic6VmPQYib2ktqATmSxJmUtvNXVsBzTEmc1fyK8O16OSuJUAicicLZA0o1hkNVmBoSqKZUj89srXPvA/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QhT8Zws3rWRdHxribSNudmOUjMjv17TxfCTLhDwKKRCaW0VwbNRzUlQA/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QOpdWkhyqdYQ2icwwiborbFn9uXEDnyI3FsHiaHia5UwOPjFYibjVO0htb8g/0', 0, 0, '2020-08-31 10:23:04', '2020-09-01 16:42:20', NULL, 0, '鼠碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('蛇', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QVmJQ6JehzPGiat0XdOVwmricy7jp3bHmhUzEZD3dq0hcLv0pbxhu07vg/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6Qe6fJs4QeSialZSOl6dJOxu1TfNJDPz9RmBaoZTtru5gW4otTvIYDyJg/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QECzKufPLB0iabwpTexhzjkNA3MMeR0paTD2zu0M5liamWRGMVImia1krA/0', 0, 0, '2020-08-31 10:23:04', '2020-08-31 16:53:46', NULL, 0, '蛇碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('牛', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QXicfxIKJH5t2Vua5konlmicGfghKG5CRrsNsic6kXAc3PDn45kHQfbFCw/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QNSsctQX9LTd3qIcp9OMG5cxANib4SBDt1ReqibBYqQ49uEDw8ibB0WA2w/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QP4yk4QSA5XEeK3fmf5ia29IhK3UYH9zDffgodp8vBqiaq8GRZJKwfGdQ/0', 0, 0, '2020-08-31 10:23:04', '2020-08-31 16:55:15', NULL, 0, '牛碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('小凯', '', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', NULL, 0, 0, '2020-09-02 10:35:48', '2020-09-02 15:04:51', '2020-09-02 14:14:20', 0, '幸运碎片', 1);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('龙', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9n0vEW0h4WJYwYGGe1dWOwKhCBs6PlwPmMAtlFcLGMWoLKF5HH2bakw/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9M3U2ahMGLwyQE59IIcuxk8pMGRy7JSc5ib0ib8UpzcWvnV3K4PGibYqBg/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV92XodSNVDKpVqktY7ggvBgOoCC58mRtfiaGr8p3ue7Xh9btH0BibyQd1A/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 14:16:47', NULL, 0, '龙碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('猪', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9weyVWAQEvq5gvjb0iaSxleiaK1cGKusSic5ygQFDHrPNiagibKeOGktQntQ/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9JvQ88GpLa0VTGZnialw0ibBQmRFLf39ibBeiaBd0exnERMNYOfhTS6sxPA/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9HxMC8UcibnpiakGBkbvNWNVfJpuI8Kg8Q3osfUl4Kko67NayibOH69icTg/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 14:19:46', NULL, 0, '猪碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('猴', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9XoIzLC6tVR3lpJvEwADRFiaqVQKoETicqwPhMP4ADMNxBXibmArZRIIaw/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV99Fh18MnEcSZLay9ge47WlLpH4ytP5Qt8dQPeaND8Jib9RP1cXwxmeibA/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9sexpnSR9dxkNRL8Q4DOWbpicJ3GOd9oJa5Q4R4jQickH0HKN8djVc0xg/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 14:09:44', NULL, 0, '猴碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('马', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9EqEugOxWNmShdiaPovb8ypolYvrk597p1GKw9uoEBwLp9UDHf10LENQ/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9YRibfDnrMx74yJvrtibzXiboJiarN0CMsc5wR0dFfdzpLUSOLH56ghk7Ug/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9noV2RDgvNvaevL2puxpJDrDkWwiaNpnPhicX6k7aCasMeoGlwWlyFAHw/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 14:21:20', NULL, 0, '马碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('虎', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9zniaMQRL5tVicGLYuG2rNTWsYVERnQtpydibuz3ftmn0SlH3FOdAeVloQ/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9ITFtMXia5eA7pkLSeRLHPibiaWBkEy7Y5mL6dYhL9FgMsLN8n7Pc9DqLA/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV91tKnCv0ibLKY5spRr8LJWzwvibLGdumov4wfWThHyyEVkbIjUIDo3icSg/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 14:23:12', NULL, 0, '虎碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('兔', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9pa3q5zs8g16B9AyCA2Jocd7CNf5XSNP9Ncnw8tJr9dib6L5YAhDdRrw/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9EDL7kK4oy1olwibFVq5iacH9Wj1OdWn4BQ09p2DWpianknADrxJXpJ4mA/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9A2BicAmBoBLlK5FZEkBbYBnLzRUibwIMq4jt3vxEGfIGyTuOgjlHDMiag/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 14:24:32', NULL, 0, '兔碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('鸡', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV90MabSTblNRNgbDU6PXYd45hsMFrRKlZRWQTiaxmS9IuiaKy6SMliaQicCw/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9wVH2Z12VdTs8NPNgMlVbUbnS4C7AH9P6XALCsqhbsSVcGTG9BRxoDw/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9MEYpyrPyIr1QAd8fJWwvlj2DNPZo4dDN7akZzoIkr4JPPiaoYWQ0pEg/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 14:25:46', NULL, 0, '鸡碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('羊', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9QfjwgyRVicMr05vI0OmibxpJ8XQyI89phlfG8EGDB4mupYNZZ8vZhAsg/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV967tNOHibS4sHdTzdGdPlb4t7Vnm95RWhhuqWrkvvbbpCPxLWKUEibZLw/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9icFW0MTg7rjsnd7Mcbias3lVkauceS4RZR2sAmI6sICPxd4FxSLIgcHA/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 14:18:14', NULL, 0, '羊碎片', NULL);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('夜神', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9FDow0vAJ49hY7vW9bBWE6prNqHrTmPHwWxunpw0Gys4hZVpAWvc1cw/0', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9FoYpz5psFVynafiaticsmWdme4uMlytzUGv61eFMghsVnwYhIy9SAyYw/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 15:06:15', NULL, 0, '幸运碎片', 1617);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('农农', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9xCHnvSBybx6GKgRe8JRVWh8d1VG4gzuaPzN1KXvZUxH8Lvgh5HIWQw/0', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9xCHnvSBybx6GKgRe8JRVWh8d1VG4gzuaPzN1KXvZUxH8Lvgh5HIWQw/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 15:07:07', NULL, 0, '幸运碎片', 529);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('火神', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9pN0yK45icH5O6IssgWDGUarUOyeicGclN89gyR9lob7wHXiaKxCqIaQ2g/0', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV946nmicentK4xyfia6Q3gVa3CRhbxCaSrUNkVwEzhBajib9gDxvr4Dg7YQ/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 15:06:15', NULL, 0, '幸运碎片', 37);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('阿羡', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV97HuCDfUVvLkmYicruLqhvmp3EokUOSIWnkWSsrtUcs0vqqqCBrrrFBQ/0', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9TzJ2N7DSxwusfHNicQCRQlUtly3IIcfYTbHfSicb09QbODOic5gO2p8yQ/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 15:06:15', NULL, 0, '幸运碎片', 538);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('二爷', '', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', NULL, 0, 0, '2020-09-02 13:55:21', '2020-09-02 15:04:31', '2020-09-02 14:14:20', 0, '幸运碎片', 2532);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('含光君', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9D7IickGPfD70ia2OZFxWLx5QzGtqY6eZaGxuqWFQzZAZbLPwmibBocxjA/0', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9F7HFWEvj0xJqrbINDB4RDB0jllgicONY6JuM6PfFzp5qUIOwk8jxC7w/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 15:06:16', NULL, 0, '幸运碎片', 593);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('小川', '', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', NULL, 0, 0, '2020-09-02 13:55:21', '2020-09-02 15:04:04', '2020-09-02 14:14:20', 0, '幸运碎片', 960);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('小演', '', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', NULL, 0, 0, '2020-09-02 13:55:21', '2020-09-02 15:04:04', '2020-09-02 14:14:20', 0, '幸运碎片', 106);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('小巍', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9C0UVyHCnu2vCncia378ovibTbQwdicclFG5ymeiccyVMT1w2dNyk5gQUeg/0', 'SECRET', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9ONsBznOkXl54yrn1CnSeuGhar3brTsZCwcLAjWBSoyoVlkbd0Uq2lQ/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 15:23:52', NULL, 0, '幸运碎片', 9);
+INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `lock`, `lock_num`, `create_time`, `update_time`, `delete_time`, `exchange`, `scrap_name`, `star_id`) VALUES ('狗', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9p46kiaoIRPhtMDLS0fVlDeLZ83F2iay2qGIlFvM1TNvTMhFqs3ooykLA/0', 'NORMAL', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9hNiagmTlkjXGYpjXgkc1BbibLGgNsshVS7A1DEib1FlKFECsPhCEBjOhQ/0', 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9FRl348Pm93ersaH77htmV9wn0jdnjiarQeKYZlmdpFOE4TesxJC1EyXAibJ3Re9p05YrlRbb8NHHeg/0', 0, 0, '2020-09-02 13:55:21', '2020-09-02 14:09:44', NULL, 0, '狗碎片', NULL);
