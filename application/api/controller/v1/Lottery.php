@@ -47,7 +47,7 @@ class Lottery extends Base
             UserExt::where('user_id', $this->uid)->update(['lottery_count' => $remainCount, 'lottery_time' => $currentTime]);
         }
 
-        Common::res(['data' => $remainCount]);
+        Common::res(['data' => (int)$remainCount]);
     }
 
     /*抽奖*/
