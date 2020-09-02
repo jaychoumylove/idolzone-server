@@ -662,7 +662,6 @@ class Page extends Base
 
         $max_output_hours = $config['max_output_hours'];
         $limit_add_time = (int)bcmul($max_output_hours, 360);
-//        $word = '宠物列表可换宠物';
         $normalStr = [
             "记得常来看我",
 //            "庄园金豆存8小时不再生产",
