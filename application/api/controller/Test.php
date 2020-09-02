@@ -3,6 +3,7 @@
 namespace app\api\controller;
 
 
+use app\api\model\AnimalLottery;
 use app\api\model\CfgAnimal;
 use app\api\model\CfgAnimalLevel;
 use app\base\controller\Base;
@@ -276,5 +277,22 @@ class Test extends Base
 
         return Response::create(['sql' => $sql], 'json');
     }
-    
+
+    public function reBuildLottery()
+    {
+        $list = CfgAnimal::where('type', 'NORMAL')->select();
+        $litem = [
+            'chance' => 10,
+            'number' => 10,
+        ];
+        $insert = [];
+        foreach ($list as $item) {
+            $lotteryItem = array_merge(['animal' => $item['id']], $litem);
+            array_push($insert, $lotteryItem);
+        }
+
+        $sql = (new AnimalLottery())->fetchSql(true)->insertAll($insert);
+
+        return Response::create(['sql' => $sql], 'json');
+    }
 }

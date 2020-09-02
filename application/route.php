@@ -8,6 +8,7 @@ Route::rule('getToken', 'api/Test/getToken');
 Route::rule('getUid', 'api/Test/getUid');
 Route::rule('test/buildanimallv', 'api/Test/reBuildAnimalLevel');
 Route::rule('test/buildanimal', 'api/Test/reBuildAnimal');
+Route::rule('test/buildanimallottery', 'api/Test/reBuildLottery');
 
 // APP热更新
 Route::rule('api/:version/app/update', 'api/v1.H5/update');

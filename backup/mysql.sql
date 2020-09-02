@@ -934,6 +934,7 @@ create table f_cfg_animal
     exchange int not null comment '碎片ID用于解锁｜升级',
     scrap_name        varchar(255)                        not null,
     scrap_img varchar(255) not null,
+    star_id     int                                    null,
     constraint f_cfg_pet_id_uindex
         unique (id)
 )
@@ -949,12 +950,12 @@ drop table if exists f_cfg_animal_level;
 create table f_cfg_animal_level
 (
     id          int auto_increment,
+    animal_id   int                                 not null,
     level       int       default 1                 not null,
     number      int       default 0                 not null comment '碎片解锁数量',
     `desc`      varchar(255)                        null,
-    data int default 0 not null comment '每10秒产豆数|
-偷豆数|
-else',
+    output      int       default 0                 not null comment '每10秒产豆数',
+    steal       int       default 0                 not null comment '偷豆数',
     create_time timestamp default CURRENT_TIMESTAMP not null,
     update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
     delete_time timestamp                           null,
@@ -1022,17 +1023,21 @@ alter table f_user_animal
 drop table if exists f_user_manor;
 create table f_user_manor
 (
-    id          int auto_increment,
-    user_id     int                                 not null,
-    day_count   int    default 0                 not null comment '今日金豆产量',
-    last_output_time int default 0 not null comment '上次产豆时间',
-    day_steal int default 0 not null comment '今日偷豆次数',
-    background  varchar(255)                        ,
-    week_count  bigint    default 0                 not null comment '本周产量',
-    sum         bigint    default 0                 not null comment '庄园总产量',
-    create_time timestamp default CURRENT_TIMESTAMP not null,
-    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
-    delete_time timestamp                           null,
+    id                int auto_increment,
+    user_id           int                                 not null,
+    day_count         int       default 0                 not null comment '今日金豆产量',
+    count_left        int       default 0                 not null comment '剩余产量',
+    background        varchar(255)                        null,
+    week_count        bigint    default 0                 not null comment '本周产量',
+    sum               bigint    default 0                 not null comment '庄园总产量',
+    create_time       timestamp default CURRENT_TIMESTAMP not null,
+    update_time       timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time       timestamp                           null,
+    last_output_time  int       default 0                 not null comment '上次产豆时间',
+    day_steal         int       default 0                 not null comment '每日偷豆数量',
+    day_lottery_times int       default 0                 not null,
+    use_animal        int       default 1                 not null,
+    get_flower_reward int       default 0                 not null comment '是否领取限时上线鲜花福利',
     constraint f_user_manor_id_uindex
         unique (id),
     constraint f_user_manor_user_index
@@ -1100,4 +1105,49 @@ alter table f_rec
 
 alter table f_rec
 	add before_panacea bigint default 0 not null;
+
+create table f_rec_panacea_task
+(
+    id              int auto_increment
+        primary key,
+    task_id         int                                 null,
+    user_id         int                                 null,
+    done_times      bigint    default 0                 null comment '已完成次数',
+    is_settle_times int       default 0                 null comment '已领奖励次数',
+    create_time     timestamp default CURRENT_TIMESTAMP null,
+    update_time     timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    delete_time     timestamp                           null,
+    constraint task_id
+        unique (task_id, user_id)
+)
+    comment '记录-任务
+task_type = 1为每日任务
+师徒';
+
+create table f_cfg_panacea_task
+(
+    id          int auto_increment
+        primary key,
+    name        varchar(255)                                                  null,
+    icon        varchar(255)                                                  null,
+    `desc`      varchar(255)                                                  null comment '描述',
+    sort        int                                 default 0                 null comment '排序',
+    done        bigint                              default 0                 not null comment '完成任务所需要的数值',
+    limit_times int                                 default 0                 not null comment '完成任务的每天的上限',
+    `key`       varchar(255)                                                  null comment '任务key',
+    reward      int                                 default 0                 not null comment '奖励',
+    type        enum ('SUM', 'DAY', 'ONCE', 'RANK') default 'SUM'             not null comment '累计任务
+每日任务
+单次任务',
+    btn_text    varchar(255)                        default ''                null comment '未完成时的按钮文字',
+    gopage      varchar(255)                                                  null comment '未完成时的跳转页面',
+    open_type   varchar(255)                                                  null comment '调用button组件的open-type',
+    shareid     int(11) unsigned                    default 0                 null comment 'cfg_share表中的id',
+    create_time timestamp                           default CURRENT_TIMESTAMP null,
+    update_time timestamp                           default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                                                     null,
+    status      enum ('ON', 'OFF')                  default 'ON'              not null,
+    extra       varchar(255)                                                  null
+)
+    comment '任务-获取灵丹';
 
