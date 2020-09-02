@@ -326,7 +326,7 @@ class WxAPI
         $res = $this->request($url, $data);
         //微信
         if (isset($res['errcode']) && $res['errcode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
-        if (isset($res['errcode']) && $res['errcode']) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
+        //if (isset($res['errcode']) && $res['errcode']) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
         //QQ
         if (isset($res['errCode']) && $res['errCode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
 //        只有检测合法值为87014的情况检测出错
