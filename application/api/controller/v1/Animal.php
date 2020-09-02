@@ -129,6 +129,7 @@ class Animal extends Base
 
                 $list[$key] = $value;
             }
+            array_multisort($list, array_column($list, 'user_animal'));
         }
 
         if ($type == 'twelve') {
@@ -154,6 +155,7 @@ class Animal extends Base
 
                 $list[$key] = $value;
             }
+            array_multisort($list, array_column($list, 'user_animal'));
         }
 
         if ($type == 'secret') {
@@ -188,6 +190,7 @@ class Animal extends Base
 
                 $list[$key] = $value;
             }
+            array_multisort($list, array_column($list, 'user_animal'));
         }
 
         $currentTime = time();
