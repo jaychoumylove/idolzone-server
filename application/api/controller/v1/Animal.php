@@ -110,6 +110,7 @@ class Animal extends Base
                 $lv                   = 1;
                 if (array_key_exists($value['id'], $userAnimalDict)) {
                     $value['user_animal'] = $userAnimalDict[$value['id']];
+                    $value['empty_image'] = $value['image'];
                     $lv                   = $value['user_animal']['level'];
                 }
 
@@ -218,7 +219,7 @@ class Animal extends Base
             if (array_key_exists($value['animal'], $userAnimalDict)) {
                 $value['scrap_num'] = $userAnimalDict[$value['animal']]['scrap'];
             }
-            if ($value['type'] == 'SECRET') {
+            if ($value['animal']['type'] == 'SECRET') {
                 $value['scrap_num'] = $scrapNum;
             }
 
@@ -288,13 +289,14 @@ class Animal extends Base
         $lv = empty($userAnimal) ? 0: $userAnimal['level'];
         $nextLv = bcadd($lv, 1);
 
+        $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
         $lvDict = CfgAnimalLevel::getDictList((new CfgAnimalLevel()), [$lv, $nextLv], 'level', '*', ['animal_id' => $animalId]);
 
         $data = [
             'animal' => $animal,
             'lv' => $lvDict[$lv],
             'next_lv' => array_key_exists($nextLv, $lvDict) ? $lvDict[$nextLv]: null,
-            'scrap_num' => $userAnimal['scrap']
+            'scrap_num' => $animal['type'] == 'NORMAL' ? $userAnimal['scrap'] : $scrapNum,
         ];
 
         Common::res(compact('data'));
