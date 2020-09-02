@@ -32,8 +32,11 @@ class UserExt extends Base
     /**增加抽奖次数 */
     public static function addCount($uid, $type = 0)
     {
-        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time')->find();
+        $data = self::where('user_id', $uid)->field('lottery_count,lottery_time,lottery_times')->find();
         $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
+        if ($data['lottery_times'] >= $config['day_max']) {
+            return $data['lottery_count'];
+        }
         $diff = (int)bcsub(time(), $data['lottery_time']);
         $auto_add_time = $config['auto_add_time'];
         if ($diff < $auto_add_time) {
@@ -41,8 +44,15 @@ class UserExt extends Base
             return $data['lottery_count'];
         }
 
-        $typeMap = ['first_max', 'add_max'];
-        $max = $config[$typeMap[$type]];
+        $max = $config['add_max'];
+        if ($type == 0) {
+            $lv = CfgUserLevel::getLevel($uid);
+            foreach ($config['level_max'] as $lvItem) {
+                if ($lv >= $lvItem['level']) {
+                    $max = $lvItem['max'];
+                }
+            }
+        }
         if ($data['lottery_count'] >= $max) {
             // 当前剩余次数大于上限
             return $data['lottery_count'];
@@ -76,10 +86,25 @@ class UserExt extends Base
         if ($dayTimes > $config['day_max']) {
             Common::res(['code' => 1, 'msg' => "抽奖次数不够"]);
         }
+        $goMultiple = 0;
+        if (array_key_exists('multiple', $config)) {
+            $level = CfgUserLevel::getLevel($uid);
+            foreach ($config['multiple'] as $item) {
+                if ($level >= $item['level']) {
+                    $goMultiple = 0;
+                    if ($data['lottery_count'] >= $item['number']) {
+                        $goMultiple = (int)$item['number'];
+                    }
+                }
+            }
+        }
+        if ($goMultiple > 0) {
+            Common::res(['code' => 1, 'msg' => "请点击 $goMultiple 抽吧"]);
+        }
         $currentTime = time();
         $diff = bcsub($currentTime, $data['lottery_star_time']);
         if ((int)$diff < (int)$config['start_limit_time']) {
-            Common::res(['code' => 1, 'msg' => sprintf("每%s秒才能抽一次哦", $config['start_limit_time'])]);
+            Common::res(['code' => 1, 'msg' => "点击太快了"]);
         }
 
         // 随机一个奖品

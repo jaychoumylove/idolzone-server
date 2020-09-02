@@ -2,12 +2,19 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\AnimalLottery;
 use app\api\model\Cfg_luckyDraw;
+use app\api\model\CfgAnimal;
+use app\api\model\CfgNovel;
 use app\api\model\CfgScrap;
+use app\api\model\CfgUserLevel;
+use app\api\model\NovelContent;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\RecUserInvite;
 use app\api\model\UserAchievementHeal;
+use app\api\model\UserAnimal;
 use app\api\model\UserInvite;
+use app\api\model\UserManor;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
@@ -25,6 +32,7 @@ use app\api\model\CfgAds;
 use app\api\model\CfgItem;
 use app\api\model\Notice;
 use app\api\model\UserItem;
+use Exception;
 use GatewayWorker\Lib\Gateway;
 use app\api\model\UserExt;
 use app\api\model\Prop;
@@ -41,6 +49,7 @@ use app\api\model\FanclubUser;
 use app\api\model\CfgShare;
 use app\api\model\RecTaskfather;
 use app\api\service\Sms;
+use Throwable;
 
 class Page extends Base
 {
@@ -102,6 +111,18 @@ class Page extends Base
 
         $res['config']['share_text'] = CfgShareTitle::getOne();
         $res['config']['share_cfg'] = CfgShare::column('title,imageUrl,path','id');
+        if (array_key_exists('free_lottery', $res['config'])) {
+            $level = CfgUserLevel::getLevel($this->uid);
+
+            $multiple = [];
+            foreach ($res['config']['free_lottery']['multiple'] as $item) {
+                if ((int)$level >= $item['level']) {
+                    $multiple = $item;
+                }
+            }
+
+            $res['config']['free_lottery']['multiple'] = [$multiple];
+        }
 
         //生成我的徽章数据
         BadgeUser::initBadge($this->uid);
@@ -238,7 +259,7 @@ class Page extends Base
                 Db::name('pk_user_rank')->where('uid', $this->uid)->update(['score' => 0]);
 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollBack();
                 Common::res(['code' => 400, 'msg' => $e->getMessage()]);
             }
@@ -448,7 +469,7 @@ class Page extends Base
                     }
                 }
             }
-        }catch (\Throwable $throwable) {}
+        }catch (Throwable $throwable) {}
 
         $scrap = CfgScrap::where('status', CfgScrap::ON)
             ->order([
@@ -591,5 +612,134 @@ class Page extends Base
         }
 
         return $progress;
+    }
+
+    public function manor()
+    {
+        // 我的庄园信息
+        $this->getUser();
+        $currentTime = time();
+
+        $manor = UserManor::get(['user_id' => $this->uid]);
+        $panaceaReward = 0;
+        if (empty($manor)) {
+            $useAnimal = 1;
+            $manor = UserManor::create([
+                'user_id' => $this->uid,
+                'last_output_time' => $currentTime,
+                'use_animal' => 1,
+            ]);
+            $animal = UserAnimal::create([
+                "user_id" => $this->uid,
+                'animal_id' => 1,
+                'scrap' => 0,
+                'level' => 1,
+            ]);
+            $output = 1;
+            $addCount = 0;
+            $autoCount = false;
+            $steal_left = 1;
+            $panaceaReward = UserManor::getFlowerReward($this->uid);
+        } else {
+            $useAnimal = $manor['use_animal'];
+            $diffTime = bcsub($currentTime, $manor['last_output_time']);
+            $output = UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
+            $steal_left = UserAnimal::getOutput($this->uid, CfgAnimal::STEAL);
+
+            $addCount = UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
+            $autoCount = false;
+        }
+
+        $mainAnimal = CfgAnimal::get($useAnimal);
+        $nums = UserExt::where('user_id', $this->uid)->value('animal_lottery');
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $maxLottery = (int)$config['lottery']['max'];
+        if ($nums > $maxLottery) {
+            $lotteryLeft = 0;
+        } else {
+            $lotteryLeft = bcsub($maxLottery, $nums);
+        }
+
+        $max_output_hours = $config['max_output_hours'];
+        $limit_add_time = (int)bcmul($max_output_hours, 360);
+        $normalStr = [
+            "记得常来看我",
+//            "庄园金豆存8小时不再生产",
+//            "庄园生产金豆在线离线都一样",
+            "宠物列表可换宠物",
+//            "个人账户金豆每周日清零",
+//            "鲜花月榜有超多大屏奖励",
+//            "金豆月榜奖励5000元应援金",
+//            "人气周榜福利2400元应援金",
+//            "打榜送鲜花占领封面宣传爱豆",
+//            "新人礼包、成长礼包记得去领",
+//            "打卡7天可获得6666元应援金",
+            "记得报名参加团战PK",
+//            "无聊了去圈子和大家聊天吧",
+//            "粉丝团集结每小时都能参与",
+            "你有几个荣誉徽章呢",
+//            "你还差多少人气升级呢",
+            "今天做了多少任务了",
+        ];
+
+        $secretStr = [
+            "付出总是有回报",
+            "跟着你好有幸福感",
+            "点我是因为想我吗",
+            "好想抱抱你",
+            "点我要轻一点哦",
+            "希望明天是晴天",
+            "再点我就气鼓鼓",
+            "不要放弃爱和梦想",
+            "我想听听你的故事",
+            "不要忘记每天陪陪我",
+            "总有心动的感觉",
+            "想要你的抱抱",
+//            "或许我们可以一起走",
+        ];
+        $str = $mainAnimal['type'] == 'NORMAL' ? $normalStr: $secretStr;
+
+        $index = rand(0, count($str) - 1);
+        $word = $str[$index];
+
+        Common::res(['data' => [
+            'manor' => $manor,
+            'output' => (int)$output,
+            'add_count' => (int)$addCount,
+            'auto_count' => $autoCount,
+            'main_animal' => $mainAnimal,
+            'lottery_left' => $lotteryLeft,
+            'steal_left' => $steal_left,
+            'limit_time' => $limit_add_time,
+            'panacea_reward' => $panaceaReward,
+            'word' => $word,
+            'max_lottery'  => $maxLottery
+        ]]);
+    }
+    
+    public function customAd()
+    {
+        $this->getUser();
+
+        $list = CfgNovel::all();
+        $list = collection($list)->toArray();
+
+        $ids = array_column($list, 'id');
+        $lucky = rand(0, count($ids) - 1);
+        $luckyId = $ids[$lucky];
+        $item = [];
+        foreach ($list as $key => $value) {
+            if ($value['id'] == $luckyId) {
+                $item = $value;
+                break;
+            }
+        }
+
+        $data['banner'] = $item['img'];
+
+        $data['content'] = $item['content'];
+        $data['second'] = 15;
+
+        Common::res(compact('data'));
     }
 }

@@ -5,11 +5,19 @@ namespace app\api\model;
 
 
 use app\api\controller\v1\Pk;
+use app\base\model\Base;
 use app\base\service\Common;
+use PDOStatement;
+use think\Collection;
 use think\Db;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
+use think\Exception;
+use think\exception\DbException;
 use think\Model;
+use Throwable;
 
-class UserAchievementHeal extends \app\base\model\Base
+class UserAchievementHeal extends Base
 {
     const TIMER = 259200; // 60*60*24*3
 
@@ -49,10 +57,10 @@ class UserAchievementHeal extends \app\base\model\Base
 
     /**
      * @param $user_id
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     * @throws \think\Exception
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws Exception
      */
     public static function addInvite($user_id)
     {
@@ -365,10 +373,10 @@ class UserAchievementHeal extends \app\base\model\Base
      * @param int   $page
      * @param int   $size
      * @param array $extra
-     * @return array|bool|false|\PDOStatement|string|\think\Collection
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @return array|bool|false|PDOStatement|string|Collection
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
      */
     private static function getFlowerTimeRankList($rankType, $page = 1, $size = 10, $extra = [])
     {
@@ -435,10 +443,10 @@ class UserAchievementHeal extends \app\base\model\Base
      * @param $star_id
      * @param $time
      * @param $type
-     * @throws \think\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @throws Exception
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
      */
     public static function recordTime($user_id, $star_id, $time, $type)
     {
@@ -479,9 +487,9 @@ class UserAchievementHeal extends \app\base\model\Base
      * @param $user_id
      * @param $type
      * @return array
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
      */
     public static function checkStatus($user_id, $type)
     {
@@ -532,7 +540,7 @@ class UserAchievementHeal extends \app\base\model\Base
 
 //            throw new Exception('something was wrong');
             Db::commit ();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             Db::rollback ();
 //            throw $exception;
             Common::res (['code' => 1, 'msg' => '您还未达到领取条件哦']);
@@ -548,11 +556,11 @@ class UserAchievementHeal extends \app\base\model\Base
      * @param string $fields
      * @param array  $map
      * @return array
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
      */
-    private static function getDictList(Model $model, array $ids, $key, $fields = '*', $map = [])
+    public static function getDictList(Model $model, array $ids, $key, $fields = '*', $map = [])
     {
         $list = $model->where($key, 'in', $ids)
             ->where($map)

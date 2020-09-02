@@ -3,12 +3,15 @@
 namespace app\api\service;
 
 use app\api\model\Cfg;
+use app\api\model\CfgPanaceaTask;
 use app\api\model\CfgTaskfather;
 use app\api\model\CfgWealActivityTask;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecTask;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecWealActivityTask;
 use app\api\model\Task as TaskModel;
+use Exception;
 use think\Db;
 use app\base\service\Common;
 use app\api\model\RecWeibo;
@@ -106,7 +109,7 @@ class Task
             RecTaskfather::addRec($uid, [7, 18, 29, 40]);
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             Common::res([
                 'code' => 400,
@@ -142,7 +145,7 @@ class Task
             FatherEarn::add($father_uid, $update);
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             Common::res([
                 'code' => 400,
@@ -198,6 +201,9 @@ class Task
 
             $wealType = (int) $type ? CfgWealActivityTask::WEIBO_RE_POST: CfgWealActivityTask::WEIBO_SUPER;
             RecWealActivityTask::setTask ($uid, 1, $wealType);
+
+            $wealType = (int) $type ? CfgPanaceaTask::WEIBO_RE_POST: CfgPanaceaTask::WEIBO_SUPER;
+            RecPanaceaTask::setTask ($uid, 1, $wealType);
         }
     }
 

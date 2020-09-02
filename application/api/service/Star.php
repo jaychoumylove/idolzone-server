@@ -2,9 +2,11 @@
 
 namespace app\api\service;
 
+use app\api\model\CfgPanaceaTask;
 use app\api\model\CfgWealActivityTask;
 use app\api\model\FanclubUser;
 use app\api\model\Rec;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecUserInvite;
 use app\api\model\RecWealActivityTask;
@@ -135,6 +137,7 @@ class Star
             StarRankModel::change($starid, $hot, $type);
 
             RecWealActivityTask::setTask ($uid, $hot, CfgWealActivityTask::SUM_COUNT);
+            RecPanaceaTask::setTask ($uid, $hot, CfgPanaceaTask::SUM_COUNT);
 
             if (isset($extraHot) && !!$extraHot) {
                 $res = UserExt::extraHot ($uid, $extraHot, $starid);

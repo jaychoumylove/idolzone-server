@@ -6,10 +6,12 @@ use app\api\model\Cfg;
 use app\api\model\CfgActive;
 use app\api\model\CfgLottery;
 use app\api\model\OpenRank;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecUserPaid;
 use app\api\model\RecWealActivityTask;
 use app\api\model\UserAchievementHeal;
+use app\api\model\UserManor;
 use app\base\controller\Base;
 use app\api\model\StarRank;
 use Exception;
@@ -183,8 +185,9 @@ class AutoRun extends Base
             // pk表清除
             PkUser::clearPk();
 
-            // 清楚每日任务
+            // 清理每日任务
             RecWealActivityTask::cleanDay ();
+            RecPanaceaTask::cleanDay();
 
             // 开屏备选的清理
             if (Cfg::checkActiveByPathInBtnGroup (Cfg::WEAL_ACTIVE_PATH)) {
@@ -205,6 +208,12 @@ class AutoRun extends Base
             // 清除用户充值礼包记录
             RecUserPaid::where('count', '>', 0)
                 ->update(['count' => 0,'is_settle' => 0]);
+
+            // 每日庄园结算
+            UserManor::where('1=1')->update([
+                'day_count' => 0,
+                'day_steal' => 0,
+            ]);
 
             Db::commit();
         } catch (Exception $e) {
@@ -321,6 +330,11 @@ class AutoRun extends Base
             
             FamilyUser::where('1=1')->update([
                 'lastweek_count' => Db::raw('week_count'),
+                'week_count' => 0,
+            ]);
+
+            // 每周庄园结算
+            UserManor::where('1=1')->update([
                 'week_count' => 0,
             ]);
             

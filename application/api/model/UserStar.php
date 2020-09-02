@@ -6,6 +6,10 @@ use app\base\model\Base;
 use app\api\model\Father as ModelFather;
 use think\Db;
 use app\base\service\Common;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
+use think\Exception;
+use think\exception\DbException;
 
 class UserStar extends Base
 {
@@ -388,10 +392,10 @@ class UserStar extends Base
     /**
      * 每日鲜花贡献前10名获得花神成就挂饰
      *
-     * @throws \think\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @throws Exception
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
      */
     public static function settleFlower()
     {
@@ -408,15 +412,19 @@ class UserStar extends Base
         foreach ($topTenFlower as $item) {
             UserAchievementHeal::recordTime ($item['user_id'], $item['star_id'], UserAchievementHeal::TIMER, UserAchievementHeal::FLOWER);
         }
+
+        $ids = array_column($topTenFlower, 'user_id');
+
+        (new RecPanaceaTask())->settleRank($ids, CfgPanaceaTask::FLOWER_RANK);
     }
 
     /**
      * 当日注册用户 每日贡献前10名获得明日之星成就挂饰
      *
-     * @throws \think\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @throws Exception
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
      */
     public static function settleCount()
     {

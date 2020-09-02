@@ -3,6 +3,7 @@
 namespace app\base\service;
 
 use app\base\model\Appinfo;
+use CURLFile;
 use think\Log;
 
 /**服务端wx接口 */
@@ -197,7 +198,7 @@ class WxAPI
         $url = 'https://' . $this->apiHost . '/cgi-bin/media/upload?access_token=' . $this->appinfo['access_token'] . '&type=TYPE';
         $url = str_replace('TYPE', 'image', $url);
 
-        $data = ['media' => new \CURLFile($filePath, false, false)];
+        $data = ['media' => new CURLFile($filePath, false, false)];
 
         return $this->request($url, $data);
     }
@@ -225,7 +226,7 @@ class WxAPI
 
         $url = str_replace('TYPE', 'image', $url);
 
-        $data = ['media' => new \CURLFile($filePath, false, false)];
+        $data = ['media' => new CURLFile($filePath, false, false)];
         return $this->request($url, $data);
     }
 
@@ -234,7 +235,7 @@ class WxAPI
     {
         $url = 'https://' . $this->apiHost . '/cgi-bin/media/uploadimg?access_token=' . $this->appinfo['access_token'];
 
-        $data = ['media' => new \CURLFile($filePath, false, false)];
+        $data = ['media' => new CURLFile($filePath, false, false)];
         return $this->request($url, $data);
     }
 
@@ -326,7 +327,7 @@ class WxAPI
         $res = $this->request($url, $data);
         //微信
         if (isset($res['errcode']) && $res['errcode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
-        if (isset($res['errcode']) && $res['errcode']) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
+        //if (isset($res['errcode']) && $res['errcode']) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
         //QQ
         if (isset($res['errCode']) && $res['errCode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
 //        只有检测合法值为87014的情况检测出错
@@ -344,7 +345,7 @@ class WxAPI
             $url = 'https://' . $this->apiHost . '/wxa/img_sec_check?access_token=' . $this->appinfo['access_token'];
         }
         
-        $data['media'] = new \CURLFile($filePath, false, false);
+        $data['media'] = new CURLFile($filePath, false, false);
         $res = $this->request($url, $data);
         
         //微信
