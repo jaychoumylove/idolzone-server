@@ -116,7 +116,6 @@ class UserAnimal extends Base
             UserAnimal::create([
                 'user_id' => $uid,
                 'animal_id' => $animal,
-                'type' => 'SECRET',
                 'level' => 1,
             ]);
 
@@ -129,7 +128,6 @@ class UserAnimal extends Base
             Db::commit();
         }catch (Throwable $throwable) {
             Db::rollback();
-
             Common::res(['code' => 1, 'msg' => '请稍后再试']);
         }
     }

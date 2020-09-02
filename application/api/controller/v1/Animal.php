@@ -103,7 +103,7 @@ class Animal extends Base
             $animalIds = array_column($list, 'id');
 
             $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $this->uid]);
-
+            $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
             foreach ($list as $key => $value) {
                 // 补充数据
                 $value['user_animal'] = null;
@@ -116,6 +116,10 @@ class Animal extends Base
                 $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
                     ->where('level', $lv)
                     ->find();
+
+                if (empty($value['user_animal'])) {
+                    $value['exchanged'] = $scrapNum >= $value['lv_info']['number'];
+                }
 
                 $list[$key] = $value;
             }
@@ -154,7 +158,7 @@ class Animal extends Base
             $animalIds = array_column($list, 'id');
 
             $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $this->uid]);
-
+            $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
             foreach ($list as $key => $value) {
                 // 补充数据
                 $value['user_animal'] = null;
@@ -167,6 +171,10 @@ class Animal extends Base
                 $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
                     ->where('level', $lv)
                     ->find();
+
+                if (empty($value['user_animal'])) {
+                    $value['exchanged'] = $scrapNum >= $value['lv_info']['number'];
+                }
 
                 $list[$key] = $value;
             }
