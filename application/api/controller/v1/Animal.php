@@ -16,6 +16,7 @@ use app\api\model\RecWealActivityTask;
 use app\api\model\UserAnimal;
 use app\api\model\UserExt;
 use app\api\model\UserManor;
+use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
 
@@ -96,7 +97,11 @@ class Animal extends Base
 //        }
 
         if ($type == 'yet') {
-            $list = CfgAnimal::where('type', 'SECRET')->order('create_time', 'desc')->select();
+            $star = UserStar::getStarId($this->uid);// 只能看到自己家的
+            $list = CfgAnimal::where('type', 'SECRET')
+                ->where('star_id', $star)
+                ->order('create_time', 'desc')
+                ->select();
 
             if (is_object($list)) $list = $list->toArray();
 
@@ -152,7 +157,11 @@ class Animal extends Base
         }
 
         if ($type == 'secret') {
-            $list = CfgAnimal::where('type', 'SECRET')->order('create_time', 'desc')->select();
+            $star = UserStar::getStarId($this->uid);// 只能看到自己家的
+            $list = CfgAnimal::where('type', 'SECRET')
+                ->where('star_id', $star)
+                ->order('create_time', 'desc')
+                ->select();
 
             if (is_object($list)) $list = $list->toArray();
 

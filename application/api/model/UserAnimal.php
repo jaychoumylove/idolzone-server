@@ -90,6 +90,13 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
 
+        if ($animalInfo['star_id']) {
+            $star = UserStar::getStarId($uid);
+            if ($star != $animalInfo['star_id']) {
+                Common::res(['code' => 1, 'msg' => '暂未开放']);
+            }
+        }
+
         $exist = UserAnimal::get(['animal_id' => $animal, 'user_id' => $uid]);
         if ($exist) {
             Common::res(['code' => 1, 'msg' => '已解锁']);
