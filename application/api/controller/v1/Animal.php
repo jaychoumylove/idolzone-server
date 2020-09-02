@@ -74,21 +74,47 @@ class Animal extends Base
             }
         }
 
-        if ($type == 'yet') {
-            // 尚未拥有
-            $animalIds = UserAnimal::where('user_id', $this->uid)
-                ->where('lock', 0)
-                ->column('animal_id');
+//        if ($type == 'yet') {
+//            // 尚未拥有
+//            $animalIds = UserAnimal::where('user_id', $this->uid)
+//                ->where('lock', 0)
+//                ->column('animal_id');
+//
+//            $list = CfgAnimal::where('id', 'not in', $animalIds)->select();
+//            if (is_object($list)) $list = $list->toArray();
+//            foreach ($list as $key => $value) {
+//                // 补充数据
+//                $value['user_animal'] = null;
+//                $value['level'] = 1;
+//
+//                $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
+//                    ->where('level', $value['level'])
+//                    ->find();
+//
+//                $list[$key] = $value;
+//            }
+//        }
 
-            $list = CfgAnimal::where('id', 'not in', $animalIds)->select();
+        if ($type == 'yet') {
+            $list = CfgAnimal::where('type', 'SECRET')->order('create_time', 'desc')->select();
+
             if (is_object($list)) $list = $list->toArray();
+
+            $animalIds = array_column($list, 'id');
+
+            $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $this->uid]);
+
             foreach ($list as $key => $value) {
                 // 补充数据
                 $value['user_animal'] = null;
-                $value['level'] = 1;
+                $lv                   = 1;
+                if (array_key_exists($value['id'], $userAnimalDict)) {
+                    $value['user_animal'] = $userAnimalDict[$value['id']];
+                    $lv                   = $value['user_animal']['level'];
+                }
 
                 $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
-                    ->where('level', $value['level'])
+                    ->where('level', $lv)
                     ->find();
 
                 $list[$key] = $value;
