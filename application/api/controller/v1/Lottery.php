@@ -66,7 +66,7 @@ class Lottery extends Base
     {
         $this->getUser();
         $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 10);
+        $size = $this->req('size', 'integer', 15);
 
         $logList = RecLottery::where('user_id', $this->uid)->whereTime('create_time', 'd')->order('id desc')->page($page, $size)->select();
 
