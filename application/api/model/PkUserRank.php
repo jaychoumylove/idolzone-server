@@ -35,6 +35,8 @@ class PkUserRank extends Base
                 UserAchievementHeal::TIMER,
                 UserAchievementHeal::PK);
         }
+
+        self::settlePanacea($pk_time);
     }
 
     public static function settlePanacea($pk_time)
