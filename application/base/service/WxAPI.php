@@ -67,7 +67,7 @@ class WxAPI
         if (array_key_exists('access_token', $res) == false) {
             Log::error(sprintf('token请求出错,平台%s', $platform));
             Log::error(json_encode($res));
-            Common::res(['code' => 1, 'msg' => '系统忙，请重新进入']);
+//            Common::res(['code' => 1, 'msg' => '系统忙，请重新进入']);
         }
         $this->appinfo['access_token'] = $res['access_token'];
 
