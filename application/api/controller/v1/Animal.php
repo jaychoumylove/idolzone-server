@@ -31,6 +31,7 @@ class Animal extends Base
             Common::res(['code' => 1, 'msg' => '请选择查看类型']);
         }
 
+        $supportItem = 3;
         // 获取宠物列表
         if ($type == 'already') {
             // 已经拥有
@@ -147,6 +148,15 @@ class Animal extends Base
                 if (array_key_exists($value['id'], $userAnimalDict)) {
                     $value['user_animal'] = $userAnimalDict[$value['id']];
                     $lv                   = $value['user_animal']['level'];
+                    $nextLv = CfgAnimalLevel::where('animal_id', $value['id'])
+                        ->where('level', bcadd($lv, 1))
+                        ->find();
+
+                    if (empty($nextLv)) {
+                        $value['up_able'] = false;
+                    } else {
+                        $value['up_able'] = $value['user_animal']['scrap'] >= $nextLv['number'];
+                    }
                 }
 
                 $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
@@ -178,11 +188,28 @@ class Animal extends Base
                 if (array_key_exists($value['id'], $userAnimalDict)) {
                     $value['user_animal'] = $userAnimalDict[$value['id']];
                     $lv                   = $value['user_animal']['level'];
-                }
 
-                $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
-                    ->where('level', $lv)
-                    ->find();
+                    $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
+                        ->where('level', $lv)
+                        ->find();
+                    $nextLv = CfgAnimalLevel::where('animal_id', $value['id'])
+                        ->where('level', bcadd($lv, 1))
+                        ->find();
+
+                    if (empty($nextLv)) {
+                        $value['up_able'] = false;
+                        $value['need_scrap'] = $value['lv_info']['number'];
+                    } else {
+                        $value['up_able'] = $scrapNum >= $nextLv['number'];
+                        $value['need_scrap'] = $nextLv['number'];
+                    }
+                } else {
+                    $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
+                        ->where('level', $lv)
+                        ->find();
+                    $value['need_scrap'] = $value['lv_info']['number'];
+                }
+                $value['scrap_num'] = $scrapNum;
 
                 if (empty($value['user_animal'])) {
                     $value['exchanged'] = $scrapNum >= $value['lv_info']['number'];
@@ -191,6 +218,7 @@ class Animal extends Base
                 $list[$key] = $value;
             }
             array_multisort($list, array_column($list, 'user_animal'));
+            $supportItem = 2;
         }
 
         $currentTime = time();
@@ -205,6 +233,7 @@ class Animal extends Base
             'list' => $list,
             'output' => $output,
             'add_count' => $addCount,
+            'list_support' => $supportItem,
             'steal_left' => $stealLeft,
             'main_animal' => $mainAnimalId
         ]]);
