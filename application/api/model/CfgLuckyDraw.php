@@ -4,11 +4,13 @@
 namespace app\api\model;
 
 
+use app\base\model\Base;
 use app\base\service\Common;
 use think\Db;
 use think\Exception;
+use Throwable;
 
-class CfgLuckyDraw extends \app\base\model\Base
+class CfgLuckyDraw extends Base
 {
     const CURRENCY = 'currency';
     const SCRAP = 'scrap';
@@ -89,7 +91,7 @@ class CfgLuckyDraw extends \app\base\model\Base
             }
 
             // 发放奖励
-            $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet'];
+            $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet' ,'panacea'];
             $earn = [];
             $scraps = [$scrapItem['number']];
             foreach ($choose as $item) {
@@ -146,7 +148,7 @@ class CfgLuckyDraw extends \app\base\model\Base
 //            throw new Exception('something was wrong');
 
             Db::commit ();
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             Db::rollback ();
 //            throw $throwable;
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
@@ -206,7 +208,7 @@ class CfgLuckyDraw extends \app\base\model\Base
 
             // 发放奖励
             if ($chooseItem['type'] == self::CURRENCY) {
-                $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet'];
+                $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet' ,'panacea'];
                 $data = [];
                 if (in_array ($chooseItem['key'], $currencyMap)) {
                     $data[$chooseItem['key']] = $chooseItem['number'];
@@ -237,7 +239,7 @@ class CfgLuckyDraw extends \app\base\model\Base
 //            throw new Exception('something was wrong');
 
             Db::commit ();
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             Db::rollback ();
 //            throw $throwable;
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
