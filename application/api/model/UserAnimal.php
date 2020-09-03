@@ -198,8 +198,9 @@ class UserAnimal extends Base
         $limit_output_hours = $config['max_output_hours'];
         $min_output_time = $config['min_output_seconds'];
 
-        $maxTime = $limit_output_hours * 60 * 6;
-        $outputMax = bcmul($output, $maxTime);
+        $maxTime = $limit_output_hours * 60 * 60;
+        $timer = bcdiv($maxTime, $min_output_time);
+        $outputMax = bcmul($output, $timer);
         if ($diffTime > $maxTime) {
             // 最多只能存储8小时产豆
             $addCount = $outputMax;

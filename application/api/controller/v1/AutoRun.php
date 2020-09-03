@@ -155,11 +155,12 @@ class AutoRun extends Base
                 'skill_two_times' => 0,
                 'skill_two_offset' => 0
             ]);
-            // 重置 抽奖次数 每日点赞次数
+            // 重置 抽奖次数 每日点赞次数 每日召唤宠物数
             UserExt::where('1=1')->update([
                 'lottery_count' => 0,
                 'lottery_times' => 0,
-                'thisday_like' => 0
+                'thisday_like' => 0,
+                'animal_lottery' => 0
             ]);
             
             // 家族贡献重置
@@ -213,6 +214,7 @@ class AutoRun extends Base
             UserManor::where('1=1')->update([
                 'day_count' => 0,
                 'day_steal' => 0,
+                ''
             ]);
 
             Db::commit();
