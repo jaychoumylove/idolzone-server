@@ -148,6 +148,8 @@ class Payment extends Base
         }
 
         if ($payType == RecPayOrder::ALI_PAY) {
+            $totalFee = number_format($totalFee, 2);
+
             $aop = AliPayApi::getInstance();
 
             $request = new AlipayTradeWapPayRequest ();
