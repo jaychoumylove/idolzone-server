@@ -10,9 +10,10 @@ use app\api\model\Prop;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\UserProp;
 use app\api\model\UserScrap;
+use app\base\controller\Base;
 use app\base\service\Common;
 
-class UserLuckyDraw extends \app\base\controller\Base
+class UserLuckyDraw extends Base
 {
     public function getLuckyDraw()
     {
@@ -77,8 +78,9 @@ class UserLuckyDraw extends \app\base\controller\Base
         $data = [
             'coin' => 0,
             'flower' => 0,
-            'stone' => 0,
             'trumpet' => 0,
+            'panacea' => 0,
+            'scrap' => 0,
         ];
 
         $items = array_column ($list, 'item');

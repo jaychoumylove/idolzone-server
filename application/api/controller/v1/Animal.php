@@ -31,6 +31,7 @@ class Animal extends Base
             Common::res(['code' => 1, 'msg' => '请选择查看类型']);
         }
 
+        $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
         $supportItem = 3;
         // 获取宠物列表
         if ($type == 'already') {
@@ -109,7 +110,6 @@ class Animal extends Base
             $animalIds = array_column($list, 'id');
 
             $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $this->uid]);
-            $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
             foreach ($list as $key => $value) {
                 // 补充数据
                 $value['user_animal'] = null;
@@ -180,7 +180,6 @@ class Animal extends Base
             $animalIds = array_column($list, 'id');
 
             $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $animalIds, 'animal_id', '*', ['user_id' => $this->uid]);
-            $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
             foreach ($list as $key => $value) {
                 // 补充数据
                 $value['user_animal'] = null;
@@ -235,7 +234,8 @@ class Animal extends Base
             'add_count' => $addCount,
             'list_support' => $supportItem,
             'steal_left' => $stealLeft,
-            'main_animal' => $mainAnimalId
+            'main_animal' => $mainAnimalId,
+            'scrap_num' => $scrapNum
         ]]);
     }
 
