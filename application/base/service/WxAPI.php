@@ -23,6 +23,12 @@ class WxAPI
         }
         if (!$w) $w = $type;
         $this->appinfo = Common::getAppinfo($w);
+
+        $currentTime = time();
+        if ($this->appinfo['access_token_expire'] && $this->appinfo['access_token_expire'] <= $currentTime) {
+            // token已过期主动获取token
+            $this->getAccessToken();
+        }
     }
 
     public function request($url, $data = null)
@@ -47,8 +53,9 @@ class WxAPI
      */
     public function getAccessToken()
     {
+        $platform = input('platform');
         // 更新accessToken
-        if (input('platform') == 'MP-QQ') {
+        if ($platform == 'MP-QQ') {
             $url = 'https://' . $this->apiHost . '/api/getToken?grant_type=client_credential&appid=APPID&secret=APPSECRET';
         } else {
             $url = 'https://' . $this->apiHost . '/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET';
@@ -57,11 +64,19 @@ class WxAPI
         $url = str_replace('APPSECRET', $this->appinfo['appsecret'], $url);
 
         $res = $this->request($url);
+        if (array_key_exists('access_token', $res) == false) {
+            Log::error(sprintf('token请求出错,平台%s', $platform));
+            Log::error(json_encode($res));
+            Common::res(['code' => 1, 'msg' => '系统忙，请重新进入']);
+        }
         $this->appinfo['access_token'] = $res['access_token'];
+
+        $diff = 200; // 200秒差值
+        $expires = (int)bcsub($res['expires_in'], $diff);
         // 将新的token保存到数据库
         Appinfo::where(['id' => $this->appinfo['id']])->update([
             'access_token' => $res['access_token'],
-            'access_token_expire' => date('Y-m-d H:i:s', time() + $res['expires_in']),
+            'access_token_expire' => date('Y-m-d H:i:s', time() + $expires),
         ]);
     }
 
