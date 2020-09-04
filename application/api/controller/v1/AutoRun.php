@@ -214,7 +214,6 @@ class AutoRun extends Base
             UserManor::where('1=1')->update([
                 'day_count' => 0,
                 'day_steal' => 0,
-                ''
             ]);
 
             Db::commit();
