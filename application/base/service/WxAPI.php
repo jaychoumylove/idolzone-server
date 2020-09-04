@@ -24,11 +24,11 @@ class WxAPI
         if (!$w) $w = $type;
         $this->appinfo = Common::getAppinfo($w);
 
-        $currentTime = time();
-        if ($this->appinfo['access_token_expire'] && $this->appinfo['access_token_expire'] <= $currentTime) {
-            // token已过期主动获取token
-            $this->getAccessToken();
-        }
+//        $currentTime = time();
+//        if ($this->appinfo['access_token_expire'] && $this->appinfo['access_token_expire'] <= $currentTime) {
+//            // token已过期主动获取token
+//            $this->getAccessToken();
+//        }
     }
 
     public function request($url, $data = null)
