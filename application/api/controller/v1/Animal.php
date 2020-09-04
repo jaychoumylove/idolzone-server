@@ -423,6 +423,7 @@ class Animal extends Base
     public function getCfgBackground()
     {
         // 获取庄园背景列表
+        $this->getUser();
         $type = input('type', false);
         if (empty($type)) {
             Common::res(['code' => 1, 'msg' => '请选择类型']);
@@ -433,15 +434,23 @@ class Animal extends Base
         ];
 
         if ($type == 'STAR') {
-            $this->getUser();
             $map['star'] = UserStar::getStarId($this->uid);
         }
 
-        $data = CfgManorBackground::where($map)
+        $background = UserManorBackground::where('user_id', $this->uid)->column('background');
+        $useBackground = UserManor::where('user_id', $this->uid)->value('background');
+
+        $list = CfgManorBackground::where($map)
             ->order(['create_time' => 'desc'])
             ->select();
 
-        Common::res(['data' => $data]);
+        foreach ($list as $key => $value) {
+            $value['locked'] = in_array($value['id'], $background);
+            $value['used'] = $value['id'] == $useBackground;
+            $list[$key] = $value;
+        }
+
+        Common::res(['data' => $list]);
     }
 
     public function useBackground()

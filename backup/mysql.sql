@@ -1218,4 +1218,7 @@ alter table f_user_manor_background
 alter table f_cfg_manor_background
 	add lock_data text null comment '解锁方式';
 
+alter table f_cfg_manor_background
+	add `desc` varchar(255) null comment '背景描述';
+
 
