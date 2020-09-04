@@ -8,6 +8,14 @@ use app\base\model\Base;
 
 class CfgManorBackground extends Base
 {
+    const ON = 'ON';
+    const OFF = 'OFF';
+
+    public function getLockDataAttr($value)
+    {
+        return json_decode($value, true);
+    }
+
     public static function unlockWithCurrency($uid, array $lockData)
     {
         $userCurrency = UserCurrency::getCurrency($uid);
@@ -23,11 +31,6 @@ class CfgManorBackground extends Base
         }
 
         return $status;
-    }
-
-    public function getLockDataAttr($value)
-    {
-        return json_decode($value, true);
     }
 
     public static function unlockWithLevel($uid, $data)

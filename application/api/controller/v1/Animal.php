@@ -430,7 +430,8 @@ class Animal extends Base
         }
 
         $map = [
-            'type' => $type
+            'type' => $type,
+            'status' => CfgManorBackground::ON
         ];
 
         if ($type == 'STAR') {
@@ -462,6 +463,15 @@ class Animal extends Base
             Common::res(['code' =>1, 'msg' => '请选择使用背景']);
         }
 
+        $backgroundInfo = CfgManorBackground::get($background);
+        if (empty($backgroundInfo)) {
+            Common::res(['code' => 1, 'msg' => '背景不存在']);
+        }
+
+        if ($backgroundInfo['status'] == CfgManorBackground::OFF) {
+            Common::res(['code' => 1, 'msg' => '背景已下架']);
+        }
+
         $exist = UserManorBackground::get(['user_id' => $this->uid, 'background' => $background]);
         if (empty($exist)) {
             Common::res(['code' => 1, 'msg' => '您还未解锁该背景哦']);
@@ -479,6 +489,15 @@ class Animal extends Base
         $background = (int)input('background', 0);
         if (empty($background)) {
             Common::res(['code' =>1, 'msg' => '请选择使用背景']);
+        }
+
+        $backgroundInfo = CfgManorBackground::get($background);
+        if (empty($backgroundInfo)) {
+            Common::res(['code' => 1, 'msg' => '背景不存在']);
+        }
+
+        if ($backgroundInfo['status'] == CfgManorBackground::OFF) {
+            Common::res(['code' => 1, 'msg' => '背景已下架']);
         }
 
         $exist = UserManorBackground::get(['user_id' => $this->uid, 'background' => $background]);
