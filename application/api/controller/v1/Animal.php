@@ -422,16 +422,36 @@ class Animal extends Base
     public function getCfgBackground()
     {
         // 获取庄园背景列表
-//        $data = CfgManorBackground::order('create_time', 'desc')
-//            ->select();
-//
-//        Common::res(['data' => $data]);
+        $type = input('type', false);
+        if (empty($type)) {
+            Common::res(['code' => 1, 'msg' => '请选择类型']);
+        }
+
+        $map = [
+            'type' => $type
+        ];
+
+        if ($type == 'STAR') {
+            $this->getUser();
+            $map['star'] = UserStar::getStarId($this->uid);
+        }
+
+        $data = CfgManorBackground::where($map)
+            ->order(['create_time' => 'desc'])
+            ->select();
+
+        Common::res(['data' => $data]);
     }
 
     public function useBackground()
     {
         // 使用庄园背景
-//        $backgro
+        $this->getUser();
+    }
+
+    public function unlockBackground()
+    {
+
     }
 
     public function getTaskList()

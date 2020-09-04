@@ -1183,3 +1183,9 @@ INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `l
 alter table f_user_manor
 	add output bigint default 0 not null comment '庄园产量 每10秒/X金豆';
 
+alter table f_cfg_manor_background
+	add type varchar(255) default 'NORMAL' not null comment '类型';
+
+alter table f_cfg_manor_background
+	add star_id int default 0 not null comment '所属爱豆id';
+
