@@ -624,18 +624,19 @@ class Page extends Base
         $panaceaReward = 0;
         if (empty($manor)) {
             $useAnimal = 1;
+            $output = 1;
             $manor = UserManor::create([
                 'user_id' => $this->uid,
                 'last_output_time' => $currentTime,
-                'use_animal' => 1,
+                'use_animal' => $useAnimal,
+                'output' => $output,
             ]);
             $animal = UserAnimal::create([
                 "user_id" => $this->uid,
-                'animal_id' => 1,
+                'animal_id' => $useAnimal,
                 'scrap' => 0,
                 'level' => 1,
             ]);
-            $output = 1;
             $addCount = 0;
             $autoCount = false;
             $steal_left = 1;
@@ -644,6 +645,11 @@ class Page extends Base
             $useAnimal = $manor['use_animal'];
             $diffTime = bcsub($currentTime, $manor['last_output_time']);
             $output = UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
+            if ((int)$output != (int) $manor['output']) {
+                UserManor::where('id', $manor['id'])
+                    ->where('output', $manor['output'])
+                    ->update(['output' => $output]);
+            }
             $steal_left = UserAnimal::getOutput($this->uid, CfgAnimal::STEAL);
 
             $addCount = UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
