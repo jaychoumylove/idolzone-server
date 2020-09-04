@@ -8,6 +8,7 @@ use app\api\model\AnimalLottery;
 use app\api\model\Cfg;
 use app\api\model\CfgAnimal;
 use app\api\model\CfgAnimalLevel;
+use app\api\model\CfgManorBackground;
 use app\api\model\CfgPanaceaTask;
 use app\api\model\CfgWealActivityTask;
 use app\api\model\ManorStealLog;
@@ -224,6 +225,11 @@ class Animal extends Base
         $manor = UserManor::get(['user_id' => $this->uid]);
         $diffTime = bcsub($currentTime, $manor['last_output_time']);
         $output = (int)UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
+        if ((int)$output != (int) $manor['output']) {
+            UserManor::where('id', $manor['id'])
+                ->where('output', $manor['output'])
+                ->update(['output' => $output]);
+        }
         $addCount = (int)UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
         $mainAnimalId = (int)$manor['use_animal'];
         $stealLeft = UserAnimal::getStealLeft($this->uid);
@@ -281,6 +287,8 @@ class Animal extends Base
 
         UserAnimal::lvUp($this->uid, $animalId);
 
+        UserManor::refreshOutput($this->uid);
+
         Common::res();
     }
 
@@ -295,6 +303,8 @@ class Animal extends Base
 
         UserAnimal::unlock($this->uid, $animalId);
 
+        UserManor::refreshOutput($this->uid);
+
         Common::res();
     }
 
@@ -304,6 +314,8 @@ class Animal extends Base
         $this->getUser();
         $type = input('type', 'once');
         $data = AnimalLottery::lottery($type, $this->uid);
+
+        UserManor::refreshOutput($this->uid);
 
         Common::res(compact('data'));
     }
@@ -408,11 +420,16 @@ class Animal extends Base
     public function getCfgBackground()
     {
         // 获取庄园背景列表
+//        $data = CfgManorBackground::order('create_time', 'desc')
+//            ->select();
+//
+//        Common::res(['data' => $data]);
     }
 
     public function useBackground()
     {
         // 使用庄园背景
+//        $backgro
     }
 
     public function getTaskList()

@@ -176,4 +176,15 @@ and user_id <> ';
 
         UserManor::where('user_id', $uid)->update(['use_animal' => $animalId]);
     }
+
+    public static function refreshOutput($user_id)
+    {
+        $manor = UserManor::get(['user_id' => $user_id]);
+        $output = UserAnimal::getOutput($user_id, CfgAnimal::OUTPUT);
+        if ((int)$output != (int) $manor['output']) {
+            UserManor::where('id', $manor['id'])
+                ->where('output', $manor['output'])
+                ->update(['output' => $output]);
+        }
+    }
 }
