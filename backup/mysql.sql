@@ -1215,4 +1215,7 @@ create index f_user_manor_background_user_index
 alter table f_user_manor_background
     add primary key (id);
 
+alter table f_cfg_manor_background
+	add lock_data text null comment '解锁方式';
+
 

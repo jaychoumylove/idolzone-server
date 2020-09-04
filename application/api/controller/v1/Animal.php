@@ -17,6 +17,7 @@ use app\api\model\RecWealActivityTask;
 use app\api\model\UserAnimal;
 use app\api\model\UserExt;
 use app\api\model\UserManor;
+use app\api\model\UserManorBackground;
 use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -447,11 +448,38 @@ class Animal extends Base
     {
         // 使用庄园背景
         $this->getUser();
+        $background = (int)input('background', 0);
+        if (empty($background)) {
+            Common::res(['code' =>1, 'msg' => '请选择使用背景']);
+        }
+
+        $exist = UserManorBackground::get(['user_id' => $this->uid, 'background' => $background]);
+        if (empty($exist)) {
+            Common::res(['code' => 1, 'msg' => '您还未解锁该背景哦']);
+        }
+
+        UserManor::where('user_id', $this->uid)->update(['background' => $background]);
+
+        Common::res();
     }
 
     public function unlockBackground()
     {
+        $this->getUser();
 
+        $background = (int)input('background', 0);
+        if (empty($background)) {
+            Common::res(['code' =>1, 'msg' => '请选择使用背景']);
+        }
+
+        $exist = UserManorBackground::get(['user_id' => $this->uid, 'background' => $background]);
+        if ($exist) {
+            Common::res(['code' => 1, 'msg' => '已解锁']);
+        }
+
+        UserManor::unlockBackground($this->uid, $background);
+
+        Common::res();
     }
 
     public function getTaskList()

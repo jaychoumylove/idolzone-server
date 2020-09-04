@@ -187,4 +187,35 @@ and user_id <> ';
                 ->update(['output' => $output]);
         }
     }
+
+    public static function unlockBackground($uid, $background)
+    {
+        $backgroundInfo = CfgManorBackground::get($background);
+        if (empty($backgroundInfo)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        if ((int)$backgroundInfo['star_id']) {
+            $star_id = (int)UserStar::getStarId($uid);
+            if ((int)$backgroundInfo['star_id'] != $star_id) {
+                Common::res(['code' => 1, 'msg' => '你无权解锁']);
+            }
+        }
+
+        $status = false;
+
+        $lockData = $backgroundInfo['lock_data'];
+        // 根据解锁条件解锁
+        // 逻辑后面补充
+        // 先成功解锁
+        $status = true;
+        if (empty($status)) {
+            Common::res(['code' => 1, 'msg' => '未达到解锁条件']);
+        }
+
+        UserManorBackground::create([
+            'user_id' => $uid,
+            'background' => $backgroundInfo['id'],
+        ]);
+    }
 }
