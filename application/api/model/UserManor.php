@@ -202,13 +202,22 @@ and user_id <> ';
             }
         }
 
-        $status = false;
-
         $lockData = $backgroundInfo['lock_data'];
         // 根据解锁条件解锁
         // 逻辑后面补充
         // 先成功解锁
-        $status = true;
+        switch ($lockData['type']) {
+            case 'level':
+                $status = CfgManorBackground::unlockWithLevel($uid, $lockData);
+                break;
+            case 'currency':
+                $status = CfgManorBackground::unlockWithCurrency($uid, $lockData);
+                break;
+            case 'active':
+                $status = false;
+                break;
+        }
+
         if (empty($status)) {
             Common::res(['code' => 1, 'msg' => '未达到解锁条件']);
         }
