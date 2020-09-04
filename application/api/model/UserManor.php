@@ -206,16 +206,21 @@ and user_id <> ';
         // 根据解锁条件解锁
         // 逻辑后面补充
         // 先成功解锁
-        switch ($lockData['type']) {
-            case 'level':
-                $status = CfgManorBackground::unlockWithLevel($uid, $lockData);
-                break;
-            case 'currency':
-                $status = CfgManorBackground::unlockWithCurrency($uid, $lockData);
-                break;
-            case 'active':
-                $status = false;
-                break;
+        if ($lockData) {
+            switch ($lockData['type']) {
+                case 'level':
+                    $status = CfgManorBackground::unlockWithLevel($uid, $lockData);
+                    break;
+                case 'currency':
+                    $status = CfgManorBackground::unlockWithCurrency($uid, $lockData);
+                    break;
+                case 'active':
+                    $status = false;
+                    break;
+            }
+        } else {
+            // 默认背景 自动解锁
+            $status = true;
         }
 
         if (empty($status)) {

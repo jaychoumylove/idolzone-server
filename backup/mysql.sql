@@ -1048,25 +1048,6 @@ create table f_user_manor
 alter table f_user_manor
     add primary key (id);
 
-drop table if exists f_cfg_manor_background;
-create table f_cfg_manor_background
-(
-    id          int auto_increment,
-    url         varchar(255)                                 not null,
-    name        varchar(255)                                 not null,
-    status      enum ('ON', 'OFF') default 'OFF'             not null,
-    url_s       varchar(255)                                 not null,
-    create_time timestamp          default CURRENT_TIMESTAMP not null,
-    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
-    delete_time timestamp                                    null,
-    constraint f_cfg_manor_background_id_uindex
-        unique (id)
-)
-    comment '庄园背景';
-
-alter table f_cfg_manor_background
-    add primary key (id);
-
 drop table if exists f_manor_steal_log;
 create table f_manor_steal_log
 (
@@ -1183,11 +1164,28 @@ INSERT INTO `f_cfg_animal`(`name`, `image`, `type`, `scrap_img`, `empty_img`, `l
 alter table f_user_manor
 	add output bigint default 0 not null comment '庄园产量 每10秒/X金豆';
 
-alter table f_cfg_manor_background
-	add type varchar(255) default 'NORMAL' not null comment '类型';
+drop table if exists f_cfg_manor_background;
+create table f_cfg_manor_background
+(
+    id          int auto_increment,
+    url         varchar(255)                                 not null,
+    name        varchar(255)                                 not null,
+    status      enum ('ON', 'OFF') default 'OFF'             not null,
+    url_s       varchar(255)                                 not null,
+    create_time timestamp          default CURRENT_TIMESTAMP not null,
+    update_time timestamp          default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                                    null,
+    type        varchar(255)       default 'NORMAL'          not null comment '类型',
+    star_id     int                default 0                 not null comment '所属爱豆id',
+    lock_data   text                                         null comment '解锁方式',
+    `desc`      varchar(255)                                 null comment '背景描述',
+    constraint f_cfg_manor_background_id_uindex
+        unique (id)
+)
+    comment '庄园背景';
 
 alter table f_cfg_manor_background
-	add star_id int default 0 not null comment '所属爱豆id';
+    add primary key (id);
 
 drop table if exists f_user_manor_background;
 create table f_user_manor_background
@@ -1214,11 +1212,5 @@ create index f_user_manor_background_user_index
 
 alter table f_user_manor_background
     add primary key (id);
-
-alter table f_cfg_manor_background
-	add lock_data text null comment '解锁方式';
-
-alter table f_cfg_manor_background
-	add `desc` varchar(255) null comment '背景描述';
 
 

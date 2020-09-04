@@ -434,15 +434,18 @@ class Animal extends Base
             'status' => CfgManorBackground::ON
         ];
 
-        if ($type == 'STAR') {
-            $map['star'] = UserStar::getStarId($this->uid);
+        if ($type == 'star') {
+            $map['star_id'] = UserStar::getStarId($this->uid);
         }
 
         $background = UserManorBackground::where('user_id', $this->uid)->column('background');
         $useBackground = UserManor::where('user_id', $this->uid)->value('background');
 
         $list = CfgManorBackground::where($map)
-            ->order(['create_time' => 'desc'])
+            ->order([
+                'create_time' => 'desc',
+                'id' => 'desc'
+            ])
             ->select();
 
         foreach ($list as $key => $value) {

@@ -5,6 +5,7 @@ namespace app\api\controller\v1;
 use app\api\model\AnimalLottery;
 use app\api\model\Cfg_luckyDraw;
 use app\api\model\CfgAnimal;
+use app\api\model\CfgManorBackground;
 use app\api\model\CfgNovel;
 use app\api\model\CfgScrap;
 use app\api\model\CfgUserLevel;
@@ -625,11 +626,13 @@ class Page extends Base
         if (empty($manor)) {
             $useAnimal = 1;
             $output = 1;
+            $background = 1;
             $manor = UserManor::create([
                 'user_id' => $this->uid,
                 'last_output_time' => $currentTime,
                 'use_animal' => $useAnimal,
                 'output' => $output,
+                'background' => $background,
             ]);
             $animal = UserAnimal::create([
                 "user_id" => $this->uid,
@@ -654,6 +657,11 @@ class Page extends Base
 
             $addCount = UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
             $autoCount = false;
+            $background = $manor['background'];
+            if (empty($background)) {
+                $background = 1;
+                UserManor::where('id', $manor['id'])->update(['background' => $background]);
+            }
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
@@ -705,6 +713,8 @@ class Page extends Base
         ];
         $str = $mainAnimal['type'] == 'NORMAL' ? $normalStr: $secretStr;
 
+        $mainBackground = CfgManorBackground::get($background);
+
         $index = rand(0, count($str) - 1);
         $word = $str[$index];
 
@@ -719,7 +729,8 @@ class Page extends Base
             'limit_time' => $limit_add_time,
             'panacea_reward' => $panaceaReward,
             'word' => $word,
-            'max_lottery'  => $maxLottery
+            'max_lottery'  => $maxLottery,
+            'main_background'  => $mainBackground['url']
         ]]);
     }
     
