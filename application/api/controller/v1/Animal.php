@@ -315,7 +315,9 @@ class Animal extends Base
         $type = input('type', 'once');
         $data = AnimalLottery::lottery($type, $this->uid);
 
-        UserManor::refreshOutput($this->uid);
+        if ((int)$data['has_new']) {
+            UserManor::refreshOutput($this->uid);
+        }
 
         Common::res(compact('data'));
     }
