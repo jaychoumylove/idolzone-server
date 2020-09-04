@@ -1189,3 +1189,30 @@ alter table f_cfg_manor_background
 alter table f_cfg_manor_background
 	add star_id int default 0 not null comment '所属爱豆id';
 
+drop table if exists f_user_manor_background;
+create table f_user_manor_background
+(
+    id          int auto_increment,
+    user_id     int                                 not null,
+    background  int                                 not null,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    constraint f_user_manor_background_id_uindex
+        unique (id)
+)
+    comment '用户庄园背景表';
+
+create index f_user_manor_background_back_index
+    on f_user_manor_background (background);
+
+create index f_user_manor_background_ub_index
+    on f_user_manor_background (user_id, background);
+
+create index f_user_manor_background_user_index
+    on f_user_manor_background (user_id);
+
+alter table f_user_manor_background
+    add primary key (id);
+
+
