@@ -41,17 +41,12 @@ class RecPanaceaTask extends Base
 
         $reward = json_decode($task['extra'], true);
 
-        $logMap = [
-            CfgPanaceaTask::FLOWER_RANK => '鲜花日榜',
-            CfgPanaceaTask::PK_RANK => 'PK榜',
-        ];
-
         Db::startTrans();
         try {
             $userService = new \app\api\service\User();
             foreach ($userList as $user_id) {
                 $panacea = max($reward);
-                $userService->change($user_id, ['panacea' => $panacea], '完成灵丹任务-'. $logMap[$type]);
+                $userService->change($user_id, ['panacea' => $panacea], '完成灵丹任务-'. $task['name']);
                 $reward = array_filter($reward, function ($item) use ($panacea) {
                     return $item < $panacea;
                 });
