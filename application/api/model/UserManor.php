@@ -12,6 +12,11 @@ use Throwable;
 
 class UserManor extends Base
 {
+    public function getTryDataAttr($value)
+    {
+        return json_decode($value, true);
+    }
+
     public static function checkFistReward()
     {
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);

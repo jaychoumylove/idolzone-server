@@ -16,6 +16,11 @@ class CfgManorBackground extends Base
         return json_decode($value, true);
     }
 
+    public function getStyleAttr($value)
+    {
+        return json_decode($value, true);
+    }
+
     public static function unlockWithCurrency($uid, array $lockData)
     {
         $userCurrency = UserCurrency::getCurrency($uid);

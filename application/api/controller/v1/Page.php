@@ -714,6 +714,16 @@ class Page extends Base
         $str = $mainAnimal['type'] == 'NORMAL' ? $normalStr: $secretStr;
 
         $mainBackground = CfgManorBackground::get($background);
+        $try = [];
+        foreach ($manor['try_data'] as $item) {
+            if ($item['time'] > $currentTime) {
+                $try = $item;
+            }
+        }
+        if ($try) {
+            $tryBackground = CfgManorBackground::get($try['id']);
+            $tryBackground['time'] = $try['time'];
+        }
 
         $index = rand(0, count($str) - 1);
         $word = $str[$index];
@@ -730,7 +740,8 @@ class Page extends Base
             'panacea_reward' => $panaceaReward,
             'word' => $word,
             'max_lottery'  => $maxLottery,
-            'main_background'  => $mainBackground['url']
+            'main_background'  => $mainBackground,
+            'try_background'  => empty($tryBackground) ? null: $tryBackground
         ]]);
     }
     

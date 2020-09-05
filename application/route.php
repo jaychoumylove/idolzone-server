@@ -384,4 +384,5 @@ Route::rule('api/:version/panacea/task_settle', 'api/v1.Animal/settleTask'); // 
 Route::rule('api/:version/manor/background', 'api/v1.Animal/getCfgBackground'); // 庄园背景列表
 Route::rule('api/:version/manor/use_background', 'api/v1.Animal/useBackground'); // 使用庄园背景
 Route::rule('api/:version/manor/unlock_background', 'api/v1.Animal/unlockBackground'); // 解锁庄园背景
+Route::rule('api/:version/manor/try_background', 'api/v1.Animal/tryBackground'); // 使用庄园背景
 Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息

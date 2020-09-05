@@ -1213,4 +1213,10 @@ create index f_user_manor_background_user_index
 alter table f_user_manor_background
     add primary key (id);
 
+alter table f_cfg_manor_background
+	add style text null comment '样式附加数据';
+
+alter table f_user_manor
+	add try_data text null comment '试用数据';
+
 
