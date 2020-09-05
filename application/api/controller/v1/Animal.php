@@ -17,6 +17,7 @@ use app\api\model\RecWealActivityTask;
 use app\api\model\UserAnimal;
 use app\api\model\UserExt;
 use app\api\model\UserManor;
+use app\api\model\UserManorBackground;
 use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -422,16 +423,160 @@ class Animal extends Base
     public function getCfgBackground()
     {
         // 获取庄园背景列表
-//        $data = CfgManorBackground::order('create_time', 'desc')
-//            ->select();
-//
-//        Common::res(['data' => $data]);
+        $this->getUser();
+        $type = input('type', false);
+        if (empty($type)) {
+            Common::res(['code' => 1, 'msg' => '请选择类型']);
+        }
+
+        $map = [
+            'type' => $type,
+            'status' => CfgManorBackground::ON
+        ];
+
+        if ($type == 'star') {
+            $map['star_id'] = UserStar::getStarId($this->uid);
+        }
+
+        $background = UserManorBackground::where('user_id', $this->uid)->column('background');
+        $manor = UserManor::get(['user_id' => $this->uid]);
+        $useBackground = $manor['background'];
+        $tryData = array_column($manor['try_data'], 'time', 'id');
+        $currentTime = time();
+
+        $list = CfgManorBackground::where($map)
+            ->order([
+                'create_time' => 'desc',
+                'id' => 'desc'
+            ])
+            ->select();
+
+        $try = [];
+        foreach ($manor['try_data'] as $item) {
+            if ($item['time'] > $currentTime) {
+                $try = $item;
+            }
+        }
+
+        foreach ($list as $key => $value) {
+            $value['locked'] = in_array($value['id'], $background);
+            $value['used'] = $value['id'] == $useBackground;
+            $value['try'] = 0;
+            if (!$value['locked']) {
+                if (array_key_exists($value['id'], $tryData)) {
+                    $value['try'] = -1;
+                    if ($try) {
+                        if ($value['id'] == $try['id'] && $try['time'] > $currentTime) {
+                            $value['try'] = 1;
+                        }
+                    }
+                }
+            }
+            $list[$key] = $value;
+        }
+
+        Common::res(['data' => $list]);
+    }
+
+    public function tryBackground()
+    {
+        // 试用庄园背景
+        $this->getUser();
+        $background = (int)input('background', 0);
+        if (empty($background)) {
+            Common::res(['code' => 1, 'msg' => '请选择试用背景哦']);
+        }
+
+        $backgroundInfo = CfgManorBackground::get($background);
+        if (empty($backgroundInfo)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        if ($backgroundInfo['status'] == CfgManorBackground::OFF) {
+            Common::res(['code' => 1, 'msg' => '已经下架了哦']);
+        }
+
+        $exist = UserManorBackground::get(['user_id' => $this->uid, 'background' => $background]);
+        if ($exist) {
+            Common::res(['code' => 1, 'msg' => '已经解锁了哦']);
+        }
+
+        $manor = UserManor::get(['user_id' => $this->uid]);
+        $tryData = $manor['try_data'];
+        if ($tryData) {
+            $tryIds = array_column($tryData, 'id');
+            if (in_array($background, $tryIds)) {
+                Common::res(['code' => 1, 'msg' => '已经试用过了哦']);
+            }
+        }
+
+        $currentTime = time();
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $minute = $config['background_try_minute'];
+        $tryTime = bcmul($minute, 60);
+        $data = ['id' => $background, 'time' => bcadd($currentTime, $tryTime)];
+        array_push($tryData, $data);
+        $tryData = json_encode($tryData);
+
+        UserManor::where('user_id', $this->uid)->update(['try_data' => $tryData]);
+
+        Common::res();
     }
 
     public function useBackground()
     {
         // 使用庄园背景
-//        $backgro
+        $this->getUser();
+        $background = (int)input('background', 0);
+        if (empty($background)) {
+            Common::res(['code' =>1, 'msg' => '请选择使用背景']);
+        }
+
+        $backgroundInfo = CfgManorBackground::get($background);
+        if (empty($backgroundInfo)) {
+            Common::res(['code' => 1, 'msg' => '背景不存在']);
+        }
+
+        if ($backgroundInfo['status'] == CfgManorBackground::OFF) {
+            Common::res(['code' => 1, 'msg' => '背景已下架']);
+        }
+
+        $exist = UserManorBackground::get(['user_id' => $this->uid, 'background' => $background]);
+        if (empty($exist)) {
+            Common::res(['code' => 1, 'msg' => '您还未解锁该背景哦']);
+        }
+
+        UserManor::where('user_id', $this->uid)->update(['background' => $background]);
+
+        Common::res();
+    }
+
+    public function unlockBackground()
+    {
+        $this->getUser();
+
+        $background = (int)input('background', 0);
+        if (empty($background)) {
+            Common::res(['code' =>1, 'msg' => '请选择使用背景']);
+        }
+
+        $backgroundInfo = CfgManorBackground::get($background);
+        if (empty($backgroundInfo)) {
+            Common::res(['code' => 1, 'msg' => '背景不存在']);
+        }
+
+        if ($backgroundInfo['status'] == CfgManorBackground::OFF) {
+            Common::res(['code' => 1, 'msg' => '背景已下架']);
+        }
+
+        $exist = UserManorBackground::get(['user_id' => $this->uid, 'background' => $background]);
+        if ($exist) {
+            Common::res(['code' => 1, 'msg' => '已解锁']);
+        }
+
+        UserManor::unlockBackground($this->uid, $background);
+
+        Common::res();
     }
 
     public function getTaskList()

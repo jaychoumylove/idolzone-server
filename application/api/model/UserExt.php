@@ -112,7 +112,7 @@ class UserExt extends Base
         }
         if ($goMultiple > 0) {
             $leftTimes = bcsub($config['day_max'], $data['lottery_times']);
-            if ($leftTimes > $goMultiple) {
+            if ($leftTimes >= $goMultiple) {
                 Common::res(['code' => 1, 'msg' => "请点击 $goMultiple 抽吧"]);
             }
         }

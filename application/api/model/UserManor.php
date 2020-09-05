@@ -12,6 +12,11 @@ use Throwable;
 
 class UserManor extends Base
 {
+    public function getTryDataAttr($value)
+    {
+        return json_decode($value, true);
+    }
+
     public static function checkFistReward()
     {
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
@@ -186,5 +191,50 @@ and user_id <> ';
                 ->where('output', $manor['output'])
                 ->update(['output' => $output]);
         }
+    }
+
+    public static function unlockBackground($uid, $background)
+    {
+        $backgroundInfo = CfgManorBackground::get($background);
+        if (empty($backgroundInfo)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        if ((int)$backgroundInfo['star_id']) {
+            $star_id = (int)UserStar::getStarId($uid);
+            if ((int)$backgroundInfo['star_id'] != $star_id) {
+                Common::res(['code' => 1, 'msg' => '你无权解锁']);
+            }
+        }
+
+        $lockData = $backgroundInfo['lock_data'];
+        // 根据解锁条件解锁
+        // 逻辑后面补充
+        // 先成功解锁
+        if ($lockData) {
+            switch ($lockData['type']) {
+                case 'level':
+                    $status = CfgManorBackground::unlockWithLevel($uid, $lockData);
+                    break;
+                case 'currency':
+                    $status = CfgManorBackground::unlockWithCurrency($uid, $lockData);
+                    break;
+                case 'active':
+                    $status = false;
+                    break;
+            }
+        } else {
+            // 默认背景 自动解锁
+            $status = true;
+        }
+
+        if (empty($status)) {
+            Common::res(['code' => 1, 'msg' => '未达到解锁条件']);
+        }
+
+        UserManorBackground::create([
+            'user_id' => $uid,
+            'background' => $backgroundInfo['id'],
+        ]);
     }
 }

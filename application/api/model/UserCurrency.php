@@ -5,6 +5,7 @@ namespace app\api\model;
 use app\base\model\Base;
 use app\api\service\User as UserService;
 use app\base\service\Common;
+use Exception;
 use think\Db;
 
 class UserCurrency extends Base
@@ -19,6 +20,7 @@ class UserCurrency extends Base
                 'stone' => 0,
                 'trumpet' => 0,
                 'point' => 0,
+                'panacea' => 0,
             ]);
         }        
         unset($item['id']);
@@ -44,7 +46,7 @@ class UserCurrency extends Base
             $userService->change($other, [$type => $num], '收到' . User::where('id', $self)->value('nickname') . '赠送的');
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
