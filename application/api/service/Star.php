@@ -8,6 +8,7 @@ use app\api\model\FanclubUser;
 use app\api\model\Rec;
 use app\api\model\RecPanaceaTask;
 use app\api\model\RecTaskactivity618;
+use app\api\model\RecUserBackgroundTask;
 use app\api\model\RecUserInvite;
 use app\api\model\RecWealActivityTask;
 use app\api\model\StarRank as StarRankModel;
@@ -126,6 +127,9 @@ class Star
                 Family::change($uid, $hot);
 
                 // 宝箱
+                if ($type == 2) {
+                    RecUserBackgroundTask::record($uid, $hot, RecUserBackgroundTask::FLOWER_SUM);
+                }
             }
 
             FanclubUser::addActiveDragonBoatFestivalHot($uid,$hot);

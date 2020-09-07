@@ -23,19 +23,17 @@ class CfgManorBackground extends Base
 
     public static function unlockWithCurrency($uid, array $lockData)
     {
-        $userCurrency = UserCurrency::getCurrency($uid);
-        if (is_object($userCurrency)) $userCurrency = $userCurrency->toArray();
-        $status = false;
-        if (array_key_exists($lockData['key'], $userCurrency)) {
-            $number = (int)$userCurrency[$lockData['key']];
-            $status = $number >= $lockData['number'];
-
-            if ($status) {
-                (new \app\api\service\User())->change($uid, [$lockData['key'] => -$lockData['number']], '解锁庄园背景');
-            }
+        $type = $lockData['key'];
+        $task = RecUserBackgroundTask::get(['user_id' => $uid, 'type' => $type]);
+        if (empty($task)) {
+            return "贡献鲜花不足";
         }
 
-        return $status;
+        if ($task['sum'] < $lockData['number']) {
+            return "贡献鲜花不足";
+        }
+
+        return true;
     }
 
     public static function unlockWithLevel($uid, $data)

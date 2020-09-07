@@ -228,8 +228,9 @@ and user_id <> ';
             $status = true;
         }
 
-        if (empty($status)) {
-            Common::res(['code' => 1, 'msg' => '未达到解锁条件']);
+        if (true !== $status) {
+            $msg = is_string($status) ? $status: '未达到解锁条件';
+            Common::res(['code' => 1, 'msg' => $msg]);
         }
 
         UserManorBackground::create([
