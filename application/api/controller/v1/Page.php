@@ -16,6 +16,7 @@ use app\api\model\UserAchievementHeal;
 use app\api\model\UserAnimal;
 use app\api\model\UserInvite;
 use app\api\model\UserManor;
+use app\api\model\UserManorBackground;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
@@ -639,6 +640,10 @@ class Page extends Base
                 'animal_id' => $useAnimal,
                 'scrap' => 0,
                 'level' => 1,
+            ]);
+            UserManorBackground::create([
+                'user_id' => $this->uid,
+                'background' => $background,
             ]);
             $addCount = 0;
             $autoCount = false;
