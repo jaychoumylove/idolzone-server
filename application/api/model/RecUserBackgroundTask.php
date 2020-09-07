@@ -8,8 +8,9 @@ use app\base\model\Base;
 
 class RecUserBackgroundTask extends Base
 {
-    const SUM = 'SUM';
+    const SUM        = 'SUM';
     const FLOWER_SUM = 'FLOWER_SUM';
+    const ACTIVE     = 'ACTIVE';
 
     public static function record($user_id, $number, $type = self::FLOWER_SUM)
     {

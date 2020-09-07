@@ -12,6 +12,7 @@ use app\api\model\RecUserBackgroundTask;
 use app\api\model\RecUserInvite;
 use app\api\model\RecWealActivityTask;
 use app\api\model\StarRank as StarRankModel;
+use app\api\model\UserManor;
 use think\Db;
 use app\api\model\UserStar;
 use app\api\service\User as UserService;
@@ -129,6 +130,10 @@ class Star
                 // 宝箱
                 if ($type == 2) {
                     RecUserBackgroundTask::record($uid, $hot, RecUserBackgroundTask::FLOWER_SUM);
+                    if (UserManor::checkBackgroundActive()) {
+                        // 活动背景限定
+                        RecUserBackgroundTask::record($uid, $hot, RecUserBackgroundTask::ACTIVE);
+                    }
                 }
             }
 

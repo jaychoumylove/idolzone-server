@@ -193,6 +193,22 @@ and user_id <> ';
         }
     }
 
+    public static function checkBackgroundActive()
+    {
+        $config = Cfg::get(Cfg::MANOR_ANIMAL);
+        $currentTime = time();
+        $now = date ('Y-m-d H:i:s', $currentTime);
+        $limit = $config['active_background']['limit'];
+        if ($now < $limit['start']) {
+            return false;
+        }
+        if ($now > $limit['end']) {
+            return false;
+        }
+
+        return true;
+    }
+
     public static function unlockBackground($uid, $background)
     {
         $backgroundInfo = CfgManorBackground::get($background);
@@ -220,7 +236,7 @@ and user_id <> ';
                     $status = CfgManorBackground::unlockWithCurrency($uid, $lockData);
                     break;
                 case 'active':
-                    $status = false;
+                    $status = CfgManorBackground::unlockActive($uid, $lockData);
                     break;
             }
         } else {

@@ -41,4 +41,29 @@ class CfgManorBackground extends Base
         $userLevel = (int)CfgUserLevel::getLevel($uid);
         return $userLevel >= (int)$data['number'];
     }
+
+    public static function unlockActive($uid, array $lockData)
+    {
+        $currentTime = time();
+        $now = date ('Y-m-d H:i:s', $currentTime);
+        $limit = $lockData['limit'];
+        if ($now < $limit['start']) {
+            return "活动尚未开始";
+        }
+        if ($now > $limit['end']) {
+            return "活动已结束";
+        }
+
+        $type = $lockData['key'];
+        $task = RecUserBackgroundTask::get(['user_id' => $uid, 'type' => $type]);
+        if (empty($task)) {
+            return "贡献鲜花不足";
+        }
+
+        if ($task['sum'] < $lockData['number']) {
+            return "贡献鲜花不足";
+        }
+
+        return true;
+    }
 }
