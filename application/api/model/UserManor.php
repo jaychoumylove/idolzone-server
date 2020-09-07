@@ -195,7 +195,7 @@ and user_id <> ';
 
     public static function checkBackgroundActive()
     {
-        $config = Cfg::get(Cfg::MANOR_ANIMAL);
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
         $currentTime = time();
         $now = date ('Y-m-d H:i:s', $currentTime);
         $limit = $config['active_background']['limit'];
