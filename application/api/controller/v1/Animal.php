@@ -461,7 +461,7 @@ class Animal extends Base
 
         $backgroundRec = new RecUserBackgroundTask();
         $backgroundType = $type == 'active' ? RecUserBackgroundTask::ACTIVE: RecUserBackgroundTask::FLOWER_SUM;
-        $backgroundNum = $backgroundRec->where('user_id', $this->uid)->where('type', $backgroundType)->value('sum');
+        $backgroundNum = $backgroundRec->where('user_id', $this->uid)->where('type', $backgroundType)->value('sum', 0);
 
         foreach ($list as $key => $value) {
             $value['locked'] = in_array($value['id'], $background);
@@ -476,7 +476,7 @@ class Animal extends Base
                         }
                     }
                 }
-                $value['able_lock'] = $backgroundNum > $value['lock_data']['number'];
+                $value['able_lock'] = $backgroundNum >= $value['lock_data']['number'];
             }
             $list[$key] = $value;
         }

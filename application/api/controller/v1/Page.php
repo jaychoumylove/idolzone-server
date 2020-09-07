@@ -713,6 +713,9 @@ class Page extends Base
         ];
         $str = $mainAnimal['type'] == 'NORMAL' ? $normalStr: $secretStr;
 
+        $normalAnimalNum = UserAnimal::where('user_id', $this->uid)->count();
+        $callType = $normalAnimalNum > 12 ? 'goSupple': 'goCall';
+
         $mainBackground = CfgManorBackground::get($background);
         $try = [];
         foreach ($manor['try_data'] as $item) {
@@ -741,7 +744,8 @@ class Page extends Base
             'word' => $word,
             'max_lottery'  => $maxLottery,
             'main_background'  => $mainBackground,
-            'try_background'  => empty($tryBackground) ? null: $tryBackground
+            'try_background'  => empty($tryBackground) ? null: $tryBackground,
+            'call_type' => $callType
         ]]);
     }
     
