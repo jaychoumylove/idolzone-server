@@ -232,6 +232,9 @@ and user_id <> ';
                 case 'level':
                     $status = CfgManorBackground::unlockWithLevel($uid, $lockData);
                     break;
+                case 'week_rank':
+                    $status = CfgManorBackground::unlockWithWeekRank($uid, $lockData);
+                    break;
                 case 'currency':
                     $status = CfgManorBackground::unlockWithCurrency($uid, $lockData);
                     break;

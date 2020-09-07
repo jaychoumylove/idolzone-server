@@ -42,6 +42,21 @@ class CfgManorBackground extends Base
         return $userLevel >= (int)$data['number'];
     }
 
+    public static function unlockWithWeekRank($uid, array $lockData)
+    {
+        $userStar = UserStar::get(['user_id' => $uid]);
+        if (empty($userStar)) {
+            return "本周贡献度不够哦";
+        }
+
+        if ($userStar['thisweek_count'] < $lockData['number']) {
+            return "本周贡献度不够哦";
+        }
+
+        return true;
+    }
+
+
     public static function unlockActive($uid, array $lockData)
     {
         $currentTime = time();
