@@ -198,9 +198,10 @@ class FansClub extends Base
         $fid = $this->req('fid', 'integer');
         $this->getUser();
 
-        $self_fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
+        $fanclubUser = FanclubUser::where('user_id', $this->uid)->find();
+        $self_fid = $fanclubUser['fanclub_id'];
         if ($self_fid != $fid) Common::res(['code' => 1, 'msg' => '未加入该粉丝团']);
-        $self_massTime = Db::name('fanclub_user')->where('user_id', $this->uid)->order('mass_time desc')->value('mass_time');
+        $self_massTime = $fanclubUser['mass_time'];
         if (date('YmdH') == $self_massTime) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下一个小时再来']);
 
         if ($type == 0) {
@@ -212,11 +213,13 @@ class FansClub extends Base
         try {
 
             // 热度+
-            $isDone =FanclubUser::where('mass_time IS NULL OR mass_time < '.date('YmdH'))->where('user_id', $this->uid)->where('fanclub_id', $fid)->update([
-                'mass_time' => date('YmdH'),
-                'mass_count' => $coin,
-                'week_hot' => Db::raw('week_hot+' . $coin),
-            ]);
+            $isDone =FanclubUser::where('id', $fanclubUser['id'])
+                ->update([
+                    'mass_time' => date('YmdH'),
+                    'mass_count' => $coin,
+                    'day_mass_times' => bcadd($fanclubUser['day_mass_times'], 1),
+                    'week_hot' => bcadd($fanclubUser['week_hot'], $coin)
+                ]);
             if (!$isDone) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下一个小时再来2']);
             
             Fanclub::where('id', $fid)->update(['week_hot' => Db::raw('week_hot+' . $coin)]);

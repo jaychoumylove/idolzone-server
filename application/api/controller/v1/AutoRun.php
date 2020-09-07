@@ -174,6 +174,10 @@ class AutoRun extends Base
                 'day_count' => 0,
             ]);
 
+            FanclubUser::where('1=1')->update([
+                'day_mass_times' => 0,
+            ]);
+
             RecTaskactivity618::where('task_id','in',[4,8,9])->update([
                 'done_times'=>0,
                 'is_settle_times'=>0,

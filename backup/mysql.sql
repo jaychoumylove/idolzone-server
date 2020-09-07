@@ -1238,4 +1238,8 @@ create table f_rec_user_background_task
 alter table f_rec_user_background_task
     add primary key (id);
 
+alter table f_fanclub_user
+	add day_mass_times int default 0 not null comment '每日集结次数';
+
+
 
