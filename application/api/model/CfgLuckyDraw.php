@@ -208,7 +208,7 @@ class CfgLuckyDraw extends Base
 
     public static function getLuckyDraw()
     {
-        return self::order (['create_time' => 'desc'])->find ();
+        return self::get (['current' => 1]);
     }
 
     public static function start($user_id)
@@ -278,7 +278,7 @@ class CfgLuckyDraw extends Base
                     'animal_id' => $chooseItem['key']
                 ];
                 $exist = UserAnimal::get($map);
-                if ($exist) {
+                if (empty($exist)) {
                     $data = [
                         'scrap' => $chooseItem['number'],
                         'level' => 1,
