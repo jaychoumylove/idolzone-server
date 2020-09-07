@@ -476,7 +476,9 @@ class Animal extends Base
                         }
                     }
                 }
-                $value['able_lock'] = $backgroundNum >= $value['lock_data']['number'];
+                if ($value['lock_data']) {
+                    $value['able_lock'] = $backgroundNum >= $value['lock_data']['number'];
+                }
             }
             $list[$key] = $value;
         }
