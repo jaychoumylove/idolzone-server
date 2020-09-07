@@ -13,6 +13,7 @@ use app\api\model\CfgPanaceaTask;
 use app\api\model\CfgWealActivityTask;
 use app\api\model\ManorStealLog;
 use app\api\model\RecPanaceaTask;
+use app\api\model\RecUserBackgroundTask;
 use app\api\model\RecWealActivityTask;
 use app\api\model\UserAnimal;
 use app\api\model\UserExt;
@@ -458,6 +459,10 @@ class Animal extends Base
             }
         }
 
+        $backgroundRec = new RecUserBackgroundTask();
+        $backgroundType = $type == 'active' ? RecUserBackgroundTask::ACTIVE: RecUserBackgroundTask::FLOWER_SUM;
+        $backgroundNum = $backgroundRec->where('user_id', $this->uid)->where('type', $backgroundType)->value('sum');
+
         foreach ($list as $key => $value) {
             $value['locked'] = in_array($value['id'], $background);
             $value['used'] = $value['id'] == $useBackground;
@@ -471,6 +476,7 @@ class Animal extends Base
                         }
                     }
                 }
+                $value['able_lock'] = $backgroundNum > $value['lock_data']['number'];
             }
             $list[$key] = $value;
         }
