@@ -624,10 +624,12 @@ class Page extends Base
 
         $manor = UserManor::get(['user_id' => $this->uid]);
         $panaceaReward = 0;
-        if (empty($manor)) {
+        $new = empty($manor);
+        if ($new) {
             $useAnimal = 1;
             $output = 1;
             $background = 1;
+            $callType = 'goCall';
             $manor = UserManor::create([
                 'user_id' => $this->uid,
                 'last_output_time' => $currentTime,
@@ -667,6 +669,13 @@ class Page extends Base
                 $background = 1;
                 UserManor::where('id', $manor['id'])->update(['background' => $background]);
             }
+
+            $animalIds = CfgAnimal::where('type', 'NORMAL')->column('id');
+
+            $normalAnimalNum = UserAnimal::where('user_id', $this->uid)
+                ->where('animal_id', 'in', $animalIds)
+                ->count();
+            $callType = $normalAnimalNum == 12 ? 'goSupple': 'goCall';
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
@@ -717,9 +726,6 @@ class Page extends Base
 //            "或许我们可以一起走",
         ];
         $str = $mainAnimal['type'] == 'NORMAL' ? $normalStr: $secretStr;
-
-        $normalAnimalNum = UserAnimal::where('user_id', $this->uid)->count();
-        $callType = $normalAnimalNum > 12 ? 'goSupple': 'goCall';
 
         $mainBackground = CfgManorBackground::get($background);
         $try = [];
