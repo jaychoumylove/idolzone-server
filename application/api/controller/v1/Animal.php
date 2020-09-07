@@ -10,6 +10,7 @@ use app\api\model\CfgAnimal;
 use app\api\model\CfgAnimalLevel;
 use app\api\model\CfgManorBackground;
 use app\api\model\CfgPanaceaTask;
+use app\api\model\CfgUserLevel;
 use app\api\model\CfgWealActivityTask;
 use app\api\model\ManorStealLog;
 use app\api\model\RecPanaceaTask;
@@ -459,10 +460,6 @@ class Animal extends Base
             }
         }
 
-        $backgroundRec = new RecUserBackgroundTask();
-        $backgroundType = $type == 'active' ? RecUserBackgroundTask::ACTIVE: RecUserBackgroundTask::FLOWER_SUM;
-        $backgroundNum = $backgroundRec->where('user_id', $this->uid)->where('type', $backgroundType)->value('sum', 0);
-
         foreach ($list as $key => $value) {
             $value['locked'] = in_array($value['id'], $background);
             $value['used'] = $value['id'] == $useBackground;
@@ -477,7 +474,26 @@ class Animal extends Base
                     }
                 }
                 if ($value['lock_data']) {
-                    $value['able_lock'] = $backgroundNum >= $value['lock_data']['number'];
+                    if ($value['lock_data']['type'] == 'currency') {
+                        if (empty($backgroundNum)) {
+                            $backgroundRec = new RecUserBackgroundTask();
+                            $backgroundType = $type == 'active' ? RecUserBackgroundTask::ACTIVE: RecUserBackgroundTask::FLOWER_SUM;
+                            $backgroundNum = $backgroundRec->where('user_id', $this->uid)->where('type', $backgroundType)->value('sum', 0);
+                        }
+                        $value['able_lock'] = $backgroundNum >= $value['lock_data']['number'];
+                    }
+                    if ($value['lock_data']['type'] == 'week_rank') {
+                        if (empty($weekNum)) {
+                            $weekNum = UserStar::where('user_id', $this->uid)->value('thisweek_count', 0);
+                        }
+                        $value['able_lock'] = $weekNum >= $value['lock_data']['number'];
+                    }
+                    if ($value['lock_data']['type'] == 'level') {
+                        if (empty($level)) {
+                            $level = CfgUserLevel::getLevel($this->uid);
+                        }
+                        $value['able_lock'] = $level >= $value['lock_data']['number'];
+                    }
                 }
             }
             $list[$key] = $value;
