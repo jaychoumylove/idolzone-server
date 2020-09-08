@@ -1241,6 +1241,10 @@ alter table f_rec_user_background_task
 alter table f_fanclub_user
 	add day_mass_times int default 0 not null comment '每日集结次数';
 
+alter table f_cfg_scrap modify type varchar(159) default 'WEEK' not null comment '类型
+day 每日碎片
+week 每周碎片';
+
 -- 庄园宝箱 start
 drop table if exists f_user_manor_friends;
 create table f_user_manor_friends
