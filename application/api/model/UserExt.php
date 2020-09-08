@@ -575,7 +575,8 @@ class UserExt extends Base
             $isDone = self::where('user_id', $uid)->update([
                 'lottery_count' => Db::raw('lottery_count-'.$times),
                 'lottery_times' => Db::raw('lottery_times+'.$times),
-                'lottery_star_time' => $currentTime
+                'lottery_star_time' => $currentTime,
+                'lottery_time' => time()
             ]);
             if(!$isDone) {
                 $msg = sprintf('今天已经抽了%s次了', $times);
