@@ -501,6 +501,10 @@ class Animal extends Base
                         }
                         $value['able_lock'] = $level >= $value['lock_data']['number'];
                     }
+
+                    if (array_key_exists('limit', $value['lock_data'])) {
+                        $value['end_time'] = strtotime($value['lock_data']['limit']['end']);
+                    }
                 }
             }
             $list[$key] = $value;
