@@ -20,6 +20,7 @@ use app\api\model\UserAnimal;
 use app\api\model\UserExt;
 use app\api\model\UserManor;
 use app\api\model\UserManorBackground;
+use app\api\model\UserManorLog;
 use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -653,5 +654,19 @@ class Animal extends Base
         $earn = (new RecPanaceaTask())->settle($task_id, $this->uid);
 
         Common::res(['data' => $earn]);
+    }
+
+    public function manorLog()
+    {
+        $this->getUser();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 15);
+
+        $logList = UserManorLog::where('user_id', $this->uid)
+            ->order('id desc')
+            ->page($page, $size)
+            ->select();
+
+        Common::res(['data' => $logList]);
     }
 }
