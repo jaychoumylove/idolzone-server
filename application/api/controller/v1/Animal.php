@@ -22,6 +22,7 @@ use app\api\model\UserManor;
 use app\api\model\UserManorBackground;
 use app\api\model\UserManorFriendApply;
 use app\api\model\UserManorFriends;
+use app\api\model\UserManorLog;
 use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -490,6 +491,12 @@ class Animal extends Base
                         }
                         $value['able_lock'] = $weekNum >= $value['lock_data']['number'];
                     }
+                    if ($value['lock_data']['type'] == 'day_rank') {
+                        if (empty($dayNum)) {
+                            $dayNum = UserStar::where('user_id', $this->uid)->value('thisday_count', 0);
+                        }
+                        $value['able_lock'] = $dayNum >= $value['lock_data']['number'];
+                    }
                     if ($value['lock_data']['type'] == 'level') {
                         if (empty($level)) {
                             $level = CfgUserLevel::getLevel($this->uid);
@@ -690,5 +697,19 @@ class Animal extends Base
             ->select();
 
         Common::res(['data' => $list]);
+    }
+    
+    public function manorLog()
+    {
+        $this->getUser();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 15);
+
+        $logList = UserManorLog::where('user_id', $this->uid)
+            ->order('id desc')
+            ->page($page, $size)
+            ->select();
+
+        Common::res(['data' => $logList]);
     }
 }

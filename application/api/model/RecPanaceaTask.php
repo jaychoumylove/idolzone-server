@@ -46,7 +46,9 @@ class RecPanaceaTask extends Base
             $userService = new \app\api\service\User();
             foreach ($userList as $user_id) {
                 $panacea = max($reward);
-                $userService->change($user_id, ['panacea' => $panacea], '完成灵丹任务-'. $task['name']);
+                $msg = '完成灵丹任务-'. $task['name'];
+                $userService->change($user_id, ['panacea' => $panacea], $msg);
+                UserManorLog::recordPanacea($user_id, $panacea, $msg);
                 $reward = array_filter($reward, function ($item) use ($panacea) {
                     return $item < $panacea;
                 });
@@ -105,6 +107,7 @@ class RecPanaceaTask extends Base
 
             (new \app\api\service\User())->change($uid, ['panacea' => $earn], '完成灵丹任务');
 
+            UserManorLog::recordPanacea($uid, $earn, '完成灵丹任务');
 //            throw new Exception('something was wrong');
 
             Db::commit ();
