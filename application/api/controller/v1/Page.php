@@ -620,9 +620,20 @@ class Page extends Base
     {
         // 我的庄园信息
         $this->getUser();
+        $data = request()->param();
+        $user_id = $this->uid;
+        $visit = false;
+        if (array_key_exists('user_id', $data)) {
+            if ((int)$data['user_id']) {
+                $user_id = (int)$data['user_id'];
+                $visit = true;
+            } else {
+                Common::res(['code' => 1, 'msg' => '请选择拜访好友']);
+            }
+        }
         $currentTime = time();
 
-        $manor = UserManor::get(['user_id' => $this->uid]);
+        $manor = UserManor::get(['user_id' => $user_id]);
         $panaceaReward = 0;
         $new = empty($manor);
         $try = [];
@@ -632,38 +643,38 @@ class Page extends Base
             $background = 1;
             $callType = 'goCall';
             $manor = UserManor::create([
-                'user_id' => $this->uid,
+                'user_id' => $user_id,
                 'last_output_time' => $currentTime,
                 'use_animal' => $useAnimal,
                 'output' => $output,
                 'background' => $background,
             ]);
             $animal = UserAnimal::create([
-                "user_id" => $this->uid,
+                "user_id" => $user_id,
                 'animal_id' => $useAnimal,
                 'scrap' => 0,
                 'level' => 1,
             ]);
             UserManorBackground::create([
-                'user_id' => $this->uid,
+                'user_id' => $user_id,
                 'background' => $background,
             ]);
             $addCount = 0;
             $autoCount = false;
             $steal_left = 1;
-            $panaceaReward = UserManor::getFlowerReward($this->uid);
+            $panaceaReward = UserManor::getFlowerReward($user_id);
         } else {
             $useAnimal = $manor['use_animal'];
             $diffTime = bcsub($currentTime, $manor['last_output_time']);
-            $output = UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
+            $output = UserAnimal::getOutput($user_id, CfgAnimal::OUTPUT);
             if ((int)$output != (int) $manor['output']) {
                 UserManor::where('id', $manor['id'])
                     ->where('output', $manor['output'])
                     ->update(['output' => $output]);
             }
-            $steal_left = UserAnimal::getOutput($this->uid, CfgAnimal::STEAL);
+            $steal_left = UserAnimal::getOutput($user_id, CfgAnimal::STEAL);
 
-            $addCount = UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
+            $addCount = UserAnimal::getOutputNumber($user_id, $diffTime, $manor['count_left']);
             $autoCount = false;
             $background = $manor['background'];
             if (empty($background)) {
@@ -673,7 +684,7 @@ class Page extends Base
 
             $animalIds = CfgAnimal::where('type', 'NORMAL')->column('id');
 
-            $normalAnimalNum = UserAnimal::where('user_id', $this->uid)
+            $normalAnimalNum = UserAnimal::where('user_id', $user_id)
                 ->where('animal_id', 'in', $animalIds)
                 ->count();
             $callType = $normalAnimalNum == 12 ? 'goSupple': 'goCall';
@@ -686,7 +697,7 @@ class Page extends Base
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
-        $nums = UserExt::where('user_id', $this->uid)->value('animal_lottery');
+        $nums = UserExt::where('user_id', $user_id)->value('animal_lottery');
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
         $maxLottery = (int)$config['lottery']['max'];
         if ($nums > $maxLottery) {
@@ -735,7 +746,7 @@ class Page extends Base
         $str = $mainAnimal['type'] == 'NORMAL' ? $normalStr: $secretStr;
 
         $mainBackground = CfgManorBackground::get($background);
-        if ($try) {
+        if ($try&&empty($visit)) {
             $tryBackground = CfgManorBackground::get($try['id']);
             $tryBackground['time'] = $try['time'];
         }

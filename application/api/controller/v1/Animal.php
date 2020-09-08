@@ -20,6 +20,8 @@ use app\api\model\UserAnimal;
 use app\api\model\UserExt;
 use app\api\model\UserManor;
 use app\api\model\UserManorBackground;
+use app\api\model\UserManorFriendApply;
+use app\api\model\UserManorFriends;
 use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -647,5 +649,46 @@ class Animal extends Base
         $earn = (new RecPanaceaTask())->settle($task_id, $this->uid);
 
         Common::res(['data' => $earn]);
+    }
+
+    public function appleFriend()
+    {
+        $this->getUser();
+        $friend = (int)input('friend', 0);
+        if (empty($friend)) {
+            Common::res(['code' => 1, 'msg' => '请选择申请的好友']);
+        }
+
+        UserManorFriendApply::applyFriend($this->uid, $friend);
+
+        Common::res();
+    }
+
+    public function addFriend()
+    {
+        $this->getUser();
+        $friend = (int)input('friend', 0);
+        if (empty($friend)) {
+            Common::res(['code' => 1, 'msg' => '请选择申请的好友']);
+        }
+
+        UserManorFriends::addFriend($this->uid, $friend);
+
+        Common::res();
+    }
+
+    public function friendList()
+    {
+        $this->getUser();
+        $page = input('page', 1);
+        $size = input('size', 10);
+
+        $list = UserManorFriends::with(['friend'])
+            ->where('user_id', $this->uid)
+            ->order(['create_time' => 'desc'])
+            ->page($page, $size)
+            ->select();
+
+        Common::res(['data' => $list]);
     }
 }
