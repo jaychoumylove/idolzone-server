@@ -69,6 +69,10 @@ class UserAnimal extends Base
                 if (empty($scrapUpdated)) {
                     throw new Exception('更新失败');
                 }
+
+                UserManorLog::recordSecret($uid, $animalInfo, $nextLevel, $cfglv['number'], false);
+            } else {
+                UserManorLog::recordTwelveLvUp($uid, $animalInfo, $nextLevel, $cfglv['number']);
             }
 
             Db::commit();
@@ -132,6 +136,8 @@ class UserAnimal extends Base
             if (empty($scrapUpdated)) {
                 throw new Exception('更新失败');
             }
+
+            UserManorLog::recordSecret($uid, $animalInfo, 0, $cfglv['number'], true);
 
             UserManor::where('user_id', $uid)->update(['use_animal' => $animal]);
 

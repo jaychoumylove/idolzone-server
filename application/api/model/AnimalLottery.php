@@ -112,6 +112,8 @@ class AnimalLottery extends Base
                     $value['animal_info'] = $animalDict[$value['animal']];
                 }
                 $choose[$key] = $value;
+
+                UserManorLog::recordLottery($user_id, $animalDict[$value['id']], $value['number']);
             }
 
             if ($updateNum) {
@@ -125,6 +127,7 @@ class AnimalLottery extends Base
             }
 
             (new \app\api\service\User())->change($user_id, ['panacea' => -$typeItem['panacea']], '召唤宠物');
+            UserManorLog::recordPanacea($user_id, -$typeItem['panacea'], sprintf('召唤宠物%s次', $typeItem['times']));
 //            throw new Exception('something was wrong');
             Db::commit();
         } catch (\Exception $exception) {
