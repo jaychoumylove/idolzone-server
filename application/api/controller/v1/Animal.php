@@ -569,8 +569,24 @@ class Animal extends Base
         if (empty($exist)) {
             Common::res(['code' => 1, 'msg' => '您还未解锁该背景哦']);
         }
+        $update = ['background' => $background];
 
-        UserManor::where('user_id', $this->uid)->update(['background' => $background]);
+        $manor = UserManor::get(['user_id' => $this->uid]);
+        $tryData = $manor['try_data'];
+        if ($tryData) {
+            $currentTime = time();
+            $newTryData = array_map(function ($item) use($currentTime) {
+                if ($item['time'] > $currentTime) {
+                    $item['time'] = $currentTime;
+                }
+
+                return $item;
+            }, $tryData);
+
+            $update['try_data'] = json_encode($newTryData);
+        }
+
+        UserManor::where('user_id', $this->uid)->update($update);
 
         Common::res();
     }
