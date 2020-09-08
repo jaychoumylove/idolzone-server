@@ -585,9 +585,31 @@ class UserExt extends Base
             RecTask::addRec($uid, [5, 6], $times);
             RecTaskfather::addRec($uid, [4, 15, 26, 37], $times);
 
-            foreach ($choose as $item) {
-                self::grant($uid, $item);
+            $typeMap = [
+                1 => 'coin',
+                2 => 'flower',
+                3 => 'stone',
+                4 => 'trumpet',
+            ];
+
+            $data = [];
+            foreach ($returns as $index => $item) {
+                $key = $typeMap[$index];
+                $data[$key] = $item['num'];
             }
+
+            $msg = sprintf('幸运 %s 连抽', $times);
+
+            (new User())->change($uid, $data, $msg);
+
+            $recData = [
+                'user_id' => $uid,
+                'lottery_id' => 0,
+                'content' => $msg
+            ];
+
+            //抽奖记录另存到一个表
+            RecLottery::create(array_merge($recData, $data));
 
             Db::commit();
         } catch (\Exception $e) {
