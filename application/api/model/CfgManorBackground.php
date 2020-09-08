@@ -23,24 +23,62 @@ class CfgManorBackground extends Base
 
     public static function unlockWithCurrency($uid, array $lockData)
     {
-        $userCurrency = UserCurrency::getCurrency($uid);
-        if (is_object($userCurrency)) $userCurrency = $userCurrency->toArray();
-        $status = false;
-        if (array_key_exists($lockData['key'], $userCurrency)) {
-            $number = (int)$userCurrency[$lockData['key']];
-            $status = $number >= $lockData['number'];
-
-            if ($status) {
-                (new \app\api\service\User())->change($uid, [$lockData['key'] => -$lockData['number']], '解锁庄园背景');
-            }
+        $type = $lockData['key'];
+        $task = RecUserBackgroundTask::get(['user_id' => $uid, 'type' => $type]);
+        if (empty($task)) {
+            return "贡献鲜花不足";
         }
 
-        return $status;
+        if ($task['sum'] < $lockData['number']) {
+            return "贡献鲜花不足";
+        }
+
+        return true;
     }
 
     public static function unlockWithLevel($uid, $data)
     {
         $userLevel = (int)CfgUserLevel::getLevel($uid);
         return $userLevel >= (int)$data['number'];
+    }
+
+    public static function unlockWithWeekRank($uid, array $lockData)
+    {
+        $userStar = UserStar::get(['user_id' => $uid]);
+        if (empty($userStar)) {
+            return "本周贡献度不够哦";
+        }
+
+        if ($userStar['thisweek_count'] < $lockData['number']) {
+            return "本周贡献度不够哦";
+        }
+
+        return true;
+    }
+
+
+    public static function unlockActive($uid, array $lockData)
+    {
+        $currentTime = time();
+        $now = date ('Y-m-d H:i:s', $currentTime);
+        $limit = $lockData['limit'];
+        if ($now < $limit['start']) {
+            return "活动尚未开始";
+        }
+        if ($now > $limit['end']) {
+            return "活动已结束";
+        }
+
+        $type = $lockData['key'];
+        $task = RecUserBackgroundTask::get(['user_id' => $uid, 'type' => $type]);
+        if (empty($task)) {
+            return "贡献鲜花不足";
+        }
+
+        if ($task['sum'] < $lockData['number']) {
+            return "贡献鲜花不足";
+        }
+
+        return true;
     }
 }

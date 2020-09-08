@@ -1219,4 +1219,27 @@ alter table f_cfg_manor_background
 alter table f_user_manor
 	add try_data text null comment '试用数据';
 
+drop table if exists f_rec_user_background_task;
+create table f_rec_user_background_task
+(
+    id          int auto_increment,
+    user_id     int                                    not null,
+    count_num   bigint       default 0                 not null,
+    sum         bigint       default 0                 not null,
+    create_time timestamp    default CURRENT_TIMESTAMP not null,
+    update_time timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                              null,
+    type        varchar(255) default 'SUM'             not null,
+    constraint f_rec_user_background_task_id_uindex
+        unique (id)
+)
+    comment '用户背景打榜数值';
+
+alter table f_rec_user_background_task
+    add primary key (id);
+
+alter table f_fanclub_user
+	add day_mass_times int default 0 not null comment '每日集结次数';
+
+
 

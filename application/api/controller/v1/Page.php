@@ -16,6 +16,7 @@ use app\api\model\UserAchievementHeal;
 use app\api\model\UserAnimal;
 use app\api\model\UserInvite;
 use app\api\model\UserManor;
+use app\api\model\UserManorBackground;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
@@ -623,10 +624,13 @@ class Page extends Base
 
         $manor = UserManor::get(['user_id' => $this->uid]);
         $panaceaReward = 0;
-        if (empty($manor)) {
+        $new = empty($manor);
+        $try = [];
+        if ($new) {
             $useAnimal = 1;
             $output = 1;
             $background = 1;
+            $callType = 'goCall';
             $manor = UserManor::create([
                 'user_id' => $this->uid,
                 'last_output_time' => $currentTime,
@@ -639,6 +643,10 @@ class Page extends Base
                 'animal_id' => $useAnimal,
                 'scrap' => 0,
                 'level' => 1,
+            ]);
+            UserManorBackground::create([
+                'user_id' => $this->uid,
+                'background' => $background,
             ]);
             $addCount = 0;
             $autoCount = false;
@@ -661,6 +669,19 @@ class Page extends Base
             if (empty($background)) {
                 $background = 1;
                 UserManor::where('id', $manor['id'])->update(['background' => $background]);
+            }
+
+            $animalIds = CfgAnimal::where('type', 'NORMAL')->column('id');
+
+            $normalAnimalNum = UserAnimal::where('user_id', $this->uid)
+                ->where('animal_id', 'in', $animalIds)
+                ->count();
+            $callType = $normalAnimalNum == 12 ? 'goSupple': 'goCall';
+
+            foreach ($manor['try_data'] as $item) {
+                if ($item['time'] > $currentTime) {
+                    $try = $item;
+                }
             }
         }
 
@@ -714,12 +735,6 @@ class Page extends Base
         $str = $mainAnimal['type'] == 'NORMAL' ? $normalStr: $secretStr;
 
         $mainBackground = CfgManorBackground::get($background);
-        $try = [];
-        foreach ($manor['try_data'] as $item) {
-            if ($item['time'] > $currentTime) {
-                $try = $item;
-            }
-        }
         if ($try) {
             $tryBackground = CfgManorBackground::get($try['id']);
             $tryBackground['time'] = $try['time'];
@@ -741,7 +756,8 @@ class Page extends Base
             'word' => $word,
             'max_lottery'  => $maxLottery,
             'main_background'  => $mainBackground,
-            'try_background'  => empty($tryBackground) ? null: $tryBackground
+            'try_background'  => empty($tryBackground) ? null: $tryBackground,
+            'call_type' => $callType
         ]]);
     }
     

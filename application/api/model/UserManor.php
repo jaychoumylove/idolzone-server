@@ -193,6 +193,22 @@ and user_id <> ';
         }
     }
 
+    public static function checkBackgroundActive()
+    {
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $currentTime = time();
+        $now = date ('Y-m-d H:i:s', $currentTime);
+        $limit = $config['active_background']['limit'];
+        if ($now < $limit['start']) {
+            return false;
+        }
+        if ($now > $limit['end']) {
+            return false;
+        }
+
+        return true;
+    }
+
     public static function unlockBackground($uid, $background)
     {
         $backgroundInfo = CfgManorBackground::get($background);
@@ -216,11 +232,14 @@ and user_id <> ';
                 case 'level':
                     $status = CfgManorBackground::unlockWithLevel($uid, $lockData);
                     break;
+                case 'week_rank':
+                    $status = CfgManorBackground::unlockWithWeekRank($uid, $lockData);
+                    break;
                 case 'currency':
                     $status = CfgManorBackground::unlockWithCurrency($uid, $lockData);
                     break;
                 case 'active':
-                    $status = false;
+                    $status = CfgManorBackground::unlockActive($uid, $lockData);
                     break;
             }
         } else {
@@ -228,8 +247,9 @@ and user_id <> ';
             $status = true;
         }
 
-        if (empty($status)) {
-            Common::res(['code' => 1, 'msg' => '未达到解锁条件']);
+        if (true !== $status) {
+            $msg = is_string($status) ? $status: '未达到解锁条件';
+            Common::res(['code' => 1, 'msg' => $msg]);
         }
 
         UserManorBackground::create([
