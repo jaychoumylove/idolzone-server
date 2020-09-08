@@ -488,6 +488,12 @@ class Animal extends Base
                         }
                         $value['able_lock'] = $weekNum >= $value['lock_data']['number'];
                     }
+                    if ($value['lock_data']['type'] == 'day_rank') {
+                        if (empty($dayNum)) {
+                            $dayNum = UserStar::where('user_id', $this->uid)->value('thisday_count', 0);
+                        }
+                        $value['able_lock'] = $dayNum >= $value['lock_data']['number'];
+                    }
                     if ($value['lock_data']['type'] == 'level') {
                         if (empty($level)) {
                             $level = CfgUserLevel::getLevel($this->uid);

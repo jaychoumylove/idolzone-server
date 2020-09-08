@@ -56,6 +56,30 @@ class CfgManorBackground extends Base
         return true;
     }
 
+    public static function unlockWithDayRank($uid, array $lockData)
+    {
+        $currentTime = time();
+        $now = date ('Y-m-d H:i:s', $currentTime);
+        $limit = $lockData['limit'];
+        if ($now < $limit['start']) {
+            return "活动尚未开始";
+        }
+        if ($now > $limit['end']) {
+            return "活动已结束";
+        }
+
+        $userStar = UserStar::get(['user_id' => $uid]);
+        if (empty($userStar)) {
+            return "日贡献度不够哦";
+        }
+
+        if ($userStar['thisday_count'] < $lockData['number']) {
+            return "日贡献度不够哦";
+        }
+
+        return true;
+    }
+
 
     public static function unlockActive($uid, array $lockData)
     {
