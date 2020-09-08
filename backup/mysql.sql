@@ -1241,5 +1241,22 @@ alter table f_rec_user_background_task
 alter table f_fanclub_user
 	add day_mass_times int default 0 not null comment '每日集结次数';
 
+-- 庄园宝箱 start
+drop table if exists f_user_manor_friends;
+create table f_user_manor_friends
+(
+    id          int auto_increment,
+    user_id     int                                 not null,
+    friend      int                                 not null,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null,
+    constraint f_user_manor_friends_id_uindex
+        unique (id)
+)
+    comment '庄园好友';
+
+alter table f_user_manor_friends
+    add primary key (id);
 
 
