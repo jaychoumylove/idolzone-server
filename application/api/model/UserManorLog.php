@@ -67,7 +67,7 @@ class UserManorLog extends Base
         $content = sprintf('获得%s', $animal['scrap_name']);
         $data = [
             'animal_id' => $animal['id'],
-            'image' => $animal['scrap_name'],
+            'image' => $animal['scrap_img'],
             'number' => abs($number)
         ];
 
@@ -79,7 +79,7 @@ class UserManorLog extends Base
         $type = $panacea > 0 ? 'INCOME_PANACEA':'SPEND_PANACEA';
         $data = [
             'panacea' => $panacea,
-            'image' => '',
+            'image' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fic6VmPQYib2ktqATmSxJmUtVH7OoNPjuMs2xwl26pXQGbQn74vvibp5mUNuJk7ucxzdXGAd8OlHJDA/0',
             'number' => $panacea > 0 ? abs($panacea): -abs($panacea)
         ];
         self::record($user_id, $data, $content, $type);

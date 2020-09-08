@@ -113,7 +113,7 @@ class AnimalLottery extends Base
                 }
                 $choose[$key] = $value;
 
-                UserManorLog::recordLottery($user_id, $animalDict[$value['id']], $value['number']);
+                UserManorLog::recordLottery($user_id, $animalDict[$key], $value['number']);
             }
 
             if ($updateNum) {
