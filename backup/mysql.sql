@@ -1263,4 +1263,33 @@ create table f_user_manor_friends
 alter table f_user_manor_friends
     add primary key (id);
 
+drop table if exists f_user_manor_friend_apply;
+create table f_user_manor_friend_apply
+(
+    id          int auto_increment,
+    user_id     int                                                         not null,
+    friend      int                                                         not null,
+    handle_type enum ('WAIT', 'REFUSE', 'ACCESS') default 'WAIT'            not null,
+    handle_time int                                                         null,
+    reason      text                                                        null,
+    create_time timestamp                         default CURRENT_TIMESTAMP not null,
+    update_time timestamp                         default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                                                   null,
+    constraint f_user_manor_friend_apply_id_uindex
+        unique (id)
+)
+    comment '庄园好友申请';
+
+create index f_user_manor_friend_apply_friend_index
+    on f_user_manor_friend_apply (friend);
+
+create index f_user_manor_friend_apply_uf_index
+    on f_user_manor_friend_apply (user_id, friend);
+
+create index f_user_manor_friend_apply_user_index
+    on f_user_manor_friend_apply (user_id);
+
+alter table f_user_manor_friend_apply
+    add primary key (id);
+
 
