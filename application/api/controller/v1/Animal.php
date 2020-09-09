@@ -17,6 +17,7 @@ use app\api\model\RecPanaceaTask;
 use app\api\model\RecUserBackgroundTask;
 use app\api\model\RecWealActivityTask;
 use app\api\model\UserAnimal;
+use app\api\model\UserAnimalBox;
 use app\api\model\UserExt;
 use app\api\model\UserManor;
 use app\api\model\UserManorBackground;
@@ -715,5 +716,42 @@ class Animal extends Base
             ->select();
 
         Common::res(['data' => $logList]);
+    }
+
+    public function boxAnimal()
+    {
+        $user_id = (int)input('user_id', 0);
+        if (empty($user_id)) {
+            $this->getUser();
+            $user_id = $this->uid;
+        }
+
+        $list = UserAnimalBox::where('user_id', $user_id)
+            ->order(['create_time' => 'desc'])
+            ->select();
+
+        Common::res(['data' => $list]);
+    }
+
+    public function boxAnimalLottery()
+    {
+        $this->getUser();
+        $target_user = (int)input('user_id', 0);
+        if (empty($target_user)) {
+            Common::res(['code' => 1, 'msg' => '请选择庄园主']);
+        }
+
+        $manor = UserManor::get(['user_id' => $this->uid]);
+        if (in_array($target_user, $manor['day_lottery_box'])) {
+            Common::res(['code' => 1, 'msg' => '您已经抽取过了']);
+        }
+
+        if (count($manor['day_lottery_box']) >= 3) {
+            Common::res(['code' => 1, 'msg' => '已经没有抽取次数了']);
+        }
+
+        $data = UserAnimalBox::lottery($this->uid, $target_user);
+
+        Common::res(['data' => $data]);
     }
 }

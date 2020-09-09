@@ -85,6 +85,7 @@ class AnimalLottery extends Base
             $updateNum = 0;
             $updatedNum = 0;
             $hasNew = false;
+            $endTime = date('Y-m-d H:i:s', strtotime('+1days'));
             foreach ($choose as $key => $value) {
                 if (array_key_exists($key, $userAnimalDict)) {
                     // 更新
@@ -114,6 +115,7 @@ class AnimalLottery extends Base
                 $choose[$key] = $value;
 
                 UserManorLog::recordLottery($user_id, $animalDict[$key], $value['number']);
+                UserAnimalBox::addScrap($animalDict[$key], $user_id, $endTime);
             }
 
             if ($updateNum) {

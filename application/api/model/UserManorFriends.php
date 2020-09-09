@@ -9,6 +9,11 @@ use app\base\service\Common;
 
 class UserManorFriends extends Base
 {
+    public function friend()
+    {
+        return $this->hasOne ('User', 'id', 'friend')->field('id,avatarurl,nickname');
+    }
+
     public static function addFriend($user_id, $friend)
     {
         $map = compact('user_id', 'friend');

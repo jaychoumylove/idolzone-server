@@ -84,4 +84,23 @@ class UserManorLog extends Base
         ];
         self::record($user_id, $data, $content, $type);
     }
+
+    public static function recordWithAnimalBoxLottery($user_id, $nickname, $animal, $passive = false)
+    {
+        $type = 'LOTTERY_ANIMAL_BOX';
+
+        $number = 1;
+
+        $data = [
+            'animal_id' => $animal['id'],
+            'image' => $animal['scrap_img'],
+            'number' => $passive ? -$number: $number
+        ];
+        if ($passive) {
+            $content = sprintf('宝箱内%s个%s被%s抽取了', $animal['scrap_name'],$number,$nickname);
+        } else {
+            $content = sprintf('抽取了%s宝箱内%s个%s', $nickname,$number, $animal['scrap_name']);
+        }
+        self::record($user_id, $data, $content, $type);
+    }
 }
