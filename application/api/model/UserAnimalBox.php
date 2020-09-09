@@ -19,15 +19,15 @@ class UserAnimalBox extends Base
         $date = date('Y-m-d H:i:s', $now);
 
         $max = UserAnimalBox::where('user_id', $target_user)
-            ->where('end_time', '<', $date)
+            ->where('end_time', '>', $date)
             ->where('lottery_user', 'null')
             ->where('lottery_time', 'null')
             ->count();
 
-        $random = rand(0, $max - 1);
+        $random = $max > 1 ? rand(0, $max - 1): 0;
 
         $data = UserAnimalBox::where('user_id', $target_user)
-            ->where('end_time', '<', $date)
+            ->where('end_time', '>', $date)
             ->where('lottery_user', 'null')
             ->where('lottery_time', 'null')
             ->limit($random, 1)
@@ -72,9 +72,9 @@ class UserAnimalBox extends Base
                 }
             }
             $nickname = User::get($uid)['nickname'];
-            UserManorLog::recordWithAnimalBoxLottery($uid, $nickname, $item, false);
+            UserManorLog::recordWithAnimalBoxLottery($uid, $nickname, $item, true);
             $nickname = User::get($target_user)['nickname'];
-            UserManorLog::recordWithAnimalBoxLottery($target_user, $nickname, $item, true);
+            UserManorLog::recordWithAnimalBoxLottery($target_user, $nickname, $item, false);
 
             Db::commit();
         } catch (Throwable $throwable) {
@@ -82,7 +82,7 @@ class UserAnimalBox extends Base
             Common::res(['code' => 1, 'msg' => '偷取失败了，请稍后再试']);
         }
 
-        return $item;
+        return ['name' => $item['scrap_name'], 'number' => 1];
     }
 
     public static function addScrap($animal, $user_id, $endTime = null)

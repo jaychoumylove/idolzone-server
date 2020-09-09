@@ -32,11 +32,11 @@ class UserManorLog extends Base
 
     public static function recordTwelveLvUp($user_id, $animal, $lv, $number)
     {
-        $type = 'LV_UP';
-        $data = [
+        $type    = 'LV_UP';
+        $data    = [
             'animal_id' => $animal['id'],
-            'image' => $animal['scrap_img'],
-            'number' => -abs($number),
+            'image'     => $animal['scrap_img'],
+            'number'    => -abs($number),
         ];
         $content = sprintf('升级%s至Lv%s', $animal['name'], $lv);
 
@@ -47,14 +47,14 @@ class UserManorLog extends Base
     {
         $data = [
             'animal_id' => $animal['id'],
-            'image' => $animal['scrap_img'],
-            'number' => -abs($number),
+            'image'     => $animal['scrap_img'],
+            'number'    => -abs($number),
         ];
         if ($unlock) {
-            $type = 'UNLOCK';
+            $type    = 'UNLOCK';
             $content = sprintf('解锁%s', $animal['name']);
         } else {
-            $type = 'LV_UP';
+            $type    = 'LV_UP';
             $content = sprintf('升级%s至Lv%s', $animal['name'], $lv);
         }
 
@@ -63,12 +63,12 @@ class UserManorLog extends Base
 
     public static function recordLottery($user_id, $animal, $number)
     {
-        $type = 'ANIMAL_LOTTERY';
+        $type    = 'ANIMAL_LOTTERY';
         $content = sprintf('获得%s', $animal['scrap_name']);
-        $data = [
+        $data    = [
             'animal_id' => $animal['id'],
-            'image' => $animal['scrap_img'],
-            'number' => abs($number)
+            'image'     => $animal['scrap_img'],
+            'number'    => abs($number)
         ];
 
         self::record($user_id, $data, $content, $type);
@@ -76,11 +76,11 @@ class UserManorLog extends Base
 
     public static function recordPanacea($user_id, $panacea, $content)
     {
-        $type = $panacea > 0 ? 'INCOME_PANACEA':'SPEND_PANACEA';
+        $type = $panacea > 0 ? 'INCOME_PANACEA' : 'SPEND_PANACEA';
         $data = [
             'panacea' => $panacea,
-            'image' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fic6VmPQYib2ktqATmSxJmUtVH7OoNPjuMs2xwl26pXQGbQn74vvibp5mUNuJk7ucxzdXGAd8OlHJDA/0',
-            'number' => $panacea > 0 ? abs($panacea): -abs($panacea)
+            'image'   => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fic6VmPQYib2ktqATmSxJmUtVH7OoNPjuMs2xwl26pXQGbQn74vvibp5mUNuJk7ucxzdXGAd8OlHJDA/0',
+            'number'  => $panacea > 0 ? abs($panacea) : -abs($panacea)
         ];
         self::record($user_id, $data, $content, $type);
     }
@@ -93,13 +93,13 @@ class UserManorLog extends Base
 
         $data = [
             'animal_id' => $animal['id'],
-            'image' => $animal['scrap_img'],
-            'number' => $passive ? -$number: $number
+            'image'     => $animal['scrap_img'],
+            'number'    => $passive ? -$number : $number
         ];
         if ($passive) {
-            $content = sprintf('宝箱内%s个%s被%s抽取了', $animal['scrap_name'],$number,$nickname);
+            $content = sprintf('宝箱内%s个%s被%s抽取了', $number, $animal['scrap_name'], $nickname);
         } else {
-            $content = sprintf('抽取了%s宝箱内%s个%s', $nickname,$number, $animal['scrap_name']);
+            $content = sprintf('抽取了%s宝箱内%s个%s', $nickname, $number, $animal['scrap_name']);
         }
         self::record($user_id, $data, $content, $type);
     }

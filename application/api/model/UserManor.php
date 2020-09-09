@@ -17,6 +17,11 @@ class UserManor extends Base
         return json_decode($value, true);
     }
 
+    public function getDayLotteryBoxAttr($value)
+    {
+        return json_decode($value, true);
+    }
+
     public static function checkFistReward()
     {
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);

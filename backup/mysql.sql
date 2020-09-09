@@ -1292,4 +1292,7 @@ create index f_user_manor_friend_apply_user_index
 alter table f_user_manor_friend_apply
     add primary key (id);
 
+alter table f_user_manor
+	add day_lottery_box varchar(255) default '[]' not null;
+
 

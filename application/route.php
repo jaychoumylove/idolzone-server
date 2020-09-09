@@ -387,5 +387,7 @@ Route::rule('api/:version/manor/unlock_background', 'api/v1.Animal/unlockBackgro
 Route::rule('api/:version/manor/try_background', 'api/v1.Animal/tryBackground'); // 试用庄园背景
 Route::rule('api/:version/manor/add_friend', 'api/v1.Animal/addFriend'); // 新增朋友
 Route::rule('api/:version/manor/friend_list', 'api/v1.Animal/friendList'); // 朋友列表
+Route::rule('api/:version/animal_box/list', 'api/v1.Animal/boxAnimal'); // 宝箱列表
+Route::rule('api/:version/animal_box/lottery', 'api/v1.Animal/boxAnimalLottery'); // 宝箱抽取
 Route::rule('api/:version/manor/log', 'api/v1.Animal/manorLog'); // 庄园日志
 Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息

@@ -689,9 +689,11 @@ class Page extends Base
                 ->count();
             $callType = $normalAnimalNum == 12 ? 'goSupple': 'goCall';
 
-            foreach ($manor['try_data'] as $item) {
-                if ($item['time'] > $currentTime) {
-                    $try = $item;
+            if ($manor['try_data']) {
+                foreach ($manor['try_data'] as $item) {
+                    if ($item['time'] > $currentTime) {
+                        $try = $item;
+                    }
                 }
             }
         }
