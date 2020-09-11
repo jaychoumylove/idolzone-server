@@ -34,6 +34,18 @@ class UserManorFriends extends Base
             Common::res(['code' => 1, 'msg' => '你们已经是好友了']);
         }
 
+        $userStar = UserStar::getStarId($user_id);
+        if (empty($userStar)) {
+            Common::res(['code' => 1, 'msg' => '请先加入圈子']);
+        }
+        $friendStar = UserStar::getStarId($friend_id);
+        if (empty($friendStar)) {
+            Common::res(['code' => 1, 'msg' => '请先加入圈子']);
+        }
+        if ($userStar != $friendStar) {
+            Common::res(['code' => 1, 'msg' => '你们不在同一个圈子哦']);
+        }
+
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
         if ((int)$config['max_friend_num']) {
             $max = self::where('user_id', $user_id)
