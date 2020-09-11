@@ -40,7 +40,7 @@ class UserManorFriends extends Base
         }
         $friendStar = UserStar::getStarId($friend_id);
         if (empty($friendStar)) {
-            Common::res(['code' => 1, 'msg' => '请先加入圈子']);
+            Common::res(['code' => 1, 'msg' => '请让对方加入圈子']);
         }
         if ($userStar != $friendStar) {
             Common::res(['code' => 1, 'msg' => '你们不在同一个圈子哦']);
