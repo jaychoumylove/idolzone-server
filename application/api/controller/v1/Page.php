@@ -690,8 +690,8 @@ class Page extends Base
                     }
                 }
             }
-            $boxLog = UserManorLog::with('otherUser')
-                ->where('other', $user_id)
+            $boxLog = UserManorLog::with(['otherUser', 'user'])
+                ->where('other|user_id', $user_id)
                 ->where('type', 'LOTTERY_ANIMAL_BOX')
                 ->limit(6)
                 ->select();
@@ -854,7 +854,7 @@ class Page extends Base
                     }
                 }
             }
-            $boxLog = UserManorLog::with('otherUser')
+            $boxLog = UserManorLog::with(['user'])
                 ->where('other', $user_id)
                 ->where('type', 'LOTTERY_ANIMAL_BOX')
                 ->limit(6)

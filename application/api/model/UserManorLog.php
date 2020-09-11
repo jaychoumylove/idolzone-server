@@ -13,6 +13,11 @@ class UserManorLog extends Base
         return $this->hasOne('User', 'id', 'other')->field('id,avatarurl,nickname');
     }
 
+    public function user()
+    {
+        return $this->hasOne('User', 'id', 'user_id')->field('id,avatarurl,nickname');
+    }
+
     // 升级
     // 召唤
     // 灵丹获取
