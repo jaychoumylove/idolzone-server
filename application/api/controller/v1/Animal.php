@@ -717,6 +717,7 @@ class Animal extends Base
                 unset($value['user']);
             }
             if ($value['friend']['id'] == $this->uid) {
+                unset($value['friend']);
                 $value['friend'] = $value['user'];
                 unset($value['user']);
             }

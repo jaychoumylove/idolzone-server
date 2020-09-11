@@ -84,10 +84,9 @@ class UserAnimalBox extends Base
                     throw new Exception('偷取失败了，请稍后再试');
                 }
             }
-            $nickname = User::get($uid)['nickname'];
-            UserManorLog::recordWithAnimalBoxLottery($target_user, $nickname, $item, $uid, true);
-            $nickname = User::get($target_user)['nickname'];
-            UserManorLog::recordWithAnimalBoxLottery($uid, $nickname, $item, $target_user, false);
+            $user = User::get($uid);
+            $targetUser = User::get($target_user);
+            UserManorLog::recordWithAnimalBoxLottery($user, $targetUser, $item);
 
             array_push($dayLotteryBox, $target_user);
             UserManor::where('id', $manor['id'])->update([
