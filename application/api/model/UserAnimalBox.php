@@ -15,6 +15,16 @@ class UserAnimalBox extends Base
 
     public static function lottery($uid, $target_user)
     {
+        $manor = UserManor::get(['user_id' => $uid]);
+        $dayLotteryBox = $manor['day_lottery_box'];
+        if (in_array($target_user, $dayLotteryBox)) {
+            Common::res(['code' => 1, 'msg' => '您已经抽取过了']);
+        }
+
+        if (count($dayLotteryBox) >= 3) {
+            Common::res(['code' => 1, 'msg' => '已经没有抽取次数了']);
+        }
+
         $now  = time();
         $date = date('Y-m-d H:i:s', $now);
 
@@ -23,6 +33,9 @@ class UserAnimalBox extends Base
             ->where('lottery_user', 'null')
             ->where('lottery_time', 'null')
             ->count();
+        if (empty($max)) {
+            Common::res(['code' => 1, 'msg' => '宝箱内没有碎片了']);
+        }
 
         $random = $max > 1 ? rand(0, $max - 1): 0;
 
@@ -72,13 +85,19 @@ class UserAnimalBox extends Base
                 }
             }
             $nickname = User::get($uid)['nickname'];
-            UserManorLog::recordWithAnimalBoxLottery($uid, $nickname, $item, true);
+            UserManorLog::recordWithAnimalBoxLottery($target_user, $nickname, $item, $uid, true);
             $nickname = User::get($target_user)['nickname'];
-            UserManorLog::recordWithAnimalBoxLottery($target_user, $nickname, $item, false);
+            UserManorLog::recordWithAnimalBoxLottery($uid, $nickname, $item, $target_user, false);
+
+            array_push($dayLotteryBox, $target_user);
+            UserManor::where('id', $manor['id'])->update([
+                'day_lottery_box' => json_encode($dayLotteryBox)
+            ]);
 
             Db::commit();
         } catch (Throwable $throwable) {
             Db::rollback();
+            throw $throwable;
             Common::res(['code' => 1, 'msg' => '偷取失败了，请稍后再试']);
         }
 

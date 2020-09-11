@@ -8,6 +8,11 @@ use app\base\model\Base;
 
 class UserManorLog extends Base
 {
+    public function otherUser()
+    {
+        return $this->hasOne('User', 'id', 'other')->field('id,avatarurl,nickname');
+    }
+
     // 升级
     // 召唤
     // 灵丹获取
@@ -25,9 +30,9 @@ class UserManorLog extends Base
         return json_decode($value, true);
     }
 
-    public static function record($user_id, $data, $content, $type)
+    public static function record($user_id, $data, $content, $type, $other = null)
     {
-        self::create(compact('user_id', 'data', 'content', 'type'));
+        self::create(compact('user_id', 'data', 'content', 'type', 'other'));
     }
 
     public static function recordTwelveLvUp($user_id, $animal, $lv, $number)
@@ -85,7 +90,7 @@ class UserManorLog extends Base
         self::record($user_id, $data, $content, $type);
     }
 
-    public static function recordWithAnimalBoxLottery($user_id, $nickname, $animal, $passive = false)
+    public static function recordWithAnimalBoxLottery($user_id, $nickname, $animal, $other, $passive = false)
     {
         $type = 'LOTTERY_ANIMAL_BOX';
 
@@ -101,6 +106,6 @@ class UserManorLog extends Base
         } else {
             $content = sprintf('抽取了%s宝箱内%s个%s', $nickname, $number, $animal['scrap_name']);
         }
-        self::record($user_id, $data, $content, $type);
+        self::record($user_id, $data, $content, $type, $other);
     }
 }

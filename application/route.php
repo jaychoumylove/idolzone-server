@@ -390,4 +390,5 @@ Route::rule('api/:version/manor/friend_list', 'api/v1.Animal/friendList'); // �
 Route::rule('api/:version/animal_box/list', 'api/v1.Animal/boxAnimal'); // 宝箱列表
 Route::rule('api/:version/animal_box/lottery', 'api/v1.Animal/boxAnimalLottery'); // 宝箱抽取
 Route::rule('api/:version/manor/log', 'api/v1.Animal/manorLog'); // 庄园日志
+Route::rule('api/:version/page/other_manor', 'api/v1.Page/otherManor');//庄园信息
 Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息

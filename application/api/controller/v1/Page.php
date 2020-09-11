@@ -17,6 +17,7 @@ use app\api\model\UserAnimal;
 use app\api\model\UserInvite;
 use app\api\model\UserManor;
 use app\api\model\UserManorBackground;
+use app\api\model\UserManorLog;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
 use app\api\model\User;
@@ -620,17 +621,8 @@ class Page extends Base
     {
         // 我的庄园信息
         $this->getUser();
-        $data = request()->param();
         $user_id = $this->uid;
-        $visit = false;
-        if (array_key_exists('user_id', $data)) {
-            if ((int)$data['user_id']) {
-                $user_id = (int)$data['user_id'];
-                $visit = true;
-            } else {
-                Common::res(['code' => 1, 'msg' => '请选择拜访好友']);
-            }
-        }
+
         $currentTime = time();
 
         $manor = UserManor::get(['user_id' => $user_id]);
@@ -663,6 +655,7 @@ class Page extends Base
             $autoCount = false;
             $steal_left = 1;
             $panaceaReward = UserManor::getFlowerReward($user_id);
+            $boxLog = [];
         } else {
             $useAnimal = $manor['use_animal'];
             $diffTime = bcsub($currentTime, $manor['last_output_time']);
@@ -696,6 +689,11 @@ class Page extends Base
                     }
                 }
             }
+            $boxLog = UserManorLog::with('otherUser')
+                ->where('user_id', $user_id)
+                ->where('type', 'LOTTERY_ANIMAL_BOX')
+                ->limit(6)
+                ->select();
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
@@ -770,7 +768,8 @@ class Page extends Base
             'max_lottery'  => $maxLottery,
             'main_background'  => $mainBackground,
             'try_background'  => empty($tryBackground) ? null: $tryBackground,
-            'call_type' => $callType
+            'call_type' => $callType,
+            'box_log' => $boxLog
         ]]);
     }
     
@@ -798,5 +797,128 @@ class Page extends Base
         $data['second'] = 15;
 
         Common::res(compact('data'));
+    }
+
+    public function otherManor()
+    {
+        $this->getUser();
+        // 查看别人家的庄园
+        $user_id = (int)input('user_id', 0);
+        if (empty($user_id)) {
+            Common::res(['code' => 1, 'msg' => '请选择拜访好友']);
+        }
+        $currentTime = time();
+
+        $manor = UserManor::get(['user_id' => $user_id]);
+        $selfManor = UserManor::get(['user_id' => $this->uid]);
+        $panaceaReward = 0;
+        $new = empty($manor);
+        $try = [];
+        if ($new) {
+            $useAnimal = 1;
+            $output = 1;
+            $background = 1;
+            $manor = UserManor::create([
+                'user_id' => $user_id,
+                'last_output_time' => $currentTime,
+                'use_animal' => $useAnimal,
+                'output' => $output,
+                'background' => $background,
+            ]);
+            $animal = UserAnimal::create([
+                "user_id" => $user_id,
+                'animal_id' => $useAnimal,
+                'scrap' => 0,
+                'level' => 1,
+            ]);
+            UserManorBackground::create([
+                'user_id' => $user_id,
+                'background' => $background,
+            ]);
+            $panaceaReward = UserManor::getFlowerReward($user_id);
+            $boxLog = [];
+        } else {
+            $useAnimal = $manor['use_animal'];
+            $background = $manor['background'];
+            if (empty($background)) {
+                $background = 1;
+                UserManor::where('id', $manor['id'])->update(['background' => $background]);
+            }
+
+            if ($manor['try_data']) {
+                foreach ($manor['try_data'] as $item) {
+                    if ($item['time'] > $currentTime) {
+                        $try = $item;
+                    }
+                }
+            }
+            $boxLog = UserManorLog::with('otherUser')
+                ->where('user_id', $user_id)
+                ->where('type', 'LOTTERY_ANIMAL_BOX')
+                ->limit(6)
+                ->select();
+        }
+
+        $mainAnimal = CfgAnimal::get($useAnimal);
+
+        $normalStr = [
+            "记得常来看我",
+            //            "庄园金豆存8小时不再生产",
+            //            "庄园生产金豆在线离线都一样",
+            "宠物列表可换宠物",
+            //            "个人账户金豆每周日清零",
+            //            "鲜花月榜有超多大屏奖励",
+            //            "金豆月榜奖励5000元应援金",
+            //            "人气周榜福利2400元应援金",
+            //            "打榜送鲜花占领封面宣传爱豆",
+            //            "新人礼包、成长礼包记得去领",
+            //            "打卡7天可获得6666元应援金",
+            "记得报名参加团战PK",
+            //            "无聊了去圈子和大家聊天吧",
+            //            "粉丝团集结每小时都能参与",
+            "你有几个荣誉徽章呢",
+            //            "你还差多少人气升级呢",
+            "今天做了多少任务了",
+        ];
+
+        $secretStr = [
+            "付出总是有回报",
+            "跟着你好有幸福感",
+            "点我是因为想我吗",
+            "好想抱抱你",
+            "点我要轻一点哦",
+            "希望明天是晴天",
+            "再点我就气鼓鼓",
+            "不要放弃爱和梦想",
+            "我想听听你的故事",
+            "不要忘记每天陪陪我",
+            "总有心动的感觉",
+            "想要你的抱抱",
+            //            "或许我们可以一起走",
+        ];
+        $str = $mainAnimal['type'] == 'NORMAL' ? $normalStr: $secretStr;
+
+        $mainBackground = CfgManorBackground::get($background);
+        if ($try&&empty($visit)) {
+            $tryBackground = CfgManorBackground::get($try['id']);
+            $tryBackground['time'] = $try['time'];
+        }
+
+        $index = rand(0, count($str) - 1);
+        $word = $str[$index];
+        $status = 0;
+        if (count($selfManor['day_lottery_box']) >= 3) $status = -1;
+        if (in_array($user_id, $selfManor['day_lottery_box'])) $status = 1;
+
+        Common::res(['data' => [
+            'manor' => $manor,
+            'main_animal' => $mainAnimal,
+            'panacea_reward' => $panaceaReward,
+            'word' => $word,
+            'main_background'  => $mainBackground,
+            'try_background'  => empty($tryBackground) ? null: $tryBackground,
+            'box_log' => $boxLog,
+            'lottery_status' => $status
+        ]]);
     }
 }

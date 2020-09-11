@@ -695,11 +695,56 @@ class Animal extends Base
         $page = input('page', 1);
         $size = input('size', 10);
 
-        $list = UserManorFriends::with(['friend'])
-            ->where('user_id', $this->uid)
+        $list = UserManorFriends::with(['friend', 'user'])
+            ->where('user_id|friend_id', $this->uid)
             ->order(['create_time' => 'desc'])
             ->page($page, $size)
             ->select();
+        if (is_object($list)) $list = $list->toArray();
+
+        $userIds = array_column($list, 'user_id');
+        $friendIds = array_column($list, 'friend_id');
+        $ids = array_unique(array_merge($userIds, $friendIds));
+
+        $manorModel = new UserManor();
+        $manorDict = $manorModel::getDictList($manorModel, $ids, 'user_id');
+
+        $now  = time();
+        $date = date('Y-m-d H:i:s', $now);
+
+        foreach ($list as $key => $value) {
+            if ($value['user']['id'] == $this->uid) {
+                unset($value['user']);
+            }
+            if ($value['friend']['id'] == $this->uid) {
+                $value['friend'] = $value['user'];
+                unset($value['user']);
+            }
+            $friendId = $value['friend']['id'];
+
+            $value['manor_output'] = $manorDict[$friendId]['output'];
+
+            $boxNum = UserAnimalBox::where('user_id', $friendId)
+                ->where('end_time', '>', $date)
+                ->where('lottery_user', 'null')
+                ->where('lottery_time', 'null')
+                ->count();
+
+            $box = UserAnimalBox::where('user_id', $friendId)
+                ->where('end_time', '>', $date)
+                ->where('lottery_user', 'null')
+                ->where('lottery_time', 'null')
+                ->order(['id' => 'desc'])
+                ->find();
+
+            $value['box'] = [
+                'scrap_name' => $box['scrap_name'],
+                'scrap_img' => $box['scrap_img'],
+                'number' => $boxNum,
+            ];
+
+            $list[$key] = $value;
+        }
 
         Common::res(['data' => $list]);
     }
@@ -725,12 +770,35 @@ class Animal extends Base
             $this->getUser();
             $user_id = $this->uid;
         }
+        $now  = time();
+        $date = date('Y-m-d H:i:s', $now);
 
         $list = UserAnimalBox::where('user_id', $user_id)
-            ->order(['create_time' => 'desc'])
+            ->where('end_time', '>', $date)
+            ->where('lottery_user', 'null')
+            ->where('lottery_time', 'null')
+            ->order(['end_time' => 'asc'])
             ->select();
 
-        Common::res(['data' => $list]);
+        if (is_object($list)) $list = $list->toArray();
+        $newList = [];
+        $numbers = range(1, 12);
+        shuffle($numbers);
+        foreach ($list as $key => $value) {
+            if (array_key_exists($value['animal_id'], $newList)) {
+                $newList[$value['animal_id']]['number'] = (int)bcadd(1, $newList[$value['animal_id']]['number']);
+            } else {
+                $newList[$value['animal_id']] = [
+                    'animal_id' => $value['animal_id'],
+                    'scrap_img' => $value['scrap_img'],
+                    'scrap_name' => $value['scrap_name'],
+                    'number' => 1,
+                    'position' => array_pop($numbers)
+                ];
+            }
+        }
+
+        Common::res(['data' => $newList]);
     }
 
     public function boxAnimalLottery()
@@ -739,15 +807,6 @@ class Animal extends Base
         $target_user = (int)input('user_id', 0);
         if (empty($target_user)) {
             Common::res(['code' => 1, 'msg' => '请选择庄园主']);
-        }
-
-        $manor = UserManor::get(['user_id' => $this->uid]);
-        if (in_array($target_user, $manor['day_lottery_box'])) {
-            Common::res(['code' => 1, 'msg' => '您已经抽取过了']);
-        }
-
-        if (count($manor['day_lottery_box']) >= 3) {
-            Common::res(['code' => 1, 'msg' => '已经没有抽取次数了']);
         }
 
         $data = UserAnimalBox::lottery($this->uid, $target_user);
