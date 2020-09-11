@@ -640,6 +640,7 @@ class Page extends Base
                 'use_animal' => $useAnimal,
                 'output' => $output,
                 'background' => $background,
+                'try_data' => '[]'
             ]);
             $animal = UserAnimal::create([
                 "user_id" => $user_id,
@@ -746,7 +747,7 @@ class Page extends Base
         $str = $mainAnimal['type'] == 'NORMAL' ? $normalStr: $secretStr;
 
         $mainBackground = CfgManorBackground::get($background);
-        if ($try&&empty($visit)) {
+        if ($try) {
             $tryBackground = CfgManorBackground::get($try['id']);
             $tryBackground['time'] = $try['time'];
         }
@@ -824,6 +825,7 @@ class Page extends Base
                 'use_animal' => $useAnimal,
                 'output' => $output,
                 'background' => $background,
+                'try_data' => '[]'
             ]);
             $animal = UserAnimal::create([
                 "user_id" => $user_id,
