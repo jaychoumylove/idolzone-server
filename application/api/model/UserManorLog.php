@@ -106,7 +106,7 @@ class UserManorLog extends Base
             'image'     => $animal['scrap_img'],
         ];
         $data['number'] = $number;
-        $content = sprintf('抽取了%s个%s', $number, $animal['scrap_name']);
+        $content = sprintf('抽取了%s的%s个%s', $targetUser['nickname'], $number, $animal['scrap_name']);
         self::record($user['id'], $data, $content, $type, $targetUser['id']);
     }
 }
