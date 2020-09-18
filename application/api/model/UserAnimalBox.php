@@ -25,6 +25,15 @@ class UserAnimalBox extends Base
             Common::res(['code' => 1, 'msg' => '已经没有抽取次数了']);
         }
 
+        $map    = ['user_id' => $uid, 'friend_id' => $target_user];
+        $exist1 = self::get($map);
+        if (empty($exist1)) {
+            $exist2 = self::get(array_reverse($map));
+            if (empty($exist2)) {
+                Common::res(['code' => 1, 'msg' => '你不是Ta的好友哦']);
+            }
+        }
+
         $now  = time();
         $date = date('Y-m-d H:i:s', $now);
 
