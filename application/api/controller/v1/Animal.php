@@ -836,4 +836,15 @@ class Animal extends Base
 
         Common::res(['data' => $data]);
     }
+
+    public function getActiveFansSumRankBySelfIdol()
+    {
+        // 国庆节庄园排行
+        $this->getUser();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 15);
+        $data = UserManor::getActiveFansSumRankBySelfIdol($this->uid, $page, $size);
+
+        Common::res(['data' => $data]);
+    }
 }
