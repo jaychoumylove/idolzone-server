@@ -78,12 +78,21 @@ class UserManor extends Base
         $update['week_count'] = bcadd($selfManor['week_count'], $addCount);
         $update['sum'] = bcadd($selfManor['sum'], $addCount);
         $update['last_output_time'] = $currentTime;
+
+        $status = Cfg::checkConfigTime(Cfg::MANOR_NATIONAL_DAY);
+        if ($status) {
+            $update['active_sum'] = bcadd($selfManor['active_sum'], $addCount);
+        }
+
         Db::startTrans();
         try {
             $updated = UserManor::where('id', $selfManor['id'])->update($update);
             if (empty($updated)) {
                 throw new Exception('更新失败');
             }
+
+            // 更新
+            StarManor::addSum($addCount, $uid);
 
             (new \app\api\service\User())->change($uid, ['coin' => $addCount], '庄园金豆收益');
             Db::commit();
