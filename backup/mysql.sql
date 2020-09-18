@@ -1295,4 +1295,32 @@ alter table f_user_manor_friend_apply
 alter table f_user_manor
 	add day_lottery_box varchar(255) default '[]' not null;
 
+-- 国庆节活动 start
+alter table f_user_manor
+	add active_sum bigint default 0 not null comment '活动领取庄园金豆数';
+
+alter table f_user_manor
+	add star_id int not null;
+
+drop table if exists f_star_manor;
+create table f_star_manor
+(
+    id           int auto_increment,
+    star_id      int                                 not null,
+    sum          bigint    default 0                 not null,
+    active_count bigint    default 0                 not null comment '节日庄园金豆数',
+    create_time  timestamp default CURRENT_TIMESTAMP not null,
+    update_time  timestamp default CURRENT_TIMESTAMP not null,
+    delete_time  timestamp                           null,
+    constraint f_star_manor_id_uindex
+        unique (id)
+)
+    comment '圈子内的庄园数据';
+
+create index f_star_manor_star_index
+    on f_star_manor (star_id);
+
+alter table f_star_manor
+    add primary key (id);
+
 

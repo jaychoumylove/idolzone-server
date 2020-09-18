@@ -265,4 +265,9 @@ and user_id <> ';
             'background' => $backgroundInfo['id'],
         ]);
     }
+
+    public static function getActiveSumRank($uid, $page, $size)
+    {
+        //
+    }
 }

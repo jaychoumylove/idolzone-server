@@ -6,6 +6,7 @@ namespace app\api\controller;
 use app\api\model\AnimalLottery;
 use app\api\model\CfgAnimal;
 use app\api\model\CfgAnimalLevel;
+use app\api\model\UserManor;
 use app\base\controller\Base;
 use Exception;
 use think\Db;
@@ -294,5 +295,17 @@ class Test extends Base
         $sql = (new AnimalLottery())->fetchSql(true)->insertAll($insert);
 
         return Response::create(['sql' => $sql], 'json');
+    }
+
+    public function manorAddStartId()
+    {
+        $allManor = UserManor::all();
+        $allManor = collection($allManor)->toArray();
+        foreach ($allManor as $item) {
+            $starId = UserStar::getStarId($item['user_id']);
+            UserManor::where('id', $item['id'])->update([
+                'star_id' =>  $starId ? $starId: 0
+            ]);
+        }
     }
 }

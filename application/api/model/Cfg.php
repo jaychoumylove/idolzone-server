@@ -14,6 +14,7 @@ class Cfg extends Base
     const INVITE_ASSIST    = 'invite_assist';
     const FREE_LOTTERY     = "free_lottery";
     const MANOR_ANIMAL     = "manor_animal";
+    const MANOR_NATIONAL_DAY     = "manor_national_day"; // 国庆|中秋节 庄园活动
 
     public static function getCfg($key)
     {
@@ -191,6 +192,36 @@ class Cfg extends Base
             return false;
         }
         if ($now > $limit['end']) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 检查活动时间区间
+     * @param        $key
+     * @param string $type
+     * @return bool
+     */
+    public static function checkConfigTime($key, $type = 'date')
+    {
+        $config = self::getCfg ($key);
+
+        $currentTime = time();
+        $now = date ('Y-m-d H:i:s', $currentTime);
+        $map = [
+            'date' =>  $now,
+            'time' => $currentTime
+        ];
+        $limit = $config['time'];
+
+        $compare = $map[$type];
+
+        if ($compare < $limit['start']) {
+            return false;
+        }
+        if ($compare > $limit['end']) {
             return false;
         }
 
