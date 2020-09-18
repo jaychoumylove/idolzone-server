@@ -17,6 +17,11 @@ class UserManor extends Base
         return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');
     }
 
+    public function star()
+    {
+        return $this->hasOne('Star', 'id', 'star_id');
+    }
+
     public function getTryDataAttr($value)
     {
         return json_decode($value, true);
@@ -280,7 +285,7 @@ and user_id <> ';
         ]);
     }
 
-    public static function getActiveSumRank($page, $size)
+    public static function getActiveIdolSumRank($page, $size)
     {
         $list = StarManor::order([
                 'active_count' => 'desc',
@@ -309,5 +314,27 @@ and user_id <> ';
         }
 
         return ['list' => $list];
+    }
+
+    public static function getActiveFansSumRank($uid, $page, $size)
+    {
+        if ($page > 20) {
+            $list = [];
+        } else {
+            $list = UserManor::with(['star','user'])
+                ->where('active_sum', '>', 0)
+                ->order([
+                    'active_sum' => 'desc',
+                    'sum' => 'desc',
+                    'week_count' => 'desc'
+                ])
+                ->page($page, $size)
+                ->select();
+        }
+
+        $myInfo = UserManor::where('user_id', $uid)->find();
+        $myInfo['rank'] = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
+        if ($myInfo['rank'] > 200) $myInfo['rank'] = '>200';
+        return ['list' => $list, 'my' => $myInfo];
     }
 }

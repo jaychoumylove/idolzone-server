@@ -815,13 +815,24 @@ class Animal extends Base
         Common::res(['data' => $data]);
     }
 
-    public function getActiveSumRank()
+    public function getActiveIdolSumRank()
     {
         // 国庆节庄园排行
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 15);
 
-        $data = UserManor::getActiveSumRank($page, $size);
+        $data = UserManor::getActiveIdolSumRank($page, $size);
+
+        Common::res(['data' => $data]);
+    }
+
+    public function getActiveFansSumRank()
+    {
+        // 国庆节庄园排行
+        $this->getUser();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 15);
+        $data = UserManor::getActiveFansSumRank($this->uid, $page, $size);
 
         Common::res(['data' => $data]);
     }
