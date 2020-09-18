@@ -254,7 +254,7 @@ class UserStar extends Base
             $fanclub_id = FanclubUser::where('user_id',$uid)->value('fanclub_id');
             if($fanclub_id) $fanLeader = Fanclub::where('id',$fanclub_id)->value('user_id');
             if(isset($fanLeader) && $fanLeader) Fanclub::exitFanclub($fanLeader,$uid);
-    
+
             //退出家族
             Family::exitFamily($uid,$uid);
     

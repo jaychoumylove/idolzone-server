@@ -12,6 +12,11 @@ use Throwable;
 
 class UserManor extends Base
 {
+    public function user()
+    {
+        return $this->hasOne ('User', 'id', 'user_id')->field('id,avatarurl,nickname');
+    }
+
     public function getTryDataAttr($value)
     {
         return json_decode($value, true);
@@ -275,8 +280,34 @@ and user_id <> ';
         ]);
     }
 
-    public static function getActiveSumRank($uid, $page, $size)
+    public static function getActiveSumRank($page, $size)
     {
-        //
+        $list = StarManor::order([
+                'active_count' => 'desc',
+                'sum' => 'desc',
+                'update_time' => 'desc'
+            ])
+            ->page($page, $size)
+            ->select();
+
+        if (is_object($list)) $list = $list->toArray();
+
+        foreach ($list as $index => $item) {
+            $topThree = UserManor::with(['user'])
+                ->where('star_id', $item['star_id'])
+                ->order([
+                    'active_sum' => 'desc',
+                    'sum' => 'desc',
+                    'week_count' => 'desc'
+                ])
+                ->limit(3)
+                ->select();
+
+            if (is_object($topThree)) $topThree = $topThree->toArray();
+            $item['top'] = $topThree;
+            $list[$index] = $item;
+        }
+
+        return ['list' => $list];
     }
 }

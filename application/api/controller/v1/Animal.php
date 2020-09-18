@@ -818,11 +818,10 @@ class Animal extends Base
     public function getActiveSumRank()
     {
         // 国庆节庄园排行
-        $this->getUser();
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 15);
 
-        $data = UserManor::getActiveSumRank($this->uid, $page, $size);
+        $data = UserManor::getActiveSumRank($page, $size);
 
         Common::res(['data' => $data]);
     }
