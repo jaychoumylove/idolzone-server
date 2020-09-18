@@ -261,6 +261,15 @@ class UserStar extends Base
             //退出师徒
             if(ModelFather::where('father_uid',$uid)->count()) Common::res(['code' => 1, 'msg' => '你还有徒弟未解除，不能退圈']);
             ModelFather::exit($uid);
+
+            UserManor::where('user_id', $uid)->update(['star_id' => 0]);
+            $animalId = CfgAnimal::where('type', CfgAnimal::SECRET)
+                ->where('star_id', '>', 0)
+                ->column('id');
+
+            UserAnimal::where('user_id', $uid)
+                ->where('animal_id', 'in', $animalId)
+                ->delete();
     
             Db::commit();
         } catch (\Exception $e) {
