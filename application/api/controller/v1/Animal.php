@@ -830,20 +830,10 @@ class Animal extends Base
     {
         // 国庆节庄园排行
         $this->getUser();
+        $star = (int)input('star_id', 0);
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 15);
-        $data = UserManor::getActiveFansSumRank($this->uid, $page, $size);
-
-        Common::res(['data' => $data]);
-    }
-
-    public function getActiveFansSumRankBySelfIdol()
-    {
-        // 国庆节庄园排行
-        $this->getUser();
-        $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 15);
-        $data = UserManor::getActiveFansSumRankBySelfIdol($this->uid, $page, $size);
+        $data = UserManor::getActiveFansSumRank($this->uid,$star, $page, $size);
 
         Common::res(['data' => $data]);
     }

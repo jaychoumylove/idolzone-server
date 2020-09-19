@@ -316,31 +316,12 @@ and user_id <> ';
         return ['list' => $list];
     }
 
-    public static function getActiveFansSumRank($uid, $page, $size)
+    public static function getActiveFansSumRank($uid, $starId, $page, $size)
     {
-        if ($page > 20) {
-            $list = [];
-        } else {
-            $list = UserManor::with(['star','user'])
-                ->where('active_sum', '>', 0)
-                ->order([
-                    'active_sum' => 'desc',
-                    'sum' => 'desc',
-                    'week_count' => 'desc'
-                ])
-                ->page($page, $size)
-                ->select();
-        }
-
-        $myInfo = UserManor::where('user_id', $uid)->find();
-        $myInfo['rank'] = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
-        if ($myInfo['rank'] > 200) $myInfo['rank'] = '>200';
-        return ['list' => $list, 'my' => $myInfo];
-    }
-
-    public static function getActiveFansSumRankBySelfIdol($starId, $uid, $page, $size)
-    {
-        if ($page > 21) {
+        $selfStarId = UserStar::getStarId($uid);
+        $selfIdol = $selfStarId == $starId;
+        $limitPage = $selfIdol ? 20: 21;
+        if ($page > $limitPage) {
             $list = [];
         } else {
             $list = UserManor::with(['user'])
