@@ -1300,6 +1300,9 @@ alter table f_user_manor
 	add active_sum bigint default 0 not null comment '活动领取庄园金豆数';
 
 alter table f_user_manor
+	add get_active_sum int default 0 not null comment '是否领取国庆节回馈' after active_sum;
+
+alter table f_user_manor
 	add star_id int not null;
 
 drop table if exists f_star_manor;

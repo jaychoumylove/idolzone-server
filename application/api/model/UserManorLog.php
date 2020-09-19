@@ -109,4 +109,19 @@ class UserManorLog extends Base
         $content = sprintf('抽取了%s的%s个%s', $targetUser['nickname'], $number, $animal['scrap_name']);
         self::record($user['id'], $data, $content, $type, $targetUser['id']);
     }
+
+    public static function recordWithNationalDay($user_id, $data, $content)
+    {
+        if (array_key_exists('panacea', $data)) {
+            self::recordPanacea($user_id, (int)$data['panacea'], $content);
+        }
+        if (array_key_exists('lucky', $data)) {
+            $recordData = [
+                'lucky' => $data['lucky'],
+                'number' => (int)$data['lucky'],
+                'image' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0'
+            ];
+            self::record($user_id, $recordData, $content, "NATIONAL_REWARD");
+        }
+    }
 }

@@ -5,11 +5,13 @@ namespace app\api\controller\v1;
 use app\api\model\AnimalLottery;
 use app\api\model\Cfg_luckyDraw;
 use app\api\model\CfgAnimal;
+use app\api\model\CfgAnimalLevel;
 use app\api\model\CfgManorBackground;
 use app\api\model\CfgNovel;
 use app\api\model\CfgScrap;
 use app\api\model\CfgUserLevel;
 use app\api\model\NovelContent;
+use app\api\model\Rec;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\RecUserInvite;
 use app\api\model\UserAchievementHeal;
@@ -625,10 +627,11 @@ class Page extends Base
 
         $currentTime = time();
 
-        $manor = UserManor::get(['user_id' => $user_id]);
+        $manor = (new UserManor)->readMaster()->where(['user_id' => $user_id])->find();
         $panaceaReward = 0;
         $new = empty($manor);
         $try = [];
+        $nationalReward = [];
         if ($new) {
             $useAnimal = 1;
             $output = 1;
@@ -695,6 +698,55 @@ class Page extends Base
                 ->where('type', 'LOTTERY_ANIMAL_BOX')
                 ->limit(6)
                 ->select();
+
+            if (empty($manor['get_active_sum'])) {
+                // 国庆节回馈
+                $panaceaRec = Rec::where('user_id', $this->uid)
+                    ->where('panacea', '<', 0)
+                    ->column('panacea');
+                $spendPanacea = abs(array_sum($panaceaRec)); // 花费的金额
+
+                $animalId = CfgAnimal::where('type', CfgAnimal::SECRET)
+                    ->where('star_id', '>', 0)
+                    ->column('id');
+                $userAnimalLevelDict = UserAnimal::where('user_id', $this->uid)
+                    ->where('animal_id', 'in', $animalId)
+                    ->column('level', 'animal_id');
+                $spendLucky = 0;
+                foreach ($userAnimalLevelDict as $key => $value) {
+                    $numbers = CfgAnimalLevel::where('animal_id', $key)
+                        ->where('level', '<=', $value)
+                        ->column('number');
+
+                    $spendLucky += abs(array_sum($numbers)); // 花费幸运碎片
+                }
+
+                if ($spendPanacea || $spendLucky) {
+                    $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
+                    $rate = $config['reward_rate'];
+                    $lucky = bcmul($spendLucky, $rate['lucky']);
+                    $panacea = bcmul($spendPanacea, $rate['panacea']);
+                    if ($lucky) {
+                        $nationalReward['lucky'] = $lucky;
+                    }
+                    if ($panacea) {
+                        $nationalReward['panacea'] = $panacea;
+                    }
+
+                    if ($nationalReward) {
+                        UserManorLog::recordWithNationalDay($this->uid, $nationalReward, '国庆中秋回馈');
+//                        UserManor::where('id', $manor['id'])->update(['get_active_sum' => 0]);
+                        if (array_key_exists('panacea', $nationalReward)) {
+                            (new UserService())->change($this->uid, ['panacea' => $nationalReward['panacea']], '国庆中秋回馈');
+                        }
+                        if (array_key_exists('lucky', $nationalReward)) {
+                            UserExt::where('user_id', $this->uid)->update([
+                                'scrap' => Db::raw('scrap+'.$nationalReward['lucky'])
+                            ]);
+                        }
+                    }
+                }
+            }
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
@@ -765,6 +817,7 @@ class Page extends Base
             'steal_left' => $steal_left,
             'limit_time' => $limit_add_time,
             'panacea_reward' => $panaceaReward,
+            'national_reward' => $nationalReward,
             'word' => $word,
             'max_lottery'  => $maxLottery,
             'main_background'  => $mainBackground,
@@ -825,7 +878,8 @@ class Page extends Base
                 'use_animal' => $useAnimal,
                 'output' => $output,
                 'background' => $background,
-                'try_data' => '[]'
+                'try_data' => '[]',
+                'get_active_sum' => 1
             ]);
             $animal = UserAnimal::create([
                 "user_id" => $user_id,
