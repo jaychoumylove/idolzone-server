@@ -507,7 +507,33 @@ class Page extends Base
         $status = Cfg::checkConfigTime(Cfg::MANOR_NATIONAL_DAY);
         if ($status) {
             $data['animal_exchange'] = CfgAnimal::where('type', CfgAnimal::NORMAL)->select();
-            $data['animal_exchange_rate'] = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY)['animal_exchange_rate'];
+            foreach ($data['animal_exchange'] as $key => $value) {
+                $userAnimal = UserAnimal::where('user_id', $this->uid)
+                    ->where('animal_id', $value['id'])
+                    ->find();
+
+                $value['has_scrap_num'] = 0;
+                $value['next_lv'] = 1;
+                if ($userAnimal) {
+                    $value['has_scrap_num'] = $userAnimal['scrap'];
+                    $value['next_lv'] = bcadd($userAnimal['level'], 1);
+                }
+
+                $nextLv = CfgAnimalLevel::where('animal_id', $value['id'])
+                    ->where('level', $value['next_lv'])
+                    ->find();
+
+                if ($nextLv) {
+                    $diff = bcsub($nextLv['number'], $value['has_scrap_num']);
+                    $value['need_lv_up_scrap'] = $diff;
+                } else {
+                    $value['need_lv_up_scrap'] = 'OVER';
+                }
+
+                $data['animal_exchange'][$key] = $value;
+            }
+
+            $data['animal_national'] = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
         }
 
         $data[Cfg::RECHARGE_LUCKY] = $config;
