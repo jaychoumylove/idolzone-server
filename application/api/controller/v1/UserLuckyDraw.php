@@ -8,6 +8,7 @@ use app\api\model\CfgLuckyDraw;
 use app\api\model\CfgScrap;
 use app\api\model\Prop;
 use app\api\model\RecLuckyDrawLog;
+use app\api\model\UserAnimal;
 use app\api\model\UserProp;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
@@ -120,5 +121,23 @@ class UserLuckyDraw extends Base
 //        }
 
         Common::res(compact('msg'));
+    }
+
+    public function exchangeAnimal()
+    {
+        $this->getUser();
+
+        $animal_id = input('animal_id', 0);
+        if (empty($animal_id)) {
+            Common::res(['code' => 1, 'msg' => '请选择兑换宠物']);
+        }
+        $type = input('type', false);
+        if (empty($type)) {
+            Common::res(['code' => 1, 'msg' => '请选择兑换方式']);
+        }
+
+        UserAnimal::exchangeByNational($this->uid, $type, $animal_id);
+
+        Common::res();
     }
 }

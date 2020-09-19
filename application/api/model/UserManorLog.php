@@ -124,4 +124,17 @@ class UserManorLog extends Base
             self::record($user_id, $recordData, $content, "NATIONAL_REWARD");
         }
     }
+
+    public static function recordWithNationalDayExchangeAnimal($user_id, $animal, $item)
+    {
+        $type    = 'NATIONAL_ANIMAL_EXCHANGE';
+        $content = sprintf('使用%s个幸运抽奖券兑换', $item['lucky_num']);
+        $data    = [
+            'animal_id' => $animal['id'],
+            'image'     => $animal['scrap_img'],
+            'number'    => abs($item['number'])
+        ];
+
+        self::record($user_id, $data, $content, $type);
+    }
 }

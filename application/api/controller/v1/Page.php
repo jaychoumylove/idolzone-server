@@ -506,7 +506,8 @@ class Page extends Base
         $data['animal_exchange'] = null;
         $status = Cfg::checkConfigTime(Cfg::MANOR_NATIONAL_DAY);
         if ($status) {
-            $data['animal_exchange'] = CfgAnimal::where('type', CfgAnimal::NORMAL)->select()->toArray();
+            $data['animal_exchange'] = CfgAnimal::where('type', CfgAnimal::NORMAL)->select();
+            $data['animal_exchange_rate'] = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY)['animal_exchange_rate'];
         }
 
         $data[Cfg::RECHARGE_LUCKY] = $config;

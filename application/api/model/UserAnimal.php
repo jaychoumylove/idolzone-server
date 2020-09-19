@@ -232,4 +232,84 @@ class UserAnimal extends Base
 
         return $stealLeft > $useTimes ? (int)bcsub($stealLeft, $useTimes): 0;
     }
+
+    public static function exchangeByNational($uid, $type, $animal_id)
+    {
+        $status = Cfg::checkConfigTime(Cfg::MANOR_NATIONAL_DAY);
+        if (empty($status)) {
+            Common::res(['code' => 1, 'msg' => '活动已过期']);
+        }
+
+        $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
+        $typeItem = [];
+        foreach ($config['animal_exchange_rate'] as $item) {
+            if ($item['type'] == $type) {
+                $typeItem = $item;
+            }
+        }
+
+        if (empty($typeItem)) {
+            Common::res(['code' => 1, 'msg' => '请选择兑换方式']);
+        }
+
+        $animalInfo = CfgAnimal::get($animal_id);
+        if ($animalInfo['type'] != CfgAnimal::NORMAL) {
+            Common::res(['code' => 1, 'msg' => '只能兑换十二生肖宠物碎片哦']);
+        }
+
+        $now = time();
+        $date = date('Y-m-d H:i:s', $now);
+        $luckyNum =  (new UserProp())->readMaster()
+            ->where('prop_id', $typeItem['lucky'])
+            ->where('user_id', $uid)
+            ->where('end_time', '>', $date)
+            ->where('status', 0)
+            ->where('use_time', 'null')
+            ->count();
+
+        if ($luckyNum < $typeItem['lucky_num']) {
+            Common::res(['code' =>1, 'msg' => '抽奖券不够哦']);
+        }
+
+        Db::startTrans();
+        try {
+            $userAnimal = UserAnimal::where('user_id', $uid)
+                ->where('animal_id', $animal_id)
+                ->find();
+            if ($userAnimal) {
+                UserAnimal::where('id', $userAnimal['id'])
+                    ->update([
+                        'scrap' => Db::raw('scrap+'. $typeItem['number'])
+                    ]);
+            } else {
+                UserAnimal::create([
+                    'user_id' => $uid,
+                    'animal_id' => $animal_id,
+                    'scrap' => $typeItem['number'],
+                    'level' => 1,
+                ]);
+            }
+
+            UserProp::where('prop_id', $typeItem['lucky'])
+                ->where('user_id', $uid)
+                ->where('end_time', '>', $date)
+                ->where('status', 0)
+                ->where('use_time', 'null')
+                ->order([
+                    'id' => 'asc'
+                ])
+                ->limit($typeItem['lucky_num'])
+                ->update([
+                    'use_time' => $date,
+                    'status' => 1
+                ]);
+
+            UserManorLog::recordWithNationalDayExchangeAnimal($uid, $animalInfo, $typeItem);
+
+            Db::commit();
+        }catch (Throwable $throwable){
+            Db::rollback();
+            Common::res(['code' => 1, 'msg' => '请稍后再试']);
+        }
+    }
 }
