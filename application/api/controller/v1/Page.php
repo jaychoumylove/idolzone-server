@@ -638,7 +638,7 @@ class Page extends Base
         $panaceaReward = 0;
         $new = empty($manor);
         $try = [];
-        $nationalReward = [];
+        $nationalReward = null;
         if ($new) {
             $useAnimal = 1;
             $output = 1;
