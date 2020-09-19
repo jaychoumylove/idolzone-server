@@ -750,7 +750,7 @@ class Page extends Base
                             ]);
                         }
                         UserManorLog::recordWithNationalDay($this->uid, $nationalReward, '国庆中秋回馈');
-                        UserManor::where('id', $manor['id'])->update(['get_active_sum' => 0]);
+                        UserManor::where('id', $manor['id'])->update(['get_active_sum' => 1]);
                     }
                 }
             }
