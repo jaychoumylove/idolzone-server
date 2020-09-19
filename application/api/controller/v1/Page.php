@@ -734,8 +734,6 @@ class Page extends Base
                     }
 
                     if ($nationalReward) {
-                        UserManorLog::recordWithNationalDay($this->uid, $nationalReward, '国庆中秋回馈');
-//                        UserManor::where('id', $manor['id'])->update(['get_active_sum' => 0]);
                         if (array_key_exists('panacea', $nationalReward)) {
                             (new UserService())->change($this->uid, ['panacea' => $nationalReward['panacea']], '国庆中秋回馈');
                         }
@@ -744,6 +742,8 @@ class Page extends Base
                                 'scrap' => Db::raw('scrap+'.$nationalReward['lucky'])
                             ]);
                         }
+                        UserManorLog::recordWithNationalDay($this->uid, $nationalReward, '国庆中秋回馈');
+                        UserManor::where('id', $manor['id'])->update(['get_active_sum' => 0]);
                     }
                 }
             }
