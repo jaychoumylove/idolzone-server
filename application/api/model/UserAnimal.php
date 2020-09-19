@@ -264,7 +264,7 @@ class UserAnimal extends Base
             ->where('user_id', $uid)
             ->where('end_time', '>', $date)
             ->where('status', 0)
-            ->where('use_time', 'null')
+            ->where('use_time', 0)
             ->count();
 
         if ($luckyNum < $typeItem['lucky_num']) {
@@ -294,13 +294,13 @@ class UserAnimal extends Base
                 ->where('user_id', $uid)
                 ->where('end_time', '>', $date)
                 ->where('status', 0)
-                ->where('use_time', 'null')
+                ->where('use_time', 0)
                 ->order([
                     'id' => 'asc'
                 ])
                 ->limit($typeItem['lucky_num'])
                 ->update([
-                    'use_time' => $date,
+                    'use_time' => $now,
                     'status' => 1
                 ]);
 
