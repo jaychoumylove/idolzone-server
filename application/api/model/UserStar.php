@@ -166,6 +166,13 @@ class UserStar extends Base
                     'user_id' => $uid, 'star_id' => $starid
                 ]);
             }
+            $manor = UserManor::where('user_id', $uid)
+                ->find();
+            if ($manor) {
+                UserManor::where('user_id', $uid)->update([
+                    'star_id' => $starid
+                ]);
+            }
             Db::commit();
         } catch (\Exception $e) {
             Db::rollBack();

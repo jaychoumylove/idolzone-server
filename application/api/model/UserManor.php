@@ -324,7 +324,7 @@ and user_id <> ';
         if ($page > $limitPage) {
             $list = [];
         } else {
-            $list = UserManor::with(['user'])
+            $list = UserManor::with(['user','star'])
                 ->where('star_id', $starId)
                 ->where('active_sum', '>', 0)
                 ->order([

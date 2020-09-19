@@ -670,13 +670,15 @@ class Page extends Base
             $output = 1;
             $background = 1;
             $callType = 'goCall';
+            $starId = UserStar::getStarId($this->uid);
             $manor = UserManor::create([
                 'user_id' => $user_id,
                 'last_output_time' => $currentTime,
                 'use_animal' => $useAnimal,
                 'output' => $output,
                 'background' => $background,
-                'try_data' => '[]'
+                'try_data' => '[]',
+                'star_id' => $starId ? $starId: 0
             ]);
             $animal = UserAnimal::create([
                 "user_id" => $user_id,
@@ -907,6 +909,7 @@ class Page extends Base
             $useAnimal = 1;
             $output = 1;
             $background = 1;
+            $starId = UserStar::getStarId($user_id);
             $manor = UserManor::create([
                 'user_id' => $user_id,
                 'last_output_time' => $currentTime,
@@ -914,7 +917,8 @@ class Page extends Base
                 'output' => $output,
                 'background' => $background,
                 'try_data' => '[]',
-                'get_active_sum' => 1
+                'get_active_sum' => 1,
+                'star_id' => $starId ? $starId: 0
             ]);
             $animal = UserAnimal::create([
                 "user_id" => $user_id,
