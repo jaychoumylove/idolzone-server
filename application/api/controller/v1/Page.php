@@ -503,6 +503,12 @@ class Page extends Base
             }
         }
 
+        $data['animal_exchange'] = null;
+        $status = Cfg::checkConfigTime(Cfg::MANOR_NATIONAL_DAY);
+        if ($status) {
+            $data['animal_exchange'] = CfgAnimal::where('type', CfgAnimal::NORMAL)->select()->toArray();
+        }
+
         $data[Cfg::RECHARGE_LUCKY] = $config;
         $data['lucky_log'] = $rec;
         $data['scrap_list'] = $scrap;
