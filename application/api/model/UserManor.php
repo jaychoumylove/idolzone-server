@@ -287,7 +287,9 @@ and user_id <> ';
 
     public static function getActiveIdolSumRank($page, $size)
     {
-        $list = StarManor::order([
+        $list = StarManor::with(['star'])
+            ->where('active_count', '>', 0)
+            ->order([
                 'active_count' => 'desc',
                 'sum' => 'desc',
                 'update_time' => 'desc'
@@ -338,7 +340,8 @@ and user_id <> ';
         $myInfo = null;
         if ($selfIdol) {
             $myInfo = UserManor::where('user_id', $uid)->find();
-            $myInfo['rank'] = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
+            $count = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
+            $myInfo['rank'] = bcadd($count, 1);
             if ($myInfo['rank'] > 110) $myInfo['rank'] = '>110';
         }
         return ['list' => $list, 'my' => $myInfo];
@@ -361,7 +364,8 @@ and user_id <> ';
                 ->select();
         }
         $myInfo = UserManor::where('user_id', $uid)->find();
-        $myInfo['rank'] = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
+        $count = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
+        $myInfo['rank'] = bcadd($count, 1);
         if ($myInfo['rank'] > 210) $myInfo['rank'] = '>210';
         return ['list' => $list, 'my' => $myInfo];
     }

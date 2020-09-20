@@ -8,6 +8,11 @@ use app\base\model\Base;
 
 class StarManor extends Base
 {
+    public function star()
+    {
+        return $this->hasOne('Star', 'id', 'star_id');
+    }
+
     public static function addSum($count, $uid)
     {
         $starId = UserStar::getStarId($uid);
