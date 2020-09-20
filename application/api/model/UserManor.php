@@ -320,7 +320,7 @@ and user_id <> ';
     {
         $selfStarId = UserStar::getStarId($uid);
         $selfIdol = $selfStarId == $starId;
-        $limitPage = $selfIdol ? 20: 21;
+        $limitPage = $selfIdol ? 10: 11;
         if ($page > $limitPage) {
             $list = [];
         } else {
@@ -335,14 +335,34 @@ and user_id <> ';
                 ->page($page, $size)
                 ->select();
         }
-        $selfStarId = UserStar::getStarId($uid);
         $myInfo = null;
-        if ($selfStarId == $starId) {
+        if ($selfIdol) {
             $myInfo = UserManor::where('user_id', $uid)->find();
             $myInfo['rank'] = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
-            if ($myInfo['rank'] > 210) $myInfo['rank'] = '>210';
+            if ($myInfo['rank'] > 110) $myInfo['rank'] = '>110';
         }
         return ['list' => $list, 'my' => $myInfo];
     }
 
+    public static function getActiveAllFansSumRank($uid, $page, $size)
+    {
+        $limitPage = 21;
+        if ($page > $limitPage) {
+            $list = [];
+        } else {
+            $list = UserManor::with(['user','star'])
+                ->where('active_sum', '>', 0)
+                ->order([
+                    'active_sum' => 'desc',
+                    'sum' => 'desc',
+                    'week_count' => 'desc'
+                ])
+                ->page($page, $size)
+                ->select();
+        }
+        $myInfo = UserManor::where('user_id', $uid)->find();
+        $myInfo['rank'] = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
+        if ($myInfo['rank'] > 210) $myInfo['rank'] = '>210';
+        return ['list' => $list, 'my' => $myInfo];
+    }
 }
