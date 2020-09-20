@@ -314,8 +314,11 @@ and user_id <> ';
             $item['top'] = $topThree;
             $list[$index] = $item;
         }
+        $myInfo = null;
+        $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
+        $banner = $config['banner']['rank'];
 
-        return ['list' => $list];
+        return ['list' => $list, 'my' => $myInfo, 'banner' => $banner];
     }
 
     public static function getActiveFansSumRank($uid, $starId, $page, $size)
@@ -342,9 +345,13 @@ and user_id <> ';
             $myInfo = UserManor::where('user_id', $uid)->find();
             $count = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
             $myInfo['rank'] = bcadd($count, 1);
-            if ($myInfo['rank'] > 110) $myInfo['rank'] = '>110';
         }
-        return ['list' => $list, 'my' => $myInfo];
+        $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
+        $banner = $config['banner']['rank'];
+        $starName = Star::get($starId)['name'];
+        $banner['title'] = str_replace('STARNAME', $starName, $banner['title']);
+
+        return ['list' => $list, 'my' => $myInfo, 'banner' => $banner];
     }
 
     public static function getActiveAllFansSumRank($uid, $page, $size)
@@ -366,7 +373,10 @@ and user_id <> ';
         $myInfo = UserManor::where('user_id', $uid)->find();
         $count = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
         $myInfo['rank'] = bcadd($count, 1);
-        if ($myInfo['rank'] > 210) $myInfo['rank'] = '>210';
-        return ['list' => $list, 'my' => $myInfo];
+
+        $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
+        $banner = $config['banner']['zone_rank'];
+
+        return ['list' => $list, 'my' => $myInfo, 'banner' => $banner];
     }
 }
