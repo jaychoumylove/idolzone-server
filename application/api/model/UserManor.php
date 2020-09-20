@@ -317,8 +317,9 @@ and user_id <> ';
         $myInfo = null;
         $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
         $banner = $config['banner']['rank'];
+        $limitIndex = -1;
 
-        return ['list' => $list, 'my' => $myInfo, 'banner' => $banner];
+        return ['list' => $list, 'my' => $myInfo, 'banner' => $banner, 'limit_index' => $limitIndex];
     }
 
     public static function getActiveFansSumRank($uid, $starId, $page, $size)
@@ -347,11 +348,12 @@ and user_id <> ';
             $myInfo['rank'] = bcadd($count, 1);
         }
         $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
-        $banner = $config['banner']['rank'];
+        $banner = $config['banner']['zone_rank'];
         $starName = Star::get($starId)['name'];
         $banner['title'] = str_replace('STARNAME', $starName, $banner['title']);
+        $limitIndex = 100;
 
-        return ['list' => $list, 'my' => $myInfo, 'banner' => $banner];
+        return ['list' => $list, 'my' => $myInfo, 'banner' => $banner, 'limit_index' => $limitIndex];
     }
 
     public static function getActiveAllFansSumRank($uid, $page, $size)
@@ -375,8 +377,9 @@ and user_id <> ';
         $myInfo['rank'] = bcadd($count, 1);
 
         $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
-        $banner = $config['banner']['zone_rank'];
+        $banner = $config['banner']['rank'];
+        $limitIndex = 200;
 
-        return ['list' => $list, 'my' => $myInfo, 'banner' => $banner];
+        return ['list' => $list, 'my' => $myInfo, 'banner' => $banner, 'limit_index' => $limitIndex];
     }
 }
