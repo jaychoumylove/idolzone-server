@@ -819,7 +819,7 @@ class Animal extends Base
     {
         // 国庆节庄园排行
         $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 15);
+        $size = $this->req('size', 'integer', 10);
 
         $data = UserManor::getActiveIdolSumRank($page, $size);
 
@@ -832,7 +832,7 @@ class Animal extends Base
         $this->getUser();
         $star = (int)input('star_id', 0);
         $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 15);
+        $size = $this->req('size', 'integer', 10);
         $data = UserManor::getActiveFansSumRank($this->uid,$star, $page, $size);
 
         Common::res(['data' => $data]);
@@ -843,7 +843,7 @@ class Animal extends Base
         // 国庆节庄园排行
         $this->getUser();
         $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 15);
+        $size = $this->req('size', 'integer', 10);
         $data = UserManor::getActiveAllFansSumRank($this->uid, $page, $size);
 
         Common::res(['data' => $data]);
