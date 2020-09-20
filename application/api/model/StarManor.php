@@ -25,7 +25,11 @@ class StarManor extends Base
                     'sum' => Db::raw('sum+'.$count)
                 ];
                 if ($status) {
-                    $data['active_count'] = Db::raw('active_count+'.$count);
+                    $allActiveSum = (new UserManor)->readMaster()
+                        ->where($map)
+                        ->limit(100)
+                        ->column('active_sum');
+                    $data['active_count'] = (int)array_sum($allActiveSum);
                 }
                 self::where($map)->update($data);
             } else {
