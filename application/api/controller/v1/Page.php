@@ -1005,6 +1005,7 @@ class Page extends Base
         if (count($selfManor['day_lottery_box']) >= 3) $status = -1;
         if (in_array($user_id, $selfManor['day_lottery_box'])) $status = 1;
 
+        $leftLottery = bcsub(3, count($selfManor['day_lottery_box']));
         Common::res(['data' => [
             'manor' => $manor,
             'main_animal' => $mainAnimal,
@@ -1013,7 +1014,8 @@ class Page extends Base
             'main_background'  => $mainBackground,
             'try_background'  => empty($tryBackground) ? null: $tryBackground,
             'box_log' => $boxLog,
-            'lottery_status' => $status
+            'lottery_status' => $status,
+            'left_lottery' => $leftLottery
         ]]);
     }
 }
