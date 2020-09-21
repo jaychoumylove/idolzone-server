@@ -174,8 +174,9 @@ class AutoRun extends Base
                 'day_count' => 0,
             ]);
 
+            $massDate = date('YmdH');
             FanclubUser::where('day_mass_times', '>', 0)->update([
-                'day_mass_times' => Db::raw('if(`day_mass_times` > 24, `day_mass_times` - 24, 0)'),
+                'day_mass_times' => Db::raw('if(`mass_time` = '.$massDate.', 1, 0)'),
             ]);
 
             RecTaskactivity618::where('task_id','in',[4,8,9])->update([
