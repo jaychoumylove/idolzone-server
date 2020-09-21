@@ -5,6 +5,7 @@ namespace app\api\model;
 
 
 use app\base\model\Base;
+use think\Db;
 
 class StarManor extends Base
 {
