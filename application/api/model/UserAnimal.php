@@ -124,11 +124,15 @@ class UserAnimal extends Base
 
         Db::startTrans();
         try {
-            UserAnimal::create([
+            $lvData = [
                 'user_id' => $uid,
                 'animal_id' => $animal,
                 'level' => 1,
-            ]);
+            ];
+            if ($animalInfo['type'] == CfgAnimal::SECRET && $animalInfo['star_id']) {
+                $lvData['use_image'] = $animal['default_img'];
+            }
+            UserAnimal::create($lvData);
 
             $scrapUpdated = UserExt::where('user_id', $uid)
                 ->where('scrap', $scrap_num)
@@ -311,5 +315,42 @@ class UserAnimal extends Base
             Db::rollback();
             Common::res(['code' => 1, 'msg' => '请稍后再试']);
         }
+    }
+
+    public static function checkoutSecretImage($uid, $animal)
+    {
+        $animalInfo = CfgAnimal::get($animal);
+        if (empty($animalInfo)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+        if (empty($animalInfo['default_img'])) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+        if ($animalInfo['type'] != 'SECRET') {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        if ($animalInfo['star_id']) {
+            $star = UserStar::getStarId($uid);
+            if ($star != $animalInfo['star_id']) {
+                Common::res(['code' => 1, 'msg' => '暂未开放']);
+            }
+        } else {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        $exist = UserAnimal::get(['animal_id' => $animal, 'user_id' => $uid]);
+        if (empty($exist)) {
+            Common::res(['code' => 1, 'msg' => '您还没有该宠物哦']);
+        }
+
+        $update = [];
+        if ($exist['use_image'] == $animalInfo['default_img']) {
+            $update['use_image'] = $animalInfo['image'];
+        } else {
+            $update['use_image'] = $animalInfo['default_img'];
+        }
+
+        UserAnimal::where('id', $exist['id'])->update($update);
     }
 }
