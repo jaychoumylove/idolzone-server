@@ -178,8 +178,9 @@ class Animal extends Base
 
         if ($type == 'secret') {
             $star = UserStar::getStarId($this->uid);// 只能看到自己家的
+            $default = 0;
             $list = CfgAnimal::where('type', 'SECRET')
-                ->where('star_id', $star)
+                ->where('star_id', 'in', [$star, $default])
                 ->order('create_time', 'desc')
                 ->select();
 
