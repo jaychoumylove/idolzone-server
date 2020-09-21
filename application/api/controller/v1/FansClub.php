@@ -217,8 +217,8 @@ class FansClub extends Base
                 ->update([
                     'mass_time' => date('YmdH'),
                     'mass_count' => $coin,
-                    'day_mass_times' => bcadd($fanclubUser['day_mass_times'], 1),
-                    'week_hot' => bcadd($fanclubUser['week_hot'], $coin)
+                    'day_mass_times' => Db::raw('day_mass_times+1'),
+                    'week_hot' => Db::raw('week_hot+'.$coin)
                 ]);
             if (!$isDone) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下一个小时再来2']);
             
