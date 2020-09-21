@@ -793,7 +793,7 @@ class Page extends Base
         if ($nums > $maxLottery) {
             $lotteryLeft = 0;
         } else {
-            $lotteryLeft = bcsub($maxLottery, $nums);
+            $lotteryLeft = (int)bcsub($maxLottery, $nums);
         }
 
         $max_output_hours = $config['max_output_hours'];

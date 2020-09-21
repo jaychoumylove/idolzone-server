@@ -248,7 +248,7 @@ class Animal extends Base
         if ($nums > $maxLottery) {
             $lotteryLeft = 0;
         } else {
-            $lotteryLeft = bcsub($maxLottery, $nums);
+            $lotteryLeft = (int)bcsub($maxLottery, $nums);
         }
 
         $animalIds = CfgAnimal::where('type', 'NORMAL')->column('id');
