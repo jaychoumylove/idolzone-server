@@ -363,7 +363,7 @@ and user_id <> ';
 
     public static function getActiveAllFansSumRank($uid, $page, $size)
     {
-        $limitPage = 21;
+        $limitPage = 10;
         if ($page > $limitPage) {
             $list = [];
         } else {
