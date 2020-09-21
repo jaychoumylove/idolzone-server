@@ -242,6 +242,22 @@ class Animal extends Base
         $mainAnimalId = (int)$manor['use_animal'];
         $stealLeft = UserAnimal::getStealLeft($this->uid);
 
+        $nums = UserExt::where('user_id', $this->uid)->value('animal_lottery');
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $maxLottery = (int)$config['lottery']['max'];
+        if ($nums > $maxLottery) {
+            $lotteryLeft = 0;
+        } else {
+            $lotteryLeft = bcsub($maxLottery, $nums);
+        }
+
+        $animalIds = CfgAnimal::where('type', 'NORMAL')->column('id');
+
+        $normalAnimalNum = UserAnimal::where('user_id', $this->uid)
+            ->where('animal_id', 'in', $animalIds)
+            ->count();
+        $callType = $normalAnimalNum == 12 ? 'goSupple': 'goCall';
+
         Common::res(['data' => [
             'list' => $list,
             'output' => $output,
@@ -249,7 +265,10 @@ class Animal extends Base
             'list_support' => $supportItem,
             'steal_left' => $stealLeft,
             'main_animal' => $mainAnimalId,
-            'scrap_num' => $scrapNum
+            'scrap_num' => $scrapNum,
+            'lottery_left' => $lotteryLeft,
+            'max_lottery'  => $maxLottery,
+            'call_type' => $callType,
         ]]);
     }
 
