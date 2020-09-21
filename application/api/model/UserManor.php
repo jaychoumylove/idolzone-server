@@ -302,6 +302,7 @@ and user_id <> ';
         foreach ($list as $index => $item) {
             $topThree = UserManor::with(['user'])
                 ->where('star_id', $item['star_id'])
+                ->where('active_sum', '>', 0)
                 ->order([
                     'active_sum' => 'desc',
                     'sum' => 'desc',
