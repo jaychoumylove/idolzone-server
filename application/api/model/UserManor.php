@@ -352,7 +352,10 @@ and user_id <> ';
         $starName = Star::get($starId)['name'];
 
         $rank = $config['zone_rank'];
-        $rank['banner']['title'] = str_replace('STARNAME', $starName, $rank['banner']['title']);
+        foreach ($rank['banner']['title'] as $key => $value) {
+            $value = str_replace('STARNAME', $starName, $value);
+            $rank['banner']['title'][$key] = $value;
+        }
         $data = ['list' => $list, 'my' => $myInfo];
 
         return array_merge($data, $rank);
