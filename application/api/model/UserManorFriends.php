@@ -64,4 +64,23 @@ class UserManorFriends extends Base
         }
         self::create($map);
     }
+
+    public static function removeFriend($user_id, $friend_id)
+    {
+        if ($user_id == $friend_id) {
+            return;
+        }
+        $map    = compact('user_id', 'friend_id');
+        $exist1 = self::get($map);
+        if (empty($exist1)) {
+            $map = array_reverse($map);
+            $exist2 = self::get($map);
+            if (empty($exist2)) {
+                return;
+            }
+        }
+
+        self::where($map)->delete(true);
+    }
+
 }

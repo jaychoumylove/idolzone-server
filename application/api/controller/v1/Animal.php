@@ -649,6 +649,19 @@ class Animal extends Base
         Common::res();
     }
 
+    public function removeFriend()
+    {
+        $this->getUser();
+        $friend = (int)input('friend', 0);
+        if (empty($friend)) {
+            Common::res(['code' => 1, 'msg' => '请选择好友']);
+        }
+
+        UserManorFriends::removeFriend($this->uid, $friend);
+
+        Common::res();
+    }
+
     public function friendList()
     {
         $this->getUser();

@@ -390,6 +390,7 @@ Route::rule('api/:version/manor/use_background', 'api/v1.Animal/useBackground');
 Route::rule('api/:version/manor/unlock_background', 'api/v1.Animal/unlockBackground'); // 解锁庄园背景
 Route::rule('api/:version/manor/try_background', 'api/v1.Animal/tryBackground'); // 试用庄园背景
 Route::rule('api/:version/manor/add_friend', 'api/v1.Animal/addFriend'); // 新增朋友
+Route::rule('api/:version/manor/remove_friend', 'api/v1.Animal/removeFriend'); // 移除朋友
 Route::rule('api/:version/manor/friend_list', 'api/v1.Animal/friendList'); // 朋友列表
 Route::rule('api/:version/animal_box/list', 'api/v1.Animal/boxAnimal'); // 宝箱列表
 Route::rule('api/:version/animal_box/lottery', 'api/v1.Animal/boxAnimalLottery'); // 宝箱抽取
