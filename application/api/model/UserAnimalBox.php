@@ -21,7 +21,9 @@ class UserAnimalBox extends Base
             Common::res(['code' => 1, 'msg' => '您已经抽取过了']);
         }
 
-        if (count($dayLotteryBox) >= 3) {
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+
+        if (count($dayLotteryBox) >= $config['lottery_box_max']) {
             Common::res(['code' => 1, 'msg' => '已经没有抽取次数了']);
         }
 

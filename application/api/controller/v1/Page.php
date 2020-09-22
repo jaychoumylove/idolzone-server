@@ -1026,10 +1026,12 @@ class Page extends Base
         $index = rand(0, count($str) - 1);
         $word = $str[$index];
         $status = 0;
-        if (count($selfManor['day_lottery_box']) >= 3) $status = -1;
+
+        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        if (count($selfManor['day_lottery_box']) >= $config['lottery_box_max']) $status = -1;
         if (in_array($user_id, $selfManor['day_lottery_box'])) $status = 1;
 
-        $leftLottery = bcsub(3, count($selfManor['day_lottery_box']));
+        $leftLottery = (int)bcsub($config['lottery_box_max'], count($selfManor['day_lottery_box']));
         Common::res(['data' => [
             'manor' => $manor,
             'main_animal' => $mainAnimal,
