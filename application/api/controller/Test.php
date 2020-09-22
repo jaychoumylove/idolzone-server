@@ -4,8 +4,10 @@ namespace app\api\controller;
 
 
 use app\api\model\AnimalLottery;
+use app\api\model\Cfg;
 use app\api\model\CfgAnimal;
 use app\api\model\CfgAnimalLevel;
+use app\api\model\UserAnimal;
 use app\api\model\UserManor;
 use app\base\controller\Base;
 use Exception;
@@ -28,6 +30,7 @@ use app\api\model\BadgeUser;
 use app\api\model\FanclubUser;
 use app\api\model\RecPayOrder;
 use think\Response;
+use Throwable;
 
 class Test extends Base
 {
@@ -307,5 +310,47 @@ class Test extends Base
                 'star_id' =>  $starId ? $starId: 0
             ]);
         }
+
+        return Response::create(['status' => 'OK'], 'json');
+    }
+
+    public function userAnimalAddExchange()
+    {
+        // 把starid有值的都改为STAR类型
+        // 给解锁这些animal的用户补充交换萌宠
+        $starAnimals = CfgAnimal::where('star_id', '>', 0)->select();
+        if (is_object($starAnimals)) $starAnimals = $starAnimals->toArray();
+        $starAnimalIds = array_column($starAnimals, 'id');
+        $starAnimalDict = array_column($starAnimals, null, 'id');
+        Db::startTrans();
+        try {
+            CfgAnimal::where('id', 'in', $starAnimalIds)->update(['type' => CfgAnimal::STAR]);
+            $userAnimal = UserAnimal::where('animal_id', 'in', $starAnimalIds)->select();
+            $exchangeAnimal = CfgAnimal::get(['type' => CfgAnimal::STAR_SECRET]);
+            $insert = [];
+            $manorUpdateUserId = [];
+            foreach ($userAnimal as $key => $value) {
+                $item = [
+                    'user_id' => $value['user_id'],
+                    'animal_id' => $exchangeAnimal['id'],
+                    'scrap' => $value['scrap'],
+                    'level' => $value['level'],
+                    'lock' => $value['lock'],
+                    'use_image' => $starAnimalDict[$value['animal_id']]['image']
+                ];
+                array_push($insert, $item);
+                array_push($manorUpdateUserId, $value['user_id']);
+            }
+
+            (new UserAnimal())->insertAll($insert);
+            UserManor::where('user_id', 'in', $manorUpdateUserId)->update(['use_animal' => $exchangeAnimal['id']]);
+
+            Db::commit();
+        }catch (Throwable $throwable) {
+            Db::rollback();
+
+            return Response::create(['status' => 'FAIL'], 'json');
+        }
+        return Response::create(['status' => 'OK'], 'json');
     }
 }

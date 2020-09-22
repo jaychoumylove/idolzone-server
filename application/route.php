@@ -10,6 +10,7 @@ Route::rule('test/buildanimallv', 'api/Test/reBuildAnimalLevel');
 Route::rule('test/buildanimal', 'api/Test/reBuildAnimal');
 Route::rule('test/buildanimallottery', 'api/Test/reBuildLottery');
 Route::rule('test/manor_add_star', 'api/Test/manorAddStartId'); //
+Route::rule('test/change_animal', 'api/Test/userAnimalAddExchange'); //
 
 // APP热更新
 Route::rule('api/:version/app/update', 'api/v1.H5/update');

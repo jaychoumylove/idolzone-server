@@ -102,7 +102,17 @@ class Animal extends Base
                         ->find();
 
                     if ($value['type'] == CfgAnimal::STAR_SECRET) {
-                        $value['image'] = $userAnimalDict[$value['id']]['use_image'];
+                        if ($value['image'] == $userAnimalDict[$value['id']]['use_image']) {
+                            // 猫
+                        } else {
+                            // 爱豆萌宠
+                            $value['image'] = $userAnimalDict[$value['id']]['use_image'];
+                            $starId = UserStar::getStarId($this->uid);
+                            $starAnimal = CfgAnimal::where('star_id', $starId)
+                                ->where('type', CfgAnimal::STAR)
+                                ->find();
+                            $value['name'] = $starAnimal['name'];
+                        }
                     }
 
                     if (empty($nextLv)) {
@@ -283,6 +293,14 @@ class Animal extends Base
                 $starAnimal = CfgAnimal::get(['type' => CfgAnimal::STAR, 'star_id' => $starId]);
                 if ($starAnimal) {
                     $exchangeImage = $starAnimal;
+                }
+
+                if ($animal['image'] == $userAnimal['use_image']) {
+                    // 猫
+                    $animal['use_name'] = $animal['name'];
+                } else {
+                    // 爱豆萌宠
+                    $animal['use_name'] = $starAnimal['name'];
                 }
             }
         }
