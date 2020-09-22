@@ -967,7 +967,7 @@ class Page extends Base
 
         $mainAnimal = CfgAnimal::get($useAnimal);
         if ($mainAnimal['type'] == CfgAnimal::STAR_SECRET) {
-            $userImage = UserAnimal::where('user_id', $this->uid)
+            $userImage = UserAnimal::where('user_id', $user_id)
                 ->where('animal_id', $mainAnimal['id'])
                 ->value('use_image');
             if ($userImage == $mainAnimal['image']) {

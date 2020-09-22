@@ -35,11 +35,12 @@ class UserAnimal extends Base
 
         $isNormal = $animalInfo['type'] == 'NORMAL';
         $isSecret = $animalInfo['type'] == 'SECRET';
+        $isStarSecret = $animalInfo['type'] == CfgAnimal::STAR_SECRET;
 
         if ($isNormal) {
             $scrap_num = $userAnimal['scrap'];
         }
-        if ($isSecret) {
+        if ($isSecret || $isStarSecret) {
             $scrap_num = UserExt::where('user_id', $uid)->value ('scrap');
         }
 
