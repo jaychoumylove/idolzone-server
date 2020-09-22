@@ -26,9 +26,9 @@ class UserAnimalBox extends Base
         }
 
         $map    = ['user_id' => $uid, 'friend_id' => $target_user];
-        $exist1 = self::get($map);
+        $exist1 = UserManorFriends::get($map);
         if (empty($exist1)) {
-            $exist2 = self::get(array_reverse($map));
+            $exist2 = UserManorFriends::get(array_reverse($map));
             if (empty($exist2)) {
                 Common::res(['code' => 1, 'msg' => '你不是Ta的好友哦']);
             }
