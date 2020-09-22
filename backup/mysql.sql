@@ -1326,16 +1326,6 @@ create index f_star_manor_star_index
 alter table f_star_manor
     add primary key (id);
 
-alter table f_cfg_animal
-	add default_img varchar(255) null comment '明星图片' after empty_img;
-
-alter table f_cfg_animal modify exchange int not null comment '碎片ID用于解锁｜升级' after lock_num;
-
-alter table f_cfg_animal modify scrap_name varchar(255) null after exchange;
-
-alter table f_cfg_animal modify star_id int null after scrap_name;
-
 alter table f_user_animal
-	add use_image int null after `lock`;
-
+	add use_image varchar(255) null after `lock`;
 

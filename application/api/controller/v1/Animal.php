@@ -77,10 +77,7 @@ class Animal extends Base
         }
 
         if ($type == 'secret') {
-            $star = UserStar::getStarId($this->uid);// 只能看到自己家的
-            $default = 0;
-            $list = CfgAnimal::where('type', 'SECRET')
-                ->where('star_id', 'in', [$star, $default])
+            $list = CfgAnimal::where('type', 'in', [CfgAnimal::SECRET, CfgAnimal::STAR_SECRET])
                 ->order('create_time', 'desc')
                 ->select();
 
@@ -104,7 +101,9 @@ class Animal extends Base
                         ->where('level', bcadd($lv, 1))
                         ->find();
 
-                    $value['image'] = $userAnimalDict[$value['id']]['use_image'];
+                    if ($value['type'] == CfgAnimal::STAR_SECRET) {
+                        $value['image'] = $userAnimalDict[$value['id']]['use_image'];
+                    }
 
                     if (empty($nextLv)) {
                         $value['up_able'] = false;
@@ -118,7 +117,6 @@ class Animal extends Base
                         ->where('level', $lv)
                         ->find();
                     $value['need_scrap'] = $value['lv_info']['number'];
-                    $value['image'] = $value['default_img'];
                 }
                 $value['scrap_num'] = $scrapNum;
 
@@ -277,15 +275,22 @@ class Animal extends Base
         $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
         $lvDict = CfgAnimalLevel::getDictList((new CfgAnimalLevel()), [$lv, $nextLv], 'level', '*', ['animal_id' => $animalId]);
 
-        if ($animal['type'] == CfgAnimal::SECRET) {
+        $exchangeImage = null;
+        if ($animal['type'] == CfgAnimal::STAR_SECRET) {
             if ($lv) {
-                $animal['image'] = $userAnimal['use_image'];
+                $animal['use_image'] = $userAnimal['use_image'];
+                $starId = UserStar::getStarId($this->uid);
+                $starAnimal = CfgAnimal::get(['type' => CfgAnimal::STAR, 'star_id' => $starId]);
+                if ($starAnimal) {
+                    $exchangeImage = $starAnimal;
+                }
             }
         }
 
         $data = [
             'animal' => $animal,
             'lv' => $lvDict[$lv],
+            'changeImage' => $exchangeImage,
             'next_lv' => array_key_exists($nextLv, $lvDict) ? $lvDict[$nextLv]: null,
             'scrap_num' => $animal['type'] == 'NORMAL' ? $userAnimal['scrap'] : $scrapNum,
         ];
@@ -296,13 +301,8 @@ class Animal extends Base
     public function checkSecretImage()
     {
         $this->getUser();
-        // 获取宠物信息
-        $animalId = (int)input('animal_id', 0);
-        if (empty($animalId)) {
-            Common::res(['code' => 1, 'msg' => '请选择宠物']);
-        }
 
-        UserAnimal::checkoutSecretImage($this->uid, $animalId);
+        UserAnimal::checkoutSecretImage($this->uid);
         Common::res();
     }
 

@@ -12,6 +12,8 @@ class CfgAnimal extends Base
     const STEAL  = 'STEAL';
     const NORMAL = 'NORMAL';
     const SECRET  = 'SECRET';
+    const STAR  = 'STAR';
+    const STAR_SECRET  = 'STAR_SECRET';
 
     public function scrap()
     {

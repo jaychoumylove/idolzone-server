@@ -787,6 +787,12 @@ class Page extends Base
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
+        if ($mainAnimal['type'] == CfgAnimal::STAR_SECRET) {
+            $userImage = UserAnimal::where('user_id', $this->uid)
+                ->where('animal_id', $mainAnimal['id'])
+                ->value('use_image');
+            $mainAnimal['image'] = $userImage;
+        }
         $nums = UserExt::where('user_id', $user_id)->value('animal_lottery');
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
         $maxLottery = (int)$config['lottery']['max'];
@@ -955,6 +961,12 @@ class Page extends Base
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
+        if ($mainAnimal['type'] == CfgAnimal::STAR_SECRET) {
+            $userImage = UserAnimal::where('user_id', $this->uid)
+                ->where('animal_id', $mainAnimal['id'])
+                ->value('use_image');
+            $mainAnimal['image'] = $userImage;
+        }
 
         $normalStr = [
             "记得常来看我",

@@ -129,8 +129,8 @@ class UserAnimal extends Base
                 'animal_id' => $animal,
                 'level' => 1,
             ];
-            if ($animalInfo['type'] == CfgAnimal::SECRET && $animalInfo['star_id']) {
-                $lvData['use_image'] = $animal['default_img'];
+            if ($animalInfo['type'] == CfgAnimal::STAR_SECRET) {
+                $lvData['use_image'] = $animalInfo['image'];
             }
             UserAnimal::create($lvData);
 
@@ -317,25 +317,11 @@ class UserAnimal extends Base
         }
     }
 
-    public static function checkoutSecretImage($uid, $animal)
+    public static function checkoutSecretImage($uid)
     {
-        $animalInfo = CfgAnimal::get($animal);
+        $animalInfo = CfgAnimal::get(['type' => CfgAnimal::STAR_SECRET]);
+        $animal = $animalInfo['id'];
         if (empty($animalInfo)) {
-            Common::res(['code' => 1, 'msg' => '暂未开放']);
-        }
-        if (empty($animalInfo['default_img'])) {
-            Common::res(['code' => 1, 'msg' => '暂未开放']);
-        }
-        if ($animalInfo['type'] != 'SECRET') {
-            Common::res(['code' => 1, 'msg' => '暂未开放']);
-        }
-
-        if ($animalInfo['star_id']) {
-            $star = UserStar::getStarId($uid);
-            if ($star != $animalInfo['star_id']) {
-                Common::res(['code' => 1, 'msg' => '暂未开放']);
-            }
-        } else {
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
 
@@ -344,11 +330,20 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '您还没有该宠物哦']);
         }
 
+        $starId = UserStar::getStarId($uid);
+        $starAnimal = CfgAnimal::get([
+            'type' => CfgAnimal::STAR,
+            'star_id' => $starId
+        ]);
+        if (empty($starAnimal)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
         $update = [];
-        if ($exist['use_image'] == $animalInfo['default_img']) {
+        if ($exist['use_image'] == $starAnimal['image']) {
             $update['use_image'] = $animalInfo['image'];
         } else {
-            $update['use_image'] = $animalInfo['default_img'];
+            $update['use_image'] = $starAnimal['image'];
         }
 
         UserAnimal::where('id', $exist['id'])->update($update);
