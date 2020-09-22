@@ -1329,3 +1329,8 @@ alter table f_star_manor
 alter table f_user_animal
 	add use_image varchar(255) null after `lock`;
 
+alter table f_cfg_animal modify type varchar(150) default 'NORMAL' not null comment 'NORMAL 12生肖
+SECRET 神秘萌宠-通用
+STAR 爱豆萌宠-圈内
+STAR_SECRET 防版权交换神秘萌宠';
+
