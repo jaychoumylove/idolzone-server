@@ -29,7 +29,8 @@ class UserManorFriends extends Base
         if ($exist1) {
             Common::res(['code' => 1, 'msg' => '你们已经是好友了']);
         }
-        $exist2 = self::get(array_reverse($map));
+        $map = ['user_id' => $friend_id, 'friend_id' => $user_id];
+        $exist2 = self::get($map);
         if ($exist2) {
             Common::res(['code' => 1, 'msg' => '你们已经是好友了']);
         }
@@ -73,7 +74,7 @@ class UserManorFriends extends Base
         $map    = compact('user_id', 'friend_id');
         $exist1 = self::get($map);
         if (empty($exist1)) {
-            $map = array_reverse($map);
+            $map = ['user_id' => $friend_id, 'friend_id' => $user_id];
             $exist2 = self::get($map);
             if (empty($exist2)) {
                 return;
