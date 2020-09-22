@@ -89,7 +89,7 @@ class UserAnimal extends Base
         if (empty($animalInfo)) {
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
-        if ($animalInfo['type'] != 'SECRET') {
+        if (in_array($animalInfo['type'], [CfgAnimal::STAR_SECRET,CfgAnimal::SECRET]) == false) {
             //
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }

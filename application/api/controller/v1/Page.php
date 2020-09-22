@@ -791,7 +791,12 @@ class Page extends Base
             $userImage = UserAnimal::where('user_id', $this->uid)
                 ->where('animal_id', $mainAnimal['id'])
                 ->value('use_image');
-            $mainAnimal['image'] = $userImage;
+            if ($userImage == $mainAnimal['image']) {
+                $mainAnimal['type'] = CfgAnimal::NORMAL;
+            } else {
+                $mainAnimal['image'] = $userImage;
+                $mainAnimal['type'] = CfgAnimal::SECRET;
+            }
         }
         $nums = UserExt::where('user_id', $user_id)->value('animal_lottery');
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
@@ -965,7 +970,12 @@ class Page extends Base
             $userImage = UserAnimal::where('user_id', $this->uid)
                 ->where('animal_id', $mainAnimal['id'])
                 ->value('use_image');
-            $mainAnimal['image'] = $userImage;
+            if ($userImage == $mainAnimal['image']) {
+                $mainAnimal['type'] = CfgAnimal::NORMAL;
+            } else {
+                $mainAnimal['image'] = $userImage;
+                $mainAnimal['type'] = CfgAnimal::SECRET;
+            }
         }
 
         $normalStr = [
