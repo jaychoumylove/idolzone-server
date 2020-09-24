@@ -446,6 +446,7 @@ and user_id <> ';
                     $nationalReward['spend_lucky'] = $spendLucky;
                 }
                 UserManorLog::recordWithNationalDay($user_id, $nationalReward, '国庆中秋回馈补发');
+                UserManor::where('user_id', $user_id)->update(['get_active_sum' => 1]);
             }
         }
 
