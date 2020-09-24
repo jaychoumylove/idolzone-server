@@ -4,6 +4,7 @@
 namespace app\api\model;
 
 
+use app\api\service\User as UserService;
 use app\base\model\Base;
 use app\base\service\Common;
 use think\Db;
@@ -62,7 +63,7 @@ class UserManor extends Base
         $num = (int) bcdiv($totalFlower, 1000000);
 
         if ($num) {
-            (new \app\api\service\User())->change($uid, ['panacea' => $num], '往期鲜花收益');
+            (new UserService())->change($uid, ['panacea' => $num], '往期鲜花收益');
         }
 
         return $num;
@@ -104,7 +105,7 @@ class UserManor extends Base
             // 更新
             StarManor::addSum($addCount, $uid);
 
-            (new \app\api\service\User())->change($uid, ['coin' => $addCount], '庄园金豆收益');
+            (new UserService())->change($uid, ['coin' => $addCount], '庄园金豆收益');
             Db::commit();
         }catch (Throwable $throwable) {
             Db::rollback();
@@ -160,7 +161,7 @@ class UserManor extends Base
                 throw new Exception('已经被庄主收走咯');
             }
 
-            (new \app\api\service\User())->change($uid, ['coin' => $steal_num], '偷取庄园金豆');
+            (new UserService())->change($uid, ['coin' => $steal_num], '偷取庄园金豆');
 
             ManorStealLog::create([
                 'user_id' => $uid,
@@ -386,5 +387,68 @@ and user_id <> ';
         $data = ['list' => $list, 'my' => $myInfo];
 
         return array_merge($data, $rank);
+    }
+
+    public static function supportNational($user_id)
+    {
+        $nationalReward = [];
+        // 国庆节回馈补发
+        $normalId = CfgAnimal::where('type', CfgAnimal::NORMAL)->column('id');
+
+        $userAnimalLevelDict = UserAnimal::where('user_id', $user_id)
+            ->where('animal_id', 'in', $normalId)
+            ->column('level', 'animal_id');
+        $spendPanacea = 0;
+        foreach ($userAnimalLevelDict as $key => $value) {
+            $numbers = CfgAnimalLevel::where('animal_id', $key)
+                ->where('level', '<=', $value)
+                ->column('number');
+
+            $spendPanacea += abs(array_sum($numbers)); // 花费幸运碎片
+        }
+
+        $animalId = CfgAnimal::where('type', CfgAnimal::STAR)
+            ->where('star_id', '>', 0)
+            ->column('id');
+        $userAnimalLevelDict = UserAnimal::where('user_id', $user_id)
+            ->where('animal_id', 'in', $animalId)
+            ->column('level', 'animal_id');
+        $spendLucky = 0;
+        foreach ($userAnimalLevelDict as $key => $value) {
+            $numbers = CfgAnimalLevel::where('animal_id', $key)
+                ->where('level', '<=', $value)
+                ->column('number');
+
+            $spendLucky += abs(array_sum($numbers)); // 花费幸运碎片
+        }
+
+        if ($spendPanacea || $spendLucky) {
+            $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
+            $rate = $config['reward_rate'];
+            $lucky = bcmul($spendLucky, $rate['lucky']);
+            $panacea = bcmul($spendPanacea, $rate['panacea']);
+            if ($lucky) {
+                $nationalReward['lucky'] = $lucky;
+            }
+            if ($panacea) {
+                $nationalReward['panacea'] = $panacea;
+            }
+
+            if ($nationalReward) {
+                if (array_key_exists('panacea', $nationalReward)) {
+                    (new UserService())->change($user_id, ['panacea' => $nationalReward['panacea']], '国庆中秋回馈');
+                    $nationalReward['spend_panacea'] = $spendPanacea;
+                }
+                if (array_key_exists('lucky', $nationalReward)) {
+                    UserExt::where('user_id', $user_id)->update([
+                        'scrap' => Db::raw('scrap+'.$nationalReward['lucky'])
+                    ]);
+                    $nationalReward['spend_lucky'] = $spendLucky;
+                }
+                UserManorLog::recordWithNationalDay($user_id, $nationalReward, '国庆中秋回馈补发');
+            }
+        }
+
+        return $nationalReward;
     }
 }

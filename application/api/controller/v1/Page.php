@@ -736,54 +736,7 @@ class Page extends Base
                 ->select();
 
             if (empty($manor['get_active_sum'])) {
-                // 国庆节回馈
-                $panaceaRec = Rec::where('user_id', $this->uid)
-                    ->where('panacea', '<', 0)
-                    ->column('panacea');
-                $spendPanacea = abs(array_sum($panaceaRec)); // 花费的金额
-
-                $animalId = CfgAnimal::where('type', CfgAnimal::SECRET)
-                    ->where('star_id', '>', 0)
-                    ->column('id');
-                $userAnimalLevelDict = UserAnimal::where('user_id', $this->uid)
-                    ->where('animal_id', 'in', $animalId)
-                    ->column('level', 'animal_id');
-                $spendLucky = 0;
-                foreach ($userAnimalLevelDict as $key => $value) {
-                    $numbers = CfgAnimalLevel::where('animal_id', $key)
-                        ->where('level', '<=', $value)
-                        ->column('number');
-
-                    $spendLucky += abs(array_sum($numbers)); // 花费幸运碎片
-                }
-
-                if ($spendPanacea || $spendLucky) {
-                    $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
-                    $rate = $config['reward_rate'];
-                    $lucky = bcmul($spendLucky, $rate['lucky']);
-                    $panacea = bcmul($spendPanacea, $rate['panacea']);
-                    if ($lucky) {
-                        $nationalReward['lucky'] = $lucky;
-                    }
-                    if ($panacea) {
-                        $nationalReward['panacea'] = $panacea;
-                    }
-
-                    if ($nationalReward) {
-                        if (array_key_exists('panacea', $nationalReward)) {
-                            (new UserService())->change($this->uid, ['panacea' => $nationalReward['panacea']], '国庆中秋回馈');
-                            $nationalReward['spend_panacea'] = $spendPanacea;
-                        }
-                        if (array_key_exists('lucky', $nationalReward)) {
-                            UserExt::where('user_id', $this->uid)->update([
-                                'scrap' => Db::raw('scrap+'.$nationalReward['lucky'])
-                            ]);
-                            $nationalReward['spend_lucky'] = $spendLucky;
-                        }
-                        UserManorLog::recordWithNationalDay($this->uid, $nationalReward, '国庆中秋回馈');
-                        UserManor::where('id', $manor['id'])->update(['get_active_sum' => 1]);
-                    }
-                }
+                $nationalReward = UserManor::supportNational($this->uid);
             }
         }
 
