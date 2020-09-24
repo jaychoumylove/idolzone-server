@@ -28,6 +28,10 @@ class StarManor extends Base
                 if ($status) {
                     $allActiveSum = (new UserManor)->readMaster()
                         ->where($map)
+                        ->order([
+                            'active_sum' => 'desc',
+                            'sum' => 'desc',
+                        ])
                         ->limit(100)
                         ->column('active_sum');
                     $data['active_count'] = (int)array_sum($allActiveSum);
