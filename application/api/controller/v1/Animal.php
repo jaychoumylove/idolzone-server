@@ -668,35 +668,38 @@ class Animal extends Base
         $page = input('page', 1);
         $size = input('size', 10);
 
-        $list = UserManorFriends::with(['friend', 'user'])
-            ->where('user_id|friend_id', $this->uid)
-            ->order(['create_time' => 'desc'])
-            ->page($page, $size)
-            ->select();
-        if (is_object($list)) $list = $list->toArray();
+        $self = $this->uid;
 
-        $userIds = array_column($list, 'user_id');
-        $friendIds = array_column($list, 'friend_id');
-        $ids = array_unique(array_merge($userIds, $friendIds));
+        $friendList = UserManorFriends::with(['friend', 'user'])
+            ->where('user_id|friend_id', $self)
+            ->select();
+        if (is_object($friendList)) $friendList = $friendList->toArray();
+
+        $userIds = array_column($friendList, 'user_id');
+        $friendIds = array_column($friendList, 'friend_id');
+        $ids = array_merge($userIds, $friendIds);
+        $ids = array_filter($ids, function ($ite) use ($self) {
+            return $ite != $self;
+        });
+        $ids = array_unique($ids);
 
         $manorModel = new UserManor();
-        $manorDict = $manorModel::getDictList($manorModel, $ids, 'user_id');
+        $list = $manorModel::with(['user'])
+            ->where('user_id', 'in', $ids)
+            ->order(['day_lottery_times' => 'desc'])
+            ->page($page, $size)
+            ->select();
 
         $now  = time();
         $date = date('Y-m-d H:i:s', $now);
 
         foreach ($list as $key => $value) {
-            if ($value['user']['id'] == $this->uid) {
-                unset($value['user']);
-            }
-            if ($value['friend']['id'] == $this->uid) {
-                unset($value['friend']);
-                $value['friend'] = $value['user'];
-                unset($value['user']);
-            }
-            $friendId = $value['friend']['id'];
+            unset($value['friend']);
+            $value['friend'] = $value['user'];
+            unset($value['user']);
+            $friendId = $value['user_id'];
 
-            $value['manor_output'] = $manorDict[$friendId]['output'];
+            $value['manor_output'] = $value['output'];
 
             $boxNum = UserAnimalBox::where('user_id', $friendId)
                 ->where('end_time', '>', $date)
