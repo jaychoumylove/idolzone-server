@@ -346,7 +346,9 @@ and user_id <> ';
         $myInfo = null;
         if ($selfIdol) {
             $myInfo = UserManor::where('user_id', $uid)->find();
-            $count = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])->count();
+            $count = (int)UserManor::where('active_sum', '>', $myInfo['active_sum'])
+                ->where('star_id', $starId)
+                ->count();
             $myInfo['rank'] = bcadd($count, 1);
         }
         $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
