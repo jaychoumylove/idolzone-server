@@ -686,7 +686,7 @@ class Animal extends Base
         $manorModel = new UserManor();
         $list = $manorModel::with(['user'])
             ->where('user_id', 'in', $ids)
-            ->order(['day_lottery_times' => 'desc'])
+            ->order(['output' => 'desc'])
             ->page($page, $size)
             ->select();
 
