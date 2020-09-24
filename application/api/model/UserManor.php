@@ -395,10 +395,13 @@ and user_id <> ';
         // 国庆节回馈补发
         $normalId = CfgAnimal::where('type', CfgAnimal::NORMAL)->column('id');
 
+        $scrap = UserAnimal::where('user_id', $user_id)
+            ->where('animal_id', 'in', $normalId)
+            ->column('scrap');
         $userAnimalLevelDict = UserAnimal::where('user_id', $user_id)
             ->where('animal_id', 'in', $normalId)
             ->column('level', 'animal_id');
-        $spendPanacea = 0;
+        $spendPanacea = $scrap ? (int)array_sum($scrap): 0;
         foreach ($userAnimalLevelDict as $key => $value) {
             $numbers = CfgAnimalLevel::where('animal_id', $key)
                 ->where('level', '<=', $value)
