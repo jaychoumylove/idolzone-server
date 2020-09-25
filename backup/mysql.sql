@@ -1334,3 +1334,10 @@ SECRET 神秘萌宠-通用
 STAR 爱豆萌宠-圈内
 STAR_SECRET 防版权交换神秘萌宠';
 
+-- 应援
+alter table f_user_ext
+	add yingyuan_reward varchar(255) default '[]' not null comment '当前打卡应援记录';
+
+alter table f_user_ext
+	add yingyuan_reward_get_num int default 0 not null comment '当前应援奖励领取数量';
+

@@ -296,6 +296,25 @@ class Ext extends Base
         Common::res();
     }
 
+    public function getYingyuan()
+    {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
+            Common::res (['code' => 1, 'msg' => $msg]);
+        }
+
+        $this->getUser ();
+
+        $starId = UserStar::getStarId ($this->uid);
+        if (empty($starId)) {
+            Common::res (['msg' => "请先加入圈子", 'code' => 1]);
+        }
+
+        $data = ActiveYingyuan::getYingyuan($starId, $this->uid);
+
+        Common::res (['data' => $data]);
+    }
+
     public function getYingyuanReward()
     {
         $msg = ActiveYingyuan::checkYingyuan ();
