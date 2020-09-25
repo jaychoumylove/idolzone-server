@@ -88,41 +88,44 @@ class Fix extends Base
 
     public function removeDict()
     {
-        $res = Db::query("select user_id,coin,before_coin,id from f_rec where content = '农场金豆补偿' and delete_time is not null order by user_id;");
-
-//        echo count($res).PHP_EOL;die();
-        $dealUser = [];
-        $repeatUser = [];
+        $model = (new Rec())->readMaster(true);
+        $res = Db::query("select user_id,id,coin,before_coin from f_rec where content = '农场金豆补偿' and delete_time is not null order by user_id;");
+        $dealId = [];
         foreach ($res as $item) {
             $userId = $item['user_id'];
-            $item = Rec::where('user_id', $userId)
-                ->where('content', '农场金豆补偿')
-                ->find();
-            $coins = Rec::where('id', '>', $item['id'])
-                ->where('user_id', $userId)
-                ->column('coin');
-            $all = array_sum($coins);
-            if (in_array($userId, $dealUser)) {
-                echo 'user_id : '.$userId.PHP_EOL;
-                if (in_array($userId, $repeatUser) == false) {
-                    array_push($repeatUser, $userId);
+            if (in_array($userId, $dealId) == false) {
+                array_push($dealId, $userId);
+                $item = $model->where('user_id', $userId)
+                    ->where('content', '农场金豆补偿')
+                    ->find();
+                $reslist = Rec::where('id', '>=', $item['id'])
+                    ->where('user_id', $userId)
+                    ->order('id', 'desc')
+                    ->select();
+                if (is_object($reslist)) $reslist = $reslist->toArray();
+                $coins = array_column($reslist, 'coin');
+                $all = array_sum($coins);
+                $coin = bcadd($item['before_coin'], $all);
+
+                if ($coin < 0) {
+                    $last = $reslist[0];
+                    $coin = bcadd($last['before_coin'], $last['coin']);
                 }
-//                Log::error(json_encode($item));
-//                $coin = bcadd($item['before_coin'], $item['coin']);
-//                Db::raw('if(`mass_time` = '.$massDate.', 1, 0)'),
-//                UserCurrency::where('uid', $userId)->update(['coin' => Db::raw('if(`coin` > '.$coin.', coin-'.$coin.', 0)')]);
-            } else {
-//                Log::error(json_encode($userId));
-//                array_push($dealUser, $userId);
-//                $coin = bcadd($item['before_coin'], $item['coin']);
-//                UserCurrency::where('uid', $userId)->update(['coin' => Db::raw('coin+'.$coin)]);
-//                Log::error(json_encode($item));
-                echo 'user_id : '.$userId.PHP_EOL;
+
+                UserCurrency::where('uid', $userId)
+                    ->where('coin', '<>', $coin)
+                    ->update([
+                        'coin' => $coin
+                    ]);
+
+                echo "user_id" . $userId.PHP_EOL;
+                echo "coin" . $coin.PHP_EOL;
+                Log::error("user_id" . $userId);
+                Log::error('coin < 0');
+                Log::error("coin" . $coin);
+                Log::error(json_encode($item));
             }
         }
-
-//        echo count($repeatUser);
-//        Log::error(json_encode(['repeat' => $repeatUid,'deal' => $dealUid]));
 
         die('over');
     }
