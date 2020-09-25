@@ -110,11 +110,6 @@ class ActiveYingyuan extends Base
                 'sup_ext' => $type == self::SUP ? 0: 1,
             ]);
         }
-
-        // 打卡赢能量
-        if ($type == self::SUP) {
-            (new UserService())->change ($uid, ['coin' => 1000], ['type' => Rec::YINGYUAN]);
-        }
     }
 
     /**
