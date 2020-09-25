@@ -2,6 +2,8 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\ActiveYingyuan;
+use app\api\model\ActiveYingyuanReward;
 use app\api\model\CfgActiveReplace;
 use app\base\controller\Base;
 use app\api\model\RecUserFormid;
@@ -292,5 +294,73 @@ class Ext extends Base
 
         GzhUserPush::setData($this->uid, $push_id, $checked);
         Common::res();
+    }
+
+    public function getYingyuanReward()
+    {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
+            Common::res (['code' => 1, 'msg' => $msg]);
+        }
+        $this->getUser ();
+        $index = input('index')-0;
+
+        $starId = UserStar::getStarId ($this->uid);
+        if (empty($starId)) {
+            Common::res (['msg' => "请先加入圈子", 'code' => 1]);
+        }
+
+        $data = ActiveYingyuanReward::getYingyuanReward($index, $this->uid);
+
+        Common::res (['data' => $data]);
+    }
+
+    public function getYingyuanList()
+    {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
+            Common::res (['code' => 1, 'msg' => $msg]);
+        }
+
+        $this->getUser ();
+
+        $starId = UserStar::getStarId ($this->uid);
+        if (empty($starId)) {
+            Common::res (['msg' => "请先加入圈子", 'code' => 1]);
+        }
+
+        $page =  input('page', 1);
+        $size =  input('size', 10);
+
+        $list = ActiveYingyuan::with('user')
+            ->where('star_id', $starId)
+            ->where ('sup_num', '>', 0)
+            ->order (['sup_num'=>'desc','create_time'=>'desc'])
+            ->page ($page, $size)
+            ->select ();
+        foreach ($list as &$value){
+            $value['user']['headwear'] = UserHeadwear::getUse($value['user_id']);
+        }
+
+        Common::res (['data' => $list]);
+    }
+
+    public function setYingYuanCard()
+    {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
+            Common::res (['code' => 1, 'msg' => $msg]);
+        }
+
+        $this->getUser ();
+
+        $starId = UserStar::getStarId ($this->uid);
+        if (empty($starId)) {
+            Common::res (['msg' => "请先加入圈子", 'code' => 1]);
+        }
+
+        ActiveYingyuan::setCard($starId, $this->uid, ActiveYingyuan::SUP);
+
+        Common::res ();
     }
 }
