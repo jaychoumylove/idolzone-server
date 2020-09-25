@@ -74,10 +74,10 @@ class Fix extends Base
         });
 
         foreach ($stoneUser as $item) {
-            (new User())->change($item['user_id'], ['stone' => 5], 'PK奖励补偿');
+            (new User())->change($item['uid'], ['stone' => 5], 'PK奖励补偿');
         }
         foreach ($flowerUser as $item) {
-            (new User())->change($item['user_id'], ['flower' => 10000], 'PK奖励补偿');
+            (new User())->change($item['uid'], ['flower' => 10000], 'PK奖励补偿');
         }
         return Response::create(['status' => 'OK'], 'json');
     }
