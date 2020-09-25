@@ -220,6 +220,7 @@ class AutoRun extends Base
                 'day_count' => 0,
                 'day_steal' => 0,
                 'day_lottery_times' => 0,
+                'day_lottery_box' => '[]',
             ]);
 
             Db::commit();
