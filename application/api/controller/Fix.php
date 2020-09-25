@@ -52,7 +52,7 @@ class Fix extends Base
 
         foreach ($farmList as $item) {
             $speed = $item['total_speed_coin'];
-            $hour = $speed*60*60*2/10;
+            $hour = $speed*60*60*2/100;
 
             (new User())->change($item['user_id'], ['coin' => $hour], '农场金豆补偿');
         }
