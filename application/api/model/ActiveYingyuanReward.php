@@ -52,17 +52,27 @@ class ActiveYingyuanReward extends Base
                 'reward' => json_encode($reward[$index]['reward']),
             ]);
 
+            $desc = '领取';
             if(array_key_exists('prop',$reward[$index]['reward'])){
                 $prop_text = Prop::where('id',$reward[$index]['reward']['prop'])->value('name');
+                $desc .= $prop_text;
                 UserProp::addProp($uid, $reward[$index]['reward']['prop'], 1);
             }else{
                 $prop_text = '';
+                $map = [
+                    'stone' => '砖石',
+                    'coin' => '金豆',
+                    'panacea' => '灵丹',
+                ];
+                $key = array_keys($reward[$index]['reward'])[0];
+                $desc .= $map[$key] . '*' . $reward[$index]['reward'][$key];
                 (new UserService)->change($uid, $reward[$index]['reward'], '应援打卡奖励');
             }
 
             $log = [
                 'user_id' => $uid,
                 'item' => $reward[$index],
+                'desc' => $desc,
             ];
             RecActiveYingyuan::create ($log);
 
