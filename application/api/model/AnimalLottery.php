@@ -117,7 +117,7 @@ class AnimalLottery extends Base
                 $choose[$key] = $value;
 
                 UserManorLog::recordLottery($user_id, $animalDict[$key], $value['number']);
-                UserAnimalBox::addScrap($animalDict[$key], $user_id, $endTime);
+                UserAnimalBox::addScrap($animalDict[$key], $user_id, $endTime, $value['number']);
             }
 
             if ($updateNum) {
