@@ -1341,3 +1341,23 @@ alter table f_user_ext
 alter table f_user_ext
 	add yingyuan_reward_get_num int default 0 not null comment '当前应援奖励领取数量';
 
+create table f_rec_active_yingyuan
+(
+    id          int auto_increment,
+    user_id     int                                 not null,
+    item        text                                null comment '抽取到的奖品',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                           null,
+    type        varchar(255)                        null,
+    constraint f_rec_lucky_draw_log_id_uindex
+        unique (id)
+)
+    comment '抽奖记录';
+
+create index f_rec_yingyuan_log_u_index
+    on f_rec_active_yingyuan (user_id);
+
+alter table f_rec_active_yingyuan
+    add primary key (id);
+

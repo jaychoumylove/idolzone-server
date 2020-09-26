@@ -60,6 +60,12 @@ class ActiveYingyuanReward extends Base
                 (new UserService)->change($uid, $reward[$index]['reward'], '应援打卡奖励');
             }
 
+            $log = [
+                'user_id' => $uid,
+                'item' => $reward[$index],
+            ];
+            RecActiveYingyuan::create ($log);
+
             Db::commit();
         } catch (Exception $e) {
             Db::rollBack();

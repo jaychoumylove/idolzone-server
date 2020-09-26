@@ -406,3 +406,4 @@ Route::rule('api/:version/yingyuan/reward', 'api/v1.Ext/getYingyuanReward');//
 Route::rule('api/:version/yingyuan/card', 'api/v1.Ext/setYingYuanCard');// 打卡
 Route::rule('api/:version/yingyuan/info', 'api/v1.Ext/getYingyuan');// 打卡详情
 Route::rule('api/:version/yingyuan/list', 'api/v1.Ext/getYingyuanList');// 打卡列表
+Route::rule('api/:version/yingyuan/log', 'api/v1.Ext/getYingyuanLogPager');// 领取记录

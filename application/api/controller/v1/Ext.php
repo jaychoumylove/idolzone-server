@@ -6,6 +6,7 @@ use app\api\model\ActiveYingyuan;
 use app\api\model\ActiveYingyuanReward;
 use app\api\model\CfgActiveReplace;
 use app\api\model\HeadwearUser;
+use app\api\model\RecActiveYingyuan;
 use app\base\controller\Base;
 use app\api\model\RecUserFormid;
 use app\base\service\Common;
@@ -314,6 +315,17 @@ class Ext extends Base
         $data = ActiveYingyuan::getYingyuan($starId, $this->uid);
 
         Common::res (['data' => $data]);
+    }
+
+    public function getYingyuanLogPager()
+    {
+        $this->getUser();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+
+        $data = RecActiveYingyuan::getLogPager($this->uid, $page, $size);
+
+        Common::res(['data' => $data]);
     }
 
     public function getYingyuanReward()
