@@ -57,7 +57,7 @@ class ActiveYingyuanReward extends Base
                 UserProp::addProp($uid, $reward[$index]['reward']['prop'], 1);
             }else{
                 $prop_text = '';
-                (new UserService)->change($uid, $reward[$index]['reward'], ['type'=>57,'content'=>'应援打卡奖励']);
+                (new UserService)->change($uid, $reward[$index]['reward'], '应援打卡奖励');
             }
 
             Db::commit();

@@ -5,6 +5,7 @@ namespace app\api\controller\v1;
 use app\api\model\ActiveYingyuan;
 use app\api\model\ActiveYingyuanReward;
 use app\api\model\CfgActiveReplace;
+use app\api\model\HeadwearUser;
 use app\base\controller\Base;
 use app\api\model\RecUserFormid;
 use app\base\service\Common;
@@ -358,7 +359,7 @@ class Ext extends Base
             ->page ($page, $size)
             ->select ();
         foreach ($list as &$value){
-            $value['user']['headwear'] = UserHeadwear::getUse($value['user_id']);
+            $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
         }
 
         Common::res (['data' => $list]);
