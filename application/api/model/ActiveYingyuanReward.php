@@ -45,6 +45,20 @@ class ActiveYingyuanReward extends Base
                 'yingyuan_reward'=> json_encode($yingyuan_reward),
             ]);
             if(!$isDone) Common::res (['code' => 1, 'msg' => '网络错误']);
+
+            if (array_key_exists('limit', $reward[$index])) {
+                $nolimitUser = [];
+                if (array_key_exists('nolimit_user', $reward[$index])) {
+                    $nolimitUser = $reward[$index]['nolimit_user'];
+                }
+                if (in_array($uid, $nolimitUser) == false) {
+                    $nums = self::where('index', $index)->where('user_id', $uid)->count();
+                    $limit = $reward[$index]['limit'];
+                    if ($nums > $limit) {
+                        Common::res(['code' =>1,'msg' => '操作频繁，请稍后再试']);
+                    }
+                }
+            }
             self::create([
                 'user_id' => $uid,
                 'index' => $index,
