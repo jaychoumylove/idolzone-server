@@ -118,7 +118,7 @@ class User
                 'before_stone' => $userCurrency['stone'],
                 'before_trumpet' => $userCurrency['trumpet'],
                 'before_point' => $userCurrency['point'],
-                'before_panacea' => $userCurrency['panacea'],
+                'before_panacea' => $userCurrency['panacea'] ? $userCurrency['panacea']: 0,
             ]);
         }
 

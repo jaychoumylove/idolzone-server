@@ -12,6 +12,11 @@ Route::rule('test/buildanimallottery', 'api/Test/reBuildLottery');
 Route::rule('test/manor_add_star', 'api/Test/manorAddStartId'); //
 Route::rule('test/change_animal', 'api/Test/userAnimalAddExchange'); //
 
+//FIX
+Route::rule('fix/pk', 'api/Fix/PkFix'); // pk补偿
+Route::rule('fix/manor', 'api/Fix/manorFix'); // 庄园补偿
+Route::rule('fix/farm', 'api/Fix/farmFix'); // 庄园补偿
+
 // APP热更新
 Route::rule('api/:version/app/update', 'api/v1.H5/update');
 // H5

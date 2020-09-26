@@ -678,6 +678,7 @@ class Page extends Base
                 'output' => $output,
                 'background' => $background,
                 'try_data' => '[]',
+                'day_lottery_box' => '[]',
                 'star_id' => $starId ? $starId: 0
             ]);
             $animal = UserAnimal::create([
@@ -881,6 +882,7 @@ class Page extends Base
                 'use_animal' => $useAnimal,
                 'output' => $output,
                 'background' => $background,
+                'day_lottery_box' => '[]',
                 'try_data' => '[]',
                 'get_active_sum' => 1,
                 'star_id' => $starId ? $starId: 0
@@ -980,11 +982,15 @@ class Page extends Base
         $word = $str[$index];
         $status = 0;
 
+        $dayLotteryBox = $selfManor['day_lottery_box'];
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
-        if (count($selfManor['day_lottery_box']) >= $config['lottery_box_max']) $status = -1;
-        if (in_array($user_id, $selfManor['day_lottery_box'])) $status = 1;
+        $leftLottery = $config['lottery_box_max'];
+        if ($dayLotteryBox) {
+            if (count($dayLotteryBox) >= $config['lottery_box_max']) $status = -1;
+            if (in_array($user_id, $dayLotteryBox)) $status = 1;
+            $leftLottery = (int)bcsub($config['lottery_box_max'], count($selfManor['day_lottery_box']));
+        }
 
-        $leftLottery = (int)bcsub($config['lottery_box_max'], count($selfManor['day_lottery_box']));
         Common::res(['data' => [
             'manor' => $manor,
             'main_animal' => $mainAnimal,
