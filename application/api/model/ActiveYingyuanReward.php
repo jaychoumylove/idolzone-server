@@ -60,7 +60,7 @@ class ActiveYingyuanReward extends Base
             }else{
                 $prop_text = '';
                 $map = [
-                    'stone' => '砖石',
+                    'stone' => '钻石',
                     'coin' => '金豆',
                     'panacea' => '灵丹',
                 ];
