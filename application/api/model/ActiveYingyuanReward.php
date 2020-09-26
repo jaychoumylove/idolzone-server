@@ -56,7 +56,7 @@ class ActiveYingyuanReward extends Base
             if(array_key_exists('prop',$reward[$index]['reward'])){
                 $prop_text = Prop::where('id',$reward[$index]['reward']['prop'])->value('name');
                 $desc .= $prop_text;
-                UserProp::addProp($uid, $reward[$index]['reward']['prop'], 1);
+                UserProp::addPropWithEnd($uid, $reward[$index]['reward']['prop'], 1, date('Y-m-d H:i:s', strtotime('+1week')));
             }else{
                 $prop_text = '';
                 $map = [
