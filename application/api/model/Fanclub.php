@@ -110,7 +110,7 @@ class Fanclub extends Base
 
                     $yingyuanStatus = ActiveYingyuan::checkYingyuan(ActiveYingyuan::EXT);
                     if (true == $yingyuanStatus) {
-                        ActiveYingyuan::setCard($starId, $rer_user_id, ActiveYingyuan::SUP);
+                        ActiveYingyuan::setCard($starId, $rer_user_id, ActiveYingyuan::EXT);
                     }
                 }
 
