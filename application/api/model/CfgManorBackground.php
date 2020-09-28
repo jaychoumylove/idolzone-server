@@ -31,6 +31,9 @@ class CfgManorBackground extends Base
 
         if ($task['sum'] < $lockData['number']) {
             $diff = bcsub($lockData['number'], $task['sum']);
+            if ($diff > 10000) {
+                $diff = bcdiv($diff, 10000, 1) . '万';
+            }
             return "还差" . $diff. "鲜花";
         }
 
@@ -52,6 +55,9 @@ class CfgManorBackground extends Base
 
         if ($userStar['thisweek_count'] < $lockData['number']) {
             $diff = bcsub($lockData['number'], $userStar['thisweek_count']);
+            if ($diff > 10000) {
+                $diff = bcdiv($diff, 10000, 1) . '万';
+            }
             return "还差" . $diff . '本周贡献';
         }
 
@@ -77,6 +83,9 @@ class CfgManorBackground extends Base
 
         if ($userStar['thisday_count'] < $lockData['number']) {
             $diff = bcsub($lockData['number'], $userStar['thisday_count']);
+            if ($diff > 10000) {
+                $diff = bcdiv($diff, 10000, 1) . '万';
+            }
             return "还差" . $diff . '本日贡献';
         }
 
@@ -104,6 +113,9 @@ class CfgManorBackground extends Base
 
         if ($task['sum'] < $lockData['number']) {
             $diff = bcsub($lockData['number'], $task['sum']);
+            if ($diff > 10000) {
+                $diff = bcdiv($diff, 10000, 1) . '万';
+            }
             return "还差" . $diff. "鲜花";
         }
 
