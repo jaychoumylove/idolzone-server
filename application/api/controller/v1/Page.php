@@ -762,6 +762,16 @@ class Page extends Base
         }
 
         $max_output_hours = $config['max_output_hours'];
+        $changeOutputTimeId = $config['change_output_hours_active_background']['id'];
+        $changeBackground = UserManorBackground::get(['user_id' => $this->uid, 'background' => $changeOutputTimeId]);
+        if ($changeBackground) {
+            $cfgChangeBg = CfgManorBackground::get($changeOutputTimeId);
+            $limit = $cfgChangeBg['lock_data']['limit'];
+            $now = date ('Y-m-d H:i:s', $currentTime);
+            if ($now > $limit['start'] && $now < $limit['end']) {
+                $max_output_hours = $config['change_output_hours_active_background']['hours'];
+            }
+        }
         $limit_add_time = (int)bcmul($max_output_hours, 360);
         $normalStr = [
             "记得常来看我",
