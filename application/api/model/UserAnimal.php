@@ -207,6 +207,16 @@ class UserAnimal extends Base
 
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
         $limit_output_hours = $config['max_output_hours'];
+        $changeOutputTimeId = $config['change_output_hours_active_background']['id'];
+        $changeBackground = UserManorBackground::get(['user_id' => $user_id, 'background' => $changeOutputTimeId]);
+        if ($changeBackground) {
+            $cfgChangeBg = CfgManorBackground::get($changeOutputTimeId);
+            $limit = $cfgChangeBg['lock_data']['limit'];
+            $now = date ('Y-m-d H:i:s');
+            if ($now > $limit['start'] && $now < $limit['end']) {
+                $limit_output_hours = $config['change_output_hours_active_background']['hours'];
+            }
+        }
         $min_output_time = $config['min_output_seconds'];
 
         $maxTime = $limit_output_hours * 60 * 60;

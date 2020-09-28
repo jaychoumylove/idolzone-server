@@ -30,7 +30,11 @@ class CfgManorBackground extends Base
         }
 
         if ($task['sum'] < $lockData['number']) {
-            return "贡献鲜花不足";
+            $diff = bcsub($lockData['number'], $task['sum']);
+            if ($diff > 10000) {
+                $diff = bcdiv($diff, 10000, 1) . '万';
+            }
+            return "还差" . $diff. "鲜花";
         }
 
         return true;
@@ -50,7 +54,11 @@ class CfgManorBackground extends Base
         }
 
         if ($userStar['thisweek_count'] < $lockData['number']) {
-            return "本周贡献度不够哦";
+            $diff = bcsub($lockData['number'], $userStar['thisweek_count']);
+            if ($diff > 10000) {
+                $diff = bcdiv($diff, 10000, 1) . '万';
+            }
+            return "还差" . $diff . '本周贡献';
         }
 
         return true;
@@ -70,11 +78,15 @@ class CfgManorBackground extends Base
 
         $userStar = UserStar::get(['user_id' => $uid]);
         if (empty($userStar)) {
-            return "日贡献度不够哦";
+            return "本日贡献度不够哦";
         }
 
         if ($userStar['thisday_count'] < $lockData['number']) {
-            return "日贡献度不够哦";
+            $diff = bcsub($lockData['number'], $userStar['thisday_count']);
+            if ($diff > 10000) {
+                $diff = bcdiv($diff, 10000, 1) . '万';
+            }
+            return "还差" . $diff . '本日贡献';
         }
 
         return true;
@@ -100,7 +112,11 @@ class CfgManorBackground extends Base
         }
 
         if ($task['sum'] < $lockData['number']) {
-            return "贡献鲜花不足";
+            $diff = bcsub($lockData['number'], $task['sum']);
+            if ($diff > 10000) {
+                $diff = bcdiv($diff, 10000, 1) . '万';
+            }
+            return "还差" . $diff. "鲜花";
         }
 
         return true;

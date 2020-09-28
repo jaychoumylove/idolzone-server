@@ -1334,3 +1334,84 @@ SECRET 神秘萌宠-通用
 STAR 爱豆萌宠-圈内
 STAR_SECRET 防版权交换神秘萌宠';
 
+-- 应援
+alter table f_user_ext
+	add yingyuan_reward varchar(255) default '[]' not null comment '当前打卡应援记录';
+
+alter table f_user_ext
+	add yingyuan_reward_get_num int default 0 not null comment '当前应援奖励领取数量';
+
+create table f_rec_active_yingyuan
+(
+    id          int auto_increment,
+    user_id     int                                 not null,
+    item        text                                null comment '奖品',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null,
+    delete_time timestamp                           null,
+    type        varchar(255)                        null,
+    constraint f_rec_lucky_draw_log_id_uindex
+        unique (id)
+)
+    comment '抽奖记录';
+
+create index f_rec_yingyuan_log_u_index
+    on f_rec_active_yingyuan (user_id);
+
+alter table f_rec_active_yingyuan
+    add primary key (id);
+
+alter table f_rec_active_yingyuan
+	add `desc` varchar(255) not null;
+
+create table f_active_yingyuan_reward
+(
+    id          int auto_increment
+        primary key,
+    user_id     int                                 null,
+    `index`     tinyint                             null comment '第几个礼盒打开',
+    num         int                                 null comment '打卡天数',
+    reward      varchar(255)                        not null comment '奖励',
+    create_time timestamp default CURRENT_TIMESTAMP null,
+    update_time timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    delete_time timestamp                           null
+)
+    comment '活动-应援打卡额外奖励记录';
+
+create index `index`
+    on f_active_yingyuan_reward (`index`);
+
+create index user_id
+    on f_active_yingyuan_reward (user_id);
+
+create table f_active_yingyuan
+(
+    id          int auto_increment,
+    user_id     int                                 not null,
+    star_id     int                                 not null,
+    sup_num     int                                 not null comment '打卡次数',
+    sup_ext     int                                 not null comment '助力次数',
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP null,
+    sup_time    timestamp default CURRENT_TIMESTAMP null,
+    delete_time timestamp                           null,
+    constraint f_active_yingyuan_id_uindex
+        unique (id)
+)
+    comment '应援打卡记录';
+
+create index f_active_yingyuan_star_index
+    on f_active_yingyuan (star_id);
+
+create index f_active_yingyuan_user_index
+    on f_active_yingyuan (user_id);
+
+alter table f_active_yingyuan
+    add primary key (id);
+
+alter table f_user_ext
+	add yingyuan_reward         varchar(255)     default '[]'              not null comment '当前打卡应援记录';
+
+alter table f_user_ext
+	add yingyuan_reward_get_num int              default 0                 not null comment '当前应援奖励领取数量';
+

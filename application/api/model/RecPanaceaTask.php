@@ -89,23 +89,33 @@ class RecPanaceaTask extends Base
                 if (empty($num)) {
                     throw new Exception('未达到完成任务要求', 3);
                 }
-                $earn = bcmul ($num, $task['reward'], 2);
+                $earn = bcmul ($num, $task['reward']);
             }
             if ($isDay) {
                 $res = $this->settleDay ($map);
                 if (empty($res)) {
                     throw new Exception('未达到完成任务要求', 3);
                 }
-                $earn = $task['reward'];
+                $num = $task['reward'];
+                $earn = $num;
             }
             if ($isOnce) {
-                $earn = $this->settleOnce ($map, $task['key']);
+                $num = $this->settleOnce ($map, $task['key']);
                 if (empty($earn)) {
                     throw new Exception('未达到完成任务要求', 3);
                 }
+                $earn = $num;
             }
 
-            (new \app\api\service\User())->change($uid, ['panacea' => $earn], '完成灵丹任务');
+            $data = ['panacea' => $earn];
+            $task['extra'] = json_decode($task['extra'], true);
+            if ($task['extra']['with_reward']) {
+                // 2020年09月26日15:36:11
+                // 新加需求，使用鲜花可以获取1喇叭
+                $data[$task['extra']['with_reward']['type']] = bcmul($task['extra']['with_reward']['data'], $num);
+            }
+
+            (new \app\api\service\User())->change($uid, $data, '完成灵丹任务');
 
             UserManorLog::recordPanacea($uid, $earn, '完成灵丹任务');
 //            throw new Exception('something was wrong');
@@ -113,7 +123,7 @@ class RecPanaceaTask extends Base
             Db::commit ();
         }catch (Throwable $throwable) {
             Db::rollback ();
-//            throw $throwable;
+            throw $throwable;
             $msg = "请稍后再试";
             if ($throwable->getCode () == 3) $msg = $throwable->getMessage ();
             Common::res (['code' => 1, 'msg' => $msg]);
