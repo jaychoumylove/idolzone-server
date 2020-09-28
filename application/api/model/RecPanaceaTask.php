@@ -123,7 +123,7 @@ class RecPanaceaTask extends Base
             Db::commit ();
         }catch (Throwable $throwable) {
             Db::rollback ();
-            throw $throwable;
+//            throw $throwable;
             $msg = "请稍后再试";
             if ($throwable->getCode () == 3) $msg = $throwable->getMessage ();
             Common::res (['code' => 1, 'msg' => $msg]);
