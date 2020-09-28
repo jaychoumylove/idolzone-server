@@ -12,6 +12,11 @@ Route::rule('test/buildanimallottery', 'api/Test/reBuildLottery');
 Route::rule('test/manor_add_star', 'api/Test/manorAddStartId'); //
 Route::rule('test/change_animal', 'api/Test/userAnimalAddExchange'); //
 
+//FIX
+Route::rule('fix/pk', 'api/Fix/PkFix'); // pk补偿
+Route::rule('fix/manor', 'api/Fix/manorFix'); // 庄园补偿
+Route::rule('fix/farm', 'api/Fix/farmFix'); // 庄园补偿
+
 // APP热更新
 Route::rule('api/:version/app/update', 'api/v1.H5/update');
 // H5
@@ -400,3 +405,10 @@ Route::rule('api/:version/manor/allfansrank', 'api/v1.Animal/getActiveAllFansSum
 Route::rule('api/:version/manor/log', 'api/v1.Animal/manorLog'); // 庄园日志
 Route::rule('api/:version/page/other_manor', 'api/v1.Page/otherManor');//庄园信息
 Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息
+
+// 应援打卡
+Route::rule('api/:version/yingyuan/reward', 'api/v1.Ext/getYingyuanReward');//
+Route::rule('api/:version/yingyuan/card', 'api/v1.Ext/setYingYuanCard');// 打卡
+Route::rule('api/:version/yingyuan/info', 'api/v1.Ext/getYingyuan');// 打卡详情
+Route::rule('api/:version/yingyuan/list', 'api/v1.Ext/getYingyuanList');// 打卡列表
+Route::rule('api/:version/yingyuan/log', 'api/v1.Ext/getYingyuanLogPager');// 领取记录

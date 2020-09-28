@@ -76,7 +76,7 @@ class AnimalLottery extends Base
 
         Db::startTrans();
         try {
-            $updateNums = bcadd($nums, $typeItem['number']);
+            $updateNums = bcadd($nums, $typeItem['times']);
             $extUpd = UserExt::where('user_id', $user_id)->update(['animal_lottery' => $updateNums]);
             if (empty($extUpd)) {
                 throw new Exception('更新失败');
@@ -117,7 +117,7 @@ class AnimalLottery extends Base
                 $choose[$key] = $value;
 
                 UserManorLog::recordLottery($user_id, $animalDict[$key], $value['number']);
-                UserAnimalBox::addScrap($animalDict[$key], $user_id, $endTime);
+                UserAnimalBox::addScrap($animalDict[$key], $user_id, $endTime, $value['number'] / 10);
             }
 
             if ($updateNum) {

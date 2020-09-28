@@ -81,8 +81,9 @@ class CfgPanaceaTask extends Base
         foreach ($list as $key => $value) {
             $value['done_times'] = 0;
             $value['status']     = 0;
+            $value['extra'] = json_decode($value['extra'], true);
             if($value['type'] == self::RANK) {
-                $extra = json_decode($value['extra'], true);
+                $extra = $value['extra'];
                 $first = $extra[0];
                 $last = $extra[count($extra) - 1];
                 $value['reward'] = $first .'-'. $last;
@@ -130,7 +131,16 @@ class CfgPanaceaTask extends Base
             $mul ++;
         }
 
-        if ($mul) $value['reward'] = bcmul ($value['reward'], $mul, 1);
+        if ($mul) {
+            $value['reward'] = bcmul ($value['reward'], $mul);
+            if ($value['extra']) {
+                if ($value['extra']['with_reward']) {
+                    $extra = $value['extra'];
+                    $extra['with_reward']['data'] = bcmul ($extra['with_reward']['data'], $mul);
+                    $value['extra'] = $extra;
+                }
+            }
+        }
 
         return $value;
     }
