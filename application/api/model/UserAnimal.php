@@ -19,7 +19,9 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
 
-        $userAnimal = UserAnimal::where('user_id', $uid)
+        $userAnimal = (new UserAnimal())
+            ->readMaster()
+            ->where('user_id', $uid)
             ->where('animal_id', $animal)
             ->find();
 
@@ -41,7 +43,10 @@ class UserAnimal extends Base
             $scrap_num = $userAnimal['scrap'];
         }
         if ($isSecret || $isStarSecret) {
-            $scrap_num = UserExt::where('user_id', $uid)->value ('scrap');
+            $scrap_num = (new UserExt())
+                ->readMaster()
+                ->where('user_id', $uid)
+                ->value ('scrap');
         }
 
         $leftScrap = bcsub($scrap_num, $cfglv['number']);
