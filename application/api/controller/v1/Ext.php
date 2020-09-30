@@ -64,8 +64,8 @@ class Ext extends Base
         $platform = $this->req('platform', 'require', 'MP-WEIXIN'); // 平台
         $data = Cfg::getCfg (Cfg::ACTIVE_CONFORM);
 
-        $status = Cfg::checkInviteAssistTime ();
-        if ($status) {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
             if ($platform != "MP-WEIXIN") {
                 $data['banner'] = [
                     [
