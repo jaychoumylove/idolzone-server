@@ -68,7 +68,7 @@ class UserAnimal extends Base
                 throw new Exception('更新失败');
             }
 
-            if ($isSecret) {
+            if ($isSecret || $isStarSecret) {
                 $scrapUpdated = UserExt::where('user_id', $uid)
                     ->where('scrap', $scrap_num)
                     ->update(['scrap' => $leftScrap]);
