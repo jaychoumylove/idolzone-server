@@ -110,7 +110,11 @@ class Fanclub extends Base
 
                     $yingyuanStatus = ActiveYingyuan::checkYingyuan(ActiveYingyuan::EXT);
                     if (true == $yingyuanStatus) {
-                        ActiveYingyuan::setCard($starId, $rer_user_id, ActiveYingyuan::EXT);
+                        $platform = User::get($rer_user_id)['playform'];
+                        $info = Cfg::getCfg (Cfg::ACTIVE_YINGYUAN);
+                        if (in_array($platform, $info['platform'])) {
+                            ActiveYingyuan::setCard($starId, $rer_user_id, ActiveYingyuan::EXT);
+                        }
                     }
                 }
 
