@@ -196,7 +196,7 @@ class AutoRun extends Base
             RecPanaceaTask::cleanDay();
 
             // 开屏备选的清理
-            if (Cfg::checkActiveByPathInBtnGroup (Cfg::WEAL_ACTIVE_PATH)) {
+            if (Cfg::checkActiveByPathInBtnGroup (Cfg::OPEN_RANK_PATH)) {
                 \app\api\model\Open::overSettle();
 
                 \app\api\model\Open::where('hot', '>', 0)

@@ -6,6 +6,8 @@ namespace app\api\controller;
 
 use app\api\model\CfgAnimal;
 use app\api\model\Rec;
+use app\api\model\RecPayOrder;
+use app\api\model\RecUserPaid;
 use app\api\model\UserAnimal;
 use app\api\model\UserCurrency;
 use app\api\model\UserExt;
@@ -128,5 +130,24 @@ class Fix extends Base
         }
 
         die('over');
+    }
+
+    public function fixPay()
+    {
+        $orders = RecPayOrder::where( 'create_time', '>', '2020-10-02 00:00:00')
+            ->select();
+
+        if (is_object($orders)) $orders = $orders->toArray();
+        RecUserPaid::cleanDay();
+        foreach ($orders as $order) {
+            // 付款人
+            $pay_uid = $order['user_id'];
+            // 目标人
+            $uid = $order['tar_user_id'];
+
+            if(!$uid) $uid=$pay_uid;
+            RecUserPaid::setTask ($uid, (int)$order['total_fee']);
+//            echo $uid.'->'. (int)$order['total_fee'] .PHP_EOL;
+        }
     }
 }

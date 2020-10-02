@@ -7,6 +7,7 @@ use app\base\model\Base;
 class Cfg extends Base
 {
     const WEAL_ACTIVE_PATH   = '/pages/active/weal';
+    const OPEN_RANK_PATH     = '/pages/open/rank';
     const ACTIVE_CONFORM     = 'active_conform';
     const RECHARGE_LUCKY     = 'recharge_lucky';
     const ACHIEVEMENT        = 'achievement';
