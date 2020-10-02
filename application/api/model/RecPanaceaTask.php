@@ -19,12 +19,14 @@ class RecPanaceaTask extends Base
         $dayTask = CfgPanaceaTask::where('type', CfgPanaceaTask::DAY)->select ();
         if (is_object ($dayTask)) $dayTask = $dayTask->toArray ();
 
-        $dayTaskIds = array_column ($dayTask, 'id');
+        if ($dayTask) {
+            $dayTaskIds = array_column ($dayTask, 'id');
 
-        self::where('task_id', 'in', $dayTaskIds)->update([
-            'done_times' => 0,
-            'is_settle_times' => 0
-        ]);
+            self::where('task_id', 'in', $dayTaskIds)->update([
+                'done_times' => 0,
+                'is_settle_times' => 0
+            ]);
+        }
     }
 
     /**
