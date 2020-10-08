@@ -134,7 +134,8 @@ class Fix extends Base
 
     public function fixPay()
     {
-        $orders = RecPayOrder::where( 'create_time', '>', '2020-10-02 00:00:00')
+        $orders = RecPayOrder::where( 'create_time', '>', '2020-10-08 00:00:00')
+            ->where('pay_time', 'not null')
             ->select();
 
         if (is_object($orders)) $orders = $orders->toArray();

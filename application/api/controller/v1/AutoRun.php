@@ -36,6 +36,7 @@ use app\api\model\StarRankHistoryExt;
 use app\api\model\Family;
 use app\api\model\FamilyUser;
 use app\base\model\Appinfo;
+use think\Log;
 
 class AutoRun extends Base
 {
@@ -226,6 +227,8 @@ class AutoRun extends Base
             Db::commit();
         } catch (Exception $e) {
             Db::rollBack();
+            Log::error('day autorun fail');
+            Log::error(json_encode($e));
             return 'rollBack:' . $e->getMessage();
         }
         
