@@ -196,6 +196,18 @@ class AutoRun extends Base
             RecWealActivityTask::cleanDay ();
             RecPanaceaTask::cleanDay();
 
+            // 清除用户充值礼包记录
+            RecUserPaid::where('count', '>', 0)
+                ->update(['count' => 0,'is_settle' => 0]);
+
+            // 每日庄园结算
+            UserManor::where('1=1')->update([
+                'day_count' => 0,
+                'day_steal' => 0,
+                'day_lottery_times' => 0,
+                'day_lottery_box' => '[]',
+            ]);
+
             // 开屏备选的清理
             if (Cfg::checkActiveByPathInBtnGroup (Cfg::OPEN_RANK_PATH)) {
                 \app\api\model\Open::overSettle();
@@ -211,19 +223,6 @@ class AutoRun extends Base
             if ($status) {
                 \app\api\model\UserInvite::cleanDayInvite ();
             }
-
-            // 清除用户充值礼包记录
-            RecUserPaid::where('count', '>', 0)
-                ->update(['count' => 0,'is_settle' => 0]);
-
-            // 每日庄园结算
-            UserManor::where('1=1')->update([
-                'day_count' => 0,
-                'day_steal' => 0,
-                'day_lottery_times' => 0,
-                'day_lottery_box' => '[]',
-            ]);
-
             Db::commit();
         } catch (Exception $e) {
             Db::rollBack();
