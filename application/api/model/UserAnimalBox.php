@@ -17,6 +17,8 @@ class UserAnimalBox extends Base
     {
         $manor = UserManor::get(['user_id' => $uid]);
         $dayLotteryBox = $manor['day_lottery_box'];
+        if (empty($dayLotteryBox)) $dayLotteryBox = [];
+
         if (in_array($target_user, $dayLotteryBox)) {
             Common::res(['code' => 1, 'msg' => '您已经抽取过了']);
         }
