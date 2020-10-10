@@ -451,9 +451,9 @@ class UserExt extends Base
             }
         }
         $my_send_blessing_info['level'] = CfgUserLevel::getLevel($uid);
-        $send_blessing_members=self::order('send_weal_hot desc')->column('user_id');
         $result['myinfo']=$my_send_blessing_info;
-        $result['myinfo']['rank']=array_search($uid,$send_blessing_members)+1;
+        $count = self::where('send_weal_hot', '>', $my_send_blessing_info['send_weal_hot'])->count();
+        $result['myinfo']['rank']=$count+1;
 
         return $result;
     }
