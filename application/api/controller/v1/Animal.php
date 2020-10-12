@@ -845,4 +845,14 @@ class Animal extends Base
 
         Common::res(['data' => $data]);
     }
+
+    public function getOutputRank()
+    {
+        // 庄园开屏活动
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+        $data = UserManor::getActiveOutputRank($page, $size);
+
+        Common::res(['data' => $data]);
+    }
 }

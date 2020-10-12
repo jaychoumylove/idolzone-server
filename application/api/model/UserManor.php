@@ -460,4 +460,23 @@ and user_id <> ';
 
         return $nationalReward;
     }
+
+    public static function getActiveOutputRank($page, $size)
+    {
+        $cfg = Cfg::getCfg(Cfg::MANOR_OPEN);
+        if ($size > $cfg['index']['end']) {
+            $list = [];
+        } else {
+            $list = UserManor::with(['user','star'])
+                ->where('active_output', '>', 0)
+                ->order([
+                    'active_output' => 'desc',
+                    'active_output_time' => 'asc',
+                ])
+                ->page($page, $size)
+                ->select();
+        }
+
+        return $list;
+    }
 }

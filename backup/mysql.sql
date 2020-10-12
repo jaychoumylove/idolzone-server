@@ -1420,3 +1420,9 @@ alter table f_cfg_manor_background
 	add add_hours int default 0 not null comment '解锁背景默认增加的存储小时时长
 0 不增加';
 
+alter table f_user_manor
+	add active_output bigint default 0 not null comment '活动产量 仅在活动期间内使用';
+alter table f_user_manor
+	add active_output_time timestamp default current_timestamp not null;
+
+update f_user_manor set active_output = output where output > 0;

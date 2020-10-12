@@ -17,6 +17,7 @@ class Cfg extends Base
     const MANOR_ANIMAL       = "manor_animal";
     const MANOR_NATIONAL_DAY = "manor_national_day"; // 国庆|中秋节 庄园活动
     const ACTIVE_YINGYUAN    = 'yingyuan';
+    const MANOR_OPEN         = 'manor_open';
 
     public static function getCfg($key)
     {
