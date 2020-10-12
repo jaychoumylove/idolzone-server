@@ -770,7 +770,7 @@ class Page extends Base
             $limit = $cfgChangeBg['lock_data']['limit'];
             $now = date ('Y-m-d H:i:s', $currentTime);
             if ($now > $limit['start'] && $now < $limit['end']) {
-                $max_output_hours = $config['change_output_hours_active_background']['hours'];
+                $max_output_hours += $config['change_output_hours_active_background']['hours'];
             }
         }
         $limit_add_time = (int)bcmul($max_output_hours, 360);
@@ -836,7 +836,8 @@ class Page extends Base
             'main_background'  => $mainBackground,
             'try_background'  => empty($tryBackground) ? null: $tryBackground,
             'call_type' => $callType,
-            'box_log' => $boxLog
+            'box_log' => $boxLog,
+            'max_output_hours' => $max_output_hours
         ]]);
     }
     
