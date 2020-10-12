@@ -402,6 +402,7 @@ Route::rule('api/:version/animal_box/lottery', 'api/v1.Animal/boxAnimalLottery')
 Route::rule('api/:version/manor/idolrank', 'api/v1.Animal/getActiveIdolSumRank'); // 宝箱抽取
 Route::rule('api/:version/manor/fansrank', 'api/v1.Animal/getActiveFansSumRank'); // 圈内助力粉丝排行
 Route::rule('api/:version/manor/allfansrank', 'api/v1.Animal/getActiveAllFansSumRank'); // 全服助力粉丝排行
+Route::rule('api/:version/manor/active_output_rank', 'api/v1.Animal/getOutputRank'); // 全服助力粉丝排行
 Route::rule('api/:version/manor/log', 'api/v1.Animal/manorLog'); // 庄园日志
 Route::rule('api/:version/page/other_manor', 'api/v1.Page/otherManor');//庄园信息
 Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息
