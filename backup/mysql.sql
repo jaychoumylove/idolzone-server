@@ -1415,3 +1415,8 @@ alter table f_user_ext
 alter table f_user_ext
 	add yingyuan_reward_get_num int              default 0                 not null comment '当前应援奖励领取数量';
 
+-- 解锁背景新增存储小时时长
+alter table f_cfg_manor_background
+	add add_hours int default 0 not null comment '解锁背景默认增加的存储小时时长
+0 不增加';
+

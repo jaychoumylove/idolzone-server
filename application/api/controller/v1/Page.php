@@ -81,6 +81,10 @@ class Page extends Base
         $res['userCurrency'] = UserCurrency::getCurrency($this->uid);
         $res['userExt'] = UserExt::where('user_id', $this->uid)->find();
         $res['userExt']['totalCount'] = UserStar::where('user_id', $this->uid)->max('total_count');
+        $res['userExt']['lucky_num'] = UserProp::where('user_id', $this->uid)
+            ->where('prop_id', 18)
+            ->where('status', 0)
+            ->count();
 
         $userStar = UserStar::with('Star')->where([
             'user_id' => $this->uid
@@ -762,17 +766,7 @@ class Page extends Base
             $lotteryLeft = (int)bcsub($maxLottery, $nums);
         }
 
-        $max_output_hours = $config['max_output_hours'];
-        $changeOutputTimeId = $config['change_output_hours_active_background']['id'];
-        $changeBackground = UserManorBackground::get(['user_id' => $this->uid, 'background' => $changeOutputTimeId]);
-        if ($changeBackground) {
-            $cfgChangeBg = CfgManorBackground::get($changeOutputTimeId);
-            $limit = $cfgChangeBg['lock_data']['limit'];
-            $now = date ('Y-m-d H:i:s', $currentTime);
-            if ($now > $limit['start'] && $now < $limit['end']) {
-                $max_output_hours += $config['change_output_hours_active_background']['hours'];
-            }
-        }
+        $max_output_hours = UserManorBackground::getMaxHours((int)$config['max_output_hours'], $this->uid);
         $limit_add_time = (int)bcmul($max_output_hours, 360);
         $normalStr = [
             "记得常来看我",
