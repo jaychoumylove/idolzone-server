@@ -212,9 +212,16 @@ and user_id <> ';
         $manor = UserManor::get(['user_id' => $user_id]);
         $output = UserAnimal::getOutput($user_id, CfgAnimal::OUTPUT);
         if ((int)$output != (int) $manor['output']) {
+            $data = ['output' => $output];
+            $status = Cfg::checkConfigTime(Cfg::MANOR_OPEN);
+            if ($status) {
+                $data['active_output'] = $output;
+                $data['active_output_time'] = time();
+            }
+
             UserManor::where('id', $manor['id'])
                 ->where('output', $manor['output'])
-                ->update(['output' => $output]);
+                ->update($data);
         }
     }
 
