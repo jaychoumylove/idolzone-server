@@ -5,6 +5,8 @@ namespace app\api\model;
 
 
 use app\base\model\Base;
+use app\base\service\Common;
+use think\Db;
 
 class CfgManorBackground extends Base
 {
@@ -112,11 +114,62 @@ class CfgManorBackground extends Base
         }
 
         if ($task['sum'] < $lockData['number']) {
-            $diff = bcsub($lockData['number'], $task['sum']);
+            $diff = bcsub($lockData['number'], $task['count']);
             if ($diff > 10000) {
                 $diff = bcdiv($diff, 10000, 1) . '万';
             }
             return "还差" . $diff. "鲜花";
+        }
+
+        RecUserBackgroundTask::where(['user_id' => $uid, 'type' => $type])->update([
+            'count' => Db::raw('count-'.$lockData['number'])
+        ]);
+
+        return true;
+    }
+
+    public static function unlockWithLucky($uid, array $lockData)
+    {
+        $currentTime = time();
+        $now = date ('Y-m-d H:i:s', $currentTime);
+        $limit = $lockData['limit'];
+        if ($now < $limit['start']) {
+            return "活动尚未开始";
+        }
+        if ($now > $limit['end']) {
+            return "活动已结束";
+        }
+
+        $max = $lockData['number'];
+
+        $propsMap = [
+            'user_id' => $uid,
+            'prop_id' => $lockData['prop_id']
+        ];
+        $propNum = (new UserProp())->readMaster ()
+            ->where($propsMap)
+            ->where('status', 0)
+            ->count ();
+
+        if ($propNum < $max) {
+            return '抽奖券不足';
+        }
+
+        // 消耗抽奖券
+        $updated = (new UserProp)->where($propsMap)
+            ->where('status', 0)
+            ->limit ($max)
+            ->order ([
+                'create_time' => 'asc',
+                'id' => 'asc'
+            ])
+            ->update([
+                'status' => 1,
+                'use_time' => time ()
+            ]);
+
+        if (empty($updated) || $updated < $max) {
+            return "请稍后再试";
         }
 
         return true;

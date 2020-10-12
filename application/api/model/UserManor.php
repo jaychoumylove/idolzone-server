@@ -266,6 +266,9 @@ and user_id <> ';
                 case 'currency':
                     $status = CfgManorBackground::unlockWithCurrency($uid, $lockData);
                     break;
+                case 'lucky':
+                    $status = CfgManorBackground::unlockWithLucky($uid, $lockData);
+                    break;
                 case 'active':
                     $status = CfgManorBackground::unlockActive($uid, $lockData);
                     break;

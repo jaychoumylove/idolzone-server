@@ -24,6 +24,7 @@ use app\api\model\UserManorBackground;
 use app\api\model\UserManorFriendApply;
 use app\api\model\UserManorFriends;
 use app\api\model\UserManorLog;
+use app\api\model\UserProp;
 use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -424,10 +425,13 @@ class Animal extends Base
             }
         }
 
+        $returnList = [];
+
         foreach ($list as $key => $value) {
             $value['locked'] = in_array($value['id'], $background);
             $value['used'] = $value['id'] == $useBackground;
             $value['try'] = 0;
+            $value['in_date'] = 0;
             if (!$value['locked']) {
                 if (array_key_exists($value['id'], $tryData)) {
                     $value['try'] = -1;
@@ -465,15 +469,32 @@ class Animal extends Base
                         $value['able_lock'] = $level >= $value['lock_data']['number'];
                     }
 
+                    if ($value['lock_data']['type'] == 'lucky') {
+                        $propNum = (new UserProp())->readMaster ()
+                            ->where([
+                                'user_id' => $this->uid,
+                                'prop_id' => $value['lock_data']['prop_id']
+                            ])
+                            ->where('status', 0)
+                            ->count ();
+                        $value['able_lock'] = $propNum >= $value['lock_data']['number'];
+                        $value['prop_num'] = $propNum;
+                    }
+
                     if (array_key_exists('limit', $value['lock_data'])) {
                         $value['end_time'] = strtotime($value['lock_data']['limit']['end']);
+                        if (empty($value['locked']) && $currentTime > $value['end_time']) {
+                            $value['in_date'] = 1;
+                        }
                     }
                 }
             }
-            $list[$key] = $value;
+            if (empty($value['in_date'])) {
+                $returnList[] = $value;
+            }
         }
 
-        Common::res(['data' => $list]);
+        Common::res(['data' => $returnList]);
     }
 
     public function tryBackground()
