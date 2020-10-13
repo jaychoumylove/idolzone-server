@@ -468,7 +468,7 @@ and user_id <> ';
         return $nationalReward;
     }
 
-    public static function getActiveOutputRank($page, $size, $field)
+    public static function getActiveOutputRank($page, $size, $uid, $field)
     {
         $cfg = Cfg::getCfg(Cfg::MANOR_OPEN);
 
@@ -484,11 +484,16 @@ and user_id <> ';
                     ])
                     ->page($page, $size)
                     ->select();
+
+                $myInfo = UserManor::with(['user','star'])->where('user_id', $uid)->find();
+                $count = (int)UserManor::where('active_output', '>', $myInfo['active_output'])->count();
+                $myInfo['rank'] = bcadd($count, 1);
             }
+            $data = ['list' => $list, 'my' => $myInfo];
         } else {
-            $list = $cfg['open']['list'];
+            $data = $cfg['open']['list'];
         }
 
-        return $list;
+        return $data;
     }
 }

@@ -849,10 +849,11 @@ class Animal extends Base
     public function getOutputRank()
     {
         // 庄园开屏活动
+        $this->getUser();
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 10);
         $field = input('field', 'rank');
-        $data = UserManor::getActiveOutputRank($page, $size,$field);
+        $data = UserManor::getActiveOutputRank($page, $size, $this->uid, $field);
 
         Common::res(['data' => $data]);
     }
