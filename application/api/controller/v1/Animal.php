@@ -443,11 +443,9 @@ class Animal extends Base
                 }
                 if ($value['lock_data']) {
                     if ($value['lock_data']['type'] == 'currency') {
-                        if (empty($backgroundNum)) {
-                            $backgroundRec = new RecUserBackgroundTask();
-                            $backgroundType = $type == 'active' ? RecUserBackgroundTask::ACTIVE: RecUserBackgroundTask::FLOWER_SUM;
-                            $backgroundNum = $backgroundRec->where('user_id', $this->uid)->where('type', $backgroundType)->value('sum', 0);
-                        }
+                        $backgroundRec = new RecUserBackgroundTask();
+                        $backgroundType = $type == 'active' ? RecUserBackgroundTask::ACTIVE: RecUserBackgroundTask::FLOWER_SUM;
+                        $backgroundNum = $backgroundRec->where('user_id', $this->uid)->where('type', $backgroundType)->value('sum', 0);
                         $value['able_lock'] = $backgroundNum >= $value['lock_data']['number'];
                     }
                     if ($value['lock_data']['type'] == 'week_rank') {
