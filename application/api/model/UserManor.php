@@ -484,12 +484,12 @@ and user_id <> ';
                     ])
                     ->page($page, $size)
                     ->select();
-
-                $myInfo = UserManor::with(['user','star'])->where('user_id', $uid)->find();
-                $count = (int)UserManor::where('active_output', '>', $myInfo['active_output'])->count();
-                $myInfo['rank'] = bcadd($count, 1);
             }
-            $data = ['list' => $list, 'my' => $myInfo];
+
+            $myInfo = UserManor::with(['user','star'])->where('user_id', $uid)->find();
+            $count = (int)UserManor::where('active_output', '>', $myInfo['active_output'])->count();
+            $myInfo['rank'] = bcadd($count, 1);
+            $data = ['list' => $list, 'my' => $myInfo, 'middle_index' => bcmul($cfg['rank']['index']['middle'], $size)];
         } else {
             $data = $cfg['open']['list'];
         }
