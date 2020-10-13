@@ -504,6 +504,18 @@ class FansClub extends Base
         ]);
     }
 
+    public function upLeader()
+    {
+        $this->getUser();
+        $admin= $this->req('admin','integer');
+        $res=Fanclub::upLeader($this->uid,$admin);
+        if (empty($res)) {
+            Common::res(['code' => 1, 'msg' => '请稍后再试']);
+        }
+
+        Common::res();
+    }
+
     public function removeAll()
     {
         $this->getUser();

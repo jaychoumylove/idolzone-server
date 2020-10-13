@@ -215,6 +215,7 @@ Route::rule('api/:version/fans/applylist', 'api/v1.FansClub/applylist');// 申�
 Route::rule('api/:version/fans/applydeal', 'api/v1.FansClub/applydeal');// 申请处理
 Route::rule('api/:version/fans/enter', 'api/v1.FansClub/enter');// 邀请页面
 Route::rule('api/:version/fans/upAdmin', 'api/v1.FansClub/upAdmin');// 提/降管理员
+Route::rule('api/:version/fans/upLeader', 'api/v1.FansClub/upLeader');// 提团长
 Route::rule('api/:version/fans/remove_all', 'api/v1.FansClub/removeAll');// 退出粉丝团
 
 Route::rule('api/:version/fans/mybox', 'api/v1.FansClub/mybox');// 粉丝团宝箱

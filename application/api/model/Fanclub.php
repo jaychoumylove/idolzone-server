@@ -11,7 +11,6 @@ use Throwable;
 
 class Fanclub extends Base
 {
-
     public function star()
     {
         return $this->belongsTo('Star', 'star_id', 'id')->field('id,head_img_s,name');
@@ -316,6 +315,47 @@ class Fanclub extends Base
 
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
         }
+    }
+
+    public static function upLeader($uid, $admin)
+    {
+        $isLeader = FanclubUser::isLeader($uid);
+        if (empty($isLeader)) {
+            Common::res(['code' => 1, 'msg' => '权限不够']);
+        }
+
+        $fanclubId = FanclubUser::where('user_id', $uid)->value ('fanclub_id');
+        $adminFanclubId = FanclubUser::where('user_id', $admin)->value ('fanclub_id');
+        $sameFanclubId = (int)$fanclubId == (int)$adminFanclubId;
+        if (empty($sameFanclubId)) {
+            Common::res(['code'  =>1, 'msg' => '权限不够']);
+        }
+
+        $isAdmin= FanclubUser::isAdmin($admin);
+        if (empty($isAdmin)) {
+            Common::res(['code' => 1, 'msg' => 'ta还不是管理员']);
+        }
+
+        Db::startTrans ();
+        try {
+            // 团长变为成员
+            Fanclub::where('id', $fanclubId)->update(['user_id' => $admin]);
+
+            FanclubUser::where('fanclub_id', $fanclubId)
+                ->where([
+                    'user_id' => $admin,
+                    'fanclub_id' => $fanclubId
+                ])
+                ->update(['admin' => 0]);
+
+            Db::commit ();
+        } catch (Throwable $throwable) {
+            Db::rollback ();
+
+            Common::res (['code' => 1, 'msg' => '请稍后再试']);
+        }
+
+        return true;
     }
 
 }
