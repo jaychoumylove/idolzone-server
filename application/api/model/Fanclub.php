@@ -6,6 +6,7 @@ use app\base\service\Common;
 use app\api\service\User as UserService;
 use Exception;
 use think\Db;
+use think\Log;
 use think\model\Relation;
 use Throwable;
 
@@ -126,7 +127,9 @@ class Fanclub extends Base
             Db::commit();
         } catch (Exception $e) {
             Db::rollback();
-//            throw $e;
+//            throw $e;s
+            // 记录出错的地方
+            Log::error(json_encode($e));
             Common::res([
                 'code' => 1,
                 'msg' => '请稍后再试'

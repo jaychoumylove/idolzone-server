@@ -70,12 +70,14 @@ class CfgManorBackground extends Base
     {
         $currentTime = time();
         $now = date ('Y-m-d H:i:s', $currentTime);
-        $limit = $lockData['limit'];
-        if ($now < $limit['start']) {
-            return "活动尚未开始";
-        }
-        if ($now > $limit['end']) {
-            return "活动已结束";
+        if (array_key_exists('limit', $lockData)) {
+            $limit = $lockData['limit'];
+            if ($now < $limit['start']) {
+                return "活动尚未开始";
+            }
+            if ($now > $limit['end']) {
+                return "活动已结束";
+            }
         }
 
         $userStar = UserStar::get(['user_id' => $uid]);
@@ -99,12 +101,14 @@ class CfgManorBackground extends Base
     {
         $currentTime = time();
         $now = date ('Y-m-d H:i:s', $currentTime);
-        $limit = $lockData['limit'];
-        if ($now < $limit['start']) {
-            return "活动尚未开始";
-        }
-        if ($now > $limit['end']) {
-            return "活动已结束";
+        if (array_key_exists('limit', $lockData)) {
+            $limit = $lockData['limit'];
+            if ($now < $limit['start']) {
+                return "活动尚未开始";
+            }
+            if ($now > $limit['end']) {
+                return "活动已结束";
+            }
         }
 
         $type = $lockData['key'];
@@ -132,12 +136,14 @@ class CfgManorBackground extends Base
     {
         $currentTime = time();
         $now = date ('Y-m-d H:i:s', $currentTime);
-        $limit = $lockData['limit'];
-        if ($now < $limit['start']) {
-            return "活动尚未开始";
-        }
-        if ($now > $limit['end']) {
-            return "活动已结束";
+        if (array_key_exists('limit', $lockData)) {
+            $limit = $lockData['limit'];
+            if ($now < $limit['start']) {
+                return "活动尚未开始";
+            }
+            if ($now > $limit['end']) {
+                return "活动已结束";
+            }
         }
 
         $max = $lockData['number'];
