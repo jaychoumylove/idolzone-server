@@ -851,7 +851,8 @@ class Animal extends Base
         // 庄园开屏活动
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 10);
-        $data = UserManor::getActiveOutputRank($page, $size);
+        $field = input('field', 'rank');
+        $data = UserManor::getActiveOutputRank($page, $size,$field);
 
         Common::res(['data' => $data]);
     }

@@ -468,20 +468,25 @@ and user_id <> ';
         return $nationalReward;
     }
 
-    public static function getActiveOutputRank($page, $size)
+    public static function getActiveOutputRank($page, $size, $field)
     {
         $cfg = Cfg::getCfg(Cfg::MANOR_OPEN);
-        if ($size > $cfg['rank']['index']['end']) {
-            $list = [];
+
+        if ($field == 'rank') {
+            if ($page > $cfg['rank']['index']['end']) {
+                $list = [];
+            } else {
+                $list = UserManor::with(['user','star'])
+                    ->where('active_output', '>', 0)
+                    ->order([
+                        'active_output' => 'desc',
+                        'active_output_time' => 'asc',
+                    ])
+                    ->page($page, $size)
+                    ->select();
+            }
         } else {
-            $list = UserManor::with(['user','star'])
-                ->where('active_output', '>', 0)
-                ->order([
-                    'active_output' => 'desc',
-                    'active_output_time' => 'asc',
-                ])
-                ->page($page, $size)
-                ->select();
+            $list = $cfg['open']['list'];
         }
 
         return $list;
