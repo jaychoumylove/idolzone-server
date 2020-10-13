@@ -216,7 +216,7 @@ and user_id <> ';
             $status = Cfg::checkConfigTime(Cfg::MANOR_OPEN);
             if ($status) {
                 $data['active_output'] = $output;
-                $data['active_output_time'] = time();
+                $data['active_output_time'] = date('Y-m-d H:i:s');
             }
 
             UserManor::where('id', $manor['id'])
@@ -471,7 +471,7 @@ and user_id <> ';
     public static function getActiveOutputRank($page, $size)
     {
         $cfg = Cfg::getCfg(Cfg::MANOR_OPEN);
-        if ($size > $cfg['index']['end']) {
+        if ($size > $cfg['rank']['index']['end']) {
             $list = [];
         } else {
             $list = UserManor::with(['user','star'])

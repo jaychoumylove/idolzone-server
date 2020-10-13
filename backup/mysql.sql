@@ -1425,4 +1425,4 @@ alter table f_user_manor
 alter table f_user_manor
 	add active_output_time timestamp default current_timestamp not null;
 
-update f_user_manor set active_output = output where output > 0;
+update f_user_manor set active_output = `output`,active_output_time = CURRENT_TIME where output > 0;
