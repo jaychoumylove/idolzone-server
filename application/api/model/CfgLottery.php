@@ -12,8 +12,14 @@ class CfgLottery extends Base
     {
         // 567
         $week = date('w');
-        $double = [5,6,0];
-        $type = in_array($week, $double) ? 'weekend': 'normal';
-        self::where('1=1')->update(['num' => Db::raw($type)]);
+        if ($week == 5|| $week == 6|| $week == 0) {
+            self::where('1=1')->update([
+                'num' => Db::raw('weekend')
+            ]);
+        } else {
+            self::where('1=1')->update([
+                'num' => Db::raw('normal')
+            ]);
+        }
     }
 }

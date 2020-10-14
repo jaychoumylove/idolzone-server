@@ -37,6 +37,7 @@ use app\api\model\Family;
 use app\api\model\FamilyUser;
 use app\base\model\Appinfo;
 use think\Log;
+use Throwable;
 
 class AutoRun extends Base
 {
@@ -225,10 +226,15 @@ class AutoRun extends Base
 //                \app\api\model\UserInvite::cleanDayInvite ();
 //            }
             Db::commit();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             Db::rollBack();
             Log::error('day autorun fail');
-            Log::error(json_encode($e));
+            Log::error('code:' . $e->getCode());
+            Log::error('message:' . $e->getMessage());
+            Log::error('file:' . $e->getFile());
+            Log::error('line:' . $e->getLine());
+            Log::error('trace:');
+            Log::error(json_encode($e->getTrace()));
             return 'rollBack:' . $e->getMessage();
         }
         
