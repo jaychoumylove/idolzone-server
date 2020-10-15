@@ -1426,3 +1426,9 @@ alter table f_user_manor
 	add active_output_time timestamp default current_timestamp not null;
 
 update f_user_manor set active_output = `output`,active_output_time = CURRENT_TIME where output > 0;
+
+alter table f_cfg_manor_background
+    add sort int default 0 not null comment '排序，数字越大越靠前';
+
+alter table f_cfg_animal
+    add sort int default 0 not null comment '排序，数字越大越靠前';

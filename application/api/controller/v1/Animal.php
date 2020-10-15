@@ -43,7 +43,12 @@ class Animal extends Base
         $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
         $supportItem = 3;
         if ($type == 'twelve') {
-            $list = CfgAnimal::where('type', 'NORMAL')->order('create_time', 'desc')->select();
+            $list = CfgAnimal::where('type', 'NORMAL')
+                ->order([
+                    'sort' => 'desc',
+                    'create_time' => 'desc',
+                ])
+                ->select();
 
             if (is_object($list)) $list = $list->toArray();
 
@@ -79,7 +84,10 @@ class Animal extends Base
 
         if ($type == 'secret') {
             $list = CfgAnimal::where('type', 'in', [CfgAnimal::SECRET, CfgAnimal::STAR_SECRET])
-                ->order('create_time', 'desc')
+                ->order([
+                    'sort' => 'desc',
+                    'create_time' => 'desc',
+                ])
                 ->select();
 
             if (is_object($list)) $list = $list->toArray();
@@ -413,6 +421,7 @@ class Animal extends Base
 
         $list = CfgManorBackground::where($map)
             ->order([
+                'sort' => 'desc',
                 'create_time' => 'desc',
                 'id' => 'desc'
             ])
