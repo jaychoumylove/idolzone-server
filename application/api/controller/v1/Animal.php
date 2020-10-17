@@ -813,6 +813,9 @@ class Animal extends Base
         }
 
         $data = UserAnimalBox::lottery($this->uid, $target_user);
+        if (true == $data['new']) {
+            UserManor::refreshOutput($this->uid);
+        }
 
         Common::res(['data' => $data]);
     }

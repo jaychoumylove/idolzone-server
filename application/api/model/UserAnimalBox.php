@@ -68,6 +68,7 @@ class UserAnimalBox extends Base
         ]);
 
         Db::startTrans();
+        $hasNew = false;
         try {
             $updated = UserAnimalBox::where('id', $item['id'])
                 ->where('lottery_user', 'null')
@@ -87,6 +88,7 @@ class UserAnimalBox extends Base
                     'animal_id' => $item['animal_id'],
                     'scrap'     => 1,
                 ]);
+                $hasNew = true;
             } else {
                 $updated = UserAnimal::where('user_id', $uid)
                     ->where('animal_id', $item['animal_id'])
@@ -110,11 +112,11 @@ class UserAnimalBox extends Base
             Db::commit();
         } catch (Throwable $throwable) {
             Db::rollback();
-            throw $throwable;
+//            throw $throwable;
             Common::res(['code' => 1, 'msg' => '偷取失败了，请稍后再试']);
         }
 
-        return ['name' => $item['scrap_name'], 'number' => 1];
+        return ['name' => $item['scrap_name'], 'number' => 1, 'new' => $hasNew];
     }
 
     public static function addScrap($animal, $user_id, $endTime = null, $number = 1)

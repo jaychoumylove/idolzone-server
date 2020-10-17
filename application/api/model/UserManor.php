@@ -489,6 +489,17 @@ and user_id <> ';
             $myInfo = UserManor::with(['user','star'])->where('user_id', $uid)->find();
             $count = (int)UserManor::where('active_output', '>', $myInfo['active_output'])->count();
             $myInfo['rank'] = bcadd($count, 1);
+
+            if ($myInfo['rank'] <= 200) {
+                // 200名以内才查看重复
+                $ids = UserManor::where('active_output', $myInfo['active_output'])
+                    ->order(['active_output_time' => 'asc'])
+                    ->column('user_id');
+
+                $index = array_search($uid, $ids);
+                $myInfo['rank'] = (int)bcadd($myInfo['rank'], $index);
+            }
+
             $data = ['list' => $list, 'my' => $myInfo, 'middle_index' => bcmul($cfg['rank']['index']['middle'], $size)];
         } else {
             $data = $cfg['open']['list'];
