@@ -381,7 +381,7 @@ class UserExt extends Base
 
         $insertRec = [
             'user_id'        => $uid,
-            'content'        => sprintf ('中秋福袋,赠送【%s】额外人气+%s', $star['name'], $extraHot),
+            'content'        => sprintf ('%s,赠送【%s】额外人气+%s', Cfg::getCfg(Cfg::WEAL_ACTIVE)['name'], $star['name'], $extraHot),
             'coin'           => 0,
             'flower'         => 0,
             'stone'          => 0,

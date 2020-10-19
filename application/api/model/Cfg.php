@@ -18,6 +18,7 @@ class Cfg extends Base
     const MANOR_NATIONAL_DAY = "manor_national_day"; // 国庆|中秋节 庄园活动
     const ACTIVE_YINGYUAN    = 'yingyuan';
     const MANOR_OPEN         = 'manor_open';
+    const WEAL_ACTIVE        = 'weal_active';
 
     public static function getCfg($key)
     {
@@ -42,9 +43,9 @@ class Cfg extends Base
 
         return $res;
     }
-    
+
     public static function isPkactiveStart(){
-        $pkactiveDate = self::getCfg('pkactive_date');        
+        $pkactiveDate = self::getCfg('pkactive_date');
         return  (time() > strtotime($pkactiveDate[0]) && time() < strtotime($pkactiveDate[1]));
     }
 
