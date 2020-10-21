@@ -353,4 +353,20 @@ class Test extends Base
         }
         return Response::create(['status' => 'OK'], 'json');
     }
+
+    public function addLucky()
+    {
+        // 线上不开启
+        echo 'no content' . PHP_EOL;
+        die(400);
+
+        // 原生sql语句
+        // call addLuckyProc(379622824/1234, 18, 80, '2020-12-31 23:59:59');
+        $user_id = 679995; // 用户id
+        $prop_id = 18; // 幸运抽奖券 道具id
+        $number = 10; // 补充抽奖券数量
+        $endTime = '2020-12-31 23:59:59'; // 抽奖券过期时间
+        $sql = sprintf("call addLuckyProc(%s, %s, %s, '%s');", $user_id, $prop_id, $number, $endTime);
+        Db::execute($sql);
+    }
 }
