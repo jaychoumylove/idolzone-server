@@ -190,8 +190,6 @@ class AutoRun extends Base
             StarBirthRank::grantBirthAward();
             // 周末抽奖双倍
             CfgLottery::doubleAward();
-            // pk表清除
-            PkUser::clearPk();
 
             // 清理每日任务
             RecWealActivityTask::cleanDay ();
@@ -208,6 +206,9 @@ class AutoRun extends Base
                 'day_lottery_times' => 0,
                 'day_lottery_box' => '[]',
             ]);
+
+            // pk表清除
+            PkUser::clearPk();
 
             // 开屏备选的清理
             // 先注释，活动开启后再查询 2020年10月08日18:36:47
