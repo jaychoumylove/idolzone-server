@@ -468,6 +468,57 @@ and user_id <> ';
         return $nationalReward;
     }
 
+    public static function supportDoubleElven($uid)
+    {
+        //  查看使用的抽奖券数量
+        $useLuckyNum = UserProp::where('user_id', $uid)
+            ->where('use_time', '>', 0)
+            ->where('prop_id', UserProp::LUCKY_ID)
+            ->count();
+
+        // 获得的幸运碎片数量
+//        select * from f_rec_lucky_draw_log where user_id=99459 and type in ('SINGLE','MULTIPLE') and item like '%scrap%';
+
+        $items = RecLuckyDrawLog::where('user_id', $uid)
+            ->where('type', 'in', [RecLuckyDrawLog::MULTIPLE, RecLuckyDrawLog::SINGLE])
+            ->where('item', 'like', '%scrap%')
+            ->select();
+        if (is_object($items)) $items = $items->toArray();
+        $scrapNum = 0;
+        foreach ($items as $item) {
+            if ($item['type'] == RecLuckyDrawLog::SINGLE) {
+                $scrapNum += (int)$item['item']['number'];
+            }
+            if ($item['type'] == RecLuckyDrawLog::MULTIPLE) {
+                foreach ($item['item'] as $singleItem) {
+                    if ($singleItem['key'] == 'scrap') {
+                        $scrapNum += (int)$singleItem['number'];
+                        break;
+                    } else {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        // 正常获得的碎片数量
+        $percent = 3 / 50;
+        $normalNum = bcmul($percent, $useLuckyNum);
+        if ($normalNum > $scrapNum) {
+            // 补偿
+            $luckyReward = bcsub($normalNum, $scrapNum);
+            UserManor::where('user_id', $uid)->update(['get_active_sum' => 1]);
+            return [
+                'spend_lucky' => $useLuckyNum,
+                'scrap' => $scrapNum,
+                'scrap_reward' => $luckyReward,
+            ];
+        } else {
+            UserManor::where('user_id', $uid)->update(['get_active_sum' => 1]);
+            return 0;
+        }
+    }
+
     public static function getActiveOutputRank($page, $size, $uid, $field)
     {
         $cfg = Cfg::getCfg(Cfg::MANOR_OPEN);

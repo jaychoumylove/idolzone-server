@@ -741,7 +741,8 @@ class Page extends Base
                 ->select();
 
             if (empty($manor['get_active_sum'])) {
-                $nationalReward = UserManor::supportNational($this->uid);
+//                $nationalReward = UserManor::supportNational($this->uid);
+                $doubleElvenReward = UserManor::supportDoubleElven($this->uid);
             }
         }
 
@@ -825,6 +826,7 @@ class Page extends Base
             'limit_time' => $limit_add_time,
             'panacea_reward' => $panaceaReward,
             'national_reward' => $nationalReward,
+            'double_elven_reward' => empty($doubleElvenReward) ? null: $doubleElvenReward,
             'word' => $word,
             'max_lottery'  => $maxLottery,
             'main_background'  => $mainBackground,
