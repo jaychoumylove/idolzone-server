@@ -125,6 +125,16 @@ class UserManorLog extends Base
         }
     }
 
+    public static function recordWithDoubleElvenDay($user_id, $data, $content)
+    {
+        $recordData = [
+            'lucky' => (int)$data['lucky'],
+            'number' => (int)$data['lucky'],
+            'image' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0'
+        ];
+        self::record($user_id, $recordData, $content, "DOUBLE_ELVEN_REWARD");
+    }
+
     public static function recordWithNationalDayExchangeAnimal($user_id, $animal, $item)
     {
         $type    = 'NATIONAL_ANIMAL_EXCHANGE';

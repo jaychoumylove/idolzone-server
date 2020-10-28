@@ -507,6 +507,7 @@ and user_id <> ';
         if ($normalNum > $scrapNum) {
             // 补偿
             $luckyReward = bcsub($normalNum, $scrapNum);
+            UserManorLog::recordWithNationalDay($uid, ['lucky' => $luckyReward], '双十一酋长补偿');
             UserManor::where('user_id', $uid)->update(['get_active_sum' => 1]);
             return [
                 'spend_lucky' => $useLuckyNum,
