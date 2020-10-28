@@ -381,7 +381,8 @@ Route::rule('api/:version/animal/info', 'api/v1.Animal/getAnimalInfo'); // 宠�
 Route::rule('api/:version/animal/up', 'api/v1.Animal/upAnimal');//宠物升级
 Route::rule('api/:version/animal/unlock', 'api/v1.Animal/unLockAnimal'); // 宠物解锁
 Route::rule('api/:version/animal/change', 'api/v1.Animal/changeMainAnimal'); // 宠物更换
-Route::rule('api/:version/animal/checkout_image', 'api/v1.Animal/checkSecretImage'); // 宠物更换
+Route::rule('api/:version/animal/checkout_image', 'api/v1.Animal/checkSecretImage'); // 更换idol宠物形象
+Route::rule('api/:version/animal/checkout_super_image', 'api/v1.Animal/checkSuperSecretImage'); // 更换灵宠形象
 Route::rule('api/:version/animal/lottery_info', 'api/v1.Animal/getAnimalLotteryInfo'); // 宠物抽奖池
 Route::rule('api/:version/animal/lottery', 'api/v1.Animal/lotteryAnimal'); // 宠物信息
 Route::rule('api/:version/animal/steal', 'api/v1.Animal/animalSteal'); // 宠物偷豆

@@ -82,7 +82,7 @@ class Animal extends Base
         }
 
         if ($type == 'secret') {
-            $list = CfgAnimal::where('type', 'in', [CfgAnimal::SECRET, CfgAnimal::STAR_SECRET])
+            $list = CfgAnimal::where('type', 'in', [CfgAnimal::SECRET, CfgAnimal::STAR_SECRET, CfgAnimal::SUPER_SECRET])
                 ->order([
                     'sort' => 'desc',
                     'create_time' => 'desc',
@@ -311,6 +311,16 @@ class Animal extends Base
                 }
             }
         }
+        if ($animal['type'] == CfgAnimal::SUPER_SECRET) {
+            $animal['image_group'] = [];
+
+            foreach ($lvDict as $item) {
+                array_push($animal['image_group'], $item['image']);
+            }
+            if ($lv) {
+                $animal['use_image'] = $userAnimal['use_image'];
+            }
+        }
 
         $data = [
             'animal' => $animal,
@@ -328,6 +338,18 @@ class Animal extends Base
         $this->getUser();
 
         UserAnimal::checkoutSecretImage($this->uid);
+        Common::res();
+    }
+
+    public function checkSuperSecretImage()
+    {
+        $this->getUser();
+        $lv = (int)input('lv', 0);
+        if (empty($lv)) {
+            Common::res(['code' => 1, 'msg' => '请选择等级']);
+        }
+
+        UserAnimal::checkSuperSecretImage($this->uid, $lv);
         Common::res();
     }
 

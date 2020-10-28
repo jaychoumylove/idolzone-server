@@ -135,7 +135,7 @@ class UserAnimal extends Base
                 'animal_id' => $animal,
                 'level' => 1,
             ];
-            if ($animalInfo['type'] == CfgAnimal::STAR_SECRET) {
+            if (in_array($animalInfo['type'], [CfgAnimal::STAR_SECRET, CfgAnimal::SUPER_SECRET])) {
                 $lvData['use_image'] = $animalInfo['image'];
             }
             UserAnimal::create($lvData);
@@ -351,6 +351,33 @@ class UserAnimal extends Base
         } else {
             $update['use_image'] = $starAnimal['image'];
         }
+
+        UserAnimal::where('id', $exist['id'])->update($update);
+    }
+
+    public static function checkSuperSecretImage($uid, $lv)
+    {
+        $animalInfo = CfgAnimal::get(['type' => CfgAnimal::SUPER_SECRET]);
+        $animal = $animalInfo['id'];
+        if (empty($animalInfo)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        $exist = UserAnimal::get(['animal_id' => $animal, 'user_id' => $uid]);
+        if (empty($exist)) {
+            Common::res(['code' => 1, 'msg' => '您还没有该宠物哦']);
+        }
+
+        if ($exist['level'] < $lv) {
+            Common::res(['code' => 1, 'msg' => '您还未解锁哦']);
+        }
+
+        $lvExist = CfgAnimalLevel::get(['level' => $lv, 'animal_id' => $animal]);
+        if (empty($lvExist)) {
+            Common::res(['code' => 1, 'msg' => '暂未开放']);
+        }
+
+        $update['use_image'] = $lvExist['image']['url'];
 
         UserAnimal::where('id', $exist['id'])->update($update);
     }

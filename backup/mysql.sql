@@ -1432,3 +1432,6 @@ alter table f_cfg_manor_background
 
 alter table f_cfg_animal
     add sort int default 0 not null comment '排序，数字越大越靠前';
+
+alter table f_cfg_animal_level
+    add image varchar(255) null comment '等级形象 - 灵宠特有';
