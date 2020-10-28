@@ -36,16 +36,16 @@ class Animal extends Base
         $this->getUser();
         $type = input('type');
 
-        if (in_array($type, ['already', 'all', 'yet', 'twelve','secret']) == false) {
+        if (in_array($type, ['already', 'all', 'yet', 'twelve', 'secret']) == false) {
             Common::res(['code' => 1, 'msg' => '请选择查看类型']);
         }
 
-        $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
+        $scrapNum    = UserExt::where('user_id', $this->uid)->value('scrap');
         $supportItem = 3;
         if ($type == 'twelve') {
             $list = CfgAnimal::where('type', 'NORMAL')
                 ->order([
-                    'sort' => 'desc',
+                    'sort'        => 'desc',
                     'create_time' => 'desc',
                 ])
                 ->select();
@@ -62,7 +62,7 @@ class Animal extends Base
                 if (array_key_exists($value['id'], $userAnimalDict)) {
                     $value['user_animal'] = $userAnimalDict[$value['id']];
                     $lv                   = $value['user_animal']['level'];
-                    $nextLv = CfgAnimalLevel::where('animal_id', $value['id'])
+                    $nextLv               = CfgAnimalLevel::where('animal_id', $value['id'])
                         ->where('level', bcadd($lv, 1))
                         ->find();
 
@@ -82,14 +82,24 @@ class Animal extends Base
         }
 
         if ($type == 'secret') {
-            $list = CfgAnimal::where('type', 'in', [CfgAnimal::SECRET, CfgAnimal::STAR_SECRET, CfgAnimal::SUPER_SECRET])
+            $list = CfgAnimal::where('type', 'in', [CfgAnimal::SECRET, CfgAnimal::STAR_SECRET])
                 ->order([
-                    'sort' => 'desc',
+                    'sort'        => 'desc',
                     'create_time' => 'desc',
                 ])
                 ->select();
 
             if (is_object($list)) $list = $list->toArray();
+
+            $starId = UserStar::getStarId($this->uid);
+            // 获得灵宠
+            $superAnimal = CfgAnimal::where('type', CfgAnimal::SUPER_SECRET)
+                ->where('star_id', 'in', [0, $starId])
+                ->order('star_id', 'desc')
+                ->select();
+            if (is_object($superAnimal)) $superAnimal = $superAnimal->toArray();
+
+            array_push($list, $superAnimal[0]);
 
             $animalIds = array_column($list, 'id');
 
@@ -105,7 +115,7 @@ class Animal extends Base
                     $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
                         ->where('level', $lv)
                         ->find();
-                    $nextLv = CfgAnimalLevel::where('animal_id', $value['id'])
+                    $nextLv           = CfgAnimalLevel::where('animal_id', $value['id'])
                         ->where('level', bcadd($lv, 1))
                         ->find();
 
@@ -115,23 +125,35 @@ class Animal extends Base
                         } else {
                             // 爱豆萌宠
                             $value['image'] = $userAnimalDict[$value['id']]['use_image'];
-                            $starId = UserStar::getStarId($this->uid);
-                            $starAnimal = CfgAnimal::where('star_id', $starId)
+                            $starAnimal     = CfgAnimal::where('star_id', $starId)
                                 ->where('type', CfgAnimal::STAR)
                                 ->find();
-                            $value['name'] = $starAnimal['name'];
+                            $value['name']  = $starAnimal['name'];
+                        }
+                    }
+
+                    if ($value['type'] == CfgAnimal::SUPER_SECRET) {
+                        if ($value['image'] == $userAnimalDict[$value['id']]['use_image']) {
+                            // 初始形象
+                        } else {
+                            // 灵宠形象
+                            $value['image'] = $userAnimalDict[$value['id']]['use_image'];
+                            $useAnimalLevel = CfgAnimalLevel::where('animal_id', $value['id'])
+                                ->where('image', 'like', "%" . $value['image'] . "%")
+                                ->find();
+                            $value['name']  = $useAnimalLevel['image']['name'];
                         }
                     }
 
                     if (empty($nextLv)) {
-                        $value['up_able'] = false;
+                        $value['up_able']    = false;
                         $value['need_scrap'] = $value['lv_info']['number'];
                     } else {
-                        $value['up_able'] = $scrapNum >= $nextLv['number'];
+                        $value['up_able']    = $scrapNum >= $nextLv['number'];
                         $value['need_scrap'] = $nextLv['number'];
                     }
                 } else {
-                    $value['lv_info'] = CfgAnimalLevel::where('animal_id', $value['id'])
+                    $value['lv_info']    = CfgAnimalLevel::where('animal_id', $value['id'])
                         ->where('level', $lv)
                         ->find();
                     $value['need_scrap'] = $value['lv_info']['number'];
@@ -148,20 +170,20 @@ class Animal extends Base
         }
 
         $currentTime = time();
-        $manor = UserManor::get(['user_id' => $this->uid]);
-        $diffTime = bcsub($currentTime, $manor['last_output_time']);
-        $output = (int)UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
-        if ((int)$output != (int) $manor['output']) {
+        $manor       = UserManor::get(['user_id' => $this->uid]);
+        $diffTime    = bcsub($currentTime, $manor['last_output_time']);
+        $output      = (int)UserAnimal::getOutput($this->uid, CfgAnimal::OUTPUT);
+        if ((int)$output != (int)$manor['output']) {
             UserManor::where('id', $manor['id'])
                 ->where('output', $manor['output'])
                 ->update(['output' => $output]);
         }
-        $addCount = (int)UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
+        $addCount     = (int)UserAnimal::getOutputNumber($this->uid, $diffTime, $manor['count_left']);
         $mainAnimalId = (int)$manor['use_animal'];
-        $stealLeft = UserAnimal::getStealLeft($this->uid);
+        $stealLeft    = UserAnimal::getStealLeft($this->uid);
 
-        $nums = UserExt::where('user_id', $this->uid)->value('animal_lottery');
-        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $nums       = UserExt::where('user_id', $this->uid)->value('animal_lottery');
+        $config     = Cfg::getCfg(Cfg::MANOR_ANIMAL);
         $maxLottery = (int)$config['lottery']['max'];
         if ($nums > $maxLottery) {
             $lotteryLeft = 0;
@@ -174,19 +196,19 @@ class Animal extends Base
         $normalAnimalNum = UserAnimal::where('user_id', $this->uid)
             ->where('animal_id', 'in', $animalIds)
             ->count();
-        $callType = $normalAnimalNum == 12 ? 'goSupple': 'goCall';
+        $callType        = $normalAnimalNum == 12 ? 'goSupple' : 'goCall';
 
         Common::res(['data' => [
-            'list' => $list,
-            'output' => $output,
-            'add_count' => $addCount,
+            'list'         => $list,
+            'output'       => $output,
+            'add_count'    => $addCount,
             'list_support' => $supportItem,
-            'steal_left' => $stealLeft,
-            'main_animal' => $mainAnimalId,
-            'scrap_num' => $scrapNum,
+            'steal_left'   => $stealLeft,
+            'main_animal'  => $mainAnimalId,
+            'scrap_num'    => $scrapNum,
             'lottery_left' => $lotteryLeft,
             'max_lottery'  => $maxLottery,
-            'call_type' => $callType,
+            'call_type'    => $callType,
         ]]);
     }
 
@@ -197,14 +219,14 @@ class Animal extends Base
         $list = AnimalLottery::with(['animal'])
             ->order([
                 'chance' => 'desc',
-                'id' => 'asc'
+                'id'     => 'asc'
             ])
             ->select();
 
         if (is_object($list)) $list = $list->toArray();
 
-        $ids = array_column($list, 'animal');
-        $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
+        $ids            = array_column($list, 'animal');
+        $scrapNum       = UserExt::where('user_id', $this->uid)->value('scrap');
         $userAnimalDict = UserAnimal::getDictList((new UserAnimal()), $ids, 'animal_id', '*', ['user_id' => $this->uid]);
         foreach ($list as $key => $value) {
             $value['scrap_num'] = 0;
@@ -283,21 +305,21 @@ class Animal extends Base
 
         $userAnimal = UserAnimal::get(['animal_id' => $animalId, 'user_id' => $this->uid]);
         if (empty($userAnimal)) {
-            Common::res(['code' =>1, 'msg' => '尚未拥有哦']);
+            Common::res(['code' => 1, 'msg' => '尚未拥有哦']);
         }
 
-        $lv = empty($userAnimal) ? 0: $userAnimal['level'];
+        $lv     = empty($userAnimal) ? 0 : $userAnimal['level'];
         $nextLv = bcadd($lv, 1);
 
-        $scrapNum = UserExt::where('user_id', $this->uid)->value ('scrap');
-        $lvDict = CfgAnimalLevel::getDictList((new CfgAnimalLevel()), [$lv, $nextLv], 'level', '*', ['animal_id' => $animalId]);
+        $scrapNum = UserExt::where('user_id', $this->uid)->value('scrap');
+        $lvDict   = CfgAnimalLevel::getDictList((new CfgAnimalLevel()), [$lv, $nextLv], 'level', '*', ['animal_id' => $animalId]);
 
         $exchangeImage = null;
         if ($animal['type'] == CfgAnimal::STAR_SECRET) {
             if ($lv) {
                 $animal['use_image'] = $userAnimal['use_image'];
-                $starId = UserStar::getStarId($this->uid);
-                $starAnimal = CfgAnimal::get(['type' => CfgAnimal::STAR, 'star_id' => $starId]);
+                $starId              = UserStar::getStarId($this->uid);
+                $starAnimal          = CfgAnimal::get(['type' => CfgAnimal::STAR, 'star_id' => $starId]);
                 if ($starAnimal) {
                     $exchangeImage = $starAnimal;
                 }
@@ -323,11 +345,11 @@ class Animal extends Base
         }
 
         $data = [
-            'animal' => $animal,
-            'lv' => $lvDict[$lv],
+            'animal'      => $animal,
+            'lv'          => $lvDict[$lv],
             'changeImage' => $exchangeImage,
-            'next_lv' => array_key_exists($nextLv, $lvDict) ? $lvDict[$nextLv]: null,
-            'scrap_num' => $animal['type'] == 'NORMAL' ? $userAnimal['scrap'] : $scrapNum,
+            'next_lv'     => array_key_exists($nextLv, $lvDict) ? $lvDict[$nextLv] : null,
+            'scrap_num'   => $animal['type'] == 'NORMAL' ? $userAnimal['scrap'] : $scrapNum,
         ];
 
         Common::res(compact('data'));
@@ -384,13 +406,13 @@ class Animal extends Base
     public function stealUserList()
     {
         $this->getUser();
-        $list = UserManor::getRandomStealUser($this->uid);
+        $list     = UserManor::getRandomStealUser($this->uid);
         $daySteal = UserManor::where('user_id', $this->uid)->value('day_steal');
         $sumSteal = UserAnimal::getOutput($this->uid, CfgAnimal::STEAL);
-        $diff = (int)bcsub($sumSteal, $daySteal);
+        $diff     = (int)bcsub($sumSteal, $daySteal);
         Common::res(['data' => [
-            'list' => $list,
-            'steal_left_times' => $diff > 0 ? $diff: 0
+            'list'             => $list,
+            'steal_left_times' => $diff > 0 ? $diff : 0
         ]]);
     }
 
@@ -425,7 +447,7 @@ class Animal extends Base
         }
 
         $map = [
-            'type' => $type,
+            'type'   => $type,
             'status' => CfgManorBackground::ON
         ];
 
@@ -433,17 +455,17 @@ class Animal extends Base
             $map['star_id'] = UserStar::getStarId($this->uid);
         }
 
-        $background = UserManorBackground::where('user_id', $this->uid)->column('background');
-        $manor = UserManor::get(['user_id' => $this->uid]);
+        $background    = UserManorBackground::where('user_id', $this->uid)->column('background');
+        $manor         = UserManor::get(['user_id' => $this->uid]);
         $useBackground = $manor['background'];
-        $tryData = array_column($manor['try_data'], 'time', 'id');
-        $currentTime = time();
+        $tryData       = array_column($manor['try_data'], 'time', 'id');
+        $currentTime   = time();
 
         $list = CfgManorBackground::where($map)
             ->order([
-                'sort' => 'desc',
+                'sort'        => 'desc',
                 'create_time' => 'desc',
-                'id' => 'desc'
+                'id'          => 'desc'
             ])
             ->select();
 
@@ -457,9 +479,9 @@ class Animal extends Base
         $returnList = [];
 
         foreach ($list as $key => $value) {
-            $value['locked'] = in_array($value['id'], $background);
-            $value['used'] = $value['id'] == $useBackground;
-            $value['try'] = 0;
+            $value['locked']  = in_array($value['id'], $background);
+            $value['used']    = $value['id'] == $useBackground;
+            $value['try']     = 0;
             $value['in_date'] = 0;
             if (!$value['locked']) {
                 if (array_key_exists($value['id'], $tryData)) {
@@ -472,9 +494,11 @@ class Animal extends Base
                 }
                 if ($value['lock_data']) {
                     if ($value['lock_data']['type'] == 'currency') {
-                        $backgroundRec = new RecUserBackgroundTask();
-                        $backgroundType = $type == 'active' ? RecUserBackgroundTask::ACTIVE: RecUserBackgroundTask::FLOWER_SUM;
-                        $backgroundNum = $backgroundRec->where('user_id', $this->uid)->where('type', $backgroundType)->value('sum', 0);
+                        $backgroundRec      = new RecUserBackgroundTask();
+                        $backgroundType     = $type == 'active' ? RecUserBackgroundTask::ACTIVE : RecUserBackgroundTask::FLOWER_SUM;
+                        $backgroundNum      = $backgroundRec->where('user_id', $this->uid)
+                            ->where('type', $backgroundType)
+                            ->value('sum', 0);
                         $value['able_lock'] = $backgroundNum >= $value['lock_data']['number'];
                     }
                     if ($value['lock_data']['type'] == 'week_rank') {
@@ -497,15 +521,15 @@ class Animal extends Base
                     }
 
                     if ($value['lock_data']['type'] == 'lucky') {
-                        $propNum = (new UserProp())->readMaster ()
+                        $propNum            = (new UserProp())->readMaster()
                             ->where([
                                 'user_id' => $this->uid,
                                 'prop_id' => $value['lock_data']['prop_id']
                             ])
                             ->where('status', 0)
-                            ->count ();
+                            ->count();
                         $value['able_lock'] = $propNum >= $value['lock_data']['number'];
-                        $value['prop_num'] = $propNum;
+                        $value['prop_num']  = $propNum;
                     }
 
                     if (array_key_exists('limit', $value['lock_data'])) {
@@ -547,7 +571,7 @@ class Animal extends Base
             Common::res(['code' => 1, 'msg' => '已经解锁了哦']);
         }
 
-        $manor = UserManor::get(['user_id' => $this->uid]);
+        $manor   = UserManor::get(['user_id' => $this->uid]);
         $tryData = $manor['try_data'];
         if ($tryData) {
             $tryIds = array_column($tryData, 'id');
@@ -557,10 +581,10 @@ class Animal extends Base
         }
 
         $currentTime = time();
-        $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);
-        $minute = $config['background_try_minute'];
-        $tryTime = bcmul($minute, 60);
-        $data = ['id' => $background, 'time' => bcadd($currentTime, $tryTime)];
+        $config      = Cfg::getCfg(Cfg::MANOR_ANIMAL);
+        $minute      = $config['background_try_minute'];
+        $tryTime     = bcmul($minute, 60);
+        $data        = ['id' => $background, 'time' => bcadd($currentTime, $tryTime)];
         array_push($tryData, $data);
         $tryData = json_encode($tryData);
 
@@ -575,7 +599,7 @@ class Animal extends Base
         $this->getUser();
         $background = (int)input('background', 0);
         if (empty($background)) {
-            Common::res(['code' =>1, 'msg' => '请选择使用背景']);
+            Common::res(['code' => 1, 'msg' => '请选择使用背景']);
         }
 
         $backgroundInfo = CfgManorBackground::get($background);
@@ -593,11 +617,11 @@ class Animal extends Base
         }
         $update = ['background' => $background];
 
-        $manor = UserManor::get(['user_id' => $this->uid]);
+        $manor   = UserManor::get(['user_id' => $this->uid]);
         $tryData = $manor['try_data'];
         if ($tryData) {
             $currentTime = time();
-            $newTryData = array_map(function ($item) use($currentTime) {
+            $newTryData  = array_map(function($item) use ($currentTime) {
                 if ($item['time'] > $currentTime) {
                     $item['time'] = $currentTime;
                 }
@@ -619,7 +643,7 @@ class Animal extends Base
 
         $background = (int)input('background', 0);
         if (empty($background)) {
-            Common::res(['code' =>1, 'msg' => '请选择使用背景']);
+            Common::res(['code' => 1, 'msg' => '请选择使用背景']);
         }
 
         $backgroundInfo = CfgManorBackground::get($background);
@@ -654,15 +678,15 @@ class Animal extends Base
     {
         $this->getUser();
         $task_id = $this->req('task_id', 'integer');
-        $task = (new CfgPanaceaTask())->get($task_id);
-        if(!$task){
+        $task    = (new CfgPanaceaTask())->get($task_id);
+        if (!$task) {
             Common::res(['code' => 1, 'msg' => '不存在该任务']);
         }
         if ($task['type'] != CfgPanaceaTask::ONCE) {
-            $rectask= RecPanaceaTask::where(['user_id'=>$this->uid,'task_id'=>$task_id])->find();
+            $rectask = RecPanaceaTask::where(['user_id' => $this->uid, 'task_id' => $task_id])->find();
 
             if (empty($rectask)) {
-                Common::res (['code' => 1, 'msg' => "还未完成该任务哦"]);
+                Common::res(['code' => 1, 'msg' => "还未完成该任务哦"]);
             }
         }
 
@@ -723,16 +747,16 @@ class Animal extends Base
             ->select();
         if (is_object($friendList)) $friendList = $friendList->toArray();
 
-        $userIds = array_column($friendList, 'user_id');
+        $userIds   = array_column($friendList, 'user_id');
         $friendIds = array_column($friendList, 'friend_id');
-        $ids = array_merge($userIds, $friendIds);
-        $ids = array_filter($ids, function ($ite) use ($self) {
+        $ids       = array_merge($userIds, $friendIds);
+        $ids       = array_filter($ids, function($ite) use ($self) {
             return $ite != $self;
         });
-        $ids = array_unique($ids);
+        $ids       = array_unique($ids);
 
         $manorModel = new UserManor();
-        $list = $manorModel::with(['user'])
+        $list       = $manorModel::with(['user'])
             ->where('user_id', 'in', $ids)
             ->order(['output' => 'desc'])
             ->page($page, $size)
@@ -764,8 +788,8 @@ class Animal extends Base
 
             $value['box'] = [
                 'scrap_name' => $box['scrap_name'],
-                'scrap_img' => $box['scrap_img'],
-                'number' => $boxNum,
+                'scrap_img'  => $box['scrap_img'],
+                'number'     => $boxNum,
             ];
 
             $list[$key] = $value;
@@ -773,7 +797,7 @@ class Animal extends Base
 
         Common::res(['data' => $list]);
     }
-    
+
     public function manorLog()
     {
         $this->getUser();
@@ -814,11 +838,11 @@ class Animal extends Base
                 $newList[$value['animal_id']]['number'] = (int)bcadd(1, $newList[$value['animal_id']]['number']);
             } else {
                 $newList[$value['animal_id']] = [
-                    'animal_id' => $value['animal_id'],
-                    'scrap_img' => $value['scrap_img'],
+                    'animal_id'  => $value['animal_id'],
+                    'scrap_img'  => $value['scrap_img'],
                     'scrap_name' => $value['scrap_name'],
-                    'number' => 1,
-                    'position' => array_pop($numbers)
+                    'number'     => 1,
+                    'position'   => array_pop($numbers)
                 ];
             }
         }
@@ -860,7 +884,7 @@ class Animal extends Base
         $star = (int)input('star_id', 0);
         $page = $this->req('page', 'integer', 1);
         $size = $this->req('size', 'integer', 10);
-        $data = UserManor::getActiveFansSumRank($this->uid,$star, $page, $size);
+        $data = UserManor::getActiveFansSumRank($this->uid, $star, $page, $size);
 
         Common::res(['data' => $data]);
     }
@@ -880,10 +904,10 @@ class Animal extends Base
     {
         // 庄园开屏活动
         $this->getUser();
-        $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 10);
+        $page  = $this->req('page', 'integer', 1);
+        $size  = $this->req('size', 'integer', 10);
         $field = input('field', 'rank');
-        $data = UserManor::getActiveOutputRank($page, $size, $this->uid, $field);
+        $data  = UserManor::getActiveOutputRank($page, $size, $this->uid, $field);
 
         Common::res(['data' => $data]);
     }

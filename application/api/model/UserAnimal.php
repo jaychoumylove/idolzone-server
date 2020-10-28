@@ -95,7 +95,7 @@ class UserAnimal extends Base
         if (empty($animalInfo)) {
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
-        if (in_array($animalInfo['type'], [CfgAnimal::STAR_SECRET,CfgAnimal::SECRET]) == false) {
+        if (in_array($animalInfo['type'], [CfgAnimal::STAR_SECRET,CfgAnimal::SECRET, CfgAnimal::SUPER_SECRET]) == false) {
             //
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
@@ -326,10 +326,10 @@ class UserAnimal extends Base
     public static function checkoutSecretImage($uid)
     {
         $animalInfo = CfgAnimal::get(['type' => CfgAnimal::STAR_SECRET]);
-        $animal = $animalInfo['id'];
         if (empty($animalInfo)) {
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
+        $animal = $animalInfo['id'];
 
         $exist = UserAnimal::get(['animal_id' => $animal, 'user_id' => $uid]);
         if (empty($exist)) {
@@ -337,6 +337,9 @@ class UserAnimal extends Base
         }
 
         $starId = UserStar::getStarId($uid);
+        if (empty($starId)) {
+            Common::res(['code' => 1, 'msg' => '请先加入圈子']);
+        }
         $starAnimal = CfgAnimal::get([
             'type' => CfgAnimal::STAR,
             'star_id' => $starId
@@ -357,11 +360,15 @@ class UserAnimal extends Base
 
     public static function checkSuperSecretImage($uid, $lv)
     {
-        $animalInfo = CfgAnimal::get(['type' => CfgAnimal::SUPER_SECRET]);
-        $animal = $animalInfo['id'];
+        $starId = UserStar::getStarId($uid);
+        if (empty($starId)) {
+            Common::res(['code' => 1, 'msg' => '请先加入圈子']);
+        }
+        $animalInfo = CfgAnimal::get(['type' => CfgAnimal::SUPER_SECRET, 'star_id' => $starId]);
         if (empty($animalInfo)) {
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
+        $animal = $animalInfo['id'];
 
         $exist = UserAnimal::get(['animal_id' => $animal, 'user_id' => $uid]);
         if (empty($exist)) {
