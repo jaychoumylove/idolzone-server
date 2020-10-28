@@ -100,7 +100,7 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
 
-        if ($animalInfo['star_id']) {
+        if ($animalInfo['star_id'] || $animalInfo['type'] == CfgAnimal::SUPER_SECRET) {
             $star = UserStar::getStarId($uid);
             if ($star != $animalInfo['star_id']) {
                 Common::res(['code' => 1, 'msg' => '暂未开放']);
