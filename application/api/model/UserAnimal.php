@@ -51,7 +51,7 @@ class UserAnimal extends Base
         }
         if ($isSuperSecret) {
             $scrap_num = (new UserCurrency())->readMaster()
-                ->where('user_id', $uid)
+                ->where('uid', $uid)
                 ->value('panacea', 0);
         }
 
@@ -140,7 +140,7 @@ class UserAnimal extends Base
 
         if ($isSuperSecret) {
             $scrap_num = (new UserCurrency())->readMaster()
-                ->where('user_id', $uid)
+                ->where('uid', $uid)
                 ->value('panacea', 0);
         } else {
             $scrap_num = UserExt::where('user_id', $uid)->value ('scrap');
@@ -164,7 +164,7 @@ class UserAnimal extends Base
             UserAnimal::create($lvData);
 
             if ($isSuperSecret) {
-                (new \app\api\service\User())->change($uid, ['panacea' => -$cfglv['number']], '升级灵宠');
+                (new \app\api\service\User())->change($uid, ['panacea' => -$cfglv['number']], '解锁灵宠');
             } else {
                 $scrapUpdated = UserExt::where('user_id', $uid)
                     ->where('scrap', $scrap_num)
