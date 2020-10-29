@@ -747,7 +747,7 @@ class Page extends Base
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
-        if ($mainAnimal['type'] == CfgAnimal::STAR_SECRET) {
+        if (in_array($mainAnimal['type'], [CfgAnimal::STAR_SECRET, CfgAnimal::SUPER_SECRET])) {
             $userImage = UserAnimal::where('user_id', $this->uid)
                 ->where('animal_id', $mainAnimal['id'])
                 ->value('use_image');
@@ -930,7 +930,7 @@ class Page extends Base
         }
 
         $mainAnimal = CfgAnimal::get($useAnimal);
-        if ($mainAnimal['type'] == CfgAnimal::STAR_SECRET) {
+        if (in_array($mainAnimal['type'], [CfgAnimal::STAR_SECRET, CfgAnimal::SUPER_SECRET])) {
             $userImage = UserAnimal::where('user_id', $user_id)
                 ->where('animal_id', $mainAnimal['id'])
                 ->value('use_image');

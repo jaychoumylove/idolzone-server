@@ -338,11 +338,8 @@ class Animal extends Base
             }
         }
         if ($animal['type'] == CfgAnimal::SUPER_SECRET) {
-            $animal['image_group'] = [];
-
-            foreach ($lvDict as $item) {
-                array_push($animal['image_group'], $item['image']);
-            }
+            $imageGroup = CfgAnimalLevel::where('animal_id', $animalId)->field('image,level')->select();
+            $animal['image_group'] = $imageGroup;
             if ($lv) {
                 $animal['use_image'] = $userAnimal['use_image'];
             }
@@ -370,8 +367,8 @@ class Animal extends Base
     public function checkSuperSecretImage()
     {
         $this->getUser();
-        $lv = (int)input('lv', 0);
-        if (empty($lv)) {
+        $lv = (int)input('level', -1);
+        if (!is_int($lv) || $lv < 0) {
             Common::res(['code' => 1, 'msg' => '请选择等级']);
         }
 
