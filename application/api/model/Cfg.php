@@ -210,7 +210,9 @@ class Cfg extends Base
      */
     public static function checkConfigTime($key, $type = 'date')
     {
-        $config = self::getCfg ($key);
+        if (is_string($key)) $config = self::getCfg ($key);
+        if (is_array($key)) $config = $key;
+        if (empty($config)) return false;
 
         $currentTime = time();
         $now = date ('Y-m-d H:i:s', $currentTime);
