@@ -136,7 +136,7 @@ class UserLuckyDraw extends Base
             Common::res(['code' => 1, 'msg' => '请选择兑换方式']);
         }
 
-        UserAnimal::exchangeByNational($this->uid, $type, $animal_id);
+        UserAnimal::exchange($this->uid, $type, $animal_id);
 
         Common::res();
     }

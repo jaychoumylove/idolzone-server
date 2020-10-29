@@ -244,9 +244,9 @@ class UserAnimal extends Base
         return $stealLeft > $useTimes ? (int)bcsub($stealLeft, $useTimes): 0;
     }
 
-    public static function exchangeByNational($uid, $type, $animal_id)
+    public static function exchange($uid, $type, $animal_id)
     {
-        $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY)['animal_exchange'];
+        $config = Cfg::getCfg(Cfg::RECHARGE_LUCKY)['animal_exchange'];
         $status = Cfg::checkConfigTime($config);
         if (empty($status)) {
             Common::res(['code' => 1, 'msg' => '活动已过期']);
