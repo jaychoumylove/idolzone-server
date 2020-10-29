@@ -9,6 +9,7 @@ use app\api\model\CfgScrap;
 use app\api\model\Prop;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\UserAnimal;
+use app\api\model\UserExt;
 use app\api\model\UserProp;
 use app\api\model\UserScrap;
 use app\base\controller\Base;
@@ -137,6 +138,15 @@ class UserLuckyDraw extends Base
         }
 
         UserAnimal::exchange($this->uid, $type, $animal_id);
+
+        Common::res();
+    }
+
+    public function exchangeLucky()
+    {
+        $this->getUser();
+
+        UserExt::exchangeScrapByLucky($this->uid);
 
         Common::res();
     }

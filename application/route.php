@@ -364,6 +364,7 @@ Route::rule('api/:version/lucky/draw/start', 'api/v1.UserLuckyDraw/startLuckyDra
 Route::rule('api/:version/lucky/draw/startfifty', 'api/v1.UserLuckyDraw/startLuckyDrawFifty');// 点击抽奖
 Route::rule('api/:version/lucky/draw/log', 'api/v1.UserLuckyDraw/logPager');// 抽奖记录
 Route::rule('api/:version/lucky/draw/exchange_animal', 'api/v1.UserLuckyDraw/exchangeAnimal');// 兑换12生肖
+Route::rule('api/:version/lucky/draw/exchange_lucky', 'api/v1.UserLuckyDraw/exchangeLucky');// 兑换幸运碎片
 Route::rule('api/:version/lucky/draw/exchange', 'api/v1.UserLuckyDraw/exchangeScrap');// 兑换碎片
 Route::rule('api/:version/lucky/draw/day/earn', 'api/v1.UserLuckyDraw/dayEarn');// 每日获取
 Route::rule('api/:version/user/paid/log', 'api/v1.UserPaid/getPaidLogPager');// 每日获取

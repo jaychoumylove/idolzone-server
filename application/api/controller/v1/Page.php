@@ -444,6 +444,7 @@ class Page extends Base
 
         $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
         $config['multiple_draw']['able'] = Cfg::checkMultipleDrawAble ($config['multiple_draw']);
+        $config['multiple_exchange']['able'] = Cfg::checkConfigTime($config['multiple_exchange']);
 
         $forbiddenUser = array_key_exists ('forbidden_user', $config) ? $config['forbidden_user']: [];
 

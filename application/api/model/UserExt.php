@@ -619,4 +619,53 @@ class UserExt extends Base
 
         return $returns;
     }
+
+    public static function exchangeScrapByLucky($uid)
+    {
+        $config = Cfg::getCfg(Cfg::RECHARGE_LUCKY)['multiple_exchange'];
+        $status = Cfg::checkConfigTime($config);
+        if (empty($status)) {
+            Common::res(['code' => 1, 'msg' => '活动已过期']);
+        }
+
+        $now = time();
+        $date = date('Y-m-d H:i:s', $now);
+        $luckyNum =  (new UserProp())->readMaster()
+            ->where('prop_id', UserProp::LUCKY_ID)
+            ->where('user_id', $uid)
+            ->where('end_time', '>', $date)
+            ->where('status', 0)
+            ->where('use_time', 0)
+            ->count();
+
+        if ($luckyNum < $config['multiple']) {
+            Common::res(['code' =>1, 'msg' => '抽奖券不够哦']);
+        }
+
+        Db::startTrans();
+        try {
+            self::where('user_id', $uid)->update([
+                'scrap' => Db::raw('scrap+'. $config['number'])
+            ]);
+
+            UserProp::where('prop_id', UserProp::LUCKY_ID)
+                ->where('user_id', $uid)
+                ->where('end_time', '>', $date)
+                ->where('status', 0)
+                ->where('use_time', 0)
+                ->order([
+                    'id' => 'asc'
+                ])
+                ->limit($config['multiple'])
+                ->update([
+                    'use_time' => $now,
+                    'status' => 1
+                ]);
+
+            Db::commit();
+        }catch (Throwable $throwable){
+            Db::rollback();
+            Common::res(['code' => 1, 'msg' => '请稍后再试']);
+        }
+    }
 }
