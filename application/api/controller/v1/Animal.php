@@ -18,6 +18,7 @@ use app\api\model\RecUserBackgroundTask;
 use app\api\model\RecWealActivityTask;
 use app\api\model\UserAnimal;
 use app\api\model\UserAnimalBox;
+use app\api\model\UserCurrency;
 use app\api\model\UserExt;
 use app\api\model\UserManor;
 use app\api\model\UserManorBackground;
@@ -41,6 +42,9 @@ class Animal extends Base
         }
 
         $scrapNum    = UserExt::where('user_id', $this->uid)->value('scrap');
+        $panacea = (new UserCurrency())->readMaster()
+            ->where('uid', $this->uid)
+            ->value('panacea', 0);
         $supportItem = 3;
         if ($type == 'twelve') {
             $list = CfgAnimal::where('type', 'NORMAL')
@@ -171,7 +175,11 @@ class Animal extends Base
                         $value['up_able']    = false;
                         $value['need_scrap'] = $value['lv_info']['number'];
                     } else {
-                        $value['up_able']    = $scrapNum >= $nextLv['number'];
+                        if ($value['type'] == CfgAnimal::SUPER_SECRET) {
+                            $value['up_able'] = $panacea >= $nextLv['number'];
+                        } else {
+                            $value['up_able'] = $scrapNum >= $nextLv['number'];
+                        }
                         $value['need_scrap'] = $nextLv['number'];
                     }
                 } else {
@@ -183,7 +191,11 @@ class Animal extends Base
                 $value['scrap_num'] = $scrapNum;
 
                 if (empty($value['user_animal'])) {
-                    $value['exchanged'] = $scrapNum >= $value['lv_info']['number'];
+                    if ($value['type'] == CfgAnimal::SUPER_SECRET) {
+                        $value['exchanged'] = $panacea >= $value['lv_info']['number'];
+                    } else {
+                        $value['exchanged'] = $scrapNum >= $value['lv_info']['number'];
+                    }
                 }
 
                 $list[$key] = $value;
