@@ -35,14 +35,15 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '已经到达最高等级了']);
         }
 
-        $isNormal = $animalInfo['type'] == 'NORMAL';
-        $isSecret = $animalInfo['type'] == 'SECRET';
+        $isNormal = $animalInfo['type'] == CfgAnimal::NORMAL;
+        $isSecret = $animalInfo['type'] == CfgAnimal::SECRET;
         $isStarSecret = $animalInfo['type'] == CfgAnimal::STAR_SECRET;
+        $isSuperSecret = $animalInfo['type'] == CfgAnimal::SUPER_SECRET;
 
         if ($isNormal) {
             $scrap_num = $userAnimal['scrap'];
         }
-        if ($isSecret || $isStarSecret) {
+        if ($isSecret || $isStarSecret || $isSuperSecret) {
             $scrap_num = (new UserExt())
                 ->readMaster()
                 ->where('user_id', $uid)

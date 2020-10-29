@@ -112,6 +112,26 @@ class Animal extends Base
                 // 补充数据
                 $value['user_animal'] = null;
                 $lv                   = 1;
+                if (in_array($value['type'], [CfgAnimal::SUPER_SECRET, CfgAnimal::STAR_SECRET])) {
+                    $value['has_secret'] = false;
+                    if ($value['type'] == CfgAnimal::STAR_SECRET) {
+                        $exist = CfgAnimal::where('star_id', $starId)
+                            ->where('type', CfgAnimal::STAR)
+                            ->find();
+
+                        if ($exist) {
+                            $value['has_secret'] = true;
+                        }
+                    }
+
+                    if ($value['type'] == CfgAnimal::SUPER_SECRET) {
+                        $exist = $value['star_id'] == $starId;
+
+                        if ($exist) {
+                            $value['has_secret'] = true;
+                        }
+                    }
+                }
                 if (array_key_exists($value['id'], $userAnimalDict)) {
                     $value['user_animal'] = $userAnimalDict[$value['id']];
                     $lv                   = $value['user_animal']['level'];
