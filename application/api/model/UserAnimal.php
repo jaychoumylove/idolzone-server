@@ -246,14 +246,14 @@ class UserAnimal extends Base
 
     public static function exchangeByNational($uid, $type, $animal_id)
     {
-        $status = Cfg::checkConfigTime(Cfg::MANOR_NATIONAL_DAY);
+        $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY)['animal_exchange'];
+        $status = Cfg::checkConfigTime($config);
         if (empty($status)) {
             Common::res(['code' => 1, 'msg' => '活动已过期']);
         }
 
-        $config = Cfg::getCfg(Cfg::MANOR_NATIONAL_DAY);
         $typeItem = [];
-        foreach ($config['animal_exchange_rate'] as $item) {
+        foreach ($config['rate'] as $item) {
             if ($item['type'] == $type) {
                 $typeItem = $item;
             }
