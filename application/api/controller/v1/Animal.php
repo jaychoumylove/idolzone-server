@@ -82,8 +82,6 @@ class Animal extends Base
         }
 
         if ($type == 'secret') {
-            $list = [];
-
             $starId = UserStar::getStarId($this->uid);
             // 获得灵宠
             $superAnimal = CfgAnimal::where('type', CfgAnimal::SUPER_SECRET)
@@ -92,18 +90,18 @@ class Animal extends Base
                 ->select();
             if (is_object($superAnimal)) $superAnimal = $superAnimal->toArray();
 
-            array_push($list, $superAnimal[0]);
+            if (count($superAnimal) > 1) array_pop($superAnimal);
 
-            $normalList = CfgAnimal::where('type', 'in', [CfgAnimal::SECRET, CfgAnimal::STAR_SECRET])
+            $list = CfgAnimal::where('type', 'in', [CfgAnimal::SECRET, CfgAnimal::STAR_SECRET])
                 ->order([
                     'sort'        => 'desc',
                     'create_time' => 'desc',
                 ])
                 ->select();
 
-            if (is_object($normalList)) $normalList = $list->toArray();
+            if (is_object($list)) $list = $list->toArray();
 
-            $list = array_merge($list, $normalList);
+            array_splice($list, 1, 0, $superAnimal);
 
             $animalIds = array_column($list, 'id');
 
