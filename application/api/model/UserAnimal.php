@@ -43,11 +43,16 @@ class UserAnimal extends Base
         if ($isNormal) {
             $scrap_num = $userAnimal['scrap'];
         }
-        if ($isSecret || $isStarSecret || $isSuperSecret) {
+        if ($isSecret || $isStarSecret) {
             $scrap_num = (new UserExt())
                 ->readMaster()
                 ->where('user_id', $uid)
                 ->value ('scrap');
+        }
+        if ($isSuperSecret) {
+            $scrap_num = (new UserCurrency())->readMaster()
+                ->where('user_id', $uid)
+                ->value('panacea', 0);
         }
 
         $leftScrap = bcsub($scrap_num, $cfglv['number']);
@@ -69,6 +74,16 @@ class UserAnimal extends Base
                 throw new Exception('更新失败');
             }
 
+            if ($isNormal) {
+                UserManorLog::recordTwelveLvUp($uid, $animalInfo, $nextLevel, $cfglv['number']);
+            }
+
+            if ($isSuperSecret) {
+                (new \app\api\service\User())->change($uid, ['panacea' => -$cfglv['number']], '升级灵宠');
+
+                UserManorLog::recordSecret($uid, $animalInfo, $nextLevel, $cfglv['number'], false);
+            }
+
             if ($isSecret || $isStarSecret) {
                 $scrapUpdated = UserExt::where('user_id', $uid)
                     ->where('scrap', $scrap_num)
@@ -78,8 +93,6 @@ class UserAnimal extends Base
                 }
 
                 UserManorLog::recordSecret($uid, $animalInfo, $nextLevel, $cfglv['number'], false);
-            } else {
-                UserManorLog::recordTwelveLvUp($uid, $animalInfo, $nextLevel, $cfglv['number']);
             }
 
             Db::commit();
@@ -100,8 +113,11 @@ class UserAnimal extends Base
             //
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
+//        $isSecret = $animalInfo['type'] == CfgAnimal::SECRET;
+//        $isStarSecret = $animalInfo['type'] == CfgAnimal::STAR_SECRET;
+        $isSuperSecret = $animalInfo['type'] == CfgAnimal::SUPER_SECRET;
 
-        if ($animalInfo['star_id'] || $animalInfo['type'] == CfgAnimal::SUPER_SECRET) {
+        if ($animalInfo['star_id'] || $isSuperSecret) {
             $star = UserStar::getStarId($uid);
             if ($star != $animalInfo['star_id']) {
                 Common::res(['code' => 1, 'msg' => '暂未开放']);
@@ -122,7 +138,13 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
 
-        $scrap_num = UserExt::where('user_id', $uid)->value ('scrap');
+        if ($isSuperSecret) {
+            $scrap_num = (new UserCurrency())->readMaster()
+                ->where('user_id', $uid)
+                ->value('panacea', 0);
+        } else {
+            $scrap_num = UserExt::where('user_id', $uid)->value ('scrap');
+        }
 
         $leftScrap = bcsub($scrap_num, $cfglv['number']);
         if ($leftScrap < 0) {
@@ -141,11 +163,15 @@ class UserAnimal extends Base
             }
             UserAnimal::create($lvData);
 
-            $scrapUpdated = UserExt::where('user_id', $uid)
-                ->where('scrap', $scrap_num)
-                ->update(['scrap' => $leftScrap]);
-            if (empty($scrapUpdated)) {
-                throw new Exception('更新失败');
+            if ($isSuperSecret) {
+                (new \app\api\service\User())->change($uid, ['panacea' => -$cfglv['number']], '升级灵宠');
+            } else {
+                $scrapUpdated = UserExt::where('user_id', $uid)
+                    ->where('scrap', $scrap_num)
+                    ->update(['scrap' => $leftScrap]);
+                if (empty($scrapUpdated)) {
+                    throw new Exception('更新失败');
+                }
             }
 
             UserManorLog::recordSecret($uid, $animalInfo, 0, $cfglv['number'], true);
