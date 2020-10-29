@@ -138,7 +138,7 @@ class UserManorLog extends Base
     public static function recordWithNationalDayExchangeAnimal($user_id, $animal, $item)
     {
         $type    = 'ANIMAL_EXCHANGE';
-        $content = sprintf('使用%s个幸运抽奖券兑换', $item['lucky_num']);
+        $content = sprintf('使用%s 张幸运抽奖券兑换', $item['lucky_num']);
         $data    = [
             'animal_id' => $animal['id'],
             'image'     => $animal['scrap_img'],
@@ -146,5 +146,19 @@ class UserManorLog extends Base
         ];
 
         self::record($user_id, $data, $content, $type);
+    }
+
+    public static function recordWithExchangeScrapByLucky($user_id, $spend, $number)
+    {
+        $type    = 'SCRAP_EXCHANGE';
+        $content = sprintf('使用%s张幸运抽奖券兑换', $spend);
+        $recordData = [
+            'lucky' => (int)$number,
+            'spend' => (int)$spend,
+            'number' => (int)$number,
+            'image' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0'
+        ];
+
+        self::record($user_id, $recordData, $content, $type);
     }
 }

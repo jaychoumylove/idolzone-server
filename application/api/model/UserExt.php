@@ -662,6 +662,8 @@ class UserExt extends Base
                     'status' => 1
                 ]);
 
+            UserManorLog::recordWithExchangeScrapByLucky($uid, $config['multiple'], $config['number']);
+
             Db::commit();
         }catch (Throwable $throwable){
             Db::rollback();
