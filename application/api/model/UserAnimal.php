@@ -411,6 +411,10 @@ class UserAnimal extends Base
             Common::res(['code' => 1, 'msg' => '暂未开放']);
         }
 
+        if ($lvExist['image']['lock']) {
+            Common::res(['code' => 1, 'msg' => '暂未开放哦']);
+        }
+
         $update['use_image'] = $lvExist['image']['url'];
 
         UserAnimal::where('id', $exist['id'])->update($update);
