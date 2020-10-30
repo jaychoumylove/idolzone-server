@@ -19,6 +19,7 @@ class Cfg extends Base
     const ACTIVE_YINGYUAN    = 'yingyuan';
     const MANOR_OPEN         = 'manor_open';
     const WEAL_ACTIVE        = 'weal_active';
+    const FORBIDDEN_SEND_GIFT_USER               = 'forbidden_send_gift_user';
 
     public static function getCfg($key)
     {

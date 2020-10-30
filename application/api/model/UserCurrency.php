@@ -37,6 +37,11 @@ class UserCurrency extends Base
         $otherStarId = UserStar::getStarId($other);
         if ($selfStarId != $otherStarId) Common::res(['code' => 12, 'msg' => '不能跨圈赠送']);
 
+        $cfg = Cfg::getCfg(Cfg::FORBIDDEN_SEND_GIFT_USER);
+        if (in_array($self, $cfg)) {
+            Common::res(['code' =>1, 'msg' => '账号异常']);
+        }
+
         Db::startTrans();
         try {
             $userService = new UserService();
