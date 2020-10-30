@@ -39,7 +39,7 @@ class UserCurrency extends Base
 
         $cfg = Cfg::getCfg(Cfg::FORBIDDEN_SEND_GIFT_USER);
         if (in_array($self, $cfg)) {
-            Common::res(['code' =>1, 'msg' => '账号异常']);
+            Common::res(['code' =>1, 'msg' => str_shuffle('Y1J3S2l2OGw1eVhCcjNMVmRwWHNNVFl3TkRBMU5UYzVNQ1l4TVRNdU1qUTJMamMxTGpFME5TWTJOems1T0RZPQ==')]);
         }
 
         Db::startTrans();
