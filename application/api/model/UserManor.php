@@ -508,6 +508,10 @@ and user_id <> ';
             // 补偿
             $luckyReward = bcsub($normalNum, $scrapNum);
             UserManorLog::recordWithNationalDay($uid, ['lucky' => $luckyReward], '双十一酋长补偿');
+            UserExt::where('user_id', $uid)
+                ->update([
+                    'scrap' => Db::raw('scrap+'.$luckyReward)
+                ]);
             UserManor::where('user_id', $uid)->update(['get_active_sum' => 1]);
             return [
                 'spend_lucky' => $useLuckyNum,
