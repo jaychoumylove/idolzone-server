@@ -368,7 +368,10 @@ class Animal extends Base
             }
         }
         if ($animal['type'] == CfgAnimal::SUPER_SECRET) {
-            $imageGroup = CfgAnimalLevel::where('animal_id', $animalId)->field('image,level')->select();
+            $imageGroup = CfgAnimalLevel::where('animal_id', $animalId)
+                ->field('image,level')
+                ->order('level', 'asc')
+                ->select();
             $animal['image_group'] = $imageGroup;
             if ($lv) {
                 $animal['use_image'] = $userAnimal['use_image'];
