@@ -16,4 +16,4 @@ thinkphp/*
 application/config.php
 public/static/files
 application/base/service/alipay/request/*
-.history/*
+.history
