@@ -2,6 +2,7 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\Cfg;
 use app\api\model\RecLotteryBox;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -21,21 +22,32 @@ class Lottery extends Base
 
         if ($type == 0) {
             // 离线
-            $max = 10;
-            $remainCount = UserExt::addCount($this->uid, $max);
+            $remainCount = UserExt::addCount($this->uid, $type);
         } else if ($type == 1) {
             // 在线
-            $max = 30;
-            $remainCount = UserExt::addCount($this->uid, $max);
+            $remainCount = UserExt::addCount($this->uid, $type);
         } else if ($type == 2) {
+            $config = Cfg::getCfg(Cfg::FREE_LOTTERY);
+            if (empty($config['enable_video_add']['status'])) {
+                Common::res(['code' => 1, 'msg' => '暂未开放']);
+            }
             // 观看视频 直接+5次
-            $remainCount = UserExt::where('user_id', $this->uid)->value('lottery_count');
-            $remainCount += 5;
-            if ($remainCount > 30) $remainCount = 30;
-            UserExt::where('user_id', $this->uid)->update(['lottery_count' => $remainCount, 'lottery_time' => time()]);
+            $info = UserExt::where('user_id', $this->uid)->find();
+            $currentTime = time();
+            $timeDiff = (int)bcsub($currentTime, $info['lottery_time']);
+            if ($timeDiff < $config['enable_video_add']['limit']) {
+                Common::res(['code' => 1, 'msg' => sprintf('请%s秒后再试', $config['enable_video_add']['limit'])]);
+            }
+            $remainCount = (int)bcadd($info['lottery_count'], $config['enable_video_add']['number']);
+
+            $leftTimes = bcsub($config['day_max'], $info['lottery_times']);
+            if ($remainCount > $config['add_max']) $remainCount = $config['add_max'];
+
+            $remainCount = $remainCount > $leftTimes ? $leftTimes: $remainCount;
+            UserExt::where('user_id', $this->uid)->update(['lottery_count' => $remainCount, 'lottery_time' => $currentTime]);
         }
 
-        Common::res(['data' => $remainCount]);
+        Common::res(['data' => (int)$remainCount]);
     }
 
     /*抽奖*/
@@ -44,6 +56,16 @@ class Lottery extends Base
         $this->getUser();
         $res = UserExt::lotteryStart($this->uid);
         Common::res(['data' => $res]);
+    }
+
+    public function multipleStart()
+    {
+        $this->getUser();
+        $type = input('type', 'hundred');
+
+        $data = UserExt::multipleLottery($type, $this->uid);
+
+        Common::res(compact('data'));
     }
 
     /*每日抽奖所得*/
@@ -63,7 +85,7 @@ class Lottery extends Base
     {
         $this->getUser();
         $page = $this->req('page', 'integer', 1);
-        $size = $this->req('size', 'integer', 10);
+        $size = $this->req('size', 'integer', 15);
 
         $logList = RecLottery::where('user_id', $this->uid)->whereTime('create_time', 'd')->order('id desc')->page($page, $size)->select();
 

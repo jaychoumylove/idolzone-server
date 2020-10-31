@@ -4,14 +4,17 @@
 namespace app\api\model;
 
 
+use app\base\model\Base;
 use app\base\service\Common;
 use think\Db;
 use think\Exception;
+use Throwable;
 
-class CfgLuckyDraw extends \app\base\model\Base
+class CfgLuckyDraw extends Base
 {
     const CURRENCY = 'currency';
     const SCRAP = 'scrap';
+    const ANIMAL = 'animal';
 
     public static function startFifty($user_id)
     {
@@ -89,9 +92,10 @@ class CfgLuckyDraw extends \app\base\model\Base
             }
 
             // 发放奖励
-            $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet'];
+            $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet' ,'panacea'];
             $earn = [];
             $scraps = [$scrapItem['number']];
+            $animal = [];
             foreach ($choose as $item) {
                 if ($item['type'] == self::CURRENCY) {
                     if (in_array ($item['key'], $currencyMap)) {
@@ -105,6 +109,11 @@ class CfgLuckyDraw extends \app\base\model\Base
 
                 if ($item['type'] == self::SCRAP) {
                     array_push ($scraps, $item['number']);
+                }
+
+                if ($item['type'] == self::ANIMAL) {
+                    $left = array_key_exists($item['key'], $animal) ? $animal[$item['key']]: 0;
+                    $animal[$item['key']] = (int)bcadd($left, $item['number']);
                 }
             }
             if ($earn) {
@@ -120,6 +129,43 @@ class CfgLuckyDraw extends \app\base\model\Base
                 }
                 $added = UserExt::where('id', $userScrap['id'])->update($userScrapUpdate);
                 if (empty($added)) Common::res (['code' => 1, 'msg' => '请稍后再试']);
+            }
+
+            if ($animal) {
+                $animalIds = array_keys($animal);
+                $animalModel = new UserAnimal();
+                $userAnimalDict = $animalModel::getDictList($animalModel, $animalIds, 'animal_id', '*', ['user_id' => $user_id]);
+                $create = [];
+                $shouldUpdatedNum = 0;
+                $updatedNum = 0;
+                foreach ($animal as $key => $value) {
+                    if (array_key_exists($key, $userAnimalDict)) {
+                        $shouldUpdatedNum ++;
+                        $update = [
+                            'scrap' => bcadd($userAnimalDict[$key]['scrap'], $value)
+                        ];
+                        $updated = $animalModel->where('user_id', $user_id)
+                            ->where('animal_id', $key)
+                            ->update($update);
+                        if ($updated) {
+                            $updatedNum ++;
+                        }
+                    } else {
+                        array_push($create, [
+                            'user_id' => $user_id,
+                            'animal_id' => $key,
+                            'scrap' => $value,
+                            'level' => 1
+                        ]);
+                    }
+                }
+                if ($updatedNum != $shouldUpdatedNum) {
+                    Common::res(['code' => 1, 'msg' => '请稍后再试']);
+                }
+
+                if ($create) {
+                    $animalModel->insertAll($create);
+                }
             }
 
             // 记录抽奖信息
@@ -146,7 +192,7 @@ class CfgLuckyDraw extends \app\base\model\Base
 //            throw new Exception('something was wrong');
 
             Db::commit ();
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             Db::rollback ();
 //            throw $throwable;
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
@@ -162,7 +208,7 @@ class CfgLuckyDraw extends \app\base\model\Base
 
     public static function getLuckyDraw()
     {
-        return self::order (['create_time' => 'desc'])->find ();
+        return self::get (['current' => 1]);
     }
 
     public static function start($user_id)
@@ -206,7 +252,7 @@ class CfgLuckyDraw extends \app\base\model\Base
 
             // 发放奖励
             if ($chooseItem['type'] == self::CURRENCY) {
-                $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet'];
+                $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet' ,'panacea'];
                 $data = [];
                 if (in_array ($chooseItem['key'], $currencyMap)) {
                     $data[$chooseItem['key']] = $chooseItem['number'];
@@ -226,6 +272,28 @@ class CfgLuckyDraw extends \app\base\model\Base
                 if (empty($added)) Common::res (['code' => 1, 'msg' => '请稍后再试']);
             }
 
+            if ($chooseItem['type'] == self::ANIMAL) {
+                $map = [
+                    'user_id' => $user_id,
+                    'animal_id' => $chooseItem['key']
+                ];
+                $exist = UserAnimal::get($map);
+                if (empty($exist)) {
+                    $data = [
+                        'scrap' => $chooseItem['number'],
+                        'level' => 1,
+                    ];
+
+                    UserAnimal::create(array_merge($data, $map));
+                } else {
+                    $added = UserAnimal::where('id', $exist['id'])
+                        ->update([
+                            'scrap' => bcadd($exist['scrap'], $chooseItem['number'])
+                        ]);
+                    if (empty($added)) Common::res (['code' => 1, 'msg' => '请稍后再试']);
+                }
+            }
+
             // 记录抽奖信息
             $log = [
                 'user_id' => $user_id,
@@ -237,7 +305,7 @@ class CfgLuckyDraw extends \app\base\model\Base
 //            throw new Exception('something was wrong');
 
             Db::commit ();
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             Db::rollback ();
 //            throw $throwable;
             Common::res (['code' => 1, 'msg' => '请稍后再试']);

@@ -2,13 +2,17 @@
 
 namespace app\api\service;
 
+use app\api\model\CfgPanaceaTask;
 use app\api\model\CfgWealActivityTask;
 use app\api\model\FanclubUser;
 use app\api\model\Rec;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecTaskactivity618;
+use app\api\model\RecUserBackgroundTask;
 use app\api\model\RecUserInvite;
 use app\api\model\RecWealActivityTask;
 use app\api\model\StarRank as StarRankModel;
+use app\api\model\UserManor;
 use think\Db;
 use app\api\model\UserStar;
 use app\api\service\User as UserService;
@@ -63,6 +67,8 @@ class Star
         }
 
         if (!$starid) Common::res(['code' => 32, 'msg' => '请先加入一个圈子']);
+        $myStarId = UserStar::getStarId($uid);
+        if (!$myStarId) Common::res(['code' => 32, 'msg' => '请先加入一个圈子']);
         if ($hot <= 0) Common::res(['code' => 36, 'msg' => '打榜的数值不正确']);
 
         // 当前粉丝等级
@@ -124,6 +130,13 @@ class Star
                 Family::change($uid, $hot);
 
                 // 宝箱
+                if ($type == 2) {
+                    RecUserBackgroundTask::record($uid, $hot, RecUserBackgroundTask::FLOWER_SUM);
+                    if (UserManor::checkBackgroundActive()) {
+                        // 活动背景限定
+                        RecUserBackgroundTask::record($uid, $hot, RecUserBackgroundTask::ACTIVE);
+                    }
+                }
             }
 
             FanclubUser::addActiveDragonBoatFestivalHot($uid,$hot);
@@ -135,6 +148,7 @@ class Star
             StarRankModel::change($starid, $hot, $type);
 
             RecWealActivityTask::setTask ($uid, $hot, CfgWealActivityTask::SUM_COUNT);
+            RecPanaceaTask::setTask ($uid, $hot, CfgPanaceaTask::SUM_COUNT);
 
             if (isset($extraHot) && !!$extraHot) {
                 $res = UserExt::extraHot ($uid, $extraHot, $starid);

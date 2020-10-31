@@ -2,14 +2,17 @@
 
 namespace app\api\service;
 
+use app\api\model\CfgPanaceaTask;
 use app\api\model\CfgWealActivityTask;
 use app\api\model\CfgWelfare;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecWealActivityTask;
 use app\api\model\Welfare;
 use app\base\service\WxAPI;
 use app\base\service\Common;
 use app\api\model\User as UserModel;
 use app\api\model\UserCurrency;
+use Exception;
 use think\Db;
 use app\api\model\UserRelation;
 use app\api\model\Rec;
@@ -50,7 +53,7 @@ class User
 
         if (!isset($res['openid']) || !$res['openid']) {
             // 登录失败
-            Common::res(['code' => 202, 'data' => $res]);
+            Common::res(['code' => 202, 'data' => null]);
         } else {
             return $res;
         }
@@ -85,6 +88,8 @@ class User
                         Common::res(['code' => 1, 'msg' => '积分不足']);
                     } else if ($key == 'old_coin') {
                         Common::res(['code' => 1, 'msg' => '旧豆不足']);
+                    } else if ($key == 'panacea') {
+                        Common::res(['code' => 1, 'msg' => '灵丹不足']);
                     }
                 }
             } else {
@@ -106,12 +111,14 @@ class User
                 'stone' => isset($currency['stone']) ? $currency['stone'] : 0,
                 'trumpet' => isset($currency['trumpet']) ? $currency['trumpet'] : 0,
                 'point' => isset($currency['point']) ? $currency['point'] : 0,
+                'panacea' => isset($currency['panacea']) ? $currency['panacea'] : 0,
 
                 'before_coin' => $userCurrency['coin'],
                 'before_flower' => $userCurrency['flower'],
                 'before_stone' => $userCurrency['stone'],
                 'before_trumpet' => $userCurrency['trumpet'],
                 'before_point' => $userCurrency['point'],
+                'before_panacea' => $userCurrency['panacea'] ? $userCurrency['panacea']: 0,
             ]);
         }
 
@@ -121,11 +128,23 @@ class User
                 'flower' => CfgWealActivityTask::USE_FOLLOWER,
                 'point'  => CfgWealActivityTask::USE_POINT,
             ];
+            $panaceaMap = [
+                'stone'  => CfgPanaceaTask::USE_STONE,
+                'flower' => CfgPanaceaTask::USE_FOLLOWER,
+                'point'  => CfgPanaceaTask::USE_POINT,
+            ];
             foreach ($currency as $key => $value) {
                 if (array_key_exists ($key, $wealMap)) {
                     if ((int)$value < 0) {
                         $wealType = $wealMap[$key];
                         RecWealActivityTask::setTask ($uid, abs ($value), $wealType);
+                    }
+                }
+
+                if (array_key_exists ($key, $panaceaMap)) {
+                    if ((int)$value < 0) {
+                        $panaceaType = $panaceaMap[$key];
+                        RecPanaceaTask::setTask ($uid, abs ($value), $panaceaType);
                     }
                 }
             }
@@ -152,7 +171,7 @@ class User
             $this->change($uid, Cfg::getCfg('invitAward'), '拉新奖励');
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }

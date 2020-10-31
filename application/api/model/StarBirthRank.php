@@ -29,7 +29,13 @@ class StarBirthRank extends Base
     /**排行 */
     public static function getRank($starid, $page, $size = 10)
     {
-        $list = self::with('user')->where('star_id', $starid)->field('*,count as hot')->order('hot desc,create_time asc')->page($page, $size)->select();
+        $list = self::with('user')
+            ->where('star_id', $starid)
+            ->where('update_time', '>', date('Y-m-d') . ' 00:00:00')
+            ->field('*,count as hot')
+            ->order('hot desc,create_time asc')
+            ->page($page, $size)
+            ->select();
         
         foreach ($list as &$value) {
             $starid = UserStar::getStarId($value['user_id']);

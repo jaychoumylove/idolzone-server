@@ -1,7 +1,10 @@
 <?php
 namespace app\api\controller\v1;
 
+use app\api\model\Cfg;
+use app\api\model\CfgPanaceaTask;
 use app\api\model\CfgWealActivityTask;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecWealActivityTask;
 use app\base\controller\Base;
@@ -14,6 +17,7 @@ use app\api\model\FanclubUser;
 use app\api\model\CfgTaskgiftCategory;
 use app\api\model\Star;
 use app\api\service\User;
+use Exception;
 use think\Db;
 use app\api\service\FanclubTask;
 use app\api\model\RecTaskfather;
@@ -34,18 +38,18 @@ class FansClub extends Base
         $res['wx'] = $this->req('wx', 'require');
         $this->getUser();
 
-        if(CfgUserLevel::getLevel($this->uid)<9) Common::res(['code' => 1, 'msg' => '粉丝等级需达到9级']);
-        
-        (new WxAPI())->msgCheck($res['clubname']);
         $res['user_id'] = $this->uid;
         $res['star_id'] = UserStar::getStarId($this->uid);
+        if(!in_array($res['star_id'],Cfg::getCfg('fanclub_ignore_userlevel')) && CfgUserLevel::getLevel($this->uid)<9) Common::res(['code' => 1, 'msg' => '粉丝等级需达到9级']);
+        
+        (new WxAPI())->msgCheck($res['clubname']);
 
         Db::startTrans();
         try {
             $new = Fanclub::create($res);
             Fanclub::joinFanclub($this->uid, $new['id']);
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
@@ -128,8 +132,10 @@ class FansClub extends Base
         $keyword = $this->req('keyword');
         $field = $this->req('field', 'require');
         $this->getUser();
+
+        $star_id = UserStar::getStarId($this->uid);
         
-        $list = Fanclub::getList($keyword, $field, $page, $size);
+        $list = Fanclub::getList($star_id, $keyword, $field, $page, $size);
         
         foreach ($list as &$value) {
             if(isset($value['id'])) $value['mystatus'] = FanclubApplyUser::where([
@@ -177,7 +183,7 @@ class FansClub extends Base
             Fanclub::where('id', $fid)->update($res);
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
@@ -192,9 +198,10 @@ class FansClub extends Base
         $fid = $this->req('fid', 'integer');
         $this->getUser();
 
-        $self_fid = FanclubUser::where('user_id', $this->uid)->value('fanclub_id');
+        $fanclubUser = FanclubUser::where('user_id', $this->uid)->find();
+        $self_fid = $fanclubUser['fanclub_id'];
         if ($self_fid != $fid) Common::res(['code' => 1, 'msg' => '未加入该粉丝团']);
-        $self_massTime = Db::name('fanclub_user')->where('user_id', $this->uid)->order('mass_time desc')->value('mass_time');
+        $self_massTime = $fanclubUser['mass_time'];
         if (date('YmdH') == $self_massTime) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下一个小时再来']);
 
         if ($type == 0) {
@@ -206,11 +213,13 @@ class FansClub extends Base
         try {
 
             // 热度+
-            $isDone =FanclubUser::where('mass_time IS NULL OR mass_time < '.date('YmdH'))->where('user_id', $this->uid)->where('fanclub_id', $fid)->update([
-                'mass_time' => date('YmdH'),
-                'mass_count' => $coin,
-                'week_hot' => Db::raw('week_hot+' . $coin),
-            ]);
+            $isDone =FanclubUser::where('id', $fanclubUser['id'])
+                ->update([
+                    'mass_time' => date('YmdH'),
+                    'mass_count' => $coin,
+                    'day_mass_times' => Db::raw('day_mass_times+1'),
+                    'week_hot' => Db::raw('week_hot+'.$coin)
+                ]);
             if (!$isDone) Common::res(['code' => 2, 'msg' => '你已参加过本次集结，请下一个小时再来2']);
             
             Fanclub::where('id', $fid)->update(['week_hot' => Db::raw('week_hot+' . $coin)]);
@@ -223,9 +232,10 @@ class FansClub extends Base
             UserStar::changeHandle($this->uid, 'mass');
 
             RecWealActivityTask::setTask ($this->uid, 1, CfgWealActivityTask::FANS_CLUB_MASS);
+            RecPanaceaTask::setTask ($this->uid, 1, CfgPanaceaTask::FANS_CLUB_MASS);
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
@@ -289,7 +299,7 @@ class FansClub extends Base
         $type = $this->req('type', 'integer', 0); // 0钻石 1积分 2鲜花
         $consume = $this->req('consume', 'integer'); // 消耗
         $people = $this->req('people', 'integer', 10); // 人数
-        if($people>50) Common::res(['code' => 1, 'msg' => '不能超过50人']);
+        if($people>100) Common::res(['code' => 1, 'msg' => '不能超过100人']);
         
         $this->getUser();        
         FanclubBox::sendbox($this->uid, $type, $consume, $people);
@@ -392,7 +402,7 @@ class FansClub extends Base
 
                     FanclubApplyUser::create($res);
 
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
 
                     Common::res([
                         'code' => 1,
@@ -459,7 +469,7 @@ class FansClub extends Base
                         Fanclub::joinFanclub($uid, $f_id);
     
                         Db::commit();
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Db::rollback();
                         Common::res([
                             'code' => 400,
@@ -494,15 +504,27 @@ class FansClub extends Base
         ]);
     }
 
+    public function upLeader()
+    {
+        $this->getUser();
+        $admin= $this->req('admin','integer');
+        $res=Fanclub::upLeader($this->uid,$admin);
+        if (empty($res)) {
+            Common::res(['code' => 1, 'msg' => '请稍后再试']);
+        }
+
+        Common::res();
+    }
+
     public function removeAll()
     {
         $this->getUser();
-        $uid = input ('user_id', []);
-        if (empty($uid) || is_array ($uid) == false) {
+        $uid = input ('user_id', false);
+        if (empty($uid)) {
             Common::res (['code' => 1, 'msg' => '请选择移出人员']);
         }
 
-        Fanclub::removeAll($this->uid,$uid);
+        Fanclub::removeAll($this->uid,explode (',', $uid));
         Common::res();
     }
 }

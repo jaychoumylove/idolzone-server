@@ -4,11 +4,13 @@ namespace app\api\model;
 
 use app\base\model\Base;
 use app\base\service\Common;
+use stdClass;
 use think\Db;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\DbException;
+use Throwable;
 
 class RecWealActivityTask extends Base
 {
@@ -41,20 +43,22 @@ class RecWealActivityTask extends Base
     {
         $dayTask = CfgWealActivityTask::where('type', CfgWealActivityTask::DAY)->select ();
         if (is_object ($dayTask)) $dayTask = $dayTask->toArray ();
+        if ($dayTask) {
+            $dayTaskIds = array_column ($dayTask, 'id');
 
-        $dayTaskIds = array_column ($dayTask, 'id');
-
-        self::where('task_id', 'in', $dayTaskIds)->update([
-            'done_times' => 0,
-            'is_settle_times' => 0
-        ]);
+            self::where('task_id', 'in', $dayTaskIds)->update([
+                'done_times' => 0,
+                'is_settle_times' => 0
+            ]);
+        }
     }
 
     /**
      * 领取任务奖励
+     *
      * @param $task_id
      * @param $uid
-     * @return array|bool|float|int|mixed|object|\stdClass|string|null
+     * @return array|bool|float|int|mixed|object|stdClass|string|null
      * @throws DbException
      */
     public function settle($task_id, $uid)
@@ -109,7 +113,7 @@ class RecWealActivityTask extends Base
 //            throw new Exception('something was wrong');
 
             Db::commit ();
-        }catch (\Throwable $throwable) {
+        }catch (Throwable $throwable) {
             Db::rollback ();
 //            throw $throwable;
             $msg = "完成失败,请稍后再试";

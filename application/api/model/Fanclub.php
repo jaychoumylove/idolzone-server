@@ -4,12 +4,14 @@ namespace app\api\model;
 use app\base\model\Base;
 use app\base\service\Common;
 use app\api\service\User as UserService;
+use Exception;
 use think\Db;
+use think\Log;
 use think\model\Relation;
+use Throwable;
 
 class Fanclub extends Base
 {
-
     public function star()
     {
         return $this->belongsTo('Star', 'star_id', 'id')->field('id,head_img_s,name');
@@ -20,46 +22,24 @@ class Fanclub extends Base
         return $this->belongsTo('User', 'user_id', 'id')->field('id,avatarurl,nickname');
     }
 
-    public static function getList($keyword, $field, $page, $size)
+    public static function getList($star_id, $keyword, $field, $page, $size)
     {
         // 关键字
+        $map = ['star_id' => $star_id];
         if ($keyword) {
-            $ids = Star::where('name', 'like', '%' . $keyword . '%')->column('id');
-            $w = [
-                'star_id' => [
-                    'in',
-                    $ids
-                ]
-            ];
-        } else {
-            $w = '1=1';
+            $map['clubname'] = ['like', "%$keyword%"];
         }
-        
-        // 字段排序
-        if ($field == 'fansclub_count') {
-            $list = Fanclub::with('star')->where($w)
-                ->whereOr('clubname', 'like', '%' . $keyword . '%')
-                ->order('week_count desc')
-                ->page($page, $size)
-                ->select();
-        } else 
-            if ($field == 'fansclub_hot') {
-                $list = Fanclub::with('star')->where($w)
-                    ->whereOr('clubname', 'like', '%' . $keyword . '%')
-                    ->order('week_hot desc')
-                    ->page($page, $size)
-                    ->select();
-            } else 
-                if ($field == 'star_hot') {
-                    $list = Db::name('fanclub')->alias('f')
-                        ->join('star s', 's.id = f.star_id')
-                        ->field('s.name as clubname,s.head_img_s as avatar,f.star_id,sum(mem_count) as mem_count,sum(week_count) as week_count,sum(week_hot) as week_hot')
-                        ->where($w)
-                        ->group('f.star_id')
-                        ->page($page, $size)
-                        ->order('week_hot desc')
-                        ->select();
-                }
+        $orderMap = [
+             'fansclub_hot' =>  'week_hot',
+             'fansclub_count' =>  'week_count',
+        ];
+
+        $order = [$orderMap[$field] => 'desc'];
+
+        $list = Fanclub::with('star')->where($map)
+            ->order($order)
+            ->page($page, $size)
+            ->select();
         
         return $list;
     }
@@ -118,35 +98,41 @@ class Fanclub extends Base
 
             // 更新状态为1，表示成功拉新一次 此时上级可以领取奖励
             if ($relation['status'] == 0) {
-                if ($rer_user_id) {
+                $starId = UserStar::getStarId ($rer_user_id);
+                $exited = empty($starId); // true 已退圈 false 未退圈
+                if ($rer_user_id && empty($exited)) {
                     UserRelation::where(['ral_user_id' => $uid])->update(['status' => 1]);
-                    $status = Cfg::checkInviteAssistTime ();
-                    if ($status) {
-                        $platform = User::where('id', $rer_user_id)->value ('platform');
-                        if ($platform == "MP-WEIXIN") {
-                            $starId = UserStar::getStarId ($rer_user_id);
-                            UserInvite::recordInvite ($rer_user_id, $starId);
-                            \app\api\service\Star::addInvite ($starId);
-                        }
-                    }
                     UserAchievementHeal::addInvite ($rer_user_id);
 
                     RecTask::addRec($rer_user_id, [11, 12, 13]);
 
                     RecTaskfather::addRec($rer_user_id, [2, 13, 24, 35]);
+
+                    $yingyuanStatus = ActiveYingyuan::checkYingyuan(ActiveYingyuan::EXT);
+                    if (true == $yingyuanStatus) {
+                        $platform = User::get($rer_user_id)['platform'];
+                        $info = Cfg::getCfg (Cfg::ACTIVE_YINGYUAN);
+                        if (in_array($platform, $info['platform'])) {
+                            ActiveYingyuan::setCard($starId, $rer_user_id, ActiveYingyuan::EXT);
+                        }
+                    }
                 }
 
                 RecTaskactivity618::addOrEdit($uid, 2,1);
 
                 RecWealActivityTask::setTask ($uid, 1, CfgWealActivityTask::INVITE);
+                RecPanaceaTask::setTask ($uid, 1, CfgPanaceaTask::INVITE);
             }
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
+//            throw $e;s
+            // 记录出错的地方
+            Log::error(json_encode($e));
             Common::res([
-                'code' => 400,
-                'msg' => $e->getMessage()
+                'code' => 1,
+                'msg' => '请稍后再试'
             ]);
         }
     }
@@ -175,11 +161,27 @@ class Fanclub extends Base
         $fanclubUser = FanclubUser::where('user_id', $uid)->field('fanclub_id,week_count,week_hot,weekmem_count,weekbox_count')->find();
         $isLeader = FanclubUser::isLeader($operater);
         $isAdmin= FanclubUser::isAdmin($operater);
-        if (($isLeader || $isAdmin  )==false && $operater != $uid) {
+        $isSelf = (int)$operater == (int)$uid;
+        if (($isLeader || $isAdmin  )==false && !$isSelf) {
             Common::res([
                 'code' => 1,
                 'msg' => '没有权限'
             ]);
+        }
+
+        $fanclubId = FanclubUser::where('user_id', $operater)->value('fanclub_id');
+        // 不能踢别的团的成员
+        if ($fanclubId != $fanclubUser['fanclub_id']) {
+            Common::res(['code' => 1, 'msg' => '权限不够']);
+        }
+        if (!$isSelf) {
+            if ($isAdmin) {
+                $isBeLeader = FanclubUser::isLeader($uid);
+                if ($isBeLeader) {
+                    // 管理员不能踢团长
+                    Common::res(['code' => 1, 'msg' => '权限不够']);
+                }
+            }
         }
         
 //         $hasExited = Db::name('fanclub_user')->where('user_id', $uid)
@@ -222,7 +224,7 @@ class Fanclub extends Base
 //                     (new UserService())->change($uid, ['stone' => - 100], '超过1次退出粉丝团');
                 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollback();
                 Common::res([
                     'code' => 400,
@@ -251,7 +253,7 @@ class Fanclub extends Base
                 ]);
                 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollback();
                 Common::res([
                     'code' => 400,
@@ -274,7 +276,7 @@ class Fanclub extends Base
         $fanclubId =  FanclubUser::where('user_id', $operater)->value ('fanclub_id');
         $fanclubUsers = FanclubUser::where('user_id', 'in', $uids)
             ->where('fanclub_id', $fanclubId)
-            ->field('week_count,week_hot,weekmem_count,weekbox_count')
+            ->field('user_id,week_count,week_hot,weekmem_count,weekbox_count')
             ->select();
         if (is_object ($fanclubUsers)) $fanclubUsers = $fanclubUsers->toArray ();
 
@@ -305,17 +307,58 @@ class Fanclub extends Base
         Db::startTrans ();
         try {
             // 用户退出
-            FanclubUser::destroy($user_ids);
+            FanclubUser::destroy (['user_id' => ['in', $user_ids]]);
             FanclubApplyUser::where('user_id', 'in', $user_ids)->delete();
 
             self::where('id', $fanclubId)->update($fanClubUpdate);
 
             Db::commit ();
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             Db::rollback ();
 
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
         }
+    }
+
+    public static function upLeader($uid, $admin)
+    {
+        $isLeader = FanclubUser::isLeader($uid);
+        if (empty($isLeader)) {
+            Common::res(['code' => 1, 'msg' => '权限不够']);
+        }
+
+        $fanclubId = FanclubUser::where('user_id', $uid)->value ('fanclub_id');
+        $adminFanclubId = FanclubUser::where('user_id', $admin)->value ('fanclub_id');
+        $sameFanclubId = (int)$fanclubId == (int)$adminFanclubId;
+        if (empty($sameFanclubId)) {
+            Common::res(['code'  =>1, 'msg' => '权限不够']);
+        }
+
+        $isAdmin= FanclubUser::isAdmin($admin);
+        if (empty($isAdmin)) {
+            Common::res(['code' => 1, 'msg' => 'ta还不是管理员']);
+        }
+
+        Db::startTrans ();
+        try {
+            // 团长变为成员
+            Fanclub::where('id', $fanclubId)->update(['user_id' => $admin]);
+
+            FanclubUser::where('fanclub_id', $fanclubId)
+                ->where([
+                    'user_id' => $admin,
+                    'fanclub_id' => $fanclubId
+                ])
+                ->update(['admin' => 0]);
+
+            Db::commit ();
+        } catch (Throwable $throwable) {
+            Db::rollback ();
+
+            Common::res (['code' => 1, 'msg' => '请稍后再试']);
+        }
+
+        return true;
     }
 
 }

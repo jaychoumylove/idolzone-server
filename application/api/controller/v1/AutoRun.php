@@ -6,12 +6,15 @@ use app\api\model\Cfg;
 use app\api\model\CfgActive;
 use app\api\model\CfgLottery;
 use app\api\model\OpenRank;
+use app\api\model\RecPanaceaTask;
 use app\api\model\RecTaskactivity618;
 use app\api\model\RecUserPaid;
 use app\api\model\RecWealActivityTask;
 use app\api\model\UserAchievementHeal;
+use app\api\model\UserManor;
 use app\base\controller\Base;
 use app\api\model\StarRank;
+use Exception;
 use think\Db;
 use app\api\model\StarRankHistory;
 use app\api\model\UserStar;
@@ -33,6 +36,8 @@ use app\api\model\StarRankHistoryExt;
 use app\api\model\Family;
 use app\api\model\FamilyUser;
 use app\base\model\Appinfo;
+use think\Log;
+use Throwable;
 
 class AutoRun extends Base
 {
@@ -78,7 +83,7 @@ class AutoRun extends Base
             }
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -152,11 +157,12 @@ class AutoRun extends Base
                 'skill_two_times' => 0,
                 'skill_two_offset' => 0
             ]);
-            // 重置 抽奖次数 每日点赞次数
+            // 重置 抽奖次数 每日点赞次数 每日召唤宠物数
             UserExt::where('1=1')->update([
                 'lottery_count' => 0,
                 'lottery_times' => 0,
-                'thisday_like' => 0
+                'thisday_like' => 0,
+                'animal_lottery' => 0
             ]);
             
             // 家族贡献重置
@@ -170,6 +176,11 @@ class AutoRun extends Base
                 'day_count' => 0,
             ]);
 
+            $massDate = date('YmdH');
+            FanclubUser::where('day_mass_times', '>', 0)->update([
+                'day_mass_times' => Db::raw('if(`mass_time` = '.$massDate.', 1, 0)'),
+            ]);
+
             RecTaskactivity618::where('task_id','in',[4,8,9])->update([
                 'done_times'=>0,
                 'is_settle_times'=>0,
@@ -179,35 +190,52 @@ class AutoRun extends Base
             StarBirthRank::grantBirthAward();
             // 周末抽奖双倍
             CfgLottery::doubleAward();
-            // pk表清除
-            PkUser::clearPk();
 
-            // 清楚每日任务
+            // 清理每日任务
             RecWealActivityTask::cleanDay ();
-
-            // 开屏备选的清理
-            if (Cfg::checkActiveByPathInBtnGroup (Cfg::WEAL_ACTIVE_PATH)) {
-                \app\api\model\Open::overSettle();
-
-                \app\api\model\Open::where('hot', '>', 0)
-                    ->where ('type', \app\api\model\Open::SOLDIER81)
-                    ->update(['hot' => 0]);
-
-                OpenRank::where('count', '>', 0)->delete(true);
-            }
-
-            $status = Cfg::checkInviteAssistTime ();
-            if ($status) {
-                \app\api\model\UserInvite::cleanDayInvite ();
-            }
+            RecPanaceaTask::cleanDay();
 
             // 清除用户充值礼包记录
             RecUserPaid::where('count', '>', 0)
                 ->update(['count' => 0,'is_settle' => 0]);
 
+            // 每日庄园结算
+            UserManor::where('1=1')->update([
+                'day_count' => 0,
+                'day_steal' => 0,
+                'day_lottery_times' => 0,
+                'day_lottery_box' => '[]',
+            ]);
+
+            // pk表清除
+            PkUser::clearPk();
+
+            // 开屏备选的清理
+            // 先注释，活动开启后再查询 2020年10月08日18:36:47
+//            if (Cfg::checkActiveByPathInBtnGroup (Cfg::OPEN_RANK_PATH)) {
+//                \app\api\model\Open::overSettle();
+//
+//                \app\api\model\Open::where('hot', '>', 0)
+//                    ->where ('type', \app\api\model\Open::SOLDIER81)
+//                    ->update(['hot' => 0]);
+//
+//                OpenRank::where('count', '>', 0)->delete(true);
+//            }
+//
+//            $status = Cfg::checkInviteAssistTime ();
+//            if ($status) {
+//                \app\api\model\UserInvite::cleanDayInvite ();
+//            }
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             Db::rollBack();
+            Log::error('day autorun fail');
+            Log::error('code:' . $e->getCode());
+            Log::error('message:' . $e->getMessage());
+            Log::error('file:' . $e->getFile());
+            Log::error('line:' . $e->getLine());
+            Log::error('trace:');
+            Log::error(json_encode($e->getTrace()));
             return 'rollBack:' . $e->getMessage();
         }
         
@@ -234,7 +262,8 @@ class AutoRun extends Base
         try {
             // 用户金豆每周清零
             UserCurrency::where('1=1')->update([
-                'coin' => 0
+                'coin' => 0,
+                'update_time' => Db::raw('update_time'),
             ]);
             
             // 用户周贡献清零
@@ -243,6 +272,7 @@ class AutoRun extends Base
                 'lastweek_count' => Db::raw('thisweek_count'),
                 'thisweek_count' => 0,
                 'achievement_week_count' => 0,
+                'update_time' => Db::raw('update_time'),
             ]);
             
             // 转存历史排名
@@ -320,9 +350,14 @@ class AutoRun extends Base
                 'lastweek_count' => Db::raw('week_count'),
                 'week_count' => 0,
             ]);
+
+            // 每周庄园结算
+            UserManor::where('1=1')->update([
+                'week_count' => 0,
+            ]);
             
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -359,6 +394,7 @@ class AutoRun extends Base
                 'lastmonth_count' => Db::raw('thismonth_count'),
                 'thismonth_count' => 0,
                 'achievement_month_count' => 0,
+                'update_time' => Db::raw('update_time'),
             ]);
             
             // 转存历史排名
@@ -389,7 +425,7 @@ class AutoRun extends Base
             ]);
             
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -436,7 +472,7 @@ class AutoRun extends Base
                 }
                 
                 Db::commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Db::rollback();
                 Common::res([
                     'code' => 400,

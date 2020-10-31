@@ -2,7 +2,11 @@
 
 namespace app\api\controller\v1;
 
+use app\api\model\ActiveYingyuan;
+use app\api\model\ActiveYingyuanReward;
 use app\api\model\CfgActiveReplace;
+use app\api\model\HeadwearUser;
+use app\api\model\RecActiveYingyuan;
 use app\base\controller\Base;
 use app\api\model\RecUserFormid;
 use app\base\service\Common;
@@ -60,8 +64,8 @@ class Ext extends Base
         $platform = $this->req('platform', 'require', 'MP-WEIXIN'); // 平台
         $data = Cfg::getCfg (Cfg::ACTIVE_CONFORM);
 
-        $status = Cfg::checkInviteAssistTime ();
-        if ($status) {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
             if ($platform != "MP-WEIXIN") {
                 $data['banner'] = [
                     [
@@ -292,5 +296,103 @@ class Ext extends Base
 
         GzhUserPush::setData($this->uid, $push_id, $checked);
         Common::res();
+    }
+
+    public function getYingyuan()
+    {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
+            Common::res (['code' => 1, 'msg' => $msg]);
+        }
+
+        $this->getUser ();
+
+        $starId = UserStar::getStarId ($this->uid);
+        if (empty($starId)) {
+            Common::res (['msg' => "请先加入圈子", 'code' => 1]);
+        }
+
+        $data = ActiveYingyuan::getYingyuan($starId, $this->uid);
+
+        Common::res (['data' => $data]);
+    }
+
+    public function getYingyuanLogPager()
+    {
+        $this->getUser();
+        $page = $this->req('page', 'integer', 1);
+        $size = $this->req('size', 'integer', 10);
+
+        $data = RecActiveYingyuan::getLogPager($this->uid, $page, $size);
+
+        Common::res(['data' => $data]);
+    }
+
+    public function getYingyuanReward()
+    {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
+            Common::res (['code' => 1, 'msg' => $msg]);
+        }
+        $this->getUser ();
+        $index = input('index')-0;
+
+        $starId = UserStar::getStarId ($this->uid);
+        if (empty($starId)) {
+            Common::res (['msg' => "请先加入圈子", 'code' => 1]);
+        }
+
+        $data = ActiveYingyuanReward::getYingyuanReward($index, $this->uid);
+
+        Common::res (['data' => $data]);
+    }
+
+    public function getYingyuanList()
+    {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
+            Common::res (['code' => 1, 'msg' => $msg]);
+        }
+
+        $this->getUser ();
+
+        $starId = UserStar::getStarId ($this->uid);
+        if (empty($starId)) {
+            Common::res (['msg' => "请先加入圈子", 'code' => 1]);
+        }
+
+        $page =  input('page', 1);
+        $size =  input('size', 10);
+
+        $list = ActiveYingyuan::with('user')
+            ->where('star_id', $starId)
+            ->where ('sup_num', '>', 0)
+            ->order (['sup_num'=>'desc','create_time'=>'desc'])
+            ->page ($page, $size)
+            ->select ();
+        foreach ($list as &$value){
+            $value['user']['headwear'] = HeadwearUser::getUse($value['user_id']);
+        }
+
+        Common::res (['data' => $list]);
+    }
+
+    public function setYingYuanCard()
+    {
+        $msg = ActiveYingyuan::checkYingyuan ();
+        if (true !== $msg) {
+            Common::res (['code' => 1, 'msg' => $msg]);
+        }
+
+        $this->getUser ();
+
+        $starId = UserStar::getStarId ($this->uid);
+        if (empty($starId)) {
+            Common::res (['msg' => "请先加入圈子", 'code' => 1]);
+        }
+
+        ActiveYingyuan::setCard($starId, $this->uid, ActiveYingyuan::SUP);
+
+        Common::res ();
     }
 }

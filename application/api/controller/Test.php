@@ -3,7 +3,14 @@
 namespace app\api\controller;
 
 
+use app\api\model\AnimalLottery;
+use app\api\model\Cfg;
+use app\api\model\CfgAnimal;
+use app\api\model\CfgAnimalLevel;
+use app\api\model\UserAnimal;
+use app\api\model\UserManor;
 use app\base\controller\Base;
+use Exception;
 use think\Db;
 use app\base\service\Common;
 use app\api\model\CfgTaskgiftCategory;
@@ -22,6 +29,8 @@ use app\api\model\RecTask;
 use app\api\model\BadgeUser;
 use app\api\model\FanclubUser;
 use app\api\model\RecPayOrder;
+use think\Response;
+use Throwable;
 
 class Test extends Base
 {
@@ -90,7 +99,7 @@ class Test extends Base
             StarRankModel::change($starid, -$hot, $type);
             
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollBack();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
@@ -142,7 +151,7 @@ class Test extends Base
             
             Db::commit();
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
@@ -176,12 +185,188 @@ class Test extends Base
             
             Db::commit();
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             Db::rollBack();
             return 'rollBack:' . $e->getMessage();
         }
         
         Common::res(['code' => 0,'msg' => '操作成功']);
     }
-    
+
+    public function reBuildAnimal()
+    {
+        $normal = [];
+        $secret = [];
+        $lock = 0;
+        $lock_num = 0;
+        $exchange = 0;
+
+        $animalLeft = 8;
+        $luckyLeft = 9;
+        $animal = [
+            'name' => '鼠',
+            'image' => 'https://mmbiz.qpic.cn/mmbiz_gif/w5pLFvdua9Fic6VmPQYib2ktqATmSxJmUtvNXVsBzTEmc1fyK8O16OSuJUAicicLZA0o1hkNVmBoSqKZUj89srXPvA/0',
+            'scrap_img' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QhT8Zws3rWRdHxribSNudmOUjMjv17TxfCTLhDwKKRCaW0VwbNRzUlQA/0',
+            'empty_img' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GF0Ayowf19yN8oiaLKldV6QOpdWkhyqdYQ2icwwiborbFn9uXEDnyI3FsHiaHia5UwOPjFYibjVO0htb8g/0',
+            'scrap_name' => '鼠碎片',
+            'star_id' => null,
+            'lock' => $lock,
+            'lock_num' => $lock_num,
+            'exchange' => $exchange
+        ];
+
+        $array = range(0, 16, 1);
+
+        $animalArray = [];
+        foreach ($array as $key => $value) {
+            array_push($animalArray, $animal);
+        }
+
+        $sql = (new CfgAnimal())->fetchSql(true)->insertAll($animalArray);
+
+        return Response::create(['sql' => $sql], 'json');
+    }
+
+    public function reBuildAnimalLevel()
+    {
+        $list = CfgAnimal::all();
+        $steal = 0;
+
+        $array = range(0, 9, 1);
+        $normalArrayLv = [];
+        $luckyArrayLv = [];
+
+        foreach ($array as $key => $value) {
+            $lvItem = [
+                'level' => bcadd($value, 1),
+                'steal' => $steal,
+            ];
+
+            $lvItem['number'] = bcmul($lvItem['level'], 100);
+            $lvItem['output'] = bcmul($lvItem['level'], 10);
+            if ($lvItem['level'] == 1) {
+                $lvItem['number'] = 10;
+                $lvItem['output'] = 1;
+            }
+
+            $lvItem['desc'] = sprintf('每10秒/%s金豆', $lvItem['number']);
+
+            $luckyLvItem = $lvItem;
+            $luckyLvItem['number'] = 10;
+            $luckyLvItem['output'] = bcmul($luckyLvItem['level'], 100);
+
+            array_push($normalArrayLv, $lvItem);
+            array_push($luckyArrayLv, $luckyLvItem);
+        }
+
+        $cfgAnimalLevel = new CfgAnimalLevel();
+        $typeMap = [
+            'NORMAL' => $normalArrayLv,
+            'SECRET' => $luckyArrayLv,
+        ];
+        $insert = [];
+        foreach ($list as $key => $value) {
+            $lvMap = $typeMap[$value['type']];
+
+            foreach ($lvMap as $item) {
+                $insertItem = [
+                    'animal_id' => $value['id'],
+                ];
+                $insertItem = array_merge($insertItem, $item);
+                array_push($insert, $insertItem);
+            }
+        }
+
+        $sql = $cfgAnimalLevel->fetchSql(true)->insertAll($insert);
+
+        return Response::create(['sql' => $sql], 'json');
+    }
+
+    public function reBuildLottery()
+    {
+        $list = CfgAnimal::where('type', 'NORMAL')->select();
+        $litem = [
+            'chance' => 10,
+            'number' => 10,
+        ];
+        $insert = [];
+        foreach ($list as $item) {
+            $lotteryItem = array_merge(['animal' => $item['id']], $litem);
+            array_push($insert, $lotteryItem);
+        }
+
+        $sql = (new AnimalLottery())->fetchSql(true)->insertAll($insert);
+
+        return Response::create(['sql' => $sql], 'json');
+    }
+
+    public function manorAddStartId()
+    {
+        $allManor = UserManor::all();
+        $allManor = collection($allManor)->toArray();
+        foreach ($allManor as $item) {
+            $starId = UserStar::getStarId($item['user_id']);
+            UserManor::where('id', $item['id'])->update([
+                'star_id' =>  $starId ? $starId: 0
+            ]);
+        }
+
+        return Response::create(['status' => 'OK'], 'json');
+    }
+
+    public function userAnimalAddExchange()
+    {
+        // 把starid有值的都改为STAR类型
+        // 给解锁这些animal的用户补充交换萌宠
+        $starAnimals = CfgAnimal::where('star_id', '>', 0)->select();
+        if (is_object($starAnimals)) $starAnimals = $starAnimals->toArray();
+        $starAnimalIds = array_column($starAnimals, 'id');
+        $starAnimalDict = array_column($starAnimals, null, 'id');
+        Db::startTrans();
+        try {
+            CfgAnimal::where('id', 'in', $starAnimalIds)->update(['type' => CfgAnimal::STAR]);
+            $userAnimal = UserAnimal::where('animal_id', 'in', $starAnimalIds)->select();
+            $exchangeAnimal = CfgAnimal::get(['type' => CfgAnimal::STAR_SECRET]);
+            $insert = [];
+            $manorUpdateUserId = [];
+            foreach ($userAnimal as $key => $value) {
+                $item = [
+                    'user_id' => $value['user_id'],
+                    'animal_id' => $exchangeAnimal['id'],
+                    'scrap' => $value['scrap'],
+                    'level' => $value['level'],
+                    'lock' => $value['lock'],
+                    'use_image' => $starAnimalDict[$value['animal_id']]['image']
+                ];
+                array_push($insert, $item);
+                array_push($manorUpdateUserId, $value['user_id']);
+            }
+
+            (new UserAnimal())->insertAll($insert);
+            UserManor::where('user_id', 'in', $manorUpdateUserId)->update(['use_animal' => $exchangeAnimal['id']]);
+
+            Db::commit();
+        }catch (Throwable $throwable) {
+            Db::rollback();
+
+            return Response::create(['status' => 'FAIL'], 'json');
+        }
+        return Response::create(['status' => 'OK'], 'json');
+    }
+
+    public function addLucky()
+    {
+        // 线上不开启
+        echo 'no content' . PHP_EOL;
+        die(400);
+
+        // 原生sql语句
+        // call addLuckyProc(379622824/1234, 18, 80, '2020-12-31 23:59:59');
+        $user_id = 679995; // 用户id
+        $prop_id = 18; // 幸运抽奖券 道具id
+        $number = 10; // 补充抽奖券数量
+        $endTime = '2020-12-31 23:59:59'; // 抽奖券过期时间
+        $sql = sprintf("call addLuckyProc(%s, %s, %s, '%s');", $user_id, $prop_id, $number, $endTime);
+        Db::execute($sql);
+    }
 }

@@ -6,6 +6,16 @@ use think\Route;
 Route::rule('testaa', 'api/Test/index');
 Route::rule('getToken', 'api/Test/getToken');
 Route::rule('getUid', 'api/Test/getUid');
+Route::rule('test/buildanimallv', 'api/Test/reBuildAnimalLevel');
+Route::rule('test/buildanimal', 'api/Test/reBuildAnimal');
+Route::rule('test/buildanimallottery', 'api/Test/reBuildLottery');
+Route::rule('test/manor_add_star', 'api/Test/manorAddStartId'); //
+Route::rule('test/change_animal', 'api/Test/userAnimalAddExchange'); //
+
+//FIX
+Route::rule('fix/pk', 'api/Fix/PkFix'); // pk补偿
+Route::rule('fix/manor', 'api/Fix/manorFix'); // 庄园补偿
+Route::rule('fix/farm', 'api/Fix/farmFix'); // 庄园补偿
 
 // APP热更新
 Route::rule('api/:version/app/update', 'api/v1.H5/update');
@@ -150,6 +160,7 @@ Route::rule('api/:version/sprite/skill2rateIncrease', 'api/v1.UserSprite/skill2r
 Route::rule('api/:version/pay/order', 'api/v1.Payment/order');// 支付下单
 Route::rule('api/:version/pay/notify/:platform', 'api/v1.Payment/notify');// 支付通知
 Route::rule('api/:version/pay/goods', 'api/v1.Payment/goods');// 商品列表
+Route::rule('api/:version/pay/alipaynotify', 'api/v1.Payment/alipayNotify');// 支付下单
 
 // Newboy
 Route::rule('api/:version/new/gift', 'api/v1.Newboy/gift');// 礼包
@@ -205,6 +216,7 @@ Route::rule('api/:version/fans/applylist', 'api/v1.FansClub/applylist');// 申�
 Route::rule('api/:version/fans/applydeal', 'api/v1.FansClub/applydeal');// 申请处理
 Route::rule('api/:version/fans/enter', 'api/v1.FansClub/enter');// 邀请页面
 Route::rule('api/:version/fans/upAdmin', 'api/v1.FansClub/upAdmin');// 提/降管理员
+Route::rule('api/:version/fans/upLeader', 'api/v1.FansClub/upLeader');// 提团长
 Route::rule('api/:version/fans/remove_all', 'api/v1.FansClub/removeAll');// 退出粉丝团
 
 Route::rule('api/:version/fans/mybox', 'api/v1.FansClub/mybox');// 粉丝团宝箱
@@ -214,6 +226,7 @@ Route::rule('api/:version/fans/getBox', 'api/v1.FansClub/getBox');// 发粉丝�
 // lottery
 Route::rule('api/:version/lottery/addCount', 'api/v1.Lottery/addCount');// 增加抽奖次数
 Route::rule('api/:version/lottery/start', 'api/v1.Lottery/start');// 抽奖
+Route::rule('api/:version/lottery/multiple_start', 'api/v1.Lottery/multipleStart');// 多次抽奖
 Route::rule('api/:version/lottery/dayEarn', 'api/v1.Lottery/dayEarn');// 抽奖今日获得
 Route::rule('api/:version/lottery/log', 'api/v1.Lottery/log');// 抽奖今日明细
 Route::rule('api/:version/lottery/double', 'api/v1.Lottery/double');// 双倍领取奖励
@@ -351,6 +364,8 @@ Route::rule('api/:version/lucky/draw/info', 'api/v1.UserLuckyDraw/getLuckyDraw')
 Route::rule('api/:version/lucky/draw/start', 'api/v1.UserLuckyDraw/startLuckyDraw');// 点击抽奖
 Route::rule('api/:version/lucky/draw/startfifty', 'api/v1.UserLuckyDraw/startLuckyDrawFifty');// 点击抽奖
 Route::rule('api/:version/lucky/draw/log', 'api/v1.UserLuckyDraw/logPager');// 抽奖记录
+Route::rule('api/:version/lucky/draw/exchange_animal', 'api/v1.UserLuckyDraw/exchangeAnimal');// 兑换12生肖
+Route::rule('api/:version/lucky/draw/exchange_lucky', 'api/v1.UserLuckyDraw/exchangeLucky');// 兑换幸运碎片
 Route::rule('api/:version/lucky/draw/exchange', 'api/v1.UserLuckyDraw/exchangeScrap');// 兑换碎片
 Route::rule('api/:version/lucky/draw/day/earn', 'api/v1.UserLuckyDraw/dayEarn');// 每日获取
 Route::rule('api/:version/user/paid/log', 'api/v1.UserPaid/getPaidLogPager');// 每日获取
@@ -361,3 +376,44 @@ Route::rule('api/:version/welfare/rank', 'api/v1.Welfare/rank'); // 公益打卡
 Route::rule('api/:version/invite/settle_rec', 'api/v1.UserInvite/recList');//领取列表
 Route::rule('api/:version/invite/settle', 'api/v1.UserInvite/settle');//领取奖励
 Route::rule('api/:version/invite/rank', 'api/v1.UserInvite/rank'); // 公益打卡信息
+
+Route::rule('api/:version/page/manor', 'api/v1.Page/manor');//庄园信息
+Route::rule('api/:version/animal/list', 'api/v1.Animal/getAnimalList');//宠物列表
+Route::rule('api/:version/animal/info', 'api/v1.Animal/getAnimalInfo'); // 宠物信息
+Route::rule('api/:version/animal/up', 'api/v1.Animal/upAnimal');//宠物升级
+Route::rule('api/:version/animal/unlock', 'api/v1.Animal/unLockAnimal'); // 宠物解锁
+Route::rule('api/:version/animal/change', 'api/v1.Animal/changeMainAnimal'); // 宠物更换
+Route::rule('api/:version/animal/checkout_image', 'api/v1.Animal/checkSecretImage'); // 更换idol宠物形象
+Route::rule('api/:version/animal/checkout_super_image', 'api/v1.Animal/checkSuperSecretImage'); // 更换灵宠形象
+Route::rule('api/:version/animal/lottery_info', 'api/v1.Animal/getAnimalLotteryInfo'); // 宠物抽奖池
+Route::rule('api/:version/animal/lottery', 'api/v1.Animal/lotteryAnimal'); // 宠物信息
+Route::rule('api/:version/animal/steal', 'api/v1.Animal/animalSteal'); // 宠物偷豆
+Route::rule('api/:version/animal/steallist', 'api/v1.Animal/stealUserList');//偷取用户列表
+Route::rule('api/:version/animal/steallog', 'api/v1.Animal/stealLog'); // 偷取日志
+Route::rule('api/:version/animal/output', 'api/v1.Animal/animalOutput'); // 宠物产豆
+Route::rule('api/:version/animal/settle', 'api/v1.Animal/animalSettle'); // 宠物产豆收集
+Route::rule('api/:version/panacea/task_list', 'api/v1.Animal/getTaskList'); // 灵丹任务列表
+Route::rule('api/:version/panacea/task_settle', 'api/v1.Animal/settleTask'); // 完成灵丹任务
+Route::rule('api/:version/manor/background', 'api/v1.Animal/getCfgBackground'); // 庄园背景列表
+Route::rule('api/:version/manor/use_background', 'api/v1.Animal/useBackground'); // 使用庄园背景
+Route::rule('api/:version/manor/unlock_background', 'api/v1.Animal/unlockBackground'); // 解锁庄园背景
+Route::rule('api/:version/manor/try_background', 'api/v1.Animal/tryBackground'); // 试用庄园背景
+Route::rule('api/:version/manor/add_friend', 'api/v1.Animal/addFriend'); // 新增朋友
+Route::rule('api/:version/manor/remove_friend', 'api/v1.Animal/removeFriend'); // 移除朋友
+Route::rule('api/:version/manor/friend_list', 'api/v1.Animal/friendList'); // 朋友列表
+Route::rule('api/:version/animal_box/list', 'api/v1.Animal/boxAnimal'); // 宝箱列表
+Route::rule('api/:version/animal_box/lottery', 'api/v1.Animal/boxAnimalLottery'); // 宝箱抽取
+Route::rule('api/:version/manor/idolrank', 'api/v1.Animal/getActiveIdolSumRank'); // 宝箱抽取
+Route::rule('api/:version/manor/fansrank', 'api/v1.Animal/getActiveFansSumRank'); // 圈内助力粉丝排行
+Route::rule('api/:version/manor/allfansrank', 'api/v1.Animal/getActiveAllFansSumRank'); // 全服助力粉丝排行
+Route::rule('api/:version/manor/active_output_rank', 'api/v1.Animal/getOutputRank'); // 全服助力粉丝排行
+Route::rule('api/:version/manor/log', 'api/v1.Animal/manorLog'); // 庄园日志
+Route::rule('api/:version/page/other_manor', 'api/v1.Page/otherManor');//庄园信息
+Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息
+
+// 应援打卡
+Route::rule('api/:version/yingyuan/reward', 'api/v1.Ext/getYingyuanReward');//
+Route::rule('api/:version/yingyuan/card', 'api/v1.Ext/setYingYuanCard');// 打卡
+Route::rule('api/:version/yingyuan/info', 'api/v1.Ext/getYingyuan');// 打卡详情
+Route::rule('api/:version/yingyuan/list', 'api/v1.Ext/getYingyuanList');// 打卡列表
+Route::rule('api/:version/yingyuan/log', 'api/v1.Ext/getYingyuanLogPager');// 领取记录

@@ -6,6 +6,10 @@ use app\base\model\Base;
 use app\api\model\Father as ModelFather;
 use think\Db;
 use app\base\service\Common;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
+use think\Exception;
+use think\exception\DbException;
 
 class UserStar extends Base
 {
@@ -162,6 +166,13 @@ class UserStar extends Base
                     'user_id' => $uid, 'star_id' => $starid
                 ]);
             }
+            $manor = UserManor::where('user_id', $uid)
+                ->find();
+            if ($manor) {
+                UserManor::where('user_id', $uid)->update([
+                    'star_id' => $starid
+                ]);
+            }
             Db::commit();
         } catch (\Exception $e) {
             Db::rollBack();
@@ -232,7 +243,11 @@ class UserStar extends Base
         Db::startTrans();
         try {
             // 记录退圈时间
-            UserExt::where(['user_id' => $uid])->update(['exit_group_time' => time()]);
+            // 退圈用户禁止赠送收取礼物
+            UserExt::where(['user_id' => $uid])->update([
+                'exit_group_time' => time(),
+                'forbidden_gift' => 1
+            ]);
         
             //删除本条记录
             self::where(['user_id' => $uid])->delete();
@@ -250,13 +265,22 @@ class UserStar extends Base
             $fanclub_id = FanclubUser::where('user_id',$uid)->value('fanclub_id');
             if($fanclub_id) $fanLeader = Fanclub::where('id',$fanclub_id)->value('user_id');
             if(isset($fanLeader) && $fanLeader) Fanclub::exitFanclub($fanLeader,$uid);
-    
+
             //退出家族
             Family::exitFamily($uid,$uid);
     
             //退出师徒
             if(ModelFather::where('father_uid',$uid)->count()) Common::res(['code' => 1, 'msg' => '你还有徒弟未解除，不能退圈']);
             ModelFather::exit($uid);
+
+            UserManor::where('user_id', $uid)->update(['star_id' => 0]);
+            $animalId = CfgAnimal::where('type', CfgAnimal::SECRET)
+                ->where('star_id', '>', 0)
+                ->column('id');
+
+            UserAnimal::where('user_id', $uid)
+                ->where('animal_id', 'in', $animalId)
+                ->delete();
     
             Db::commit();
         } catch (\Exception $e) {
@@ -388,16 +412,17 @@ class UserStar extends Base
     /**
      * 每日鲜花贡献前10名获得花神成就挂饰
      *
-     * @throws \think\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @throws Exception
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
      */
     public static function settleFlower()
     {
         $topTenFlower = self::where('day_flower', '>', 0)
             ->order ([
                 'day_flower' => 'desc',
+                'update_time' => 'asc',
                 'id' => 'asc'
             ])
             ->limit (10)
@@ -407,15 +432,19 @@ class UserStar extends Base
         foreach ($topTenFlower as $item) {
             UserAchievementHeal::recordTime ($item['user_id'], $item['star_id'], UserAchievementHeal::TIMER, UserAchievementHeal::FLOWER);
         }
+
+        $ids = array_column($topTenFlower, 'user_id');
+
+        (new RecPanaceaTask())->settleRank($ids, CfgPanaceaTask::FLOWER_RANK);
     }
 
     /**
      * 当日注册用户 每日贡献前10名获得明日之星成就挂饰
      *
-     * @throws \think\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @throws Exception
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
      */
     public static function settleCount()
     {
@@ -434,6 +463,7 @@ class UserStar extends Base
             ->where('user_id', 'in', $newGuysId)
             ->order ([
                 'thisday_count' => 'desc',
+                'update_time' => 'asc',
                 'id' => 'asc'
             ])
             ->limit (10)

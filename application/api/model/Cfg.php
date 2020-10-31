@@ -6,12 +6,20 @@ use app\base\model\Base;
 
 class Cfg extends Base
 {
-    const WEAL_ACTIVE_PATH = '/pages/active/weal';
-    const ACTIVE_CONFORM   = 'active_conform';
-    const RECHARGE_LUCKY   = 'recharge_lucky';
-    const ACHIEVEMENT      = 'achievement';
-    const OCCUPY_TIME      = 'occupy_time';
-    const INVITE_ASSIST    = 'invite_assist';
+    const WEAL_ACTIVE_PATH   = '/pages/active/weal';
+    const OPEN_RANK_PATH     = '/pages/open/rank';
+    const ACTIVE_CONFORM     = 'active_conform';
+    const RECHARGE_LUCKY     = 'recharge_lucky';
+    const ACHIEVEMENT        = 'achievement';
+    const OCCUPY_TIME        = 'occupy_time';
+    const INVITE_ASSIST      = 'invite_assist';
+    const FREE_LOTTERY       = "free_lottery";
+    const MANOR_ANIMAL       = "manor_animal";
+    const MANOR_NATIONAL_DAY = "manor_national_day"; // 国庆|中秋节 庄园活动
+    const ACTIVE_YINGYUAN    = 'yingyuan';
+    const MANOR_OPEN         = 'manor_open';
+    const WEAL_ACTIVE        = 'weal_active';
+    const FORBIDDEN_SEND_GIFT_USER               = 'forbidden_send_gift_user';
 
     public static function getCfg($key)
     {
@@ -36,9 +44,9 @@ class Cfg extends Base
 
         return $res;
     }
-    
+
     public static function isPkactiveStart(){
-        $pkactiveDate = self::getCfg('pkactive_date');        
+        $pkactiveDate = self::getCfg('pkactive_date');
         return  (time() > strtotime($pkactiveDate[0]) && time() < strtotime($pkactiveDate[1]));
     }
 
@@ -189,6 +197,38 @@ class Cfg extends Base
             return false;
         }
         if ($now > $limit['end']) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 检查活动时间区间
+     * @param        $key
+     * @param string $type
+     * @return bool
+     */
+    public static function checkConfigTime($key, $type = 'date')
+    {
+        if (is_string($key)) $config = self::getCfg ($key);
+        if (is_array($key)) $config = $key;
+        if (empty($config)) return false;
+
+        $currentTime = time();
+        $now = date ('Y-m-d H:i:s', $currentTime);
+        $map = [
+            'date' =>  $now,
+            'time' => $currentTime
+        ];
+        $limit = $config['time'];
+
+        $compare = $map[$type];
+
+        if ($compare < $limit['start']) {
+            return false;
+        }
+        if ($compare > $limit['end']) {
             return false;
         }
 

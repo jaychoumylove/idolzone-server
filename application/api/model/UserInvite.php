@@ -4,10 +4,12 @@
 namespace app\api\model;
 
 
+use app\base\model\Base;
 use think\Db;
 use think\Exception;
+use Throwable;
 
-class UserInvite extends \app\base\model\Base
+class UserInvite extends Base
 {
     public function user()
     {
@@ -31,7 +33,7 @@ class UserInvite extends \app\base\model\Base
     {
         self::where('1=1')->update([
             'invite_day' => 0,
-            'invite_day_settle' => json_encode ([]),
+            'invite_day_settle' => '[]',
         ]);
     }
 
@@ -39,7 +41,10 @@ class UserInvite extends \app\base\model\Base
     {
         if (empty($star_id)) $star_id = UserStar::getStarId ($user_id);
 
-        $map  = compact ('user_id', 'star_id');
+        $map  = [
+            'user_id' => $user_id,
+            'star_id' => $star_id
+        ];
 
         $exist = (new self())->readMaster ()->where($map)->find ();
         if (empty($exist)) {
@@ -136,7 +141,7 @@ class UserInvite extends \app\base\model\Base
 //            throw new Exception('something was wrong');
 
             Db::commit ();
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             Db::rollback ();
 //            throw $throwable;
             return "请稍后再试";

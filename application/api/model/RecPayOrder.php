@@ -7,6 +7,10 @@ use app\api\service\User as UserService;
 
 class RecPayOrder extends Base
 {
+    const ALI_PAY    = 'ali_pay';// 支付宝支付
+    const WECHAT_PAY = 'wechat_pay'; // 微信支付
+    const QQ_PAY     = 'qq_pay';// QQ支付
+
     /**支付成功 处理业务 */
     public static function paySuccess($order)
     {
@@ -29,6 +33,7 @@ class RecPayOrder extends Base
         RecTaskactivity618::addOrEdit($uid, 6, $order['total_fee']);
 
         RecWealActivityTask::setTask ($uid, (int)$order['total_fee'], CfgWealActivityTask::RECHARGE);
+        RecPanaceaTask::setTask ($uid, (int)$order['total_fee'], CfgPanaceaTask::RECHARGE);
 
         RecUserPaid::setTask ($uid, (int)$order['total_fee']);
 

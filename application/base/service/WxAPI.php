@@ -3,6 +3,7 @@
 namespace app\base\service;
 
 use app\base\model\Appinfo;
+use CURLFile;
 use think\Log;
 
 /**服务端wx接口 */
@@ -22,6 +23,12 @@ class WxAPI
         }
         if (!$w) $w = $type;
         $this->appinfo = Common::getAppinfo($w);
+
+//        $currentTime = time();
+//        if ($this->appinfo['access_token_expire'] && $this->appinfo['access_token_expire'] <= $currentTime) {
+//            // token已过期主动获取token
+//            $this->getAccessToken();
+//        }
     }
 
     public function request($url, $data = null)
@@ -46,8 +53,9 @@ class WxAPI
      */
     public function getAccessToken()
     {
+        $platform = input('platform');
         // 更新accessToken
-        if (input('platform') == 'MP-QQ') {
+        if ($platform == 'MP-QQ') {
             $url = 'https://' . $this->apiHost . '/api/getToken?grant_type=client_credential&appid=APPID&secret=APPSECRET';
         } else {
             $url = 'https://' . $this->apiHost . '/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET';
@@ -56,11 +64,19 @@ class WxAPI
         $url = str_replace('APPSECRET', $this->appinfo['appsecret'], $url);
 
         $res = $this->request($url);
+        if (array_key_exists('access_token', $res) == false) {
+            Log::error(sprintf('token请求出错,平台%s', $platform));
+            Log::error(json_encode($res));
+//            Common::res(['code' => 1, 'msg' => '系统忙，请重新进入']);
+        }
         $this->appinfo['access_token'] = $res['access_token'];
+
+        $diff = 200; // 200秒差值
+        $expires = (int)bcsub($res['expires_in'], $diff);
         // 将新的token保存到数据库
         Appinfo::where(['id' => $this->appinfo['id']])->update([
             'access_token' => $res['access_token'],
-            'access_token_expire' => date('Y-m-d H:i:s', time() + $res['expires_in']),
+            'access_token_expire' => date('Y-m-d H:i:s', time() + $expires),
         ]);
     }
 
@@ -197,7 +213,7 @@ class WxAPI
         $url = 'https://' . $this->apiHost . '/cgi-bin/media/upload?access_token=' . $this->appinfo['access_token'] . '&type=TYPE';
         $url = str_replace('TYPE', 'image', $url);
 
-        $data = ['media' => new \CURLFile($filePath, false, false)];
+        $data = ['media' => new CURLFile($filePath, false, false)];
 
         return $this->request($url, $data);
     }
@@ -225,7 +241,7 @@ class WxAPI
 
         $url = str_replace('TYPE', 'image', $url);
 
-        $data = ['media' => new \CURLFile($filePath, false, false)];
+        $data = ['media' => new CURLFile($filePath, false, false)];
         return $this->request($url, $data);
     }
 
@@ -234,7 +250,7 @@ class WxAPI
     {
         $url = 'https://' . $this->apiHost . '/cgi-bin/media/uploadimg?access_token=' . $this->appinfo['access_token'];
 
-        $data = ['media' => new \CURLFile($filePath, false, false)];
+        $data = ['media' => new CURLFile($filePath, false, false)];
         return $this->request($url, $data);
     }
 
@@ -326,10 +342,11 @@ class WxAPI
         $res = $this->request($url, $data);
         //微信
         if (isset($res['errcode']) && $res['errcode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
-        if (isset($res['errcode']) && $res['errcode']) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
+        //if (isset($res['errcode']) && $res['errcode']) Common::res(['code' => 1, 'msg' => $res['errmsg']]);
         //QQ
         if (isset($res['errCode']) && $res['errCode'] == 87014) Common::res(['code' => 1, 'msg' => '含有违法违规内容被屏蔽']);
-        if (isset($res['errCode']) && $res['errCode']) Common::res(['code' => 1, 'msg' => $res['errMsg']]);
+//        只有检测合法值为87014的情况检测出错
+//        if (isset($res['errCode']) && $res['errCode']) Common::res(['code' => 1, 'msg' => $res['errMsg']]);
     }
 
     /**校验一张图片是否含有违法违规内容 */
@@ -343,7 +360,7 @@ class WxAPI
             $url = 'https://' . $this->apiHost . '/wxa/img_sec_check?access_token=' . $this->appinfo['access_token'];
         }
         
-        $data['media'] = new \CURLFile($filePath, false, false);
+        $data['media'] = new CURLFile($filePath, false, false);
         $res = $this->request($url, $data);
         
         //微信

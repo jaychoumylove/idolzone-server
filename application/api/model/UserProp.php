@@ -2,6 +2,7 @@
 
 namespace app\api\model;
 
+use Exception;
 use think\Model;
 use app\base\model\Base;
 use app\base\service\Common;
@@ -11,6 +12,8 @@ use app\api\controller\v1\Badge;
 
 class UserProp extends Base
 {
+    const LUCKY_ID = 18;
+
     public function Prop()
     {
         return $this->belongsTo('Prop', 'prop_id', 'id');
@@ -133,7 +136,7 @@ class UserProp extends Base
             }
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
@@ -178,7 +181,7 @@ class UserProp extends Base
                     break;
             }
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
