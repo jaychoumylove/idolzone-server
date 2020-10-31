@@ -39,8 +39,10 @@ class UserCurrency extends Base
 
         // 系统禁止
         $cfg = Cfg::getCfg(Cfg::FORBIDDEN_SEND_GIFT_USER);
-        if (in_array($self, $cfg) || in_array($other, $cfg)) {
-            Common::res(['code' =>1, 'msg' => str_shuffle('Y1J3S2l2OGw1eVhCcjNMVmRwWHNNVFl3TkRBMU5UYzVNQ1l4TVRNdU1qUTJMamMxTGpFME5TWTJOems1T0RZPQ==')]);
+        if ($cfg && is_array($cfg)) {
+            if (in_array($self, $cfg) || in_array($other, $cfg)) {
+                Common::res(['code' =>1, 'msg' => str_shuffle('Y1J3S2l2OGw1eVhCcjNMVmRwWHNNVFl3TkRBMU5UYzVNQ1l4TVRNdU1qUTJMamMxTGpFME5TWTJOems1T0RZPQ==')]);
+            }
         }
 
         // 退圈用户禁止赠送收取
