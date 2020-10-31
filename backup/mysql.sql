@@ -1441,3 +1441,6 @@ alter table f_user_ext
 
 alter table f_user_star
     add yesterday_flower_time timestamp null;
+
+alter table f_user_star_bakup
+    add yesterday_flower_time timestamp null;
