@@ -243,7 +243,11 @@ class UserStar extends Base
         Db::startTrans();
         try {
             // 记录退圈时间
-            UserExt::where(['user_id' => $uid])->update(['exit_group_time' => time()]);
+            // 退圈用户禁止赠送收取礼物
+            UserExt::where(['user_id' => $uid])->update([
+                'exit_group_time' => time(),
+                'forbidden_gift' => 1
+            ]);
         
             //删除本条记录
             self::where(['user_id' => $uid])->delete();

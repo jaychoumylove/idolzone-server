@@ -1435,3 +1435,6 @@ alter table f_cfg_animal
 
 alter table f_cfg_animal_level
     add image varchar(255) null comment '等级形象 - 灵宠特有';
+
+alter table f_user_ext
+    add forbidden_gift int default 0 not null comment '禁止赠送｜收到 礼物';

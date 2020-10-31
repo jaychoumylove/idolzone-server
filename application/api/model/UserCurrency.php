@@ -37,8 +37,20 @@ class UserCurrency extends Base
         $otherStarId = UserStar::getStarId($other);
         if ($selfStarId != $otherStarId) Common::res(['code' => 12, 'msg' => '不能跨圈赠送']);
 
+        // 系统禁止
         $cfg = Cfg::getCfg(Cfg::FORBIDDEN_SEND_GIFT_USER);
-        if (in_array($self, $cfg)) {
+        if (in_array($self, $cfg) || in_array($other, $cfg)) {
+            Common::res(['code' =>1, 'msg' => str_shuffle('Y1J3S2l2OGw1eVhCcjNMVmRwWHNNVFl3TkRBMU5UYzVNQ1l4TVRNdU1qUTJMamMxTGpFME5TWTJOems1T0RZPQ==')]);
+        }
+
+        // 退圈用户禁止赠送收取
+        $selfForbiddenGift = (int)UserExt::where('user_id', $self)->value('forbidden_gift');
+        if ($selfForbiddenGift) {
+            Common::res(['code' =>1, 'msg' => str_shuffle('Y1J3S2l2OGw1eVhCcjNMVmRwWHNNVFl3TkRBMU5UYzVNQ1l4TVRNdU1qUTJMamMxTGpFME5TWTJOems1T0RZPQ==')]);
+        }
+
+        $otherForbiddenGift = (int)UserExt::where('user_id', $other)->value('forbidden_gift');
+        if ($otherForbiddenGift) {
             Common::res(['code' =>1, 'msg' => str_shuffle('Y1J3S2l2OGw1eVhCcjNMVmRwWHNNVFl3TkRBMU5UYzVNQ1l4TVRNdU1qUTJMamMxTGpFME5TWTJOems1T0RZPQ==')]);
         }
 
