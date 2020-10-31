@@ -343,27 +343,25 @@ class UserAchievementHeal extends Base
             $field             => 'desc',
             'orderupdate_time' => 'asc'
         ];
-        if ($rankType == 'today') {
-            $list = PkUserRank::with(['User', 'star'])
-                ->where($map)
-                ->order($order)
-                ->page($page, $size)
-                ->select();
+        $list = PkUserRank::with(['User', 'star'])
+            ->where($map)
+            ->order($order)
+            ->page($page, $size)
+            ->select();
 
-            $userIds         = array_column($list, 'uid');
-            $achievementDict = self::getDictList(new UserAchievementHeal(), $userIds, 'user_id', "*", ['type' => self::PK]);
+        $userIds         = array_column($list, 'uid');
+        $achievementDict = self::getDictList(new UserAchievementHeal(), $userIds, 'user_id', "*", ['type' => self::PK]);
 
-            foreach ($list as $key => $value) {
-                $value['headwear'] = HeadwearUser::getUse($value['uid']);
-                $value['img']      = $headWear['img'];
-                $value['count']    = $value[$field];
-                $value['num']      = 0;
-                if (array_key_exists($value['uid'], $achievementDict)) {
-                    $value['num'] = (int)bcdiv($achievementDict[$value['uid']]['sum_time'], self::TIMER);
-                }
-
-                $list[$key] = $value;
+        foreach ($list as $key => $value) {
+            $value['headwear'] = HeadwearUser::getUse($value['uid']);
+            $value['img']      = $headWear['img'];
+            $value['count']    = $value[$field];
+            $value['num']      = 0;
+            if (array_key_exists($value['uid'], $achievementDict)) {
+                $value['num'] = (int)bcdiv($achievementDict[$value['uid']]['sum_time'], self::TIMER);
             }
+
+            $list[$key] = $value;
         }
 
         return empty($list) ? [] : $list;
@@ -436,14 +434,14 @@ class UserAchievementHeal extends Base
             $order = [
                 $whereField => 'desc'
             ];
-            if ($rankType == 'today') {
-                $order += ['yesterday_flower' => 'desc'];
+            if ($rankType == 'yesterday') {
+                $order += ['yesterday_flower_time' => 'desc'];
+            } else {
+                $order += [
+                    'update_time' => 'asc',
+                    'id'          => 'asc'
+                ];
             }
-            $order += [
-                'update_time' => 'asc',
-                'create_time' => 'asc',
-                'id'          => 'asc'
-            ];
 
             $map = [
                 $whereField => ['>', 0],

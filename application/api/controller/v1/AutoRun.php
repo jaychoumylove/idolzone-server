@@ -137,6 +137,7 @@ class AutoRun extends Base
                 'lastday_count' => Db::raw('thisday_count'),
                 'thisday_count' => 0,
                 'yesterday_flower' => Db::raw('day_flower'),
+                'yesterday_flower_time' => Db::raw('update_time'),
                 'day_flower' => 0,
             ]);
             // 每日任务进度清零

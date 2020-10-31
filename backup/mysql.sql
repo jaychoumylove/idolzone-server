@@ -1438,3 +1438,6 @@ alter table f_cfg_animal_level
 
 alter table f_user_ext
     add forbidden_gift int default 0 not null comment '禁止赠送｜收到 礼物';
+
+alter table f_user_star
+    add yesterday_flower_time timestamp null;
