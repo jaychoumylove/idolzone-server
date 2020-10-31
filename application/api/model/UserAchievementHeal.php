@@ -339,6 +339,9 @@ class UserAchievementHeal extends Base
             }
             $map['last_pk_time'] = $lastPkTime;
         }
+        if ($rankType == 'star') {
+            $map['mid'] = $extra['star_id'];
+        }
         $order = [
             $field             => 'desc',
             'orderupdate_time' => 'asc'
