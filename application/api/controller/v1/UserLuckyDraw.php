@@ -27,9 +27,12 @@ class UserLuckyDraw extends Base
 
         $luckyDrawTrickNum = UserProp::getNum($this->uid, $luckyDrawTrick);
 
+        $myscrap = UserExt::where('user_id',$this->uid)->value('scrap');
+
         Common::res(['data' => [
             'lucky_draw' => $luckyDraw,
-            'my_num'     => $luckyDrawTrickNum
+            'my_num'     => $luckyDrawTrickNum,
+            'myscrap'     => $myscrap
         ]]);
     }
 
@@ -47,6 +50,17 @@ class UserLuckyDraw extends Base
         $this->getUser();
 
         $data = CfgLuckyDraw::startFifty($this->uid);
+
+        Common::res(compact('data'));
+    }
+
+    public function startLuckyDrawMore()
+    {
+        $this->getUser();
+        $times = $this->req('times', 'require');
+        $index = $this->req('index', 'require');
+
+        $data = CfgLuckyDraw::startMore($this->uid, $index,$times);
 
         Common::res(compact('data'));
     }

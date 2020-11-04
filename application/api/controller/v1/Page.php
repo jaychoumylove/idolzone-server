@@ -443,7 +443,12 @@ class Page extends Base
         $this->getUser ();
 
         $config = Cfg::getCfg (Cfg::RECHARGE_LUCKY);
-        $config['multiple_draw']['able'] = Cfg::checkMultipleDrawAble ($config['multiple_draw']);
+        if(count($config['multiple_draw'])>0){
+            foreach ($config['multiple_draw'] as &$v){
+                $v['able'] = Cfg::checkMultipleDrawAble ($v);
+            }
+        }
+
         $config['multiple_exchange']['able'] = Cfg::checkConfigTime($config['multiple_exchange']);
 
         $forbiddenUser = array_key_exists ('forbidden_user', $config) ? $config['forbidden_user']: [];
@@ -510,6 +515,7 @@ class Page extends Base
 
         $data['animal_exchange'] = null;
         $status = Cfg::checkConfigTime($config['animal_exchange']);
+
         if ($status) {
             $data['animal_exchange'] = CfgAnimal::where('type', CfgAnimal::NORMAL)->select();
             foreach ($data['animal_exchange'] as $key => $value) {

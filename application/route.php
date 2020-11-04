@@ -353,6 +353,7 @@ Route::rule('api/:version/user/paid/info', 'api/v1.UserPaid/getPaidInfo');// 获
 Route::rule('api/:version/lucky/draw/info', 'api/v1.UserLuckyDraw/getLuckyDraw');// 获取抽奖信息
 Route::rule('api/:version/lucky/draw/start', 'api/v1.UserLuckyDraw/startLuckyDraw');// 点击抽奖
 Route::rule('api/:version/lucky/draw/startfifty', 'api/v1.UserLuckyDraw/startLuckyDrawFifty');// 点击抽奖
+Route::rule('api/:version/lucky/draw/startmore', 'api/v1.UserLuckyDraw/startLuckyDrawMore');// 点击抽奖
 Route::rule('api/:version/lucky/draw/log', 'api/v1.UserLuckyDraw/logPager');// 抽奖记录
 Route::rule('api/:version/lucky/draw/exchange_animal', 'api/v1.UserLuckyDraw/exchangeAnimal');// 兑换12生肖
 Route::rule('api/:version/lucky/draw/exchange_lucky', 'api/v1.UserLuckyDraw/exchangeLucky');// 兑换幸运碎片

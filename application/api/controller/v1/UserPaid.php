@@ -103,7 +103,7 @@ class UserPaid extends \app\base\controller\Base
 
         foreach ($sumPaid as $index => $item) {
             $item['settle_status'] = 0;
-            $item['double'] = !array_key_exists ($item['id'], $paidLogDict);
+            $item['is_settle'] = array_key_exists ($item['id'], $paidLogDict);
             if ($mySumPaid['count'] > $item['count']) {
                 $item['settle_status'] = 1;
             }
