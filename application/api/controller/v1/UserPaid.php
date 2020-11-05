@@ -101,9 +101,13 @@ class UserPaid extends \app\base\controller\Base
 
         $dayPaid['double'] = !array_key_exists ($dayPaid['id'], $paidLogDict);
 
+
         foreach ($sumPaid as $index => $item) {
             $item['settle_status'] = 0;
-            $item['is_settle'] = array_key_exists ($item['id'], $paidLogDict);
+            $item['is_settle'] = 0;
+            if(array_key_exists ($item['id'], $paidLogDict)){
+                $item['is_settle'] = 1;
+            }
             if ($mySumPaid['count'] > $item['count']) {
                 $item['settle_status'] = 1;
             }

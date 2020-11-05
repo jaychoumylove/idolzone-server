@@ -18,6 +18,7 @@ class CfgPaid extends Base
     const ON = 'ON';
     const OFF = 'OFF';
 
+    const USEREXT = 'userExt';
     const CURRENCY = 'currency';
     const PROP = 'prop';
 
@@ -30,6 +31,8 @@ class CfgPaid extends Base
             'stone' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GT2o2aCDJf7rjLOUlbtTERibO7VvqicUHiaSaSa5xyRcvuiaOibBLgTdh8Mh4csFEWRCbz3VIQw1VKMCQ/0',
             'panacea' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Fic6VmPQYib2ktqATmSxJmUtVH7OoNPjuMs2xwl26pXQGbQn74vvibp5mUNuJk7ucxzdXGAd8OlHJDA/0',
             'trumpet' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9Equ3ngUPQiaWPxrVxZhgzk90Xa3b43zE46M8IkUvFyMR5GgfJN52icBqoicfKWfAJS8QXog0PZtgdEQ/0',
+        ];
+        $userExtMap = [
             'scrap' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0',
         ];
 
@@ -37,6 +40,11 @@ class CfgPaid extends Base
             if ($reward['type'] == self::CURRENCY) {
                 if (array_key_exists ($reward['key'], $currencyMap)) {
                     $reward['image'] = $currencyMap[$reward['key']];
+                }
+            }
+            if ($reward['type'] == self::USEREXT) {
+                if (array_key_exists ($reward['key'], $userExtMap)) {
+                    $reward['image'] = $userExtMap[$reward['key']];
                 }
             }
             $rewards[$key] = $reward;

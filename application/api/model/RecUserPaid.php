@@ -62,8 +62,20 @@ class RecUserPaid extends Base
             $propReward = array_filter ($reward, function($item) {
                 return $item['type'] == CfgPaid::PROP;
             });
+            $scrapReward = array_filter ($reward, function($item) {
+                return $item['type'] == CfgPaid::USEREXT;
+            });
+
             $earn = [];
             if ($isSum) {
+                $currentTime = date ('Y-m-d') . ' 00:00:00';
+
+                $paidLog = RecUserPaidLog::where ('user_id', $user_id)->where('paid',$paid_id)
+                    ->where ('create_time', '>=', $currentTime)
+                    ->update(['update_time'=>date('Y-m-d H:i:s')]);
+                if ($paidLog) {
+                    throw new Exception('今日已经领取过了', 3);
+                }
                 $num = $this->settleSum ($map, (float) $paid['count']);
                 if (empty($num)) {
                     throw new Exception('未达到领取要求', 3);
@@ -129,13 +141,27 @@ class RecUserPaid extends Base
                 $endTime = $config['lucky_draw_time']['end_time'];
                 foreach ($propReward as $key => $value) {
                     $num = 1;
-                    if ($double && $isSum) {
-                        // 首次翻倍
-                        $num = 2;
-                    }
+//                    if ($double && $isSum) {
+//                        // 首次翻倍
+//                        $num = 2;
+//                    }
                     $number = bcmul ($value['number'], $num);
                     UserProp::addPropWithEnd ($user_id, $value['key'], $number, $endTime);
                 }
+            }
+
+            if($scrapReward){
+                $userScrap = (new UserExt)->readMaster ()->where('user_id', $user_id)->find ();
+
+                foreach ($scrapReward as $key => $value) {
+                    $userScrapUpdate = ['scrap' => bcadd ($userScrap['scrap'], $value['number'])];
+                    if ($userScrap['scrap_time']) {
+                        $userScrapUpdate['scrap_time'] = null;
+                    }
+                    $added = UserExt::where('id', $userScrap['id'])->update($userScrapUpdate);
+                    if (empty($added)) Common::res (['code' => 1, 'msg' => '请稍后再试']);
+                }
+
             }
 //            throw new Exception('something was wrong');
 
