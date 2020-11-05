@@ -212,6 +212,7 @@ class CfgLuckyDraw extends Base
         if ($times!=$config['multiple_draw'][$index]['multiple']) {
             $times=$config['multiple_draw'][$index]['multiple'];
         }
+        $title = $config['multiple_draw'][$index]['btn_text'];
         $able = Cfg::checkMultipleDrawAble ($config['multiple_draw'][$index]);
         if (empty($able)) {
             Common::res (['code' => 1, 'msg' => '请稍后再试']);
@@ -242,6 +243,7 @@ class CfgLuckyDraw extends Base
             $chooseItem = Common::lottery ($luckyDraw['reward'], 'weights');
             array_push ($choose, $chooseItem);
         }
+
 
         $chooseItem = [];
         foreach ($luckyDraw['reward'] as $key => $value) {
@@ -276,6 +278,7 @@ class CfgLuckyDraw extends Base
             // 发放奖励
             $currencyMap = ['stone', 'coin', 'flower', 'old_coin', 'trumpet' ,'panacea'];
             $earn = [];
+            $scraps = [];
             $animal = [];
             foreach ($choose as $item) {
                 if ($item['type'] == self::CURRENCY) {
@@ -288,6 +291,10 @@ class CfgLuckyDraw extends Base
                     }
                 }
 
+                if ($item['type'] == self::SCRAP) {
+                    array_push ($scraps, $item['number']);
+                }
+
                 if ($item['type'] == self::ANIMAL) {
                     $left = array_key_exists($item['key'], $animal) ? $animal[$item['key']]: 0;
                     $animal[$item['key']] = (int)bcadd($left, $item['number']);
@@ -295,6 +302,17 @@ class CfgLuckyDraw extends Base
             }
             if ($earn) {
                 (new \app\api\service\User())->change ($user_id, $earn, '使用抽奖券抽奖');
+            }
+
+            // 发放奖励
+            if ($scraps) {
+                $userScrap = (new UserExt)->readMaster ()->where('user_id', $user_id)->find ();
+                $userScrapUpdate = ['scrap' => bcadd ($userScrap['scrap'], array_sum ($scraps))];
+                if ($userScrap['scrap_time']) {
+                    $userScrapUpdate['scrap_time'] = null;
+                }
+                $added = UserExt::where('id', $userScrap['id'])->update($userScrapUpdate);
+                if (empty($added)) Common::res (['code' => 1, 'msg' => '请稍后再试']);
             }
 
             if ($animal) {
@@ -335,16 +353,22 @@ class CfgLuckyDraw extends Base
             }
 
             // 记录抽奖信息
+            $insertItems = [];
             $log = [
                 'user_id' => $user_id,
                 'lucky_draw' => $luckyDraw['id'],
-                'type' => RecLuckyDrawLog::MULTIPLE
+                'type' => RecLuckyDrawLog::MULTIPLE_MORE,
+                'title' => $title,
             ];
             foreach ($chooseItem as $item) {
                 $number = bcmul ($item['number'], $item['times']);
-                $item['number'] = $number;
-                unset($item['times']);
-                $insertItems[$item['key']] = $item;
+                if (array_key_exists ($item['key'], $insertItems)) {
+                    $insertItems[$item['key']]['number'] = bcadd ($number, $insertItems[$item['key']]['number']);
+                } else {
+                    $item['number'] = $number;
+                    unset($item['times']);
+                    $insertItems[$item['key']] = $item;
+                }
             }
             $insertItems = array_values ($insertItems);
             $log['item'] = $insertItems;

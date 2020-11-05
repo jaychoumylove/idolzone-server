@@ -9,6 +9,7 @@ use app\api\model\CfgScrap;
 use app\api\model\Prop;
 use app\api\model\RecLuckyDrawLog;
 use app\api\model\UserAnimal;
+use app\api\model\UserCurrency;
 use app\api\model\UserExt;
 use app\api\model\UserProp;
 use app\api\model\UserScrap;
@@ -29,10 +30,13 @@ class UserLuckyDraw extends Base
 
         $myscrap = UserExt::where('user_id',$this->uid)->value('scrap');
 
+        $userCurrency = UserCurrency::getCurrency($this->uid);
+
         Common::res(['data' => [
             'lucky_draw' => $luckyDraw,
             'my_num'     => $luckyDrawTrickNum,
-            'myscrap'     => $myscrap
+            'myscrap'     => $myscrap,
+            'mypanacea'     => $userCurrency['panacea']
         ]]);
     }
 

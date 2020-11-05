@@ -11,6 +11,7 @@ class RecLuckyDrawLog extends Base
     const SCRAP_L = 'SCRAP_L'; // 碎片成品
     const SINGLE = 'SINGLE'; // 碎片成品
     const MULTIPLE = 'MULTIPLE'; // 碎片成品Multiply
+    const MULTIPLE_MORE = 'MULTIPLE_MORE'; // 碎片成品Multiply
     const EXCHANGE = 'EXCHANGE'; // 兑换
 
     public static function getLogPager($user_id, $page, $size)
@@ -32,7 +33,7 @@ class RecLuckyDrawLog extends Base
         foreach ($list as $key => $value)
         {
             $item = [];
-            if (in_array ($value['type'], [self::MULTIPLE, self::EXCHANGE])) {
+            if (in_array ($value['type'], [self::MULTIPLE, self::MULTIPLE_MORE, self::EXCHANGE])) {
                 foreach ($value['item'] as $k => $v) {
                     $item[$k] = self::supportItem ($v);
                 }
