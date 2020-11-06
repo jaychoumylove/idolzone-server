@@ -126,7 +126,7 @@ class RecUserPaid extends Base
             foreach ($logData['item'] as $key => $value) {
                 if ($double && $value['type'] == CfgPaid::PROP) {
                     if (array_key_exists ('key_name', $value) && $value['key_name'] == Prop::LUCKY_DRAW) {
-                        $value['number'] = bcmul ($value['number'], 2);
+                        $value['number'] = bcmul ($value['number'], 1);
                         $logData['item'][$key] = $value;
                     }
                 }
