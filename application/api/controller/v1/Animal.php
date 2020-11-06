@@ -117,13 +117,14 @@ class Animal extends Base
                 if (in_array($value['type'], [CfgAnimal::SUPER_SECRET, CfgAnimal::STAR_SECRET])) {
                     $value['has_secret'] = false;
                     if ($value['type'] == CfgAnimal::STAR_SECRET) {
-                        $exist = CfgAnimal::where('star_id', $starId)
-                            ->where('type', CfgAnimal::STAR)
-                            ->find();
-
-                        if ($exist) {
-                            $value['has_secret'] = true;
-                        }
+                        $value['has_secret'] = true;
+//                        $exist = CfgAnimal::where('star_id', $starId)
+//                            ->where('type', CfgAnimal::STAR)
+//                            ->find();
+//
+//                        if ($exist) {
+//                            $value['has_secret'] = true;
+//                        }
                     }
 
                     if ($value['type'] == CfgAnimal::SUPER_SECRET) {
