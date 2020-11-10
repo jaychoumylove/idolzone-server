@@ -236,8 +236,8 @@ class UserStar extends Base
         }
 
         if ($lose == 1) {
-            $userCurrency = (new User())->readMaster()
-                ->where('user_id', $uid)
+            $userCurrency = (new UserCurrency())->readMaster()
+                ->where('uid', $uid)
                 ->find();
 
             if ($userCurrency['flower'] > 0 || $userCurrency['stone'] > 0) {
