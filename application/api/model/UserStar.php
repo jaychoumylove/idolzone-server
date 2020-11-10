@@ -241,7 +241,7 @@ class UserStar extends Base
                 ->find();
 
             if ($userCurrency['flower'] > 0 || $userCurrency['stone'] > 0) {
-                return Common::res(['code' => 1, 'msg' => '鲜花砖石需为0']);
+                return Common::res(['code' => 1, 'msg' => '账户鲜花钻石需为0']);
             }
         }
 
