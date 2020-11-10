@@ -221,20 +221,35 @@ class UserStar extends Base
     }
 
     /**退出圈子 */
-    public static function exit($uid)
+    public static function exit($uid, $lose)
     {
         $ext = UserExt::get(['user_id' => $uid]);
-        if ((time() - $ext['exit_group_time']) > 3600 * 24 * 90) {
+        if ((time() - $ext['exit_group_time']) < 3600 * 24 * 90) {
             // 90才能退一次
-            self::destroyConform($uid); // 退圈
-            
-        } else {
-            Common::res(['code' => 1, 'msg' => '退出圈子失败，上次退出圈子时间为' . date('Y-m-d', $ext['exit_group_time'])]);
+            return Common::res(['code' => 1, 'msg' => '退出圈子失败，上次退出圈子时间为' . date('Y-m-d', $ext['exit_group_time'])]);
         }
+
+        $config = Cfg::getCfg(Cfg::QUIT_CHOOSE);
+        $valueArray = array_column($config['choose'], 'value');
+        if (in_array($lose, $valueArray) == false) {
+            return Common::res(['code' =>1, 'msg' => '请选择退圈方式']);
+        }
+
+        if ($lose == 1) {
+            $userCurrency = (new User())->readMaster()
+                ->where('user_id', $uid)
+                ->find();
+
+            if ($userCurrency['flower'] > 0 || $userCurrency['stone'] > 0) {
+                return Common::res(['code' => 1, 'msg' => '鲜花砖石需为0']);
+            }
+        }
+
+        self::destroyConform($uid, $lose); // 退圈
     }
 
     /**退出相关操作 */
-    public static function destroyConform($uid)
+    public static function destroyConform($uid, $lose)
     {
         $user = self::where(['user_id' => $uid])->find();
         $user = json_decode(json_encode($user), true);
@@ -244,10 +259,14 @@ class UserStar extends Base
         try {
             // 记录退圈时间
             // 退圈用户禁止赠送收取礼物
-            UserExt::where(['user_id' => $uid])->update([
+            $extUdt = [
                 'exit_group_time' => time(),
-                'forbidden_gift' => 1
-            ]);
+            ];
+            if ($lose == 2) {
+                $extUdt['forbidden_gift'] = 1;
+            }
+
+            UserExt::where(['user_id' => $uid])->update($extUdt);
         
             //删除本条记录
             self::where(['user_id' => $uid])->delete();

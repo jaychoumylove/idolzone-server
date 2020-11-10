@@ -302,7 +302,12 @@ class User extends Base
     public function exit()
     {
         $this->getUser();
-        UserStar::exit($this->uid);
+        $lose = input('lose', 0);
+        if (empty($lose)) {
+            return Common::res(['code' => 1, 'msg' => '请选择退圈方式']);
+        }
+
+        UserStar::exit($this->uid, $lose);
         Common::res([]);
     }
 

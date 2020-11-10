@@ -6,20 +6,21 @@ use app\base\model\Base;
 
 class Cfg extends Base
 {
-    const WEAL_ACTIVE_PATH   = '/pages/active/weal';
-    const OPEN_RANK_PATH     = '/pages/open/rank';
-    const ACTIVE_CONFORM     = 'active_conform';
-    const RECHARGE_LUCKY     = 'recharge_lucky';
-    const ACHIEVEMENT        = 'achievement';
-    const OCCUPY_TIME        = 'occupy_time';
-    const INVITE_ASSIST      = 'invite_assist';
-    const FREE_LOTTERY       = "free_lottery";
-    const MANOR_ANIMAL       = "manor_animal";
-    const MANOR_NATIONAL_DAY = "manor_national_day"; // 国庆|中秋节 庄园活动
-    const ACTIVE_YINGYUAN    = 'yingyuan';
-    const MANOR_OPEN         = 'manor_open';
-    const WEAL_ACTIVE        = 'weal_active';
-    const FORBIDDEN_SEND_GIFT_USER               = 'forbidden_send_gift_user';
+    const WEAL_ACTIVE_PATH         = '/pages/active/weal';
+    const OPEN_RANK_PATH           = '/pages/open/rank';
+    const ACTIVE_CONFORM           = 'active_conform';
+    const RECHARGE_LUCKY           = 'recharge_lucky';
+    const ACHIEVEMENT              = 'achievement';
+    const OCCUPY_TIME              = 'occupy_time';
+    const INVITE_ASSIST            = 'invite_assist';
+    const FREE_LOTTERY             = "free_lottery";
+    const MANOR_ANIMAL             = "manor_animal";
+    const MANOR_NATIONAL_DAY       = "manor_national_day"; // 国庆|中秋节 庄园活动
+    const ACTIVE_YINGYUAN          = 'yingyuan';
+    const MANOR_OPEN               = 'manor_open';
+    const WEAL_ACTIVE              = 'weal_active';
+    const FORBIDDEN_SEND_GIFT_USER = 'forbidden_send_gift_user';
+    const QUIT_CHOOSE              = 'quit_choose';
 
     public static function getCfg($key)
     {
