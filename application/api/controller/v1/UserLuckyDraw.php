@@ -168,4 +168,15 @@ class UserLuckyDraw extends Base
 
         Common::res();
     }
+
+    public function exchangeMore()
+    {
+        $this->getUser();
+
+        UserExt::exchangeMoreByLucky($this->uid);
+
+        Common::res();
+    }
+
+
 }

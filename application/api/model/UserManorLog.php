@@ -162,4 +162,22 @@ class UserManorLog extends Base
 
         self::record($user_id, $recordData, $content, $type);
     }
+
+    public static function recordExchangeMore($user_id, $reward, $number)
+    {
+        $content = sprintf('使用%s 张幸运抽奖券兑换', $number);
+        if ($reward['key'] == 'panacea') {
+            self::recordPanacea($user_id, (int)$reward['number'], $content);
+        }
+        if ($reward['key'] == 'scrap') {
+            $recordData = [
+                'lucky' => $reward['number'],
+                'number' => (int)$reward['number'],
+                'image' => 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9GXvpB3e5ibvGiadFqIOl7vceee3ribmebyLp4YUkEa7my8VjaX641mQdlnTgrXCl0xWLSIicQMKicKb3Q/0',
+                'fixed' => 1,
+            ];
+            self::record($user_id, $recordData, $content, "MORE_EXCHANGE_REWARD");
+        }
+
+    }
 }

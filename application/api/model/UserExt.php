@@ -670,4 +670,64 @@ class UserExt extends Base
             Common::res(['code' => 1, 'msg' => '请稍后再试']);
         }
     }
+
+    public static function exchangeMoreByLucky($uid)
+    {
+        $config = Cfg::getCfg(Cfg::RECHARGE_LUCKY)['scrap_exchange'];
+//        $status = Cfg::checkConfigTime($config);
+        $status = true;
+        if (empty($status)) {
+            Common::res(['code' => 1, 'msg' => '活动已过期']);
+        }
+
+        $now = time();
+        $date = date('Y-m-d H:i:s', $now);
+        $luckyNum =  (new UserProp())->readMaster()
+            ->where('prop_id', UserProp::LUCKY_ID)
+            ->where('user_id', $uid)
+            ->where('end_time', '>', $date)
+            ->where('status', 0)
+            ->where('use_time', 0)
+            ->count();
+
+        if ($luckyNum < $config['conditions']['number']) {
+            Common::res(['code' =>1, 'msg' => '抽奖券不够哦']);
+        }
+
+        Db::startTrans();
+        try {
+
+            $isDone = UserProp::where('prop_id', UserProp::LUCKY_ID)
+                ->where('user_id', $uid)
+                ->where('end_time', '>', $date)
+                ->where('status', 0)
+                ->where('use_time', 0)
+                ->order([
+                    'id' => 'asc'
+                ])
+                ->limit($config['conditions']['number'])
+                ->update([
+                    'use_time' => $now,
+                    'status' => 1
+                ]);
+            if(!$isDone) Common::res(['code' =>1, 'msg' => '抽奖券不够哦']);
+            foreach ($config['rewards'] as $value) {
+                if($value['key'] == 'panacea'){
+                    (new User)->change($uid, ['panacea' => $value['number']], '20张抽奖券兑换');
+                }elseif($value['key'] == 'scrap') {
+                    self::where('user_id', $uid)->update([
+                        'scrap' => Db::raw('scrap+'. $value['number'])
+                    ]);
+                }
+                UserManorLog::recordExchangeMore($uid, $value, $config['conditions']['number']);
+            }
+
+
+            Db::commit();
+        }catch (Throwable $throwable){
+            Db::rollback();
+            Common::res(['code' => 1, 'msg' => '请稍后再试']);
+        }
+    }
+
 }
