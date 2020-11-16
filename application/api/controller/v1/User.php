@@ -302,8 +302,8 @@ class User extends Base
     public function exit()
     {
         $this->getUser();
-        $lose = input('lose', 0);
-        if (empty($lose)) {
+        $lose = input('lose', 1);
+        if (in_array($lose, [1, 2]) == false) {
             return Common::res(['code' => 1, 'msg' => '请选择退圈方式']);
         }
 
