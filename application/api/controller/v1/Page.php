@@ -514,8 +514,7 @@ class Page extends Base
         }
 
         $data['animal_exchange'] = null;
-//        $status = Cfg::checkConfigTime($config['animal_exchange']);
-        $status = true;
+        $status = Cfg::checkConfigTime($config['animal_exchange']);
 
         if ($status) {
             $data['animal_exchange'] = CfgAnimal::where('type', CfgAnimal::NORMAL)->select();
