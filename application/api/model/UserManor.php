@@ -33,6 +33,12 @@ class UserManor extends Base
         return json_decode($value, true);
     }
 
+    public static function getManorAnimal($uid)
+    {
+        $use_animal_id = self::where('user_id',$uid)->value('use_animal');
+        return CfgAnimal::where('id',$use_animal_id)->value('image');
+    }
+
     public static function checkFistReward()
     {
         $config = Cfg::getCfg(Cfg::MANOR_ANIMAL);

@@ -409,3 +409,12 @@ Route::rule('api/:version/yingyuan/card', 'api/v1.Ext/setYingYuanCard');// 打�
 Route::rule('api/:version/yingyuan/info', 'api/v1.Ext/getYingyuan');// 打卡详情
 Route::rule('api/:version/yingyuan/list', 'api/v1.Ext/getYingyuanList');// 打卡列表
 Route::rule('api/:version/yingyuan/log', 'api/v1.Ext/getYingyuanLogPager');// 领取记录
+
+// 开屏活动
+Route::rule('api/:version/activeopen/rank', 'api/v1.ActiveOpen/getRankList');//勇气排行
+Route::rule('api/:version/activeopen/adventure_info', 'api/v1.ActiveOpen/getAdventureInfo');//冒险信息
+Route::rule('api/:version/activeopen/get_adventure_reward', 'api/v1.ActiveOpen/getAdventureReward');//冒险
+Route::rule('api/:version/activeopen/courage_log', 'api/v1.ActiveOpen/courageLog');//冒险日志
+Route::rule('api/:version/activeopen/get_open_list', 'api/v1.ActiveOpen/getOpenList');//开屏占领列表
+Route::rule('api/:version/activeopen/occupy_open', 'api/v1.ActiveOpen/occupyOpen');//占领开屏
+

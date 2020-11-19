@@ -12,6 +12,12 @@ use Throwable;
 
 class UserAnimal extends Base
 {
+
+    public function Animal()
+    {
+        return  $this->belongsTo('cfg_animal', 'animal_id', 'id')->field('id,name,image,type,adventure_type');
+    }
+
     public static function lvUp($uid, $animal)
     {
         $animalInfo = CfgAnimal::get($animal);
