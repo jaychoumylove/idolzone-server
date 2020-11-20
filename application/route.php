@@ -417,4 +417,7 @@ Route::rule('api/:version/activeopen/get_adventure_reward', 'api/v1.ActiveOpen/g
 Route::rule('api/:version/activeopen/courage_log', 'api/v1.ActiveOpen/courageLog');//冒险日志
 Route::rule('api/:version/activeopen/get_open_list', 'api/v1.ActiveOpen/getOpenList');//开屏占领列表
 Route::rule('api/:version/activeopen/occupy_open', 'api/v1.ActiveOpen/occupyOpen');//占领开屏
+Route::rule('api/:version/activeopen/get_box_list', 'api/v1.ActiveOpen/getBoxList');//宝箱列表
+Route::rule('api/:version/activeopen/get_box_reward', 'api/v1.ActiveOpen/getBoxReward');//宝箱奖励
+
 

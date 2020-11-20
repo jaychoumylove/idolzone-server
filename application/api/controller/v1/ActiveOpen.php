@@ -6,6 +6,7 @@ namespace app\api\controller\v1;
 use app\api\model\Cfg;
 use app\api\model\CfgActiveOpen;
 use app\api\model\RecUserCourage;
+use app\api\model\RecUserCourageBox;
 use app\api\model\UserAnimal;
 use app\api\model\StarRank;
 use app\api\model\UserManor;
@@ -42,11 +43,12 @@ class ActiveOpen extends Base
                 }
             }
         } elseif ($type == 'star') {
-            if($page>10){
+            if ($page > 10) {
                 $list = [];
-            }else{
+            } else {
+                if($size<10) $page=1;
                 $list = StarRank::with('star')->where('courage', '>', 0)->field('id,star_id,courage,courage_last_time')->order($rankField . ' desc,courage_last_time asc')->page($page, $size)->select();
-                foreach ($list as &$v){
+                foreach ($list as &$v) {
                     $v['userStar'] = UserStar::with('User')->where('star_id', $v['star_id'])->where('courage', '>', 0)->field('id,user_id,star_id,courage,courage_last_time')->order($rankField . ' desc,courage_last_time asc')->limit(3)->select();
                 }
             }
@@ -74,6 +76,7 @@ class ActiveOpen extends Base
         $res['my_third_courage'] = 0;
         foreach ($userAnimal as $value) {
             if (!$value['animal']) continue;
+            if(!$value['animal']['adventure_type']) continue;
             $adventure_type = $value['animal']['adventure_type'];
             $addnum = $star_reward[$adventure_type][$value['level'] - 1];
             $value['courage_value'] = $addnum;
@@ -89,9 +92,9 @@ class ActiveOpen extends Base
             }
         }
         $date_time = RecUserCourage::checkTime();
-        $res['my_first_is_settle'] = RecUserCourage::where('user_id',$this->uid)->where('type',RecUserCourage::OTHER)->where('date_time',$date_time)->count();
-        $res['my_second_is_settle'] = RecUserCourage::where('user_id',$this->uid)->where('type',RecUserCourage::NORMAL)->where('date_time',$date_time)->count();
-        $res['my_third_is_settle'] = RecUserCourage::where('user_id',$this->uid)->where('type',RecUserCourage::SUPER_SECRET)->where('date_time',$date_time)->count();
+        $res['my_first_is_settle'] = RecUserCourage::where('user_id', $this->uid)->where('type', RecUserCourage::OTHER)->where('date_time', $date_time)->count();
+        $res['my_second_is_settle'] = RecUserCourage::where('user_id', $this->uid)->where('type', RecUserCourage::NORMAL)->where('date_time', $date_time)->count();
+        $res['my_third_is_settle'] = RecUserCourage::where('user_id', $this->uid)->where('type', RecUserCourage::SUPER_SECRET)->where('date_time', $date_time)->count();
 
         Common::res(['data' => $res]);
     }
@@ -103,9 +106,9 @@ class ActiveOpen extends Base
     {
         $this->getUser();
         $type = $this->req('type', 'require');
-        $status = Cfg::checkConfigTime ('pet_adventure');
+        $status = Cfg::checkConfigTime('pet_adventure');
         if (empty($status)) {
-            Common::res (['code' => 1, 'msg' => '活动已结束']);
+            Common::res(['code' => 1, 'msg' => '活动已结束']);
         }
         if ($type != RecUserCourage::NORMAL && $type != RecUserCourage::SUPER_SECRET && $type != RecUserCourage::OTHER) Common::res(['code' => 1, 'msg' => '类型错误']);
         $res = RecUserCourage::getReward($this->uid, $type);
@@ -132,9 +135,9 @@ class ActiveOpen extends Base
     {
         $this->getUser();
         $list = CfgActiveOpen::with(['User', 'Star'])->select();
-        foreach ($list as &$value){
-            $value['date_text'] = date("m",strtotime($value['start'])).'月'.date("d",strtotime($value['start'])).'日';
-            if(date('Y-m-d')>$value['start']) $value['timeout'] = true;
+        foreach ($list as &$value) {
+            $value['date_text'] = date("m", strtotime($value['start'])) . '月' . date("d", strtotime($value['start'])) . '日';
+            if (date('Y-m-d') > $value['start']) $value['timeout'] = true;
         }
         Common::res(['data' => $list]);
     }
@@ -146,12 +149,41 @@ class ActiveOpen extends Base
     {
         $this->getUser();
         $id = $this->req('id', 'require');
-        $status = Cfg::checkConfigTime ('pet_adventure');
+        $status = Cfg::checkConfigTime('pet_adventure');
         if (empty($status)) {
-            Common::res (['code' => 1, 'msg' => '活动已结束']);
+            Common::res(['code' => 1, 'msg' => '活动已结束']);
         }
-        CfgActiveOpen::occupy($this->uid,$id);
+        CfgActiveOpen::occupy($this->uid, $id);
         Common::res([]);
+    }
+
+    /**
+     * 宝箱列表
+     */
+    public function getBoxList()
+    {
+        $this->getUser();
+        $type = $this->req('type', 'require');
+        $list = RecUserCourageBox::getList($this->uid, $type);
+
+        Common::res(['data' => $list]);
+    }
+
+    /**
+     * 宝箱奖励
+     */
+    public function getBoxReward()
+    {
+        $this->getUser();
+        $type = $this->req('type', 'require');
+        $index = $this->req('index', 'require');
+        $status = Cfg::checkConfigTime('pet_adventure');
+        if (empty($status)) {
+            Common::res(['code' => 1, 'msg' => '活动已结束']);
+        }
+        if ($type != 'box' && $type != 'share_box' && $type != 'share_big_box' && $type != 'big_box') Common::res(['code' => 1, 'msg' => '类型错误']);
+        $res = RecUserCourageBox::getReward($this->uid, $type, $index);
+        Common::res(['data' => $res]);
     }
 
 

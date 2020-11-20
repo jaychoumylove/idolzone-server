@@ -44,6 +44,7 @@ class RecUserCourage extends \app\base\model\Base
         $userAnimal = UserAnimal::with('Animal')->where('user_id', $uid)->field('id,animal_id,level')->select();
         foreach ($userAnimal as $value) {
             if (!$value['animal']) continue;
+            if(!$value['animal']['adventure_type']) continue;
             $adventure_type = $value['animal']['adventure_type'];
             if ($type == self::OTHER) {
                 if ($adventure_type == 'secret' || $adventure_type == 'season' || $adventure_type == 'star_secret') {

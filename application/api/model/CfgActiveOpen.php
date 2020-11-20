@@ -63,6 +63,14 @@ class CfgActiveOpen extends Base
                 'star_id' => $userStarInfo['star_id'],
             ]);
             if (!$isDone3) Common::res(['code' => 1, 'msg' => '已被占领，请刷新']);
+            $starInfo = Star::where('id',$userStarInfo['star_id'])->field('id,name,open_img')->find();
+            GuideCron::create([
+                'star_id' => $starInfo['id'],
+                'star_name' => $starInfo['name'],
+                'open_img' => $starInfo['open_img'],
+                'start_time' => strtotime($info['start']),
+                'end_time' => strtotime($info['end']),
+            ]);
 
             Db::commit();
         } catch (\Exception $e) {
