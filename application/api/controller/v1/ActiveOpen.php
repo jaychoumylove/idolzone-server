@@ -30,18 +30,24 @@ class ActiveOpen extends Base
         $rankField = input('rankField', 'courage');
 
         if ($type == 'user') {
-            if ($star_id) {
-                $list = UserStar::with(['User', 'Star'])->where('star_id', $star_id)->where('courage', '>', 0)->field('id,user_id,star_id,courage,courage_last_time')->order($rankField . ' desc,courage_last_time asc')->page($page, $size)->select();
-            } else {
-                $list = UserStar::with(['User', 'Star'])->where('courage', '>', 0)->field('id,user_id,star_id,courage,courage_last_time')->order($rankField . ' desc,courage_last_time asc')->page($page, $size)->select();
-            }
+            $list = UserStar::with(['User', 'Star'])->where('courage', '>', 0)->field('id,user_id,star_id,courage,courage_last_time')->order($rankField . ' desc,courage_last_time asc')->page($page, $size)->select();
             $list = json_decode(json_encode($list, JSON_UNESCAPED_UNICODE), true);
-            foreach ($list as &$value) {
-                $value['animal_img'] = UserManor::getManorAnimal($value['user_id']);
-                if (!$value['animal_img']) {
-                    $value['animal_img'] = 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9HrdPxWibdec5B8xuaXDQD2XzHp4Doo1UtWJykW8zbWamkc2sRYJMKuBiaJzoMDyGibcF025KvDNlSOw/0';
+            foreach ($list as $key=>$value) {
+                $list[$key]['animal_img'] = UserManor::getManorAnimal($value['user_id']);
+                if (!$list[$key]['animal_img']) {
+                    $list[$key]['animal_img'] = 'https://mmbiz.qpic.cn/mmbiz_png/w5pLFvdua9HrdPxWibdec5B8xuaXDQD2XzHp4Doo1UtWJykW8zbWamkc2sRYJMKuBiaJzoMDyGibcF025KvDNlSOw/0';
                 }
             }
+            foreach ($list as $k=>$v) {
+                if($page!=1) break;
+                if($k==0){
+                    $list[$k+1] = $v;
+                }
+                if ($k==1){
+                    $list[$k-1] = $v;
+                }
+            }
+
         } elseif ($type == 'star') {
             if ($page > 10) {
                 $list = [];
