@@ -36,7 +36,18 @@ class UserManor extends Base
     public static function getManorAnimal($uid)
     {
         $use_animal_id = self::where('user_id',$uid)->value('use_animal');
-        return CfgAnimal::where('id',$use_animal_id)->value('image');
+        $mainAnimal = CfgAnimal::where('id',$use_animal_id)->find();
+        $image = $mainAnimal['image'];
+        if (in_array($mainAnimal['type'], [CfgAnimal::STAR_SECRET, CfgAnimal::SUPER_SECRET])) {
+            $userImage = UserAnimal::where('user_id', $uid)
+                ->where('animal_id', $mainAnimal['id'])
+                ->value('use_image');
+            if ($userImage != $mainAnimal['image']) {
+                $image = $userImage;
+            }
+        }
+
+        return $image;
     }
 
     public static function checkFistReward()
