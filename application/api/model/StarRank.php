@@ -9,7 +9,7 @@ class StarRank extends Base
 {
     public function star()
     {
-        return $this->belongsTo('Star', 'star_id', 'id')->field('id,name,head_img_s');
+        return $this->belongsTo('Star', 'star_id', 'id')->field('id,name,head_img_s,birthday');
     }
 
     public static function getRankList($page, $size, $rankField, $keywords = '')

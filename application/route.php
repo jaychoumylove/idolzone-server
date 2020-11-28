@@ -420,4 +420,8 @@ Route::rule('api/:version/activeopen/occupy_open', 'api/v1.ActiveOpen/occupyOpen
 Route::rule('api/:version/activeopen/get_box_list', 'api/v1.ActiveOpen/getBoxList');//宝箱列表
 Route::rule('api/:version/activeopen/get_box_reward', 'api/v1.ActiveOpen/getBoxReward');//宝箱奖励
 
-
+//爱豆生日开屏（长期）
+Route::rule('api/:version/birthday_open/task_info', 'api/v1.BirthdayOpen/getTaskInfo'); // 任务列表
+Route::rule('api/:version/birthday_open/task_settle', 'api/v1.BirthdayOpen/settleTask'); // 完成任务
+Route::rule('api/:version/birthday_open/help_log', 'api/v1.BirthdayOpen/helpLog'); // 完成任务
+Route::rule('api/:version/birthday_open/rank_list', 'api/v1.BirthdayOpen/getRankList');// 助力值排行

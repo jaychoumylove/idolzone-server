@@ -18,6 +18,11 @@ class UserStar extends Base
         return  $this->belongsTo('User', 'user_id', 'id')->field('id,avatarurl,nickname');
     }
 
+    public function StarInfo()
+    {
+        return  $this->belongsTo('Star', 'star_id', 'id')->field('id,name,head_img_s');
+    }
+
     public function Star()
     {
         return $this->belongsTo('Star', 'star_id', 'id');
