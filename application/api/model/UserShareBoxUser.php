@@ -39,9 +39,11 @@ class UserShareBoxUser extends Base
         $getStarId = UserStar::getStarId($uid);
         if ($sendStarId != $getStarId) Common::res(['code' => 1, 'msg' => '不在同一个偶像圈']);
 
-        $isFriend1 = UserManorFriends::where('user_id', $uid)->where('friend_id', $sendUserId)->count();
-        $isFriend2 = UserManorFriends::where('friend_id', $uid)->where('user_id', $sendUserId)->count();
-        if(!$isFriend1 && !$isFriend2) Common::res(['code' => 1, 'msg' => '只有好友才能开启']);
+        if($sendUserId!=$uid){
+            $isFriend1 = UserManorFriends::where('user_id', $uid)->where('friend_id', $sendUserId)->count();
+            $isFriend2 = UserManorFriends::where('friend_id', $uid)->where('user_id', $sendUserId)->count();
+            if(!$isFriend1 && !$isFriend2) Common::res(['code' => 1, 'msg' => '只有好友才能开启']);
+        }
 
         // 宝箱信息
         $boxInfo = UserShareBox::where('id', $box_id)->find();
