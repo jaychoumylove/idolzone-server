@@ -26,6 +26,8 @@ use app\api\model\UserManorFriendApply;
 use app\api\model\UserManorFriends;
 use app\api\model\UserManorLog;
 use app\api\model\UserProp;
+use app\api\model\UserShareBox;
+use app\api\model\UserShareBoxUser;
 use app\api\model\UserStar;
 use app\base\controller\Base;
 use app\base\service\Common;
@@ -882,7 +884,23 @@ class Animal extends Base
             }
         }
 
-        Common::res(['data' => $newList]);
+        $boxlist = UserShareBox::where('user_id', $user_id)->where('end', '>', time())->order('id desc')->select();
+        foreach ($boxlist as &$v) {
+            $v['end_text'] = date('Y-m-d H:i:s', $v['end']);
+        }
+        $box_ids = UserShareBox::where('user_id', $user_id)->column('id');
+        $boxGetLogList = UserShareBoxUser::with('user')->where('box_id','in',$box_ids)->order('id desc')->limit(10)->select();
+        foreach ($boxGetLogList as &$boxLog) {
+            $boxLog['content'] = '领取了宝箱获得了'.$boxLog['count'].'金豆';
+        }
+
+        Common::res(['data' =>
+            [
+                'boxScrapList'=>$newList,
+                'boxShareList'=>$boxlist,
+                'boxGetLogList'=>$boxGetLogList
+            ]
+        ]);
     }
 
     public function boxAnimalLottery()
@@ -946,4 +964,45 @@ class Animal extends Base
 
         Common::res(['data' => $data]);
     }
+
+    public function openBox()
+    {
+        //打开友谊宝箱
+        $this->getUser();
+        $box_id  = $this->req('box_id', 'integer', 0);
+        $type  = $this->req('type', 'integer', 0);
+        $info = UserShareBox::with('User')->where('id', $box_id)->find();
+        if(!$box_id || !$info) Common::res(['code' => 1, 'msg' => '宝箱不存在']);
+        if($info['user_id']==$this->uid && $type==1){
+            UserShareBoxUser::openself($this->uid, $info);
+            $data = $info['coin'];
+        }
+        if($type==2){
+            $data['open'] = UserShareBoxUser::open($this->uid, $box_id);
+            $data['info'] = $info;
+            $data['info']['title'] = '友谊金豆宝箱';
+            $data['self'] = UserShareBoxUser::where('box_id', $box_id)->where('user_id', $this->uid)->find();
+            if (!$data['self']) $data['self'] = ['count' => 0];
+
+            $data['list'] = UserShareBoxUser::with('User')->where('box_id', $box_id)->order('id desc')->select();
+            // 已领取
+            $data['info']['isEarn'] = UserShareBoxUser::where('box_id', $box_id)->sum('count');
+            // 手气最佳
+            $data['lucky'] = UserShareBoxUser::where('box_id', $box_id)->order('count desc')->value('user_id');
+
+        }
+
+        Common::res(['data' => $data]);
+    }
+
+    public function openBoxLog()
+    {
+        $this->getUser();
+        $page = input('page', 1);
+        $size = input('size', 15);
+        $logList = UserShareBoxUser::getLog($this->uid, $page, $size);
+
+        Common::res(['data' => $logList]);
+    }
+
 }
