@@ -402,6 +402,8 @@ Route::rule('api/:version/manor/active_output_rank', 'api/v1.Animal/getOutputRan
 Route::rule('api/:version/manor/log', 'api/v1.Animal/manorLog'); // 庄园日志
 Route::rule('api/:version/page/other_manor', 'api/v1.Page/otherManor');//庄园信息
 Route::rule('api/:version/ad/custom', 'api/v1.Page/customAd'); // 公益打卡信息
+Route::rule('api/:version/animal_box/open_box', 'api/v1.Animal/openBox'); // 领取宝箱
+Route::rule('api/:version/animal_box/open_box_log', 'api/v1.Animal/openBoxLog'); // 领取宝箱记录
 
 // 应援打卡
 Route::rule('api/:version/yingyuan/reward', 'api/v1.Ext/getYingyuanReward');//

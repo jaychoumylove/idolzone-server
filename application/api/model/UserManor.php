@@ -123,6 +123,10 @@ class UserManor extends Base
             StarManor::addSum($addCount, $uid);
 
             (new UserService())->change($uid, ['coin' => $addCount], '庄园金豆收益');
+
+            if($addCount >= 10000){
+                UserShareBox::addBox($uid,$addCount,1);
+            }
             Db::commit();
         }catch (Throwable $throwable) {
             Db::rollback();
