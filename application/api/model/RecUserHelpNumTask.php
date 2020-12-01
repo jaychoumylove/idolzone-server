@@ -138,11 +138,11 @@ class RecUserHelpNumTask extends \app\base\model\Base
             ]);
             if ($count) {
                 UserStar::where('user_id', $user['user_id'])->update([
-                    'help_num' => $count,
+                    'help_num' => Db::raw('help_num+' . $count),
                     'help_num_last_time' => time()
                 ]);
                 StarRank::where('star_id', $user['star_id'])->update([
-                    'help_num' => $count,
+                    'help_num' => Db::raw('help_num+' . $count),
                     'help_num_last_time' => time()
                 ]);
                 RecUserHelpNum::create([
