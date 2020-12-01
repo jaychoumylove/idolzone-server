@@ -888,17 +888,20 @@ class Animal extends Base
         foreach ($boxlist as &$v) {
             $v['end_text'] = date('Y-m-d H:i:s', $v['end']);
         }
+
         $box_ids = UserShareBox::where('user_id', $user_id)->column('id');
         $boxGetLogList = UserShareBoxUser::with('user')->where('box_id','in',$box_ids)->order('id desc')->limit(10)->select();
         foreach ($boxGetLogList as &$boxLog) {
             $boxLog['content'] = '领取了宝箱获得了'.$boxLog['count'].'金豆';
         }
+        $boxShareStatus = Cfg::checkConfigTime('share_friend_box');
 
         Common::res(['data' =>
             [
                 'boxScrapList'=>$newList,
                 'boxShareList'=>$boxlist,
-                'boxGetLogList'=>$boxGetLogList
+                'boxGetLogList'=>$boxGetLogList,
+                'boxShareStatus'=>$boxShareStatus
             ]
         ]);
     }
