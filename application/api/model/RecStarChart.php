@@ -78,7 +78,29 @@ class RecStarChart extends Base
                 $star['report_num'] = 0;
                 $star['report_user'] = '[]';
             } else {
-                Common::res(['code' => 1, 'msg' => '公屏净化中...']);
+                $open = strtotime($star['report_open']);
+                $now  = time();
+                $diff = $open - $now;
+
+                $d = floor($diff / 3600 / 24);
+                $h = floor(($diff % (3600 * 24)) / 3600);  //%取余
+                $m = floor(($diff % (3600 * 24)) % 3600 / 60);
+                $s = floor(($diff % (3600 * 24)) % 60);
+
+                $content = '净化公屏中,预计';
+                if ($d > 0) {
+                    $content .= sprintf("%s天", $d);
+                }
+                if ($h > 0) {
+                    $content .= sprintf("%s时", $h);
+                }
+                if ($m > 0) {
+                    $content .= sprintf("%s分", $m);
+                }
+                if ($s > 0) {
+                    $content .= sprintf("%s秒", $s);
+                }
+                $content .= '后解屏';
             }
         }
 
