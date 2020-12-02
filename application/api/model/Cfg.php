@@ -21,6 +21,7 @@ class Cfg extends Base
     const WEAL_ACTIVE              = 'weal_active';
     const FORBIDDEN_SEND_GIFT_USER = 'forbidden_send_gift_user';
     const QUIT_CHOOSE              = 'quit_choose';
+    const CLEAN_CHAT               = 'clean_chat';
 
     public static function getCfg($key)
     {

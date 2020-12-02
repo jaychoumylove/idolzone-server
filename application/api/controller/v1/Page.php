@@ -162,6 +162,19 @@ class Page extends Base
             $res['starInfo']['isBirth'] = true;
         }
 
+        $currentDate = date('Y-m-d H:i:s');
+        if($res['starInfo']['report_open'] <= $currentDate) {
+//            解封聊天室
+            Star::where('id', $starid)->update([
+                'report_num'  => 0,
+                'report_open' => null,
+                'report_user' => '[]',
+            ]);
+            $res['starInfo']['report_open'] = null;
+            $res['starInfo']['report_num']  = 0;
+            $res['starInfo']['report_user'] = '[]';
+        }
+
         $starService = new Star();
         $res['starInfo']['star_rank']['week_hot_rank'] = $starService->getRank($res['starInfo']['star_rank']['week_hot'], 'week_hot');
 

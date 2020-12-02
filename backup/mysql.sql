@@ -1444,3 +1444,16 @@ alter table f_user_star
 
 alter table f_user_star_bakup
     add yesterday_flower_time timestamp null;
+
+alter table f_star
+	add report_num int default 0 not null comment '举报净化公屏人数';
+
+alter table f_star
+	add report_time timestamp null comment '举报计数时间';
+
+alter table f_star
+	add report_open timestamp null comment '解封聊天室时间';
+
+alter table f_star
+	add report_user varchar(255) default '[]' not null;
+

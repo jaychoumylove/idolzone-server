@@ -3,6 +3,7 @@
 namespace app\api\model;
 
 use app\base\model\Base;
+use Exception;
 use think\Db;
 use app\base\service\Common;
 use GatewayWorker\Lib\Gateway;
@@ -60,6 +61,41 @@ class RecStarChart extends Base
         // 校验
         self::verifyWord($content);
 
+        $currentDate = date('Y-m-d H:i:s');
+        $star = Star::get($starid);
+        if($star['report_open'] <= $currentDate) {
+//            解封
+            Star::where('id', $starid)->update([
+                'report_num' => 0,
+                'report_open' => null,
+                'report_user' => '[]',
+            ]);
+            $star['report_open'] = null;
+            $star['report_num'] = 0;
+            $star['report_user'] = '[]';
+        } else {
+            Common::res(['code' => 1, 'msg' => '公屏净化中...']);
+        }
+
+        if (strpos($content, '净化公屏')) {
+            $reportUser = json_decode($star['report_user'], true);
+            $userLevel  = CfgUserLevel::getLevel($uid);
+            $cleanCfg = Cfg::getCfg(Cfg::CLEAN_CHAT);
+            if ($userLevel >= $cleanCfg['level']) {
+                if (in_array($reportUser, $uid) == false) {
+                    array_push($reportUser, $uid);
+                    $reportNum = $cleanCfg['number'];
+                    $forbiddenTime = date('Y-m-d H:i:s', bcadd(time(), $cleanCfg['forbidden_time']));
+                    Star::where('id', $starid)->update([
+                        'report_num'  => Db::raw('`report_num`+1'),
+                        'report_time' => Db::raw('if(`report_time` is null , ' . $currentDate . ', `report_time`)'),
+                        'report_open' => Db::raw('if((`report_num`+1) >= '.$reportNum.', ' . $forbiddenTime . ', `null`)'),
+                        'report_user' => json_encode($reportUser),
+                    ]);
+                }
+            }
+        }
+
         Db::startTrans();
         try {
             // 保存聊天记录
@@ -105,7 +141,7 @@ class RecStarChart extends Base
             ], JSON_UNESCAPED_UNICODE));
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
