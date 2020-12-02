@@ -163,14 +163,16 @@ class Page extends Base
         }
 
         $currentDate = date('Y-m-d H:i:s');
-        if($res['starInfo']['report_open'] <= $currentDate) {
+        if($res['starInfo']['report_open'] && $res['starInfo']['report_open'] <= $currentDate) {
 //            解封聊天室
-            Star::where('id', $starid)->update([
+            StarModel::where('id', $starid)->update([
                 'report_num'  => 0,
                 'report_open' => null,
+                'report_time' => null,
                 'report_user' => '[]',
             ]);
             $res['starInfo']['report_open'] = null;
+            $res['starInfo']['report_time'] = null;
             $res['starInfo']['report_num']  = 0;
             $res['starInfo']['report_user'] = '[]';
         }

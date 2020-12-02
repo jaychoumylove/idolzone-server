@@ -62,35 +62,40 @@ class RecStarChart extends Base
         self::verifyWord($content);
 
         $currentDate = date('Y-m-d H:i:s');
-        $star = Star::get($starid);
-        if($star['report_open'] <= $currentDate) {
+        $userStar = UserStar::getStarId($uid);
+        $star = Star::get($userStar);
+        if ($star['report_open']) {
+            if($star['report_open'] <= $currentDate) {
 //            解封
-            Star::where('id', $starid)->update([
-                'report_num' => 0,
-                'report_open' => null,
-                'report_user' => '[]',
-            ]);
-            $star['report_open'] = null;
-            $star['report_num'] = 0;
-            $star['report_user'] = '[]';
-        } else {
-            Common::res(['code' => 1, 'msg' => '公屏净化中...']);
+                Star::where('id', $starid)->update([
+                    'report_num' => 0,
+                    'report_open' => null,
+                    'report_user' => '[]',
+                    'report_time' => null,
+                ]);
+                $star['report_open'] = null;
+                $star['report_time'] = null;
+                $star['report_num'] = 0;
+                $star['report_user'] = '[]';
+            } else {
+                Common::res(['code' => 1, 'msg' => '公屏净化中...']);
+            }
         }
 
-        if (strpos($content, '净化公屏')) {
+        if (false !== strpos($content, '净化公屏')) {
             $reportUser = json_decode($star['report_user'], true);
             $userLevel  = CfgUserLevel::getLevel($uid);
             $cleanCfg = Cfg::getCfg(Cfg::CLEAN_CHAT);
             if ($userLevel >= $cleanCfg['level']) {
-                if (in_array($reportUser, $uid) == false) {
+                if (in_array($uid, $reportUser) == false) {
                     array_push($reportUser, $uid);
                     $reportNum = $cleanCfg['number'];
-                    $forbiddenTime = date('Y-m-d H:i:s', bcadd(time(), $cleanCfg['forbidden_time']));
-                    Star::where('id', $starid)->update([
-                        'report_num'  => Db::raw('`report_num`+1'),
-                        'report_time' => Db::raw('if(`report_time` is null , ' . $currentDate . ', `report_time`)'),
-                        'report_open' => Db::raw('if((`report_num`+1) >= '.$reportNum.', ' . $forbiddenTime . ', `null`)'),
+                    $forbiddenTime = date('Y-m-d H:i:s', bcadd(strtotime($star['report_time']), $cleanCfg['forbidden_time']));
+                    Star::where('id', $userStar)->update([
+                        'report_open' => Db::raw('if((`report_num`+1) >= '.$reportNum.', "' . $forbiddenTime . '", null)'),
                         'report_user' => json_encode($reportUser),
+                        'report_num'  => Db::raw('`report_num`+1'),
+                        'report_time' => Db::raw('if(`report_time` is null , "' . $currentDate . '", `report_time`)'),
                     ]);
                 }
             }
