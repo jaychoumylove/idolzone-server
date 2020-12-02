@@ -90,7 +90,8 @@ class RecStarChart extends Base
                 if (in_array($uid, $reportUser) == false) {
                     array_push($reportUser, $uid);
                     $reportNum = $cleanCfg['number'];
-                    $forbiddenTime = date('Y-m-d H:i:s', bcadd(strtotime($star['report_time']), $cleanCfg['forbidden_time']));
+                    $reportTimestamp = $star['report_time'] ? strtotime($star['report_time']): time();
+                    $forbiddenTime = date('Y-m-d H:i:s', bcadd($reportTimestamp, $cleanCfg['forbidden_time']));
                     Star::where('id', $userStar)->update([
                         'report_open' => Db::raw('if((`report_num`+1) >= '.$reportNum.', "' . $forbiddenTime . '", null)'),
                         'report_user' => json_encode($reportUser),
