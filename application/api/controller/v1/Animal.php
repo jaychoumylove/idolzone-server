@@ -885,8 +885,10 @@ class Animal extends Base
         }
 
         $boxlist = UserShareBox::where('user_id', $user_id)->where('end', '>', time())->order('id desc')->select();
+        
         foreach ($boxlist as &$v) {
             $v['end_text'] = date('Y-m-d H:i:s', $v['end']);
+            $v['is_settle'] = UserShareBoxUser::where('box_id',$v['id'])->where('user_id', $user_id)->count();
         }
 
         $box_ids = UserShareBox::where('user_id', $user_id)->column('id');
