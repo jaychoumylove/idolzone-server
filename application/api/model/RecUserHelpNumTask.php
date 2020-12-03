@@ -118,6 +118,8 @@ class RecUserHelpNumTask extends \app\base\model\Base
                 Db::rollback();
                 return;
             }
+            RecUserHelpNumTask::where(['user_id' => $user['user_id']])->delete();
+
             RecUserHelpNumTask::create([
                 'index' => 0,
                 'user_id' => $user['user_id'],
