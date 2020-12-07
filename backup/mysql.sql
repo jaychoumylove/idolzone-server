@@ -1457,3 +1457,4 @@ alter table f_star
 alter table f_star
 	add report_user varchar(255) default '[]' not null;
 
+INSERT INTO `f_cfg`(`description`, `key`, `value`, `show`, `create_time`, `update_time`, `delete_time`) VALUES ('圈子公屏净化', 'clean_chat', '{\"number\":1,\"forbidden_time\":3600,\"level\":9,\"only\":[],\"clean_word\":\"净化公屏\"}', 0, default , default , NULL);
