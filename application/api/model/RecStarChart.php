@@ -3,6 +3,7 @@
 namespace app\api\model;
 
 use app\base\model\Base;
+use Exception;
 use think\Db;
 use app\base\service\Common;
 use GatewayWorker\Lib\Gateway;
@@ -60,6 +61,72 @@ class RecStarChart extends Base
         // 校验
         self::verifyWord($content);
 
+        $currentDate = date('Y-m-d H:i:s');
+        $userStar = UserStar::getStarId($uid);
+        $star = Star::get($userStar);
+        if ($star['report_open']) {
+            if($star['report_open'] <= $currentDate) {
+//            解封
+                Star::where('id', $starid)->update([
+                    'report_num' => 0,
+                    'report_open' => null,
+                    'report_user' => '[]',
+                    'report_time' => null,
+                ]);
+                $star['report_open'] = null;
+                $star['report_time'] = null;
+                $star['report_num'] = 0;
+                $star['report_user'] = '[]';
+            } else {
+                $open = strtotime($star['report_open']);
+                $now  = time();
+                $diff = $open - $now;
+
+                $d = floor($diff / 3600 / 24);
+                $h = floor(($diff % (3600 * 24)) / 3600);  //%取余
+                $m = floor(($diff % (3600 * 24)) % 3600 / 60);
+                $s = floor(($diff % (3600 * 24)) % 60);
+
+                $content = '净化公屏中,预计';
+                if ($d > 0) {
+                    $content .= sprintf("%s天", $d);
+                }
+                if ($h > 0) {
+                    $content .= sprintf("%s时", $h);
+                }
+                if ($m > 0) {
+                    $content .= sprintf("%s分", $m);
+                }
+                if ($s > 0) {
+                    $content .= sprintf("%s秒", $s);
+                }
+                $content .= '后解屏';
+            }
+        }
+
+        $cleanCfg = Cfg::getCfg(Cfg::CLEAN_CHAT);
+        if (in_array($userStar, $cleanCfg['only'])) {
+            if (false !== strpos($content, $cleanCfg['clean_word'])) {
+                $reportUser = json_decode($star['report_user'], true);
+                $userLevel  = CfgUserLevel::getLevel($uid);
+                $cleanCfg = Cfg::getCfg(Cfg::CLEAN_CHAT);
+                if ($userLevel >= $cleanCfg['level']) {
+                    if (in_array($uid, $reportUser) == false) {
+                        array_push($reportUser, $uid);
+                        $reportNum = $cleanCfg['number'];
+                        $reportTimestamp = $star['report_time'] ? strtotime($star['report_time']): time();
+                        $forbiddenTime = date('Y-m-d H:i:s', bcadd($reportTimestamp, $cleanCfg['forbidden_time']));
+                        Star::where('id', $userStar)->update([
+                            'report_open' => Db::raw('if((`report_num`+1) >= '.$reportNum.', "' . $forbiddenTime . '", null)'),
+                            'report_user' => json_encode($reportUser),
+                            'report_num'  => Db::raw('`report_num`+1'),
+                            'report_time' => Db::raw('if(`report_time` is null , "' . $currentDate . '", `report_time`)'),
+                        ]);
+                    }
+                }
+            }
+        }
+
         Db::startTrans();
         try {
             // 保存聊天记录
@@ -105,7 +172,7 @@ class RecStarChart extends Base
             ], JSON_UNESCAPED_UNICODE));
 
             Db::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Db::rollback();
             Common::res(['code' => 400, 'msg' => $e->getMessage()]);
         }
